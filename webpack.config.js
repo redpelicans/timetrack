@@ -1,10 +1,11 @@
 var path = require('path');
 var webpack = require('webpack');
+var port = process.env.PORT || 6806;
 
 module.exports = {
   devtool: '#eval-source-map',
   entry: [
-    'webpack-dev-server/client?http://rp1.redpelicans.com:6806',
+    'webpack-dev-server/client?http://rp1.redpelicans.com:'+port,
     'webpack/hot/dev-server',
     path.join(__dirname, 'app', 'index')
   ],

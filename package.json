@@ -1,6 +1,6 @@
 {
   "name": "timetrack",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "time tracking application",
   "scripts": {
     "start": "node server",
@@ -19,6 +19,7 @@
   "homepage": "https://github.com/redpelicans/timetrack#readme",
   "dependencies": {
     "alt": "^0.17.1",
+    "debug": "^2.2.0",
     "lodash": "^3.10.1",
     "material-ui": "^0.11.0",
     "react": "^0.13.3",
