@@ -10,20 +10,12 @@ import mui from 'material-ui';
 let ThemeManager = new mui.Styles.ThemeManager();
 
 class App extends React.Component {
-  constructor() {
-    super();
-
-    this.setActiveRoute = this.setActiveRoute.bind(this);
-
-    this.transitionToRoute = this.transitionToRoute.bind(this);
-    this.transitionToHome = this.transitionToHome.bind(this);
-  }
 
   getChildContext() {
     return {muiTheme: ThemeManager.getCurrentTheme()};
   }
 
-  setActiveRoute() {
+  setActiveRoute(){
     let appRouteData = _.find(appRoutesData, (appRouteData) => {
       return this.context.router.isActive(appRouteData.route);
     });
@@ -44,12 +36,12 @@ class App extends React.Component {
     this.setActiveRoute();
   }
 
-  transitionToRoute(route) {
+  transitionToRoute = (route) => {
     this.context.router.transitionTo(route);
     this.setState({activeRoute: route});
   }
 
-  transitionToHome() {
+  transitionToHome = () => {
     this.transitionToRoute('/');
   }
 
