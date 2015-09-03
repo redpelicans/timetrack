@@ -98,7 +98,7 @@ class App extends React.Component {
               home
             </mui.IconButton>
             <strong>timetrack</strong>
-            <small>wonderfull.slogan.goes.here</small>
+            {/* <small>wonderfull.slogan.goes.here</small> */}
           </div>
           <div style={styles.tabsContainer}>
             <mui.Tabs

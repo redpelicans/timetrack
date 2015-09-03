@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/redpelicans/timetrack#readme",
   "dependencies": {
-    "alt": "^0.17.1",
+    "alt": "^0.17.3",
     "debug": "^2.2.0",
     "lodash": "^3.10.1",
     "material-ui": "^0.11.0",

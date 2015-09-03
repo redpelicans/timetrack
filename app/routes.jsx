@@ -3,19 +3,19 @@ import Router from 'react-router';
 import App from './app';
 import Home from './components/home';
 import NotFound from './components/not-found';
-import Dummy1 from './components/dummy1';
-import Dummy2 from './components/dummy2';
+import {ClientApp} from './components/client';
+import {TimesheetApp} from './components/timesheet';
 
 let appRoutesData = [
-  {route: 'route1', label: 'route1', handler: Dummy1},
-  {route: 'route2', label: 'route2', handler: Dummy2}
+  {route: 'Client', label: 'Client', handler: ClientApp},
+  {route: 'Timesheet', label: 'Timesheet', handler: TimesheetApp}
 ];
 
 let routes = (
   <Router.Route path="/" handler={App}>
     <Router.DefaultRoute handler={Home}/>
     <Router.NotFoundRoute handler={NotFound} />
-    {appRoutesData.map((routeData) => {
+    {appRoutesData.map(routeData => {
       return (
         <Router.Route
           key={routeData.route}
