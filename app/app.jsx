@@ -10,12 +10,11 @@ import mui from 'material-ui';
 let ThemeManager = new mui.Styles.ThemeManager();
 
 class App extends React.Component {
-
   getChildContext() {
     return {muiTheme: ThemeManager.getCurrentTheme()};
   }
 
-  setActiveRoute(){
+  setActiveRoute() {
     let appRouteData = _.find(appRoutesData, (appRouteData) => {
       return this.context.router.isActive(appRouteData.route);
     });
