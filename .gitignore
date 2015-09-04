@@ -19,3 +19,6 @@ node_modules
 
 # Vim swap files
 *.sw*
+
+# Map files
+*.map
