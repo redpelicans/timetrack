@@ -25,6 +25,10 @@ var _initGithash = require('./init/githash');
 
 var _initGithash2 = _interopRequireDefault(_initGithash);
 
+var _initModels = require('./init/models');
+
+var _initModels2 = _interopRequireDefault(_initModels);
+
 var logerror = (0, _debug2['default'])('transac:error'),
     loginfo = (0, _debug2['default'])('transac:info');
 
@@ -35,11 +39,11 @@ var version = require('../../package.json').version;
 function create(params) {
   var promise = new Promise(function (resolve, reject) {
     _async2['default'].parallel({
-      //conn: rdb.init(params.rethinkdb),
-      githash: _initGithash2['default'].init()
+      db: (0, _initModels2['default'])(params.db),
+      githash: (0, _initGithash2['default'])()
     }, function (err, init) {
       if (err) reject(err);
-      resources.conn = init.conn;
+      resources.db = init.db;
       resources.version = version;
       resources.githash = init.githash;
       app.start(params, resources, function (err, server) {
