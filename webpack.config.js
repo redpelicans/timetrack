@@ -1,6 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
-var port = process.env.PORT || 6806;
+var params = require('./params.js');
+var port = params.proxy.port || 6806;
 
 module.exports = {
   devtool: '#eval-source-map',
