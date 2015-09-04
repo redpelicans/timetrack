@@ -34,7 +34,7 @@ class ClientList extends Component {
         <thead>
           <tr>
             <th>Name</th>
-            <th>Email</th>
+            <th>Phone</th>
             <th>Web Site</th>
           </tr>
         </thead>
@@ -47,13 +47,19 @@ class ClientList extends Component {
 
 class ClientRow extends Component {
   render() {
+    function phone(client){
+      if(!client.phones || !client.phones.length) return '';
+      let {label, phone} = client.phones[0];
+      return `${label}: ${phone}`;
+    }
+
     return (
         <tr> 
           <td>
              {this.props.client.name}
           </td>
           <td>
-             {this.props.client.emails[0]}
+             {phone(this.props.client)}
           </td>
           <td>
              {this.props.client.website}

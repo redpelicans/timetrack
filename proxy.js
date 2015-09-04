@@ -41,6 +41,7 @@ server.on('upgrade', function (req, socket, head) {
   proxy.ws(req, socket, head);
 });
 
-server.listen(port, function () {
+server.listen(port, function (err) {
+  if(err)return logerror(err);
   loginfo('dev proxy server is running on port ' + port);
 }); 

@@ -1,9 +1,6 @@
 var spawn = require('child_process').spawn;
 
-// goody to display current git hash
-export default {init: init};
-
-function init(){
+export default function init(){
   return function(cb){
     var cmd = spawn('git', ['log', '-1', '--format="%h"'])
       , error, version;

@@ -3,10 +3,8 @@
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
+exports['default'] = init;
 var spawn = require('child_process').spawn;
-
-// goody to display current git hash
-exports['default'] = { init: init };
 
 function init() {
   return function (cb) {
@@ -33,5 +31,6 @@ function init() {
     });
   };
 }
+
 module.exports = exports['default'];
 //# sourceMappingURL=../init/githash.js.map
