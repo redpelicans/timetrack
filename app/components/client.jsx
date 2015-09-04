@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import AltContainer from 'alt/AltContainer';
 import ClientStore from '../stores/client';
 import ClientActions from '../actions/client';
+import mui from 'material-ui';
 
 export class ClientApp extends Component {
 
@@ -23,6 +24,18 @@ export class ClientApp extends Component {
 }
 
 class ClientList extends Component {
+  render() {
+    return (
+      <ClientTable clientStore={this.props.clientStore}/>
+    )
+  }
+}
+
+class ClientTable extends Component {
+
+  onCellClick = () => {
+    windows.alert('Coucou');
+  }
 
   render() {
     let rows=[];
@@ -30,16 +43,31 @@ class ClientList extends Component {
       rows.push(<ClientRow key={client._id} client={client} />);
     }
     return (
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Web Site</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </table>
+      <mui.Table
+        height='500px'
+        fixedHeader={false}
+        fixedFooter={false}
+        selectable={true}
+        multiSelectable={false}
+        onCellClick={this.CellClick}>
+        <mui.TableHeader 
+          enableSelectAll={false}
+          adjustForCheckbox={false}
+          displaySelectAll={false}>
+          <mui.TableRow>
+            <mui.TableHeaderColumn>Name</mui.TableHeaderColumn>
+            <mui.TableHeaderColumn>Phone</mui.TableHeaderColumn>
+            <mui.TableHeaderColumn>Web Site</mui.TableHeaderColumn>
+          </mui.TableRow>
+        </mui.TableHeader>
+        <mui.TableBody
+          deselectOnClickaway={true}
+          showRowHover={true}
+          selectable={true}
+          stripedRows={true}> 
+          {rows}
+        </mui.TableBody>
+      </mui.Table>
     );
 
   }
@@ -54,17 +82,18 @@ class ClientRow extends Component {
     }
 
     return (
-        <tr> 
-          <td>
+        <mui.TableRow hoverable={true}> 
+          <mui.TableRowColumn>
+             <mui.Avatar src={this.props.client.avatar}/> 
              {this.props.client.name}
-          </td>
-          <td>
+          </mui.TableRowColumn>
+          <mui.TableRowColumn>
              {phone(this.props.client)}
-          </td>
-          <td>
+          </mui.TableRowColumn>
+          <mui.TableRowColumn>
              {this.props.client.website}
-          </td>
-        </tr>
+          </mui.TableRowColumn>
+        </mui.TableRow>
     );
   }
 }
