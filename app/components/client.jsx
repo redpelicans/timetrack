@@ -27,7 +27,7 @@ class ClientList extends Component {
   render() {
     let rows=[];
     for(let client of this.props.clientStore.clients){
-      rows.push(<ClientRow key={client.id} client={client} />);
+      rows.push(<ClientRow key={client._id} client={client} />);
     }
     return (
       <table>

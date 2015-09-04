@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "iojs--v2.2.1"
+  - "iojs-v3.3.0"
 after_script:
   - npm run-script test
 env:
