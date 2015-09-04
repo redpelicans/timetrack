@@ -26,17 +26,18 @@ class ClientList extends Component {
 
   render() {
     let rows=[];
-
     console.log("ClientList rendering ...");
     for(let client of this.props.clientStore.clients){
       console.log(client);
-      rows.push(<Client key={client.id} label={client.name} />);
+      rows.push(<ClientRow key={client.id} client={client} />);
     }
     return (
       <table>
         <thead>
           <tr>
             <th>Name</th>
+            <th>Email</th>
+            <th>Web Site</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
@@ -46,12 +47,18 @@ class ClientList extends Component {
   }
 }
 
-class Client extends Component {
+class ClientRow extends Component {
   render() {
     return (
         <tr> 
           <td>
-             {this.props.label}
+             {this.props.client.name}
+          </td>
+          <td>
+             {this.props.client.emails[0]}
+          </td>
+          <td>
+             {this.props.client.website}
           </td>
         </tr>
     );

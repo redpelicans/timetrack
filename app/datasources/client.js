@@ -1,4 +1,5 @@
 import ClientActions from '../actions/client';
+import {requestJson} from '../utils';
 
 const mockClients = [
   {id: 1, name: 'toto'},
@@ -9,11 +10,7 @@ const mockClients = [
 const ClientDataSource = {
   doFetch: {
     remote(state) {
-      return new Promise( (resolve, reject) => {
-        setTimeout( () => {
-          resolve(mockClients);
-        }, 100 );
-      });
+      return requestJson('/api/clients');
     },
 
     local(state) {
