@@ -26,9 +26,7 @@ class ClientList extends Component {
 
   render() {
     let rows=[];
-    console.log("ClientList rendering ...");
     for(let client of this.props.clientStore.clients){
-      console.log(client);
       rows.push(<ClientRow key={client.id} client={client} />);
     }
     return (
