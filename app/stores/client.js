@@ -8,11 +8,25 @@ import ClientDataSource from '../datasources/client';
 export default class ClientStore{
   constructor(){
     this.clients = [];
+    this.sortMode = {attribute: 'billed', order: 'desc'};
+    this.filter = '';
     this.bindActions(ClientActions);
   }
 
+  sortMainList(sortMode){
+    if(this.sortMode.attribute === sortMode.attribute){
+      this.sortMode.order = {'asc': 'desc', 'desc': 'asc'}[this.sortMode.order] || 'asc';
+    }else{
+      this.sortMode.attribute = sortMode.attribute;
+      this.sortMode.order = sortMode.attribute === 'name' ? 'asc' : 'desc';
+    }
+  }
+
+  filterMainList(data){
+    this.filter = data.filter;
+  }
+
   fetch(){
-    console.log("fetch clients ...")
     if(!this.getInstance().isLoading()){
       this.getInstance().doFetch();
     }

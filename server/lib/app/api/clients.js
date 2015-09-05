@@ -32,6 +32,9 @@ function computeBill(clients, cb) {
     if ((0, _helpers.getRandomInt)(0, 10) > 6) {
       client.billed = (0, _helpers.getRandomInt)(0, 50000);
       client.billable = (0, _helpers.getRandomInt)(5000, 75000);
+    } else {
+      client.billed = 0;
+      client.billable = 0;
     }
     setImmediate(cb);
   }

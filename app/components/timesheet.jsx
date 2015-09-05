@@ -27,20 +27,6 @@ export class TimesheetApp extends Component {
 
 class ClientCard extends Component {
 
-  state = { filter: '', sort: 'billable'};
-
-  handleFilterHasChanged = (data) => {
-    this.setState(data);
-  }
-
-  handlefilteredClients = (data) => {
-    this.setState(data);
-  }
-
-  handleSort = (e, value) =>{
-    this.setState({sort: value});
-  }
-
   render() {
     let styles = {
       card: {
@@ -57,6 +43,33 @@ class ClientCard extends Component {
       }
     };
 
+    let rows=[];
+
+    function sortAttr(sortMode){
+      if(sortMode.attribute === 'name') return ['name'];
+      return [sortMode.attribute, 'name'];
+    }
+
+    function sortOrder(sortMode){
+      return [sortMode.order, 'asc'];
+    }
+
+    function filterClients(client){
+      let filter = this.props.clientStore.filter;
+      if(!filter)return true;
+      if(filter && client.name && client.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1) return true;
+    }
+
+    let sortMode = this.props.clientStore.sortMode;
+    for(let client of _.sortByOrder(this.props.clientStore.clients.filter(filterClients.bind(this)), sortAttr(sortMode), sortOrder(sortMode))){
+      rows.push(
+        <div key={client._id}>
+          <ClientListItem client={client} />
+          <mui.ListDivider inset={true} />
+        </div>
+      );
+    }
+
 
     let menuIconButton = <mui.IconButton iconClassName="material-icons" tooltipPosition="bottom-center" >more_vert</mui.IconButton>
     return (
@@ -66,10 +79,10 @@ class ClientCard extends Component {
           <mui.Card zDepth={3}>
             <mui.Toolbar>
               <mui.ToolbarGroup key={0} float="left">
-                <ClientFilter filter={this.state.filter} filterHasChanged={this.handleFilterHasChanged}/>
+                <ClientFilter filter={this.props.clientStore.filter} />
               </mui.ToolbarGroup>
               <mui.ToolbarGroup key={2} float="right">
-                <ClientSortMenu sort={this.state.sort} handleSort={this.handleSort} />
+                <ClientSortMenu sort={this.props.clientStore.sortMode.attribute}  />
                 <IconMenu iconButtonElement={menuIconButton}>
                   <MenuItem index={1} primaryText="Add" />
                   <MenuItem index={2} primaryText="Reload" />
@@ -77,10 +90,10 @@ class ClientCard extends Component {
               </mui.ToolbarGroup>
             </mui.Toolbar>
             <mui.CardMedia 
-              overlay={ <mui.CardTitle title="Client List" subtitle={`(TODO/${this.props.clientStore.clients.length}) clients`}/>} >
+              overlay={ <mui.CardTitle title="Client List" subtitle={`(${rows.length}/${this.props.clientStore.clients.length}) clients`}/>} >
                <img src="/images/business2.png"/>
             </mui.CardMedia>
-            <ClientList filter={this.state.filter}  sort={this.state.sort} clients={this.props.clientStore.clients}/>
+            <ClientList clients={rows}/>
           </mui.Card>
         </div>
         <div className="pure-u-1-5">
@@ -93,6 +106,10 @@ class ClientCard extends Component {
 }
 
 class ClientSortMenu extends Component {
+  handleChange = (e, value) => {
+    ClientActions.sortMainList({attribute: value});
+  }
+
   render(){
     let sortIconButton = <mui.IconButton iconClassName="material-icons" tooltipPosition="bottom-center" >sort_by_alpha</mui.IconButton>
     let menu = {
@@ -105,7 +122,7 @@ class ClientSortMenu extends Component {
       return <MenuItem index={key} checked={this.props.sort === key} value={key} primaryText={value} />
     });
     return (
-      <IconMenu onChange={this.props.handleSort} iconButtonElement={sortIconButton}>
+      <IconMenu onChange={this.handleChange} iconButtonElement={sortIconButton}>
         {menuItems}
       </IconMenu>
     )
@@ -114,32 +131,9 @@ class ClientSortMenu extends Component {
 
 class ClientList extends Component {
   render(){
-    let rows=[];
-
-    function sortClients(a,b){
-      let attr = this.props.sort;
-      if( (a[attr] || 0) > (b[attr] || 0)) return -1;
-      else if( (a[attr] || 0) < (b[attr] || 0)) return 1;
-      else return a.name > b.name ? 1 : -1;
-    }
-
-    function filterClients(client){
-      if(!this.props.filter)return true;
-      if(this.props.filter && client.name && client.name.toLowerCase().indexOf(this.props.filter.toLowerCase()) !== -1) return true;
-    }
-
-    for(let client of this.props.clients.filter(filterClients.bind(this)).sort(sortClients.bind(this))){
-      rows.push(
-        <div key={client._id}>
-          <ClientListItem client={client} />
-          <mui.ListDivider inset={true} />
-        </div>
-      );
-    }
-
     return (
       <mui.List> 
-        {rows}
+        {this.props.clients}
       </mui.List> 
     )
   }
@@ -147,9 +141,7 @@ class ClientList extends Component {
 
 class ClientFilter extends Component {
   handleChange = () => {
-    this.props.filterHasChanged({
-      filter: this.refs.filter.getValue()
-    })
+    ClientActions.filterMainList({ filter: this.refs.filter.getValue() })
   }
 
   render() {
