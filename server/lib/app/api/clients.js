@@ -17,11 +17,27 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 var _models = require('../../models');
 
+var _helpers = require('../../helpers');
+
 function init(app) {
   app.get('/clients', function (req, res, next) {
-    _async2['default'].waterfall([loadClients], function (err, clients) {
+    _async2['default'].waterfall([loadClients, computeBill], function (err, clients) {
       res.json(clients);
     });
+  });
+}
+
+function computeBill(clients, cb) {
+  function setBillElements(client, cb) {
+    if ((0, _helpers.getRandomInt)(0, 10) > 6) {
+      client.billed = (0, _helpers.getRandomInt)(0, 50000);
+      client.billable = (0, _helpers.getRandomInt)(5000, 75000);
+    }
+    setImmediate(cb);
+  }
+
+  _async2['default'].map(clients, setBillElements, function (err) {
+    return cb(err, clients);
   });
 }
 

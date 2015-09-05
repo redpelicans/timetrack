@@ -18,14 +18,28 @@ export class TimesheetApp extends Component {
         stores={ {clientStore: ClientStore} }
         //actions={ClientActions}
       >
-        <ClientList/>
+        <ClientCard/>
       </AltContainer>
     );
   }
 
 }
 
-class ClientList extends Component {
+class ClientCard extends Component {
+
+  state = { filter: '', sort: 'billable'};
+
+  handleFilterHasChanged = (data) => {
+    this.setState(data);
+  }
+
+  handlefilteredClients = (data) => {
+    this.setState(data);
+  }
+
+  handleSort = (e, value) =>{
+    this.setState({sort: value});
+  }
 
   render() {
     let styles = {
@@ -43,24 +57,8 @@ class ClientList extends Component {
       }
     };
 
-    let sortMenuItems = [
-       { payload: '1', text: 'Name' },
-       { payload: '2', text: 'Billed' },
-       { payload: '3', text: 'Billable' }
-    ];
 
-    let sortIconButton = <mui.IconButton iconClassName="material-icons" tooltipPosition="bottom-center" >sort_by_alpha</mui.IconButton>
     let menuIconButton = <mui.IconButton iconClassName="material-icons" tooltipPosition="bottom-center" >more_vert</mui.IconButton>
-    let rows=[];
-
-    for(let client of this.props.clientStore.clients){
-      rows.push(
-        <div key={client._id}>
-          <ClientListItem client={client} />
-          <mui.ListDivider inset={true} />
-        </div>
-      );
-    }
     return (
       <div className="pure-g" style={styles.card}>
         <div className="pure-u-1-5"/>
@@ -68,15 +66,10 @@ class ClientList extends Component {
           <mui.Card zDepth={3}>
             <mui.Toolbar>
               <mui.ToolbarGroup key={0} float="left">
-                <mui.TextField hintText="Hint To Select Clients" />
+                <ClientFilter filter={this.state.filter} filterHasChanged={this.handleFilterHasChanged}/>
               </mui.ToolbarGroup>
-              <mui.ToolbarGroup key={1} float="right">
-                <IconMenu iconButtonElement={sortIconButton}>
-                  <MenuItem index={1} primaryText="Sort by Name" />
-                  <MenuItem index={2} primaryText="Sort by Billed" />
-                  <MenuItem index={3} primaryText="Sort by Billable" />
-                  <MenuItem index={4} primaryText="Sort by Creation Date" />
-                </IconMenu>
+              <mui.ToolbarGroup key={2} float="right">
+                <ClientSortMenu sort={this.state.sort} handleSort={this.handleSort} />
                 <IconMenu iconButtonElement={menuIconButton}>
                   <MenuItem index={1} primaryText="Add" />
                   <MenuItem index={2} primaryText="Reload" />
@@ -84,12 +77,10 @@ class ClientList extends Component {
               </mui.ToolbarGroup>
             </mui.Toolbar>
             <mui.CardMedia 
-              overlay={ <mui.CardTitle title="Client List" subtitle={`(${this.props.clientStore.clients.length}) clients`}/>} >
+              overlay={ <mui.CardTitle title="Client List" subtitle={`(TODO/${this.props.clientStore.clients.length}) clients`}/>} >
                <img src="/images/business2.png"/>
             </mui.CardMedia>
-            <mui.List> 
-              {rows}
-            </mui.List> 
+            <ClientList filter={this.state.filter}  sort={this.state.sort} clients={this.props.clientStore.clients}/>
           </mui.Card>
         </div>
         <div className="pure-u-1-5">
@@ -98,6 +89,73 @@ class ClientList extends Component {
       </div>
     );
 
+  }
+}
+
+class ClientSortMenu extends Component {
+  render(){
+    let sortIconButton = <mui.IconButton iconClassName="material-icons" tooltipPosition="bottom-center" >sort_by_alpha</mui.IconButton>
+    let menu = {
+      name: "Sort by Name",
+      billed: "Sort by Billed",
+      billable: "Sort by Billable",
+      creationDate: "Sort by Creation Date"
+    }
+    let menuItems = _.map(menu, (value, key) => {
+      return <MenuItem index={key} checked={this.props.sort === key} value={key} primaryText={value} />
+    });
+    return (
+      <IconMenu onChange={this.props.handleSort} iconButtonElement={sortIconButton}>
+        {menuItems}
+      </IconMenu>
+    )
+  }
+}
+
+class ClientList extends Component {
+  render(){
+    let rows=[];
+
+    function sortClients(a,b){
+      let attr = this.props.sort;
+      if( (a[attr] || 0) > (b[attr] || 0)) return -1;
+      else if( (a[attr] || 0) < (b[attr] || 0)) return 1;
+      else return a.name > b.name ? 1 : -1;
+    }
+
+    function filterClients(client){
+      if(!this.props.filter)return true;
+      if(this.props.filter && client.name && client.name.toLowerCase().indexOf(this.props.filter.toLowerCase()) !== -1) return true;
+    }
+
+    for(let client of this.props.clients.filter(filterClients.bind(this)).sort(sortClients.bind(this))){
+      rows.push(
+        <div key={client._id}>
+          <ClientListItem client={client} />
+          <mui.ListDivider inset={true} />
+        </div>
+      );
+    }
+
+    return (
+      <mui.List> 
+        {rows}
+      </mui.List> 
+    )
+  }
+}
+
+class ClientFilter extends Component {
+  handleChange = () => {
+    this.props.filterHasChanged({
+      filter: this.refs.filter.getValue()
+    })
+  }
+
+  render() {
+    return ( 
+      <mui.TextField ref="filter" value={this.props.filter} onChange={this.handleChange} hintText="Hint To Select Clients" />
+    )
   }
 }
 
@@ -119,6 +177,28 @@ class ClientListItem extends Component {
       return `tel. ${label}: ${phone}`;
     }
 
+    function amount(value){
+      if(!value) return;
+      return `${Math.round(value/1000)} k€`;
+    }
+
+    function billElements(client){
+      if(client.billed || client.billable){
+        return [
+          <div className="pure-g" style={styles.bill}>
+            <div className="pure-u-1-3"></div>
+            <div key={1} className="pure-u-1-3"><span>Billed: {amount(client.billed || 0 )}</span></div>
+            <div key={2} className="pure-u-1-3"><span>Billable:  {amount(client.billable || 0 )}</span></div>
+          </div>
+        ]
+      }
+      return [
+          <div className="pure-g" style={styles.bill}>
+            <div className="pure-u-1"></div>
+          </div>
+        ]
+    }
+
     let styles = {
       bill: {
         marginTop: '2%',
@@ -135,11 +215,7 @@ class ClientListItem extends Component {
             <div className="pure-g"> 
               <div className="pure-u-1-3">{this.props.client.name}</div>
             </div>
-            <div className="pure-g" style={styles.bill}> 
-              <div className="pure-u-1-3"></div>
-              <div className="pure-u-1-3"><span>Billed: 45 k€</span></div>
-              <div className="pure-u-1-3"><span>Billable: 345 k€</span></div>
-            </div>
+            {billElements(this.props.client)}
             <div className="pure-g"> 
               <div className="pure-u-1">
                 {this.props.client.note}
