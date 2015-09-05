@@ -9,6 +9,8 @@ export default class ClientActions {
       , 'loading'
       , 'loaded'
       , 'fetchFailed'
+      , 'filterMainList'
+      , 'sortMainList'
     );
   }
 }

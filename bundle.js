@@ -2,6 +2,8 @@ var webpack = require('webpack');
 var webpackConfig = require('./webpack.config');
 var WebpackDevServer = require('webpack-dev-server');
 var logerror = require('debug')('timetrack:error');
+var params = require('./params.js');
+var port = params.webpack.port || 6808;
 
 module.exports = function() {
   var compiler = webpack(webpackConfig);
@@ -11,7 +13,7 @@ module.exports = function() {
     inline: true,
     hot: true,
     quiet: false,
-    noInfo: true,
+    noInfo: false,
     stats: {colors: true},
   };
 

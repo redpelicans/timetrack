@@ -28,19 +28,6 @@ var NotFoundError = (function (_Error) {
   return NotFoundError;
 })(Error);
 
-var TransacError = (function (_Error2) {
-  _inherits(TransacError, _Error2);
-
-  function TransacError(message, code) {
-    _classCallCheck(this, TransacError);
-
-    _get(Object.getPrototypeOf(TransacError.prototype), 'constructor', this).call(this, message);
-    this.code = code;
-  }
-
-  return TransacError;
-})(Error);
-
 var FMT = 'DD/MM/YYYY';
 function dmy(date) {
   return (0, _moment2['default'])(date).format(FMT);
@@ -48,8 +35,12 @@ function dmy(date) {
 
 dmy.FMT = FMT;
 
-exports.TransacError = TransacError;
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 exports.NotFoundError = NotFoundError;
 exports.dmy = dmy;
 exports.FMT = FMT;
+exports.getRandomInt = getRandomInt;
 //# sourceMappingURL=../helpers/index.js.map

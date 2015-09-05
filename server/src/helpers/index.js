@@ -4,13 +4,6 @@ import moment  from 'moment';
 class NotFoundError extends Error{
 } 
 
-class TransacError extends Error{
-  constructor(message, code){
-    super(message);
-    this.code = code;
-  }
-} 
-
 const FMT = 'DD/MM/YYYY'
 function dmy(date){
   return moment(date).format(FMT);
@@ -18,4 +11,8 @@ function dmy(date){
 
 dmy.FMT= FMT;
 
-export {TransacError, NotFoundError, dmy, FMT};
+function getRandomInt(min, max){
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export {NotFoundError, dmy, FMT, getRandomInt};
