@@ -2,10 +2,10 @@ import React, {Component} from 'react';
 import AltContainer from 'alt/AltContainer';
 import ClientStore from '../stores/client';
 import ClientActions from '../actions/client';
-//import {componentHandler} from 'google/material-design-lite';
+import Avatar from './avatar';
 
 
-export class TimesheetApp extends Component {
+export default class TimesheetApp extends Component {
 
   componentDidMount() {
     console.log('update')
@@ -74,6 +74,31 @@ export class TimesheetApp extends Component {
         </tbody>
       </table>
       </div>
+
+      <div className="mdl-layout mdl-js-layout ">
+        <header className="mdl-layout__header">
+          <div className="mdl-layout-icon"></div>
+          <div className="mdl-layout__header-row">
+            <span className="mdl-layout-title">Client List</span>
+             <div classClass="mdl-layout-spacer"></div>
+             <div className="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label ">
+              <label className="mdl-button mdl-js-button mdl-button--icon" htmlFor="fixed-header-drawer-exp">
+                <i class="material-icons">search</i>
+              </label>
+             </div>
+          </div>
+        </header>
+        <main className="mdl-layout__content">
+          <div className="page-content mdl-grid">
+            <div  className="mdl-color--white mdl-cell mdl-cell--12-col">
+              <Avatar src="images/users.png"/>
+              <span>JKJKJKJKJK Jdqsdqsdqs</span>
+            </div>
+          </div>
+        </main>
+        
+      </div>
+
 
       </div>
     );

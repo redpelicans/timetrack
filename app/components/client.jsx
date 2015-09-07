@@ -2,22 +2,21 @@ import React, {Component} from 'react';
 import AltContainer from 'alt/AltContainer';
 import ClientStore from '../stores/client';
 import ClientActions from '../actions/client';
-import mui from 'material-ui';
-import IconMenu from 'material-ui/lib/menus/icon-menu';
-import MenuItem from 'material-ui/lib/menus/menu-item';
+import Avatar from './avatar';
+//import mui from 'material-ui';
+//import IconMenu from 'material-ui/lib/menus/icon-menu';
+//import MenuItem from 'material-ui/lib/menus/menu-item';
 
-export class ClientApp extends Component {
+export default class ClientApp extends Component {
 
   componentWillMount() {
     ClientActions.fetch();
   }
 
   render() {
+
     return (
-      <AltContainer 
-        stores={ {clientStore: ClientStore} }
-        //actions={ClientActions}
-      >
+      <AltContainer stores={ {clientStore: ClientStore} } >
         <ClientCard/>
       </AltContainer>
     );
@@ -29,8 +28,11 @@ class ClientCard extends Component {
 
   render() {
     let styles = {
-      card: {
-        marginTop: '2%',
+      layout:{
+        maxWidth: '1080px'
+      },
+      card:{
+        alignItems: 'center',
       },
       addButton:{
         position: 'fixed',
@@ -43,7 +45,7 @@ class ClientCard extends Component {
       }
     };
 
-    let rows=[];
+    let clientRows=[];
 
     function sortAttr(sortMode){
       if(sortMode.attribute === 'name') return ['name'];
@@ -62,106 +64,46 @@ class ClientCard extends Component {
 
     let sortMode = this.props.clientStore.sortMode;
     for(let client of _.sortByOrder(this.props.clientStore.clients.filter(filterClients.bind(this)), sortAttr(sortMode), sortOrder(sortMode))){
-      rows.push(
-        <div key={client._id}>
-          <ClientListItem client={client} />
-          <mui.ListDivider inset={true} />
-        </div>
-      );
+      clientRows.push( <ClientListItem key={client._id} client={client} />);
     }
 
-
-    let menuIconButton = <mui.IconButton iconClassName="material-icons" tooltipPosition="bottom-center" >more_vert</mui.IconButton>
     return (
-      <div className="pure-g" style={styles.card}>
-        <div className="pure-u-3-24"/>
-        <div className="pure-u-18-24">
-          <mui.Card zDepth={3}>
-            <mui.Toolbar>
-              <mui.ToolbarGroup key={0} float="left">
-                <ClientFilter filter={this.props.clientStore.filter} />
-              </mui.ToolbarGroup>
-              <mui.ToolbarGroup key={2} float="right">
-                <ClientSortMenu sort={this.props.clientStore.sortMode.attribute}  />
-                <IconMenu iconButtonElement={menuIconButton}>
-                  <MenuItem index={1} primaryText="Add" />
-                  <MenuItem index={2} primaryText="Reload" />
-                </IconMenu>
-              </mui.ToolbarGroup>
-            </mui.Toolbar>
-            <mui.CardMedia 
-              overlay={ <mui.CardTitle title="Client List" subtitle={`(${rows.length}/${this.props.clientStore.clients.length}) clients`}/>} >
-               <img src="/images/business2.png"/>
-            </mui.CardMedia>
-            <ClientList clients={rows}/>
-          </mui.Card>
+      <div className="mdl-color--white mdl-shadow--2dp mdl-grid" style={styles.layout}>
+        <div style={styles.card} className="mdl-cell mdl-cell--12-col mdl-grid">
+          <ClientBar/>
+          <ClientList clients={clientRows} />
         </div>
-        <div className="pure-u-3-24">
-          <mui.FloatingActionButton style={styles.addButton} iconClassName="material-icons">add</mui.FloatingActionButton>
-        </div>
+        <button style={styles.addButton} className="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+          <i className="material-icons">add</i>
+        </button>
       </div>
     );
 
   }
 }
 
-class ClientSortMenu extends Component {
-  handleChange = (e, value) => {
-    ClientActions.sortMainList({attribute: value});
-  }
-
+class ClientBar extends Component {
   render(){
-    let sortIconButton = <mui.IconButton iconClassName="material-icons" tooltipPosition="bottom-center" >sort_by_alpha</mui.IconButton>
-    let menu = {
-      name: "Sort by Name",
-      billed: "Sort by Billed",
-      billable: "Sort by Billable",
-      creationDate: "Sort by Creation Date"
+    let style={
+      textAlign: 'left',
+      display: 'inline-block',
+      fontFamily: 'Roboto',
+      fontSize: '14px',
+      fontWeight: 400,
+      fontHeight: '20px',
+      background: '#3F51B5',
+      color: 'white'
     }
-    let menuItems = _.map(menu, (value, key) => {
-      return <MenuItem index={key} checked={this.props.sort === key} value={key} primaryText={value} />
-    });
-    return (
-      <IconMenu onChange={this.handleChange} iconButtonElement={sortIconButton}>
-        {menuItems}
-      </IconMenu>
-    )
-  }
-}
-
-class ClientList extends Component {
-  render(){
-    return (
-      <mui.List> 
-        {this.props.clients}
-      </mui.List> 
-    )
-  }
-}
-
-class ClientFilter extends Component {
-  handleChange = () => {
-    ClientActions.filterMainList({ filter: this.refs.filter.getValue() })
-  }
-
-  render() {
-    return ( 
-      <mui.TextField ref="filter" value={this.props.filter} onChange={this.handleChange} hintText="Hint To Select Clients" />
+    return(
+      <div style={style} className="mdl-cell mdl-cell--12-col mdl-grid">
+        <span>Client List</span>
+      </div>
     )
   }
 }
 
 class ClientListItem extends Component {
   render() {
-    //let iconButtonElement = <mui.IconButton iconClassName="muidocs-icon-custom-github" tooltip="GitHub"/>
-    let iconButtonElement = <mui.IconButton iconClassName="material-icons" tooltipPosition="bottom-center" >settings</mui.IconButton>
-    let rightIconMenu = (
-      <IconMenu iconButtonElement={iconButtonElement}>
-        <MenuItem index={1} primaryText="Show" />
-        <MenuItem index={2} primaryText="Edit" />
-        <MenuItem index={3} primaryText="Delete" />
-      </IconMenu>
-    );
 
     function phone(client){
       if(!client.phones || !client.phones.length) return '';
@@ -185,13 +127,22 @@ class ClientListItem extends Component {
         ]
       }
       return [
-          <div className="pure-g" style={styles.bill}>
-            <div className="pure-u-1"></div>
+          <div>
           </div>
         ]
     }
 
     let styles = {
+      client:{
+        // position: 'relative',
+        // top: '50%',
+        // transform: 'translateY(-50%)',
+        //-webkit-transform: 'translateY(-50%)',
+        //-ms-transform: 'translateY(-50%)'
+      },
+      middle:{
+        verticalAlign: 'middle'
+      },
       bill: {
         marginTop: '2%',
         marginBottom: '2%',
@@ -199,31 +150,47 @@ class ClientListItem extends Component {
     };
  
     return (
-      <mui.ListItem
-        leftAvatar={<mui.Avatar src={this.props.client.avatar}/>}
-        rightIconButton={rightIconMenu}
-        primaryText={
-          <div>
-            <div className="pure-g"> 
-              <div className="pure-u-1-3">{this.props.client.name}</div>
-            </div>
-            {billElements(this.props.client)}
-            <div className="pure-g"> 
-              <div className="pure-u-1">
-                {this.props.client.note}
-              </div>
-            </div>
-          </div>
-        }
-
-        secondaryText={
-          <p>
-            <span style={{color: mui.Styles.Colors.darkBlack}}>{phone(this.props.client)}</span><br/>
-          </p>
-        }
-        secondaryTextLines={2}
-       /> 
-
+      <div style={styles.client} className="mdl-color--white mdl-cell mdl-cell--12-col">
+        <Avatar src={this.props.client.avatar}/>
+        <span style={styles.middle}>{this.props.client.name}</span>
+      </div>
     );
   }
 }
+class ClientSortMenu extends Component {
+  handleChange = (e, value) => {
+    ClientActions.sortMainList({attribute: value});
+  }
+
+  render(){
+    return(
+      <div>
+      </div>
+    )
+  }
+}
+
+class ClientList extends Component {
+  render(){
+    return (
+      <div className="mdl-cell mdl-cell--12-col mdl-grid">
+        {this.props.clients}
+      </div>
+    )
+  }
+}
+
+class ClientFilter extends Component {
+  handleChange = () => {
+    ClientActions.filterMainList({ filter: this.refs.filter.getValue() })
+  }
+
+  render() {
+    return ( 
+      <div>
+      </div>
+    )
+  }
+}
+
+
