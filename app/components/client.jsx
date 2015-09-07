@@ -71,9 +71,7 @@ class ClientCard extends Component {
       <div className="mdl-color--white mdl-shadow--2dp mdl-grid" style={styles.layout}>
         <div style={styles.card} className="mdl-cell mdl-cell--12-col mdl-grid">
           <ClientBar/>
-        </div>
-        <div style={styles.card} className="mdl-cell mdl-cell--12-col mdl-grid">
-          {clientRows}
+          <ClientList clients={clientRows} />
         </div>
         <button style={styles.addButton} className="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
           <i className="material-icons">add</i>
@@ -86,13 +84,19 @@ class ClientCard extends Component {
 
 class ClientBar extends Component {
   render(){
+    let style={
+      textAlign: 'left',
+      display: 'inline-block',
+      fontFamily: 'Roboto',
+      fontSize: '14px',
+      fontWeight: 400,
+      fontHeight: '20px',
+      background: '#3F51B5',
+      color: 'white'
+    }
     return(
-      <div className="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-        <header className="mdl-layout__header">
-          <div className="mdl-layout__header-row">
-            <span className="mdl-layout-title">Client List</span>
-          </div>
-        </header>
+      <div style={style} className="mdl-cell mdl-cell--12-col mdl-grid">
+        <span>Client List</span>
       </div>
     )
   }
@@ -146,7 +150,7 @@ class ClientListItem extends Component {
     };
  
     return (
-      <div style={styles.client} className="mdl-color--white mdl-cell mdl-cell--12-col mdl-grid">
+      <div style={styles.client} className="mdl-color--white mdl-cell mdl-cell--12-col">
         <Avatar src={this.props.client.avatar}/>
         <span style={styles.middle}>{this.props.client.name}</span>
       </div>
@@ -166,14 +170,15 @@ class ClientSortMenu extends Component {
   }
 }
 
-// class ClientList extends Component {
-//   render(){
-//     return (
-//       <div>
-//       </div>
-//     )
-//   }
-// }
+class ClientList extends Component {
+  render(){
+    return (
+      <div className="mdl-cell mdl-cell--12-col mdl-grid">
+        {this.props.clients}
+      </div>
+    )
+  }
+}
 
 class ClientFilter extends Component {
   handleChange = () => {
