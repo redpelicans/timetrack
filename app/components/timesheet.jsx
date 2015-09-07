@@ -2,10 +2,9 @@ import React, {Component} from 'react';
 import AltContainer from 'alt/AltContainer';
 import ClientStore from '../stores/client';
 import ClientActions from '../actions/client';
-//import {componentHandler} from 'google/material-design-lite';
 
 
-export class TimesheetApp extends Component {
+export default class TimesheetApp extends Component {
 
   componentDidMount() {
     console.log('update')

@@ -1,18 +1,18 @@
 import _ from 'lodash';
-import React from 'react';
+import React, {Component} from 'react';
 import Router from 'react-router';
 import routes, {appRoutesData} from './routes';
+import Avatar from './components/avatar';
 
-import injectTapEventPlugin from 'react-tap-event-plugin';
-injectTapEventPlugin();
+import injecttapeventplugin from 'react-tap-event-plugin';
+injecttapeventplugin();
 
-import mui from 'material-ui';
-let ThemeManager = new mui.Styles.ThemeManager();
+//import mui from 'material-ui';
+//let thememanager = new mui.styles.thememanager();
 
-class App extends React.Component {
-
+export default class App extends Component {
   getChildContext() {
-    return {muiTheme: ThemeManager.getCurrentTheme()};
+    //return {muiTheme: ThemeManager.getCurrentTheme()};
   }
 
   setActiveRoute(){
@@ -25,11 +25,15 @@ class App extends React.Component {
 
   componentWillMount() {
     this.setActiveRoute();
-    ThemeManager.setPalette({
-      accent1Color: mui.Styles.Colors.greenA100,
-      accent2Color: mui.Styles.Colors.greenA200,
-      accent3Color: mui.Styles.Colors.greenA400,
-    });
+    // ThemeManager.setPalette({
+    //   accent1Color: mui.Styles.Colors.greenA100,
+    //   accent2Color: mui.Styles.Colors.greenA200,
+    //   accent3Color: mui.Styles.Colors.greenA400,
+    // });
+  }
+
+  componentDidMount() {
+    componentHandler.upgradeDom();
   }
 
   componentWillReceiveProps() {
@@ -45,91 +49,110 @@ class App extends React.Component {
     this.transitionToRoute('/');
   }
 
-  render() {
-    let styles = {
-      paper: {
-        backgroundColor: ThemeManager.getCurrentTheme().palette.primary1Color,
-        position: 'fixed',
-        height: ThemeManager.getCurrentTheme().component.appBar.height,
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1
-      },
-      tabsContainer: {
-        position: 'absolute',
-        right: 0,
-        bottom: 0
-      },
-      tabs: {
-        width: 300,
-        bottom: 0
-      },
-      tab: {
-        height: ThemeManager.getCurrentTheme().component.appBar.height
-      },
-      titleContainer: {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        height: ThemeManager.getCurrentTheme().component.appBar.height,
-        color: ThemeManager.getCurrentTheme().component.appBar.textColor
-      },
-      titleIconButton: {
-        top: 5
-      },
-      titleIcon: {
-        color: ThemeManager.getCurrentTheme().component.appBar.textColor
-      },
-      contentContainer: {
-        paddingTop: ThemeManager.getCurrentTheme().component.appBar.height
-      }
-    };
+  render(){
+    return (
+      <AppLayout>
+        <AppHeader/>
+        <AppSlidingMenu/>
+        <AppMain/>
+      </AppLayout>
+    )
+  }
+}
+
+class AppMain extends Component {
+  render(){
+    return (
+      <main className="mdl-layout__content mdl-color--grey-100">
+        <Router.RouteHandler />
+      </main>
+    )
+  }
+}
+
+class AppLayout extends Component {
+  render(){
+   
+    return (
+        <div className="app-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+          {this.props.children}
+        </div>
+    )
+  }
+}
+
+class AppHeader extends Component {
+  render(){
+    return(
+      <header className="app-header mdl-layout__header mdl-color--white mdl-color--grey-100 mdl-color-text--grey-600">
+        <div className="mdl-layout__header-row">
+          <span className="mdl-layout-title">TimeTrack by redpelicans</span>
+          <div className="mdl-layout-spacer"></div>
+          <div className="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
+            <label className="mdl-button mdl-js-button mdl-button--icon" htmlFor="search">
+              <i className="material-icons">search</i>
+            </label>
+            <div className="mdl-textfield__expandable-holder">
+              <input className="mdl-textfield__input" type="text" id="search" />
+              <label className="mdl-textfield__label" htmlFor="search">Enter your query...</label>
+            </div>
+          </div>
+          <button className="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="hdrbtn">
+            <i className="material-icons">more_vert</i>
+          </button>
+          <ul className="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" htmlFor="hdrbtn">
+            <li className="mdl-menu__item">About</li>
+            <li className="mdl-menu__item">Contact</li>
+            <li className="mdl-menu__item">Legal information</li>
+          </ul>
+        </div>
+      </header>
+    )
+  }
+}
+
+class AppSlidingMenu extends Component {
+  render(){
+    return (
+      <div className="app-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
+        <header className="app-drawer-header">
+          <Avatar src="images/user.jpg"/>
+          <div className="app-avatar-dropdown">
+            <span>eric.basley@redpelicans.com</span>
+            <div className="mdl-layout-spacer"></div>
+            <button id="accbtn" className="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+              <i className="material-icons" role="presentation">arrow_drop_down</i>
+              <span className="visuallyhidden">Accounts</span>
+            </button>
+            <ul className="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" htmlFor="accbtn">
+              <li className="mdl-menu__item">Logout</li>
+              <li className="mdl-menu__item"><i className="material-icons">add</i>Switch to an other account</li>
+            </ul>
+          </div>
+        </header>
+        <AppNavigationMenu/>
+      </div>
+    )
+  }
+}
+
+class AppNavigationMenu extends Component {
+  render(){
+    let menu = appRoutesData.map( e => {
+      return <a className="mdl-navigation__link" href={`/#/${e.route}`}><i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">{e.iconName}</i>{e.label}</a>
+    });
 
     return (
-      <div>
-        <mui.Paper zDepth={0} rounded={false} style={styles.paper}>
-          <div style={styles.titleContainer}>
-            <mui.IconButton
-              style={styles.titleIconButton}
-              iconClassName="material-icons"
-              iconStyle={styles.titleIcon}
-              onFocus={this.transitionToHome}
-            >
-              home
-            </mui.IconButton>
-            <strong>timetrack</strong>
-            {/* <small>wonderfull.slogan.goes.here</small> */}
-          </div>
-          <div style={styles.tabsContainer}>
-            <mui.Tabs
-              onChange={this.transitionToRoute}
-              value={this.state.activeRoute}
-              style={styles.tabs}
-            >
-              {appRoutesData.map((tab) => {
-                return (
-                  <mui.Tab
-                    key={tab.route}
-                    value={tab.route}
-                    label={tab.label}
-                    route={tab.route}
-                    style={styles.tab}
-                  />
-                );
-              })}
-            </mui.Tabs>
-          </div>
-        </mui.Paper>
-        <div style={styles.contentContainer}>
-          <Router.RouteHandler />
-        </div>
-      </div>
-    );
+      <nav className="app-navigation mdl-navigation mdl-color--blue-grey-800">
+        {menu}
+        <div className="mdl-layout-spacer"></div>
+        <a className="mdl-navigation__link" href="/#/home"><i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">help_outline</i><span className="visuallyhidden">Help</span></a>
+      </nav>
+    )
   }
+
 }
 
 App.childContextTypes = {muiTheme: React.PropTypes.object};
 App.contextTypes = {router: React.PropTypes.func};
 
-export default App;
