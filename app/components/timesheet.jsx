@@ -1,108 +1,154 @@
 import React, {Component} from 'react';
 import AltContainer from 'alt/AltContainer';
-import ClientStore from '../stores/client';
-import ClientActions from '../actions/client';
-import Avatar from './avatar';
-
+import MissionActions from '../actions/mission';
+import MissionStore from '../stores/mission';
+import moment from 'moment';
+import _ from 'lodash';
 
 export default class TimesheetApp extends Component {
+  componentWillMount() {
+    MissionActions.fetch();
+  }
 
   componentDidMount() {
-    console.log('update')
     componentHandler.upgradeDom();
   }
 
   render() {
     return (
-    <div> 
-     <div className="mdl-grid"> 
+      <AltContainer store={MissionStore}>
+        <TimesheetContainer />
+      </AltContainer>
+    );
+  }
+}
 
-        <button className="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-          Button
-        </button>
+class TimesheetContainer extends Component {
+  navigateToPreviousWeek = () => {
+    MissionActions.navigateToPreviousWeek();
+  }
 
-        <div ref="search" className="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
-          <label className="mdl-button mdl-js-button mdl-button--icon" htmlFor="sample6">
-            <i className="material-icons">search</i>
-          </label>
-          <div className="mdl-textfield__expandable-holder">
-            <input className="mdl-textfield__input" type="text" id="sample6" />
-            <label className="mdl-textfield__label" htmlFor="sample-expandable" >Expandable Input</label>
+  navigateToNextWeek = () => {
+    MissionActions.navigateToNextWeek();
+  }
+
+  render() {
+    if (this.props.isFetching) return <div className="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>;
+
+    let styles = {
+      card: {
+        width: '100%'
+      }
+    };
+    
+    return (
+      <div className="mdl-grid">
+        <div className="mdl-card mdl-shadow--2dp" style={styles.card}>
+          <TimesheetNavigationView
+            {...this.props}
+            navigateToPreviousWeek={this.navigateToPreviousWeek}
+            navigateToNextWeek={this.navigateToNextWeek}
+          />
+          <div className="mdl-card__media">
+            <TimesheetTableView {...this.props} />
           </div>
         </div>
       </div>
+    );
+  }
+}
 
-
-     <div className="mdl-grid"> 
-        <button id="demo-menu-lower-left" className="mdl-button mdl-js-button mdl-button--icon">
-          <i className="material-icons">more_vert</i>
+class TimesheetNavigationView extends Component {
+  render() {
+    let styles = {
+      title: {
+        width: '150px',
+        textAlign: 'center'
+      }
+    };
+    return (
+      <div className="mdl-card__title">
+        <button className="mdl-button mdl-js-button mdl-button--icon" onClick={this.props.navigateToPreviousWeek}>
+          <i className="material-icons">chevron_left</i>
         </button>
-        <ul className="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" htmlFor="demo-menu-lower-left">
-          <li className="mdl-menu__item">Some Action</li>
-          <li className="mdl-menu__item">Another Action</li>
-          <li disabled className="mdl-menu__item">Disabled Action</li>
-          <li className="mdl-menu__item">Yet Another Action</li>
-        </ul>
-      </div>
-
-
-     <div className="mdl-grid"> 
-      <table className="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-        <thead>
-          <tr>
-            <th className="mdl-data-table__cell--non-numeric">Material</th>
-            <th>Quantity</th>
-            <th>Unit price</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="mdl-data-table__cell--non-numeric">Acrylic (Transparent)</td>
-            <td>25</td>
-            <td>$2.90</td>
-          </tr>
-          <tr>
-            <td className="mdl-data-table__cell--non-numeric">Plywood (Birch)</td>
-            <td>50</td>
-            <td>$1.25</td>
-          </tr>
-          <tr>
-            <td className="mdl-data-table__cell--non-numeric">Laminate (Gold on Blue)</td>
-            <td>10</td>
-            <td>$2.35</td>
-          </tr>
-        </tbody>
-      </table>
-      </div>
-
-      <div className="mdl-layout mdl-js-layout ">
-        <header className="mdl-layout__header">
-          <div className="mdl-layout-icon"></div>
-          <div className="mdl-layout__header-row">
-            <span className="mdl-layout-title">Client List</span>
-             <div classClass="mdl-layout-spacer"></div>
-             <div className="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label ">
-              <label className="mdl-button mdl-js-button mdl-button--icon" htmlFor="fixed-header-drawer-exp">
-                <i class="material-icons">search</i>
-              </label>
-             </div>
-          </div>
-        </header>
-        <main className="mdl-layout__content">
-          <div className="page-content mdl-grid">
-            <div  className="mdl-color--white mdl-cell mdl-cell--12-col">
-              <Avatar src="images/users.png"/>
-              <span>JKJKJKJKJK Jdqsdqsdqs</span>
-            </div>
-          </div>
-        </main>
-        
-      </div>
-
-
+        <span style={styles.title}>
+          {
+            `${moment(this.props.currentDate).startOf('w').format('MMM DD')}
+            - 
+            ${moment(this.props.currentDate).endOf('w').format('DD, YYYY')}`
+          }
+        </span>
+        <button className="mdl-button mdl-js-button mdl-button--icon" onClick={this.props.navigateToNextWeek}>
+          <i className="material-icons">chevron_right</i>
+        </button>
       </div>
     );
   }
-
 }
 
+class TimesheetTableView extends Component {
+  render() {
+    let styles = {
+      table: {
+        border: 'none',
+        width: '100%'
+      }
+    };
+
+    return (
+      <table className="mdl-data-table mdl-js-data-table mdl-data-table--selectable" style={styles.table}>
+        <TimesheetHeaderView {...this.props} />
+        <TimesheetBodyView {...this.props} />
+      </table>
+    );
+  }
+}
+
+class TimesheetHeaderView extends Component {
+  render() {
+    let dayOfWeek = moment(this.props.currentDate).startOf('w');
+    
+    return (
+      <thead>
+        <th className="mdl-data-table__cell--non-numeric"></th>
+        {_.times(7, n => {
+          return (
+            <th key={n} className="mdl-data-table__cell--non-numeric">
+              {dayOfWeek.add(n == 0 ? n : 1, 'd').format('ddd D')}
+            </th>
+          );
+        })}
+      </thead>
+    );
+  }
+}
+
+class TimesheetBodyView extends Component {
+  render() {
+    return (
+      <tbody>
+        {this.props.missions.map(mission => {
+          let dayOfWeek = moment(this.props.currentDate).startOf('w');
+          return (
+            <tr key={mission.id}>
+              <td className="mdl-data-table__cell--non-numeric">{`${mission.company.label}:${mission.label}`}</td>
+              {_.times(7, n => {
+                let workBlock = _.find(mission.workBlocks, workBlock => {
+                  let startTime = moment(dayOfWeek).startOf('d');
+                  let endTime = moment(startTime).add(1, 'd');
+                  return moment(workBlock.startTime).isBetween(startTime, endTime);
+                });
+                dayOfWeek.add(1, 'd');
+                return (
+                  <td key={n} className="mdl-data-table__cell--non-numeric">
+                    {workBlock ? workBlock.quantity : ''}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })}
+      </tbody>
+    );
+  }
+}
