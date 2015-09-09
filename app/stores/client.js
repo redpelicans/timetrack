@@ -33,16 +33,16 @@ export default class ClientStore{
   }
 
   loaded(clients){
-    console.log("loaded ...")
+    console.log('loaded ...')
     this.clients = clients;
   }
 
   loading(){
-    console.log("loading clients ...");
+    console.log('loading clients ...');
     //this.loading = true;
   }
 
   fetchFailed(){
-    console.log("loading error ...");
+    console.log('loading error ...');
   }
 }
