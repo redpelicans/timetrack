@@ -1,0 +1,3 @@
+.mdl-button:focus:not(:active) {
+  background-color: none;
+}
