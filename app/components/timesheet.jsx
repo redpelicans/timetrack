@@ -4,14 +4,11 @@ import MissionActions from '../actions/mission';
 import MissionStore from '../stores/mission';
 import moment from 'moment';
 import _ from 'lodash';
+import './timesheet.css';
 
 export default class TimesheetApp extends Component {
   componentWillMount() {
     MissionActions.fetch();
-  }
-
-  componentDidMount() {
-    componentHandler.upgradeDom();
   }
 
   render() {
@@ -24,6 +21,10 @@ export default class TimesheetApp extends Component {
 }
 
 class TimesheetContainer extends Component {
+  componentDidMount() {
+    componentHandler.upgradeDom();
+  }
+
   navigateToPreviousWeek = () => {
     MissionActions.navigateToPreviousWeek();
   }
@@ -32,15 +33,24 @@ class TimesheetContainer extends Component {
     MissionActions.navigateToNextWeek();
   }
 
-  render() {
-    if (this.props.isFetching) return <div className="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>;
+  updateMissionWorkBlock = (workBlock) => {
+    MissionActions.updateMissionWorkBlock(workBlock);
+  };
 
+  render() {
     let styles = {
+      progress: {
+        width: '100%'
+      },
       card: {
         width: '100%'
       }
     };
     
+    if (this.props.isFetching) {
+      return <div className="mdl-progress mdl-js-progress mdl-progress__indeterminate" style={styles.progress}></div>;
+    }
+
     return (
       <div className="mdl-grid">
         <div className="mdl-card mdl-shadow--2dp" style={styles.card}>
@@ -50,7 +60,10 @@ class TimesheetContainer extends Component {
             navigateToNextWeek={this.navigateToNextWeek}
           />
           <div className="mdl-card__media">
-            <TimesheetTableView {...this.props} />
+            <TimesheetTableView
+              {...this.props}
+              updateMissionWorkBlock={this.updateMissionWorkBlock}
+            />
           </div>
         </div>
       </div>
@@ -59,6 +72,10 @@ class TimesheetContainer extends Component {
 }
 
 class TimesheetNavigationView extends Component {
+  componentDidMount() {
+    componentHandler.upgradeDom();
+  }
+
   render() {
     let styles = {
       title: {
@@ -87,6 +104,10 @@ class TimesheetNavigationView extends Component {
 }
 
 class TimesheetTableView extends Component {
+  componentDidMount() {
+    componentHandler.upgradeDom();
+  }
+
   render() {
     let styles = {
       table: {
@@ -105,16 +126,27 @@ class TimesheetTableView extends Component {
 }
 
 class TimesheetHeaderView extends Component {
+  componentDidMount() {
+    componentHandler.upgradeDom();
+  }
+
   render() {
     let dayOfWeek = moment(this.props.currentDate).startOf('w');
-    
+    let styles = {
+      label: {
+        marginRight: '40px'
+      }
+    };
+
     return (
       <thead>
         <th className="mdl-data-table__cell--non-numeric"></th>
         {_.times(7, n => {
           return (
-            <th key={n} className="mdl-data-table__cell--non-numeric">
-              {dayOfWeek.add(n == 0 ? n : 1, 'd').format('ddd D')}
+            <th key={`tt-timesheet-header-view-${n}`}>
+              <span style={styles.label}>
+                {dayOfWeek.add(n == 0 ? n : 1, 'd').format('ddd DD')}
+              </span>
             </th>
           );
         })}
@@ -124,24 +156,48 @@ class TimesheetHeaderView extends Component {
 }
 
 class TimesheetBodyView extends Component {
+  componentDidMount() {
+    componentHandler.upgradeDom();
+  }
+
+  updateMissionWorkBlock = (missionId, workBlock) => {
+    workBlock.missionId = missionId;
+    this.props.updateMissionWorkBlock(workBlock);
+  }
+
   render() {
+    let styles = {
+      label: {
+        lineHeight: '42px'
+      },
+      cell: {
+        paddingTop: '0'
+      }
+    };
+
     return (
       <tbody>
         {this.props.missions.map(mission => {
           let dayOfWeek = moment(this.props.currentDate).startOf('w');
           return (
             <tr key={mission.id}>
-              <td className="mdl-data-table__cell--non-numeric">{`${mission.company.label}:${mission.label}`}</td>
+              <td className="mdl-data-table__cell--non-numeric">
+                <span style={styles.label}>{`${mission.company.label}:${mission.label}`}</span>
+              </td>
               {_.times(7, n => {
+                let startTime = moment(dayOfWeek).startOf('d');
+                let endTime = moment(startTime).add(1, 'd');
                 let workBlock = _.find(mission.workBlocks, workBlock => {
-                  let startTime = moment(dayOfWeek).startOf('d');
-                  let endTime = moment(startTime).add(1, 'd');
                   return moment(workBlock.startTime).isBetween(startTime, endTime);
                 });
                 dayOfWeek.add(1, 'd');
                 return (
-                  <td key={n} className="mdl-data-table__cell--non-numeric">
-                    {workBlock ? workBlock.quantity : ''}
+                  <td key={`tt-timesheet-cell-view-${n}`} style={styles.cell}>
+                    <TimesheetCellView
+                      {...workBlock}
+                      updateMissionWorkBlock={this.updateMissionWorkBlock.bind(this, mission.id)}
+                      startTime={moment(startTime)}
+                    />
                   </td>
                 );
               })}
@@ -149,6 +205,55 @@ class TimesheetBodyView extends Component {
           );
         })}
       </tbody>
+    );
+  }
+}
+
+class TimesheetCellView extends Component {
+  componentDidMount() {
+    componentHandler.upgradeDom();
+  }
+
+  onChangeQuantity = (event) => {
+    if (new RegExp(event.target.pattern).test(event.target.value)) {
+      this.props.updateMissionWorkBlock({
+        id: this.props.id,
+        description: this.props.description,
+        quantity: event.target.value,
+        startTime: this.props.startTime || this.props.startTime
+      });
+    }
+  }
+
+  render() {
+    let styles = {
+      quantityWrapper: {
+        marginRight: '8px',
+        width: '30px'
+      },
+      quantityInput: {
+        fontSize: '14px',
+        textAlign: 'right'
+      }
+    };
+
+    return (
+      <div>
+        <div className="mdl-textfield mdl-js-textfield" style={styles.quantityWrapper}>
+          <input
+            className="mdl-textfield__input"
+            type="text"
+            pattern="^(?=.+)(?:[1-9]\d*|0)?(?:\.\d+)?$"
+            style={styles.quantityInput}
+            defaultValue={this.props.quantity}
+            onChange={this.onChangeQuantity}
+          />
+          <label className="mdl-textfield__label"></label>
+        </div>
+        <button className="mdl-button mdl-js-button mdl-button--icon mdl-color-text--grey-400">
+          <i className="material-icons">{this.props.description ? 'message' : 'feedback'}</i>
+        </button>
+      </div>      
     );
   }
 }

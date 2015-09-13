@@ -10,7 +10,11 @@ export default class MissionActions {
       'fetched',
       'fetchFailed',
       'navigateToPreviousWeek',
-      'navigateToNextWeek'
+      'navigateToNextWeek',
+      'updateMissionWorkBlock',
+      'updatingMissionWorkBlock',
+      'updatedMissionWorkBlock',
+      'updateMissionWorkBlockFailed'
     );
   }
 }
