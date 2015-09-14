@@ -15,6 +15,8 @@ function init(mainApp, resources) {
   var app = (0, _express2['default'])();
 
   require('./clients').init(app, resources);
+  require('./missions').init(app, resources);
+  require('./workblocks').init(app, resources);
 
   return app;
 }
