@@ -5,6 +5,7 @@ export function init(mainApp, resources) {
 
   require('./clients').init(app, resources);
   require('./missions').init(app, resources);
+  require('./workblocks').init(app, resources);
 
   return app;
 }
