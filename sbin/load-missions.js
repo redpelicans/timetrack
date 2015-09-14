@@ -35,7 +35,7 @@ function generateMissions(companyIds) {
       label: faker.company.catchPhraseNoun(),
       startDate: faker.date.past(),
       endDate: faker.date.future(),
-      companyId: companyIds[_.random(0, companyIds.length-1)]._id,
+      companyId: companyIds[_.random(0, companyIds.length-1)]._id
     }
   });
 }
