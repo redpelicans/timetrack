@@ -3,7 +3,6 @@ import {datasource, createStore} from 'alt/utils/decorators';
 import MissionActions from './actions';
 import MissionDatasource from './datasource';
 import moment from 'moment';
-import WorkblockStore from '../workblocks/store'
 
 @createStore(alt)
 @datasource(MissionDatasource)
@@ -25,7 +24,6 @@ export default class MissionStore {
   }
 
   fetched(missions) {
-    // this.waitFor([WorkblockStore])
     console.info('missions fetched');
     this.missions = missions;
     this.isFetching = false;
