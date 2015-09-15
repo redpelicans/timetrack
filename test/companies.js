@@ -2,7 +2,7 @@
 import  should from "should";
 import  async from "async";
 import  _ from "lodash";
-import {Client} from '../server/lib/models';
+import {Client} from '../server/src/models';
 // help to connect, load data to MongoDB
 import * as DB from './helpers/db';
 // sample data to load
