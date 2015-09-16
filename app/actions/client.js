@@ -10,7 +10,10 @@ export default class ClientActions {
       , 'loaded'
       , 'fetchFailed'
       , 'filterMainList'
+      , 'filterStarredList'
       , 'sortMainList'
+      , 'star'
+      , 'starred'
     );
   }
 }

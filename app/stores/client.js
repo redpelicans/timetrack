@@ -10,6 +10,7 @@ export default class ClientStore{
     this.clients = [];
     this.sortMode = {attribute: 'billed', order: 'desc'};
     this.filter = '';
+    this.starredFilter = false;
     this.bindActions(ClientActions);
   }
 
@@ -24,6 +25,10 @@ export default class ClientStore{
 
   filterMainList(data){
     this.filter = data.filter;
+  }
+
+  filterStarredList(data){
+    this.starredFilter = data.starred;
   }
 
   fetch(){
@@ -44,5 +49,16 @@ export default class ClientStore{
 
   fetchFailed(){
     console.log("loading error ...");
+  }
+
+  star(clientId){
+    let client = _.find(this.clients, c => c._id === clientId)
+    //client.starred = {true: false, false: true}[client.starred || false];
+    this.getInstance().doStar(client, {true: false, false: true}[client.starred || false]);
+  }
+
+  starred(client){
+    let cachedClient = _.find(this.clients, c => c._id === client._id)
+    cachedClient.starred = client.starred;
   }
 }

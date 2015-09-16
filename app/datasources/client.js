@@ -1,11 +1,7 @@
 import ClientActions from '../actions/client';
+import AppActions from '../actions/app';
 import {requestJson} from '../utils';
 
-const mockClients = [
-  {id: 1, name: 'toto'},
-  {id: 2, name: 'titi'},
-  {id: 3, name: 'tutu'}
-];
 
 const ClientDataSource = {
   doFetch: {
@@ -21,7 +17,25 @@ const ClientDataSource = {
     //loading: ClientActions.loading,
     success: ClientActions.loaded,
     error: ClientActions.fetchFailed
-  }
+  },
+
+  doStar: {
+    remote(state, client, starred) {
+      return requestJson(`/api/clients/star`, {
+        method: 'post',
+        headers:{
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: client._id
+          , starred: starred
+        })
+      });
+    },
+    success: ClientActions.starred,
+    error: AppActions.serverError
+  },
 };
 
 

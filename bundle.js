@@ -13,7 +13,7 @@ module.exports = function() {
     inline: true,
     hot: true,
     quiet: false,
-    noInfo: false,
+    noInfo: true,
     stats: {colors: true},
   };
 

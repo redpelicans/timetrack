@@ -22,7 +22,16 @@ var _helpers = require('../../helpers');
 function init(app) {
   app.get('/clients', function (req, res, next) {
     _async2['default'].waterfall([loadClients, computeBill], function (err, clients) {
+      if (err) return next(err);
       res.json(clients);
+    });
+  });
+
+  app.post('/clients/star', function (req, res, next) {
+    var id = (0, _helpers.ObjectId)(req.body.id);
+    _async2['default'].waterfall([loadClient.bind(null, id), star.bind(null, req.body.starred)], function (err, client) {
+      if (err) return next(err);
+      res.json(client);
     });
   });
 }
@@ -38,7 +47,6 @@ function computeBill(clients, cb) {
     }
     setImmediate(cb);
   }
-
   _async2['default'].map(clients, setBillElements, function (err) {
     return cb(err, clients);
   });
@@ -46,5 +54,16 @@ function computeBill(clients, cb) {
 
 function loadClients(cb) {
   _models.Client.findAll({ type: 'client' }, cb);
+}
+
+function loadClient(id, cb) {
+  _models.Client.findOne({ type: 'client', _id: id }, cb);
+}
+
+function star(starred, client, cb) {
+  client.starred = ({ 'true': true, 'false': false })[starred] || false;
+  _models.Client.collection.update({ _id: client._id }, { $set: { starred: client.starred } }, function (err) {
+    cb(err, client);
+  });
 }
 //# sourceMappingURL=../../app/api/clients.js.map

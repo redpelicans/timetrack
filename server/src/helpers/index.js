@@ -1,5 +1,6 @@
 
 import moment  from 'moment';
+import mongobless, {ObjectId}  from 'mongobless';
 
 class NotFoundError extends Error{
 } 
@@ -15,4 +16,4 @@ function getRandomInt(min, max){
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export {NotFoundError, dmy, FMT, getRandomInt};
+export {NotFoundError, dmy, FMT, getRandomInt, ObjectId};

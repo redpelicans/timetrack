@@ -14,9 +14,6 @@ function errors(err, req, res, next) {
   if (!err) return next();
   if (err instanceof _helpers.NotFoundError) {
     res.sendStatus(404);
-  } else if (err instanceof _helpers.TransacError) {
-    var message = err.message || err.toString();
-    res.status(418).json({ message: message, code: err.code });
   } else {
     var message = err.message || err.toString();
     console.log(err.stack);

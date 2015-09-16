@@ -16,6 +16,10 @@ var _moment = require('moment');
 
 var _moment2 = _interopRequireDefault(_moment);
 
+var _mongobless = require('mongobless');
+
+var _mongobless2 = _interopRequireDefault(_mongobless);
+
 var NotFoundError = (function (_Error) {
   _inherits(NotFoundError, _Error);
 
@@ -43,4 +47,5 @@ exports.NotFoundError = NotFoundError;
 exports.dmy = dmy;
 exports.FMT = FMT;
 exports.getRandomInt = getRandomInt;
+exports.ObjectId = _mongobless.ObjectId;
 //# sourceMappingURL=../helpers/index.js.map

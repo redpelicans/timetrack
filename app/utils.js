@@ -12,7 +12,7 @@ function checkStatus(res) {
   }
 }
 
-export function requestJson(url){
-  return fetch(url).then(checkStatus).then(parseJSON);
+export function requestJson(...params){
+  return fetch(...params).then(checkStatus).then(parseJSON);
 }
 
