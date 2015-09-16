@@ -1,7 +1,7 @@
-import alt from '../alt';
+import alt from '../../alt';
 import { datasource, createStore } from 'alt/utils/decorators';
-import ClientActions from '../actions/client';
-import ClientDataSource from '../datasources/client';
+import ClientActions from './actions';
+import ClientDataSource from './datasource';
 
 @createStore(alt)
 @datasource(ClientDataSource)

@@ -3,8 +3,8 @@ import Router from 'react-router';
 import App from './app';
 import Home from './components/home';
 import NotFound from './components/not-found';
-import ClientApp from './components/client';
-import MissionApp from './components/mission';
+import ClientApp from './components/client/app';
+import MissionApp from './components/mission/app';
 import TimesheetApp from './components/timesheet/app';
 
 let appRoutesData = [

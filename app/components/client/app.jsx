@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import AltContainer from 'alt/AltContainer';
-import ClientStore from '../stores/client';
-import ClientActions from '../actions/client';
-import Avatar from './avatar';
+import ClientStore from './store';
+import ClientActions from './actions';
+import Avatar from '../avatar/app';
 //import mui from 'material-ui';
 //import IconMenu from 'material-ui/lib/menus/icon-menu';
 //import MenuItem from 'material-ui/lib/menus/menu-item';

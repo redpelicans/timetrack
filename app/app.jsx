@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import Router from 'react-router';
 import routes, {appRoutesData} from './routes';
-import Avatar from './components/avatar';
+import Avatar from './components/avatar/app';
 import injecttapeventplugin from 'react-tap-event-plugin';
 injecttapeventplugin();
 

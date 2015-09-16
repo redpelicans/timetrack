@@ -1,4 +1,4 @@
-import alt from '../alt';
+import alt from '../../alt';
 import { createActions } from 'alt/utils/decorators';
 
 @createActions(alt)

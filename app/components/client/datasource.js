@@ -1,6 +1,6 @@
-import ClientActions from '../actions/client';
-import AppActions from '../actions/app';
-import {requestJson} from '../utils';
+import ClientActions from './actions';
+import MainActions from '../main/actions';
+import {requestJson} from '../../utils';
 
 
 const ClientDataSource = {
@@ -34,7 +34,7 @@ const ClientDataSource = {
       });
     },
     success: ClientActions.starred,
-    error: AppActions.serverError
+    error: MainActions.serverError
   },
 };
 
