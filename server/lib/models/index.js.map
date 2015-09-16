@@ -1,1 +1,0 @@
-{"version":3,"sources":["models/index.js"],"names":[],"mappings":";;;;;;yBAAsC,aAAa;;;;;sBAA3C,OAAO;;;;;;sBAAE,MAAM;;;;;;sBAAE,MAAM","file":"models/index.js","sourcesContent":["export {Company, Client, Tenant} from './companies';\n"],"sourceRoot":"/home/redpelicans/timetrack/server/src"}

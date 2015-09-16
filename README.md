@@ -2,7 +2,7 @@
 
 ## Setup
 
-    $ npm install -g gulp
+    $ npm install -g babel gulp
     $ npm install
 
 ## Usage

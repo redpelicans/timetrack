@@ -12,6 +12,7 @@ pids
 
 # Builds
 build/Release
+server/lib
 
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
@@ -19,3 +20,6 @@ node_modules
 
 # Vim swap files
 *.sw*
+
+# Map files
+*.map

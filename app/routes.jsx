@@ -4,8 +4,8 @@ import App from './app';
 import Home from './components/home';
 import NotFound from './components/not-found';
 import ClientApp from './components/client';
-import TimesheetApp from './components/timesheet';
 import MissionApp from './components/mission';
+import TimesheetApp from './components/timesheet/app';
 
 let appRoutesData = [
   {route: 'Client', label: 'Client', handler: ClientApp, isMenu: true, iconName: 'business'},
