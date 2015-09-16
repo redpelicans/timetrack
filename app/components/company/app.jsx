@@ -1,29 +1,29 @@
 import React, {Component} from 'react';
 import AltContainer from 'alt/AltContainer';
-import ClientStore from './store';
-import ClientActions from './actions';
+import CompanyStore from './store';
+import CompanyActions from './actions';
 import Avatar from '../avatar/app';
 //import mui from 'material-ui';
 //import IconMenu from 'material-ui/lib/menus/icon-menu';
 //import MenuItem from 'material-ui/lib/menus/menu-item';
 
-export default class ClientApp extends Component {
+export default class CompanyApp extends Component {
 
   componentWillMount() {
-    ClientActions.fetch();
+    CompanyActions.fetch();
   }
 
   render() {
     return (
-      <AltContainer stores={ {clientStore: ClientStore} } >
-        <ClientPanel/>
+      <AltContainer stores={ {companyStore: CompanyStore} } >
+        <CompanyPanel/>
       </AltContainer>
     );
   }
 
 }
 
-class ClientPanel extends Component {
+class CompanyPanel extends Component {
 
   render() {
     let styles = {
@@ -44,7 +44,7 @@ class ClientPanel extends Component {
       }
     };
 
-    let clientRows=[];
+    let companyRows=[];
 
     function sortAttr(sortMode){
       if(sortMode.attribute === 'name') return ['name'];
@@ -55,29 +55,29 @@ class ClientPanel extends Component {
       return [sortMode.order, 'asc'];
     }
 
-    function filterStarred(client){
-      let starred = this.props.clientStore.starredFilter;
+    function filterStarred(company){
+      let starred = this.props.companyStore.starredFilter;
       if(!starred) return true;
-      if(starred && client.starred) return true;
+      if(starred && company.starred) return true;
     }
 
-    function filterClients(client){
-      let filter = this.props.clientStore.filter;
+    function filterCompanies(company){
+      let filter = this.props.companyStore.filter;
       if(!filter) return true;
-      if(filter && client.name && client.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1) return true;
+      if(filter && company.name && company.name.toLowerCase().indexOf(filter.toLowerCase()) !== -1) return true;
     }
 
-    let sortMode = this.props.clientStore.sortMode;
-    let filteredClients = _.chain(this.props.clientStore.clients).filter(filterStarred, this).filter(filterClients, this).value();
-    for(let client of _.sortByOrder(filteredClients, sortAttr(sortMode), sortOrder(sortMode))){
-      clientRows.push( <ClientListItem key={client._id} client={client} onClick={this.handleClientSelection}/>);
+    let sortMode = this.props.companyStore.sortMode;
+    let filteredCompanies = _.chain(this.props.companyStore.companies).filter(filterStarred, this).filter(filterCompanies, this).value();
+    for(let company of _.sortByOrder(filteredCompanies, sortAttr(sortMode), sortOrder(sortMode))){
+      companyRows.push( <CompanyListItem key={company._id} company={company} onClick={this.handleCompanySelection}/>);
     }
 
     return (
       <div className="mdl-color--white mdl-shadow--2dp mdl-grid" style={styles.layout}>
         <div style={styles.card} className="mdl-cell mdl-cell--12-col">
-          <ClientHeader filter={this.props.clientStore.filter} starred={this.props.clientStore.starredFilter} sortMode={this.props.clientStore.sortMode}/>
-          <ClientList clients={clientRows} />
+          <CompanyHeader filter={this.props.companyStore.filter} starred={this.props.companyStore.starredFilter} sortMode={this.props.companyStore.sortMode}/>
+          <CompanyList companies={companyRows} />
         </div>
         <button style={styles.addButton} className="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
           <i className="material-icons">add</i>
@@ -88,7 +88,7 @@ class ClientPanel extends Component {
   }
 }
 
-class ClientHeader extends Component {
+class CompanyHeader extends Component {
   close = () => {
     this.context.router.transitionTo("/Home");
   }
@@ -153,20 +153,20 @@ class ClientHeader extends Component {
             </button>
           </div>
           <div style={styles.title}>
-            <span> Client List</span>
+            <span> Company List</span>
           </div>
           <div style={styles.leftHeader}>
             <div style={styles.search}>
-              <ClientListFilter filter={this.props.filter}/>
+              <CompanyListFilter filter={this.props.filter}/>
             </div>
             <div style={styles.starred}>
-              <ClientListStarred starred={this.props.starred}/>
+              <CompanyListStarred starred={this.props.starred}/>
             </div>
             <div style={styles.sort}>
-              <ClientListSort sortMode={this.props.sortMode}/>
+              <CompanyListSort sortMode={this.props.sortMode}/>
             </div>
             <div style={styles.menu}>
-              <ClientListActions/>
+              <CompanyListActions/>
             </div>
           </div>
         </div>
@@ -176,31 +176,31 @@ class ClientHeader extends Component {
   }
 }
 
-ClientHeader.contextTypes = {
+CompanyHeader.contextTypes = {
     router: React.PropTypes.func.isRequired
 };
 
-class ClientList extends Component {
+class CompanyList extends Component {
   render(){
     return (
       <div className="mdl-cell mdl-cell--12-col mdl-grid">
-        {this.props.clients}
+        {this.props.companies}
       </div>
     )
   }
 }
 
-class ClientListItem extends Component {
-  handleClientSelection = (client) => {
-    console.log(`CLIENT SELECTION ${client._id}`)
+class CompanyListItem extends Component {
+  handleCompanySelection = (company) => {
+    console.log(`CLIENT SELECTION ${company._id}`)
   }
 
-  handleClientEnter = (e) => {
+  handleCompanyEnter = (e) => {
     e.target.style.background = 'gray';
     e.preventDefault();
   }
 
-  handleClientOut = (e) => {
+  handleCompanyOut = (e) => {
     e.target.style.background = 'white';
     e.preventDefault();
   }
@@ -208,9 +208,9 @@ class ClientListItem extends Component {
 
   render() {
 
-    function phone(client){
-      if(!client.phones || !client.phones.length) return '';
-      let {label, phone} = client.phones[0];
+    function phone(company){
+      if(!company.phones || !company.phones.length) return '';
+      let {label, phone} = company.phones[0];
       return `tel. ${label}: ${phone}`;
     }
 
@@ -220,12 +220,12 @@ class ClientListItem extends Component {
     }
 
 
-    function billAmount(client, type){
+    function billAmount(company, type){
       const name = {billed: 'Billed', billable: 'Billable'};
-      if(client[type]){
+      if(company[type]){
         return (
           <div style={styles[type]}>
-            <span>{name[type]}: {amount(client[type] || 0 )}</span>
+            <span>{name[type]}: {amount(company[type] || 0 )}</span>
           </div>
         )
       }else{
@@ -233,17 +233,17 @@ class ClientListItem extends Component {
       }
     }
 
-    function billAmounts(client){
-      if(client.billed || client.billable){
+    function billAmounts(company){
+      if(company.billed || company.billable){
         return (
-          <span>{[amount(client.billed), amount(client.billable)].join(' / ')}</span>
+          <span>{[amount(company.billed), amount(company.billable)].join(' / ')}</span>
         )
       }
     }
 
 
     let styles = {
-      client:{
+      company:{
       },
       box:{
         display: 'flex',
@@ -289,20 +289,20 @@ class ClientListItem extends Component {
     };
  
     return (
-      <div style={styles.client} className="mdl-color--white mdl-cell mdl-cell--12-col" onMouseOut={this.handleClientOut} onMouseEnter={this.handleClientEnter} onClick={this.handleClientSelection.bind(null, this.props.client)}>
+      <div style={styles.company} className="mdl-color--white mdl-cell mdl-cell--12-col" onMouseOut={this.handleCompanyOut} onMouseEnter={this.handleCompanyEnter} onClick={this.handleCompanySelection.bind(null, this.props.company)}>
         <div style={styles.box}>
           <div style={styles.avatar}>
-            <Avatar src={this.props.client.avatar}/>
+            <Avatar src={this.props.company.avatar}/>
           </div>
           <div style={styles.name}>
-            <span>{this.props.client.name}</span>
+            <span>{this.props.company.name}</span>
           </div>
           <div style={styles.billElements}>
-            {billAmounts(this.props.client)}
+            {billAmounts(this.props.company)}
           </div>
           <div style={styles.left}>
             <div style={styles.star}>
-              <StarredClient client={this.props.client}/>
+              <StarredCompany company={this.props.company}/>
             </div>
             <div style={styles.edit}>
               <button className="mdl-button mdl-js-button mdl-button--icon">
@@ -317,28 +317,28 @@ class ClientListItem extends Component {
   }
 }
 
-class StarredClient extends Component{
+class StarredCompany extends Component{
   handleChange = () => {
-    ClientActions.star(this.props.client._id);
+    CompanyActions.star(this.props.company._id);
   }
 
   render(){
-    let client = this.props.client;
+    let company = this.props.company;
     let style={
-      get color(){ return client.starred ? '#00BCD4' : 'grey'; }
+      get color(){ return company.starred ? '#00BCD4' : 'grey'; }
     };
 
     return (
-      <button id="clientMenu" className="mdl-button mdl-js-button mdl-button--icon" onClick={this.handleChange}>
+      <button id="companyMenu" className="mdl-button mdl-js-button mdl-button--icon" onClick={this.handleChange}>
         <i style={style} className="material-icons">star_border</i>
       </button>
     )
   }
 }
 
-class ClientListSort extends Component {
+class CompanyListSort extends Component {
   handleChange = (value) => {
-    ClientActions.sortMainList({attribute: value});
+    CompanyActions.sortMainList({attribute: value});
   }
 
   render(){
@@ -361,10 +361,10 @@ class ClientListSort extends Component {
 
     return(
       <div>
-        <button id="clientSortMenu" className="mdl-button mdl-js-button mdl-button--icon" >
+        <button id="companySortMenu" className="mdl-button mdl-js-button mdl-button--icon" >
           <i className="material-icons">sort_by_alpha</i>
         </button>
-        <ul className="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-left" htmlFor="clientSortMenu" >
+        <ul className="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-left" htmlFor="companySortMenu" >
           {menuItems}
         </ul>
       </div>
@@ -372,10 +372,10 @@ class ClientListSort extends Component {
   }
 }
 
-class ClientListStarred extends Component {
+class CompanyListStarred extends Component {
   handleChange = () => {
     let starred = this.props.starred ? false : true;
-    ClientActions.filterStarredList({starred: starred});
+    CompanyActions.filterStarredList({starred: starred});
   }
 
   render(){
@@ -394,14 +394,14 @@ class ClientListStarred extends Component {
 }
 
 
-class ClientListActions extends Component {
+class CompanyListActions extends Component {
   render(){
     return (
       <div>
-        <button id="clientListMenu" className="mdl-button mdl-js-button mdl-button--icon">
+        <button id="companyListMenu" className="mdl-button mdl-js-button mdl-button--icon">
           <i className="material-icons">more_vert</i>
         </button>
-        <ul className="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-left" htmlFor="clientListMenu">
+        <ul className="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-left" htmlFor="companyListMenu">
           <li className="mdl-menu__item">Some Action</li>
           <li className="mdl-menu__item">Another Action</li>
           <li disabled className="mdl-menu__item">Disabled Action</li>
@@ -413,20 +413,20 @@ class ClientListActions extends Component {
 }
 
 
-class ClientListFilter extends Component {
+class CompanyListFilter extends Component {
   handleChange = () => {
-    ClientActions.filterMainList({ filter: this.refs.filter.getDOMNode().value })
+    CompanyActions.filterMainList({ filter: this.refs.filter.getDOMNode().value })
   }
 
   render() {
     return ( 
       <div className="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
-        <label className="mdl-button mdl-js-button mdl-button--icon" htmlFor="searchClient">
+        <label className="mdl-button mdl-js-button mdl-button--icon" htmlFor="searchCompany">
           <i className="material-icons">search</i>
         </label>
         <div className="mdl-textfield__expandable-holder">
-          <input className="mdl-textfield__input" type="text" id="searchClient" ref="filter" value={this.props.filter} onChange={this.handleChange}/>
-          <label className="mdl-textfield__label" htmlFor="searchClient">Enter your query...</label>
+          <input className="mdl-textfield__input" type="text" id="searchCompany" ref="filter" value={this.props.filter} onChange={this.handleChange}/>
+          <label className="mdl-textfield__label" htmlFor="searchCompany">Enter your query...</label>
         </div>
       </div>
     )

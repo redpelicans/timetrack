@@ -1,12 +1,12 @@
-import ClientActions from './actions';
+import CompanyActions from './actions';
 import MainActions from '../main/actions';
 import {requestJson} from '../../utils';
 
 
-const ClientDataSource = {
+const CompanyDataSource = {
   doFetch: {
     remote(state) {
-      return requestJson('/api/clients');
+      return requestJson('/api/companies');
     },
 
     // local(state) {
@@ -14,29 +14,29 @@ const ClientDataSource = {
     // },
    
     // BUG: Uncaught Error: Invariant Violation: Dispatch.dispatch(...): Cannot dispatch in the middle of a dispatch. 
-    //loading: ClientActions.loading,
-    success: ClientActions.loaded,
-    error: ClientActions.fetchFailed
+    //loading: CompanyActions.loading,
+    success: CompanyActions.loaded,
+    error: CompanyActions.fetchFailed
   },
 
   doStar: {
-    remote(state, client, starred) {
-      return requestJson(`/api/clients/star`, {
+    remote(state, company, starred) {
+      return requestJson(`/api/companies/star`, {
         method: 'post',
         headers:{
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            id: client._id
+            id: company._id
           , starred: starred
         })
       });
     },
-    success: ClientActions.starred,
+    success: CompanyActions.starred,
     error: MainActions.serverError
   },
 };
 
 
-export default ClientDataSource;
+export default CompanyDataSource;

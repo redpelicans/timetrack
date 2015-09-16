@@ -1,17 +1,17 @@
 import alt from '../../alt';
 import { datasource, createStore } from 'alt/utils/decorators';
-import ClientActions from './actions';
-import ClientDataSource from './datasource';
+import CompanyActions from './actions';
+import CompanyDataSource from './datasource';
 
 @createStore(alt)
-@datasource(ClientDataSource)
-export default class ClientStore{
+@datasource(CompanyDataSource)
+export default class CompanyStore{
   constructor(){
-    this.clients = [];
+    this.companies = [];
     this.sortMode = {attribute: 'billed', order: 'desc'};
     this.filter = '';
     this.starredFilter = false;
-    this.bindActions(ClientActions);
+    this.bindActions(CompanyActions);
   }
 
   sortMainList(sortMode){
@@ -37,13 +37,13 @@ export default class ClientStore{
     }
   }
 
-  loaded(clients){
+  loaded(companies){
     console.log('loaded ...')
-    this.clients = clients;
+    this.companies = companies;
   }
 
   loading(){
-    console.log('loading clients ...');
+    console.log('loading companies ...');
     //this.loading = true;
   }
 
@@ -51,14 +51,14 @@ export default class ClientStore{
     console.log('loading error ...');
   }
 
-  star(clientId){
-    let client = _.find(this.clients, c => c._id === clientId)
+  star(companyId){
+    let company = _.find(this.companies, c => c._id === companyId)
     //client.starred = {true: false, false: true}[client.starred || false];
-    this.getInstance().doStar(client, {true: false, false: true}[client.starred || false]);
+    this.getInstance().doStar(company, {true: false, false: true}[company.starred || false]);
   }
 
-  starred(client){
-    let cachedClient = _.find(this.clients, c => c._id === client._id)
-    cachedClient.starred = client.starred;
+  starred(company){
+    let cachedCompany = _.find(this.companies, c => c._id === company._id)
+    cachedCompany.starred = company.starred;
   }
 }

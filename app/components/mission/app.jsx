@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import AltContainer from 'alt/AltContainer';
-import ClientStore from '../client/store';
-import ClientActions from '../client/actions';
+import CompanyStore from '../company/store';
+import CompanyActions from '../company/actions';
 
 
 export default class MissionApp extends Component {
