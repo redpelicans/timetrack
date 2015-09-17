@@ -166,10 +166,13 @@ class TimesheetBodyView extends Component {
       }
     };
 
-    let dayOfWeek = moment(this.props.timesheetStore.currentDate).startOf('w');
+    let currentDate = moment(this.props.timesheetStore.currentDate);
     let missions = _.select(this.props.missionStore.missions, (mission) => {
-      return dayOfWeek.isBetween(moment(mission.startDate), moment(mission.endDate));
+      let startDate = moment(mission.startDate);
+      let endDate = moment(mission.endDate);
+      return startDate.isBefore(moment(currentDate).endOf('w')) && endDate.isAfter(moment(currentDate).startOf('w'));
     });
+    let dayOfWeek = currentDate.startOf('w');
 
     return (
       <tbody>
@@ -186,7 +189,7 @@ class TimesheetBodyView extends Component {
               {_.times(7, n => {
                 let startTime = moment(dayOfWeek).startOf('d');
                 let cell = '';
-                if (startTime.isBetween(moment(mission.startDate), moment(mission.endDate))) {
+                if (startTime.isBetween(moment(mission.startDate).startOf('d').subtract(1, 'ms'), moment(mission.endDate).endOf('d'))) {
                   let endTime = moment(startTime).add(1, 'd');
                   let workblock = _.find(workblocks, workblock => {
                     return moment(workblock.startTime).isBetween(startTime, endTime);
