@@ -185,16 +185,16 @@ class TimesheetBodyView extends Component {
               </td>
               {_.times(7, n => {
                 let startTime = moment(dayOfWeek).startOf('d');
-                let endTime = moment(startTime).add(1, 'd');
-                let workblock = _.find(workblocks, workblock => {
-                  return moment(workblock.startTime).isBetween(startTime, endTime);
-                });
+                let cell = '';
+                if (startTime.isBetween(moment(mission.startDate), moment(mission.endDate))) {
+                  let endTime = moment(startTime).add(1, 'd');
+                  let workblock = _.find(workblocks, workblock => {
+                    return moment(workblock.startTime).isBetween(startTime, endTime);
+                  });
+                  cell = <TimesheetCellView {...workblock} startTime={moment(startTime)} />;
+                }
                 dayOfWeek.add(1, 'd');
-                return (
-                  <td key={`tt-timesheet-cell-view-${n}`} style={styles.cell}>
-                    <TimesheetCellView {...workblock} startTime={moment(startTime)} />
-                  </td>
-                );
+                return (<td key={`tt-timesheet-cell-view-${n}`} style={styles.cell}>{cell}</td>);
               })}
             </tr>
           );
