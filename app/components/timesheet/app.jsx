@@ -105,8 +105,15 @@ class TimesheetTableView extends Component {
       }
     };
 
+    // Forced to use a random key on table to trigger componentDidMount for mdl
+    // see: http://quaintous.com/2015/07/09/react-components-with-mdl/
+    // and: http://codepen.io/yan-foto/pen/yNjwaO?editors=101
     return (
-      <table className="mdl-data-table mdl-js-data-table mdl-data-table--selectable" style={styles.table}>
+      <table
+        key={`tt-timesheet-table-view-${Date.now()}`}
+        className="mdl-data-table mdl-js-data-table mdl-data-table--selectable"
+        style={styles.table}
+      >
         <TimesheetHeaderView {...this.props} />
         <TimesheetBodyView {...this.props} />
       </table>
@@ -159,9 +166,14 @@ class TimesheetBodyView extends Component {
       }
     };
 
+    let dayOfWeek = moment(this.props.timesheetStore.currentDate).startOf('w');
+    let missions = _.select(this.props.missionStore.missions, (mission) => {
+      return dayOfWeek.isBetween(moment(mission.startDate), moment(mission.endDate));
+    });
+
     return (
       <tbody>
-        {this.props.missionStore.missions.map(mission => {
+        {missions.map(mission => {
           let workblocks = _.select(this.props.workblockStore.workblocks, workblock => {
             return workblock.missionId == mission._id;
           });
