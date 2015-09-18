@@ -134,7 +134,7 @@ class TimesheetTableView extends Component {
     return (
       <table
         key={`tt-timesheet-table-view-${Date.now()}`}
-        className="mdl-data-table mdl-js-data-table mdl-data-table--selectable"
+        className="mdl-data-table mdl-js-data-table"
         style={styles.table}
       >
         <TimesheetHeaderView {...this.props} />
@@ -187,8 +187,20 @@ class TimesheetBodyView extends Component {
       },
       cell: {
         paddingTop: '0'
+      },
+      totals: {
+        row: {
+          height: '66px'
+        },
+        text: {
+          lineHeight: '42px',
+          paddingRight: '38px'
+        }
       }
     };
+
+    let weekTotal = 0;
+    let dayOfWeekTotals = {};
 
     return (
       <tbody>
@@ -197,7 +209,7 @@ class TimesheetBodyView extends Component {
             return workblock.missionId == mission._id;
           });
           let dayOfWeek = moment(this.props.timesheetStore.currentDate).startOf('w');
-          let rowTotal = 0;
+          let missionTotal = 0;
           return (
             <tr key={mission._id}>
               <td className="mdl-data-table__cell--non-numeric">
@@ -211,18 +223,36 @@ class TimesheetBodyView extends Component {
                   let workblock = _.find(workblocks, workblock => {
                     return moment(workblock.startTime).isBetween(startTime, endTime);
                   });
-                  if (workblock) rowTotal += workblock.quantity;
+                  dayOfWeekTotals[dayOfWeek] = dayOfWeekTotals[dayOfWeek] || 0;
+                  if (workblock) {
+                    missionTotal += workblock.quantity;
+                    dayOfWeekTotals[dayOfWeek] += workblock.quantity;
+                    weekTotal += workblock.quantity;
+                  }
                   cell = <TimesheetCellView {...workblock} startTime={moment(startTime)} />;
                 }
                 dayOfWeek.add(1, 'd');
-                return (<td key={`tt-timesheet-cell-view-${n}`} style={styles.cell}>{cell}</td>);
+                return <td key={`tt-timesheet-cell-view-${n}`} style={styles.cell}>{cell}</td>;
               })}
               <td>
-                <span style={styles.text} className="mdl-color-text--pink-A200">{rowTotal}</span>
+                <span style={styles.text} className="mdl-color-text--pink-A200">{missionTotal}</span>
               </td>
             </tr>
           );
         })}
+        <tr style={styles.totals.row}>
+          <td></td>
+          {_.map(dayOfWeekTotals, (total) => {
+            return (
+              <td>
+                <span style={styles.totals.text} className="mdl-color-text--pink-A200">{total}</span>
+              </td>
+            );
+          })}
+          <td>
+            <strong style={styles.text} className="mdl-color-text--pink-A200">{weekTotal}</strong>
+          </td>
+        </tr>
       </tbody>
     );
   }
