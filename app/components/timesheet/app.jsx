@@ -169,6 +169,7 @@ class TimesheetHeaderView extends Component {
             </th>
           );
         })}
+        <th></th>
       </thead>
     );
   }
@@ -181,7 +182,7 @@ class TimesheetBodyView extends Component {
 
   render() {
     let styles = {
-      label: {
+      text: {
         lineHeight: '42px'
       },
       cell: {
@@ -196,10 +197,11 @@ class TimesheetBodyView extends Component {
             return workblock.missionId == mission._id;
           });
           let dayOfWeek = moment(this.props.timesheetStore.currentDate).startOf('w');
+          let rowTotal = 0;
           return (
             <tr key={mission._id}>
               <td className="mdl-data-table__cell--non-numeric">
-                <span style={styles.label}>{`${mission.label}`}</span>
+                <span style={styles.text}>{`${mission.label}`}</span>
               </td>
               {_.times(7, n => {
                 let startTime = moment(dayOfWeek).startOf('d');
@@ -209,11 +211,15 @@ class TimesheetBodyView extends Component {
                   let workblock = _.find(workblocks, workblock => {
                     return moment(workblock.startTime).isBetween(startTime, endTime);
                   });
+                  if (workblock) rowTotal += workblock.quantity;
                   cell = <TimesheetCellView {...workblock} startTime={moment(startTime)} />;
                 }
                 dayOfWeek.add(1, 'd');
                 return (<td key={`tt-timesheet-cell-view-${n}`} style={styles.cell}>{cell}</td>);
               })}
+              <td>
+                <span style={styles.text} className="mdl-color-text--pink-A200">{rowTotal}</span>
+              </td>
             </tr>
           );
         })}
