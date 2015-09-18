@@ -39,7 +39,8 @@ class TimesheetContainer extends Component {
         width: '100%'
       },
       card: {
-        width: '100%'
+        width: '100%',
+        minHeight: 'initial'
       }
     };
     
@@ -106,8 +107,26 @@ class TimesheetTableView extends Component {
       table: {
         border: 'none',
         width: '100%'
+      },
+      supportingText: {
+        textAlign: 'center'
       }
     };
+
+    let currentDate = moment(this.props.timesheetStore.currentDate);
+    let missions = _.select(this.props.missionStore.missions, (mission) => {
+      let startDate = moment(mission.startDate);
+      let endDate = moment(mission.endDate);
+      return startDate.isBefore(moment(currentDate).endOf('w')) && endDate.isAfter(moment(currentDate).startOf('w'));
+    });
+
+    if (_.isEmpty(missions)) {
+      return (
+        <div className="mdl-card__supporting-text" style={styles.supportingText}>
+          There is no mission during this week.
+        </div>
+      );
+    }
 
     // Forced to use a random key on table to trigger componentDidMount for mdl
     // see: http://quaintous.com/2015/07/09/react-components-with-mdl/
@@ -119,7 +138,7 @@ class TimesheetTableView extends Component {
         style={styles.table}
       >
         <TimesheetHeaderView {...this.props} />
-        <TimesheetBodyView {...this.props} />
+        <TimesheetBodyView {...this.props} missions={missions} />
       </table>
     );
   }
@@ -170,17 +189,9 @@ class TimesheetBodyView extends Component {
       }
     };
 
-    let currentDate = moment(this.props.timesheetStore.currentDate);
-    let missions = _.select(this.props.missionStore.missions, (mission) => {
-      let startDate = moment(mission.startDate);
-      let endDate = moment(mission.endDate);
-      return startDate.isBefore(moment(currentDate).endOf('w')) && endDate.isAfter(moment(currentDate).startOf('w'));
-    });
-    let dayOfWeek = currentDate.startOf('w');
-
     return (
       <tbody>
-        {missions.map(mission => {
+        {this.props.missions.map(mission => {
           let workblocks = _.select(this.props.workblockStore.workblocks, workblock => {
             return workblock.missionId == mission._id;
           });
