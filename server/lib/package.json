@@ -29,6 +29,7 @@
     "exports-loader": "^0.6.2",
     "faker": "^3.0.1",
     "imports-loader": "^0.6.4",
+    "jsonschema": "^1.0.2",
     "lodash": "^3.10.1",
     "material-ui": "^0.11.0",
     "moment": "^2.10.6",
