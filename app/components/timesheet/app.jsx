@@ -69,11 +69,15 @@ class TimesheetNavigationView extends Component {
     let styles = {
       title: {
         width: '150px',
-        textAlign: 'center'
+        textAlign: 'center',
+        lineHeight: '32px'
       }
     };
     return (
       <div className="mdl-card__title">
+        <button className="mdl-button mdl-js-button" onClick={this.props.navigateToToday}>
+          Today
+        </button>
         <button className="mdl-button mdl-js-button mdl-button--icon" onClick={this.props.navigateToPreviousWeek}>
           <i className="material-icons">chevron_left</i>
         </button>
