@@ -62,7 +62,7 @@ export default class App extends Component {
 class AppMain extends Component {
   render(){
     return (
-      <main className="mdl-layout__content mdl-color--grey-100">
+      <main className="mdl-layout__content" style={{padding: '10px'}}>
         <Router.RouteHandler />
       </main>
     )

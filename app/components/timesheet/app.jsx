@@ -20,7 +20,7 @@ export default class TimesheetApp extends Component {
     return (
       <AltContainer
         stores={{missionStore: MissionStore, workblockStore: WorkblockStore, timesheetStore: TimesheetStore}}
-        actions={TimesheetActions}
+        actions={{timesheetActions: TimesheetActions, workblockActions: WorkblockActions}}
       >
         <TimesheetContainer />
       </AltContainer>
@@ -29,32 +29,16 @@ export default class TimesheetApp extends Component {
 }
 
 class TimesheetContainer extends Component {
-  componentDidMount() {
-    componentHandler.upgradeDom();
-  }
-
   render() {
-    let styles = {
-      progress: {
-        width: '100%'
-      },
-      card: {
-        width: '100%',
-        minHeight: 'initial'
-      }
-    };
-    
     if (this.props.missionStore.isFetching || this.props.workblockStore.isFetching) {
-      return <div className="mdl-progress mdl-js-progress mdl-progress__indeterminate" style={styles.progress}></div>;
+      return <div className="ui indeterminate active loader"></div>;
     }
 
     return (
-      <div className="mdl-grid">
-        <div className="mdl-card mdl-shadow--2dp" style={styles.card}>
+      <div className="ui grid">
+        <div className="sixteen wide column">
           <TimesheetNavigationView {...this.props} />
-          <div className="mdl-card__media">
-            <TimesheetTableView {...this.props} />
-          </div>
+          <TimesheetTableView {...this.props} />
         </div>
       </div>
     );
@@ -62,35 +46,20 @@ class TimesheetContainer extends Component {
 }
 
 class TimesheetNavigationView extends Component {
-  componentDidMount() {
-    componentHandler.upgradeDom();
-  }
-
   render() {
-    let styles = {
-      title: {
-        width: '150px',
-        textAlign: 'center',
-        lineHeight: '32px'
-      }
-    };
     return (
-      <div className="mdl-card__title">
-        <button className="mdl-button mdl-js-button" onClick={this.props.navigateToToday}>
-          Today
+      <div>
+        <button className="ui primary button" onClick={this.props.timesheetActions.navigateToToday}>Today</button>
+        <button className="ui icon button" onClick={this.props.timesheetActions.navigateToPreviousWeek}>
+          <i className="angle left icon"></i>
         </button>
-        <button className="mdl-button mdl-js-button mdl-button--icon" onClick={this.props.navigateToPreviousWeek}>
-          <i className="material-icons">chevron_left</i>
-        </button>
-        <span style={styles.title}>
-          {
-            `${moment(this.props.timesheetStore.currentDate).startOf('w').format('MMM DD')}
-            - 
+        <span style={{padding: '0 20px', textAlign: 'center'}}>
+          {`${moment(this.props.timesheetStore.currentDate).startOf('w').format('MMM DD')}- 
             ${moment(this.props.timesheetStore.currentDate).endOf('w').format('DD, YYYY')}`
           }
         </span>
-        <button className="mdl-button mdl-js-button mdl-button--icon" onClick={this.props.navigateToNextWeek}>
-          <i className="material-icons">chevron_right</i>
+        <button className="ui icon button" onClick={this.props.timesheetActions.navigateToNextWeek}>
+          <i className="angle right icon" style={{marginLeft: 0}}></i>
         </button>
       </div>
     );
@@ -98,21 +67,7 @@ class TimesheetNavigationView extends Component {
 }
 
 class TimesheetTableView extends Component {
-  componentDidMount() {
-    componentHandler.upgradeDom();
-  }
-
   render() {
-    let styles = {
-      table: {
-        border: 'none',
-        width: '100%'
-      },
-      supportingText: {
-        textAlign: 'center'
-      }
-    };
-
     let currentDate = moment(this.props.timesheetStore.currentDate);
     let missions = _.select(this.props.missionStore.missions, (mission) => {
       let startDate = moment(mission.startDate);
@@ -121,23 +76,12 @@ class TimesheetTableView extends Component {
     });
 
     if (_.isEmpty(missions)) {
-      return (
-        <div className="mdl-card__supporting-text" style={styles.supportingText}>
-          There is no mission during this week.
-        </div>
-      );
+      return <div className="ui info message"><p>There is no mission during this week.</p></div>;
     }
 
-    // Forced to use a random key on table to trigger componentDidMount for mdl
-    // see: http://quaintous.com/2015/07/09/react-components-with-mdl/
-    // and: http://codepen.io/yan-foto/pen/yNjwaO?editors=101
     return (
-      <table
-        key={`tt-timesheet-table-view-${Date.now()}`}
-        className="mdl-data-table mdl-js-data-table"
-        style={styles.table}
-      >
-        <TimesheetHeaderView {...this.props} />
+      <table className="ui celled table">
+        <TimesheetHeaderView {...this.props} missions={missions} />
         <TimesheetBodyView {...this.props} missions={missions} />
       </table>
     );
@@ -145,60 +89,38 @@ class TimesheetTableView extends Component {
 }
 
 class TimesheetHeaderView extends Component {
-  componentDidMount() {
-    componentHandler.upgradeDom();
-  }
-
   render() {
     let dayOfWeek = moment(this.props.timesheetStore.currentDate).startOf('w');
-    let styles = {
-      label: {
-        marginRight: '40px'
-      }
-    };
 
     return (
       <thead>
-        <th className="mdl-data-table__cell--non-numeric"></th>
-        {_.times(7, n => {
+        <th>
+          <div className="ui label">
+            <i className="long arrow down icon"></i>
+            Missions
+            <div className="detail">{this.props.missions.length}</div>
+          </div>
+        </th>
+        {_.times(7, (n) => {
           return (
-            <th key={`tt-timesheet-header-view-${n}`}>
-              <span style={styles.label}>
-                {dayOfWeek.add(n == 0 ? n : 1, 'd').format('ddd DD')}
-              </span>
+            <th key={`tt-timesheet-header-view-${n}`} style={{textAlign: 'center'}}>
+              <span>{dayOfWeek.add(n == 0 ? n : 1, 'd').format('ddd DD')}</span>
             </th>
           );
         })}
-        <th></th>
+        <th style={{textAlign: 'right', width: '110px', whiteSpace: 'nowrap'}}>
+          <div className="ui label">
+            <i className="calculator icon"></i>
+            /mission
+          </div>
+        </th>
       </thead>
     );
   }
 }
 
 class TimesheetBodyView extends Component {
-  componentDidMount() {
-    componentHandler.upgradeDom();
-  }
-
   render() {
-    let styles = {
-      text: {
-        lineHeight: '42px'
-      },
-      cell: {
-        paddingTop: '0'
-      },
-      totals: {
-        row: {
-          height: '66px'
-        },
-        text: {
-          lineHeight: '42px',
-          paddingRight: '38px'
-        }
-      }
-    };
-
     let weekTotal = 0;
     let dayOfWeekTotals = {};
 
@@ -212,13 +134,14 @@ class TimesheetBodyView extends Component {
           let missionTotal = 0;
           return (
             <tr key={mission._id}>
-              <td className="mdl-data-table__cell--non-numeric">
-                <span style={styles.text}>{`${mission.label}`}</span>
-              </td>
+              <td style={{width: '100%'}}>{`${mission.label}`}</td>
               {_.times(7, n => {
                 let startTime = moment(dayOfWeek).startOf('d');
                 let cell = '';
-                if (startTime.isBetween(moment(mission.startDate).startOf('d').subtract(1, 'ms'), moment(mission.endDate).endOf('d'))) {
+                // subtract 1 ms because moment.isBetween() is exclusive
+                let startDate = moment(mission.startDate).startOf('d').subtract(1, 'ms');
+                let endDate = moment(mission.endDate).endOf('d');
+                if (startTime.isBetween(startDate, endDate)) {
                   let endTime = moment(startTime).add(1, 'd');
                   let workblock = _.find(workblocks, workblock => {
                     return moment(workblock.startTime).isBetween(startTime, endTime);
@@ -232,26 +155,23 @@ class TimesheetBodyView extends Component {
                   cell = <TimesheetCellView {...workblock} startTime={moment(startTime)} />;
                 }
                 dayOfWeek.add(1, 'd');
-                return <td key={`tt-timesheet-cell-view-${n}`} style={styles.cell}>{cell}</td>;
+                return <td key={`tt-timesheet-cell-view-${n}`} style={{textAlign: 'right'}}>{cell}</td>;
               })}
-              <td>
-                <span style={styles.text} className="mdl-color-text--pink-A200">{missionTotal}</span>
-              </td>
+              <td style={{textAlign: 'right'}}>{missionTotal}</td>
             </tr>
           );
         })}
-        <tr style={styles.totals.row}>
-          <td></td>
-          {_.map(dayOfWeekTotals, (total) => {
-            return (
-              <td>
-                <span style={styles.totals.text} className="mdl-color-text--pink-A200">{total}</span>
-              </td>
-            );
-          })}
+        <tr>
           <td>
-            <strong style={styles.text} className="mdl-color-text--pink-A200">{weekTotal}</strong>
+            <div className="ui label">
+              <i className="calculator icon"></i>
+              /day
+            </div>
           </td>
+          {_.map(dayOfWeekTotals, (total) => {
+            return <td style={{textAlign: 'right'}}>{total}</td>;
+          })}
+          <td style={{textAlign: 'right'}}>{weekTotal}</td>
         </tr>
       </tbody>
     );
@@ -259,49 +179,50 @@ class TimesheetBodyView extends Component {
 }
 
 class TimesheetCellView extends Component {
-  componentDidMount() {
-    componentHandler.upgradeDom();
+  updateWorkBlock = (updates) => {
+    // let workblock = {
+    //   id: this.props._id,
+    //   startTime: this.props.startTime || this.props.startTime,
+    //   quantity: this.props.quantity
+    //   description: this.props.description
+    // }
+    // this.props.workblockActions.update(workblock);
   }
 
-  // onChangeQuantity = (event) => {
-  //   if (new RegExp(event.target.pattern).test(event.target.value)) {
-  //     this.props.updateMissionWorkBlock({
-  //       id: this.props.id,
-  //       description: this.props.description,
-  //       quantity: event.target.value,
-  //       startTime: this.props.startTime || this.props.startTime
-  //     });
-  //   }
-  // }
+  onChangeQuantity = (event) => {
+    // if (new RegExp(event.target.pattern).test(event.target.value)) {
+    //   // this.props.updateMissionWorkBlock({
+    //   id: this.props.id,
+    //   description: this.props.description,
+    //   quantity: event.target.value,
+    //   startTime: this.props.startTime || this.props.startTime
+    //   // });
+    // }
+  }
 
   render() {
-    let styles = {
-      quantityWrapper: {
-        marginRight: '8px',
-        width: '30px'
-      },
-      quantityInput: {
-        fontSize: '14px',
-        textAlign: 'right'
-      }
-    };
-
+    let iconClass = this.props.description ? 'circular comment link icon' : 'circular comment outline link icon';
     return (
-      <div>
-        <div className="mdl-textfield mdl-js-textfield" style={styles.quantityWrapper}>
-          <input
-            className="mdl-textfield__input"
-            type="text"
-            pattern="^(?=.+)(?:[1-9]\d*|0)?(?:\.\d+)?$"
-            style={styles.quantityInput}
-            value={this.props.quantity}
-          />
-          <label className="mdl-textfield__label"></label>
-        </div>
-        <button className="mdl-button mdl-js-button mdl-button--icon mdl-color-text--grey-400">
-          <i className="material-icons">{this.props.description ? 'message' : 'feedback'}</i>
-        </button>
-      </div>      
+      <div className="ui transparent input">
+        <i className={iconClass}></i>
+        <input type="text" defaultValue={this.props.quantity} style={{width: '40px', textAlign: 'right'}} />
+      </div>
+      // <div>
+      //   <div className="mdl-textfield mdl-js-textfield" style={styles.quantityWrapper}>
+      //     <input
+      //       className="mdl-textfield__input"
+      //       type="text"
+      //       pattern="^(?=.+)(?:[1-9]\d*|0)?(?:\.\d+)?$"
+      //       style={styles.quantityInput}
+      //       defaultValue={this.props.quantity}
+      //       onChange={this.onChangeQuantity}
+      //     />
+      //     <label className="mdl-textfield__label"></label>
+      //   </div>
+      //   <button className="mdl-button mdl-js-button mdl-button--icon mdl-color-text--grey-400">
+      //     <i className="material-icons">{this.props.description ? 'message' : 'feedback'}</i>
+      //   </button>
+      // </div>      
     );
   }
 }
