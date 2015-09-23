@@ -1,6 +1,4 @@
 
-import {validate} from 'jsonschema';
-
 export class Schema{
   constructor(id, jsonSchema){
     this.id = id;
@@ -55,10 +53,6 @@ export class Schema{
 export function input(formoSchema){
   return function(constructor){
     return class extends constructor{
-      handleChange = () => {
-        this.setState({value: this.refs[this.attrKey].getDOMNode().value});
-      }
-
       constructor(props){
         super(props);
         this.formoSchema = formoSchema || this.props.schema;
@@ -75,17 +69,6 @@ export function input(formoSchema){
         return schema;
       }
 
-      get inputMessage(){
-        if(this.pattern)return "Input doesn't match pattern!"
-        switch(this.type){
-          case 'number':
-            return "Input is not a number!";
-          case 'integer':
-            return "Input is not an integer!";
-        }
-        return "Wrong input!";
-      }
-
       get attrDef(){
         return this.formoSchema.get(this.attrKey) || {label: `${this.attrKey}-Unknown`, type: 'string'};
       }
@@ -100,33 +83,54 @@ export function input(formoSchema){
 
       get pattern(){
         return this.attrDef.pattern || {
-          number: "-?[0-9]*(\.[0-9]+)?" 
-          , integer: "^[0-9]+$" 
+            number: /^[0-9]*(\.[0-9]+)?$/
+          , integer: /^[0-9]+$/ 
         }[this.attrDef.type];
       }
 
-      hasNoValue(){
-        let data =  this.state.value;
-        return _.isUndefined(data) || data === "";
+      isNull(value){
+        return _.isUndefined(value) || value === "";
       }
 
       get value(){
-        let data =  this.state.value;
-        let value = undefined;
-        if(!this.hasNoValue()) value = (this.attrDef.type === 'number' || this.attrDef.type === 'integer' ? Number(data) : data);
-        try{
-          this.validate({[this.attrKey]: value});
-        }catch(e){
-          this.setState({error: true});
-          throw e;
+        let {error, value} = this.state;
+        if(error)throw new Error(this.errorMessage(value));
+        if(this.isNull(value) && this.isRequired()){
+          let error = this.errorMessage(value);
+          this.setState({error: error});
+          throw new Error(error);
         }
-        this.setState({error: false});
-        return value;
+        return this.getTypedValue(value);
       }
 
-      validate(value){
-        let validation = validate(value, this.localSchema);
-        if(validation.errors.length)throw new Error(validation.errors[0]);
+      checkValue(value){
+        if(this.isNull(value) && this.isRequired())return this.errorMessage(value);
+        else if(!this.checkPattern(value)) return this.errorMessage(value);
+      }
+
+      checkPattern(value){
+        return value.match(this.pattern);
+      }
+
+      getTypedValue(value){
+        switch(this.type){
+          case 'number':
+          case 'integer':
+            return Number(value);
+          default: return value;
+        }
+      }
+
+      errorMessage(value){
+        if(this.isNull(value) && this.isRequired())return "Input required";
+        if(this.pattern)return "Input doesn't match pattern!"
+        switch(this.type){
+          case 'number':
+            return "Input is not a number!";
+          case 'integer':
+            return "Input is not an integer!";
+        }
+        return "Wrong input!";
       }
 
       get label(){
