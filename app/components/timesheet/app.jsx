@@ -39,7 +39,8 @@ class TimesheetContainer extends Component {
         width: '100%'
       },
       card: {
-        width: '100%'
+        width: '100%',
+        minHeight: 'initial'
       }
     };
     
@@ -69,11 +70,15 @@ class TimesheetNavigationView extends Component {
     let styles = {
       title: {
         width: '150px',
-        textAlign: 'center'
+        textAlign: 'center',
+        lineHeight: '32px'
       }
     };
     return (
       <div className="mdl-card__title">
+        <button className="mdl-button mdl-js-button" onClick={this.props.navigateToToday}>
+          Today
+        </button>
         <button className="mdl-button mdl-js-button mdl-button--icon" onClick={this.props.navigateToPreviousWeek}>
           <i className="material-icons">chevron_left</i>
         </button>
@@ -102,13 +107,38 @@ class TimesheetTableView extends Component {
       table: {
         border: 'none',
         width: '100%'
+      },
+      supportingText: {
+        textAlign: 'center'
       }
     };
 
+    let currentDate = moment(this.props.timesheetStore.currentDate);
+    let missions = _.select(this.props.missionStore.missions, (mission) => {
+      let startDate = moment(mission.startDate);
+      let endDate = moment(mission.endDate);
+      return startDate.isBefore(moment(currentDate).endOf('w')) && endDate.isAfter(moment(currentDate).startOf('w'));
+    });
+
+    if (_.isEmpty(missions)) {
+      return (
+        <div className="mdl-card__supporting-text" style={styles.supportingText}>
+          There is no mission during this week.
+        </div>
+      );
+    }
+
+    // Forced to use a random key on table to trigger componentDidMount for mdl
+    // see: http://quaintous.com/2015/07/09/react-components-with-mdl/
+    // and: http://codepen.io/yan-foto/pen/yNjwaO?editors=101
     return (
-      <table className="mdl-data-table mdl-js-data-table mdl-data-table--selectable" style={styles.table}>
+      <table
+        key={`tt-timesheet-table-view-${Date.now()}`}
+        className="mdl-data-table mdl-js-data-table"
+        style={styles.table}
+      >
         <TimesheetHeaderView {...this.props} />
-        <TimesheetBodyView {...this.props} />
+        <TimesheetBodyView {...this.props} missions={missions} />
       </table>
     );
   }
@@ -139,6 +169,7 @@ class TimesheetHeaderView extends Component {
             </th>
           );
         })}
+        <th></th>
       </thead>
     );
   }
@@ -151,42 +182,77 @@ class TimesheetBodyView extends Component {
 
   render() {
     let styles = {
-      label: {
+      text: {
         lineHeight: '42px'
       },
       cell: {
         paddingTop: '0'
+      },
+      totals: {
+        row: {
+          height: '66px'
+        },
+        text: {
+          lineHeight: '42px',
+          paddingRight: '38px'
+        }
       }
     };
 
+    let weekTotal = 0;
+    let dayOfWeekTotals = {};
+
     return (
       <tbody>
-        {this.props.missionStore.missions.map(mission => {
+        {this.props.missions.map(mission => {
           let workblocks = _.select(this.props.workblockStore.workblocks, workblock => {
             return workblock.missionId == mission._id;
           });
           let dayOfWeek = moment(this.props.timesheetStore.currentDate).startOf('w');
+          let missionTotal = 0;
           return (
             <tr key={mission._id}>
               <td className="mdl-data-table__cell--non-numeric">
-                <span style={styles.label}>{`${mission.label}`}</span>
+                <span style={styles.text}>{`${mission.label}`}</span>
               </td>
               {_.times(7, n => {
                 let startTime = moment(dayOfWeek).startOf('d');
-                let endTime = moment(startTime).add(1, 'd');
-                let workblock = _.find(workblocks, workblock => {
-                  return moment(workblock.startTime).isBetween(startTime, endTime);
-                });
+                let cell = '';
+                if (startTime.isBetween(moment(mission.startDate).startOf('d').subtract(1, 'ms'), moment(mission.endDate).endOf('d'))) {
+                  let endTime = moment(startTime).add(1, 'd');
+                  let workblock = _.find(workblocks, workblock => {
+                    return moment(workblock.startTime).isBetween(startTime, endTime);
+                  });
+                  dayOfWeekTotals[dayOfWeek] = dayOfWeekTotals[dayOfWeek] || 0;
+                  if (workblock) {
+                    missionTotal += workblock.quantity;
+                    dayOfWeekTotals[dayOfWeek] += workblock.quantity;
+                    weekTotal += workblock.quantity;
+                  }
+                  cell = <TimesheetCellView {...workblock} startTime={moment(startTime)} />;
+                }
                 dayOfWeek.add(1, 'd');
-                return (
-                  <td key={`tt-timesheet-cell-view-${n}`} style={styles.cell}>
-                    <TimesheetCellView {...workblock} startTime={moment(startTime)} />
-                  </td>
-                );
+                return <td key={`tt-timesheet-cell-view-${n}`} style={styles.cell}>{cell}</td>;
               })}
+              <td>
+                <span style={styles.text} className="mdl-color-text--pink-A200">{missionTotal}</span>
+              </td>
             </tr>
           );
         })}
+        <tr style={styles.totals.row}>
+          <td></td>
+          {_.map(dayOfWeekTotals, (total) => {
+            return (
+              <td>
+                <span style={styles.totals.text} className="mdl-color-text--pink-A200">{total}</span>
+              </td>
+            );
+          })}
+          <td>
+            <strong style={styles.text} className="mdl-color-text--pink-A200">{weekTotal}</strong>
+          </td>
+        </tr>
       </tbody>
     );
   }

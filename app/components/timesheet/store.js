@@ -11,12 +11,14 @@ export default class TimesheetStore {
   }
 
   navigateToPreviousWeek() {
-    console.info('navigate to previous week');
     this.currentDate.subtract(1, 'w');
   }
 
   navigateToNextWeek() {
-    console.info('navigate to next week');
     this.currentDate.add(1, 'w');
+  }
+
+  navigateToToday() {
+    this.currentDate = moment();
   }
 }

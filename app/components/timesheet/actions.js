@@ -6,7 +6,8 @@ export default class TimesheetActions {
   constructor() {
     this.generateActions(
       'navigateToPreviousWeek',
-      'navigateToNextWeek'
+      'navigateToNextWeek',
+      'navigateToToday'
     );
   }
 }
