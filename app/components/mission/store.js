@@ -15,13 +15,16 @@ export default class MissionStore {
 
   fetch() {
     console.info('fetch missions');
-    if (!this.getInstance().isLoading()) this.getInstance().fetch();
+    if (!this.getInstance().isLoading()) {
+      this.getInstance().fetch();
+      this.isFetching = true;
+    }
   }
 
-  fetching() {
-    console.info('fetching missions');
-    this.isFetching = true;
-  }
+  // fetching() {
+  //   console.info('fetching missions');
+  //   this.isFetching = true;
+  // }
 
   fetched(missions) {
     console.info('missions fetched');

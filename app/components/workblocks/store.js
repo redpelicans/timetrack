@@ -15,13 +15,16 @@ export default class WorkblockStore {
 
   fetch() {
     console.info('fetch workblocks');
-    if (!this.getInstance().isLoading()) this.getInstance().fetch();
+    if (!this.getInstance().isLoading()) {
+      this.getInstance().fetch();
+      this.isFetching = true;
+    }
   }
 
-  fetching() {
-    console.info('fetching workblocks');
-    this.isFetching = true;
-  }
+  // fetching() {
+  //   console.info('fetching workblocks');
+  //   this.isFetching = true;
+  // }
 
   fetched(workblocks) {
     console.info('workblocks fetched');

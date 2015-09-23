@@ -6,7 +6,7 @@ const WorkblockDatasource = {
     remote(state) {
       return requestJson('/api/workblocks');
     },
-    loading: WorkblockActions.fetching.defer(),
+    // loading: WorkblockActions.fetching.defer(),
     success: WorkblockActions.fetched,
     error: WorkblockActions.fetchFailed
   },

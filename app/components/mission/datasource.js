@@ -6,7 +6,7 @@ const MissionDatasource = {
     remote(state) {
       return requestJson('/api/missions');
     },
-    loading: MissionActions.fetching.defer(),
+    // loading: MissionActions.fetching.defer(),
     success: MissionActions.fetched,
     error: MissionActions.fetchFailed
   },
