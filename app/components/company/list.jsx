@@ -7,7 +7,7 @@ import Avatar from '../avatar/app';
 //import IconMenu from 'material-ui/lib/menus/icon-menu';
 //import MenuItem from 'material-ui/lib/menus/menu-item';
 
-export default class CompanyApp extends Component {
+export default class CompanyListApp extends Component {
 
   componentWillMount() {
     CompanyActions.fetch();
@@ -20,10 +20,17 @@ export default class CompanyApp extends Component {
       </AltContainer>
     );
   }
-
 }
 
 class CompanyPanel extends Component {
+  handleAddCompany = () => {
+    this.context.router.transitionTo("/AddCompany");
+  }
+
+
+  componentDidMount() {
+    componentHandler.upgradeDom();
+  }
 
   render() {
     let styles = {
@@ -79,7 +86,7 @@ class CompanyPanel extends Component {
           <CompanyHeader filter={this.props.companyStore.filter} starred={this.props.companyStore.starredFilter} sortMode={this.props.companyStore.sortMode}/>
           <CompanyList companies={companyRows} />
         </div>
-        <button style={styles.addButton} className="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+        <button style={styles.addButton} className="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" onClick={this.handleAddCompany}>
           <i className="material-icons">add</i>
         </button>
       </div>
@@ -87,6 +94,11 @@ class CompanyPanel extends Component {
 
   }
 }
+
+CompanyPanel.contextTypes = {
+    router: React.PropTypes.func.isRequired
+};
+
 
 class CompanyHeader extends Component {
   close = () => {
@@ -192,17 +204,17 @@ class CompanyList extends Component {
 
 class CompanyListItem extends Component {
   handleCompanySelection = (company) => {
-    console.log(`CLIENT SELECTION ${company._id}`)
+    //console.log(`CLIENT SELECTION ${company._id}`)
   }
 
   handleCompanyEnter = (e) => {
-    e.target.style.background = 'gray';
-    e.preventDefault();
+    // e.target.style.background = 'gray';
+    // e.preventDefault();
   }
 
   handleCompanyOut = (e) => {
-    e.target.style.background = 'white';
-    e.preventDefault();
+    // e.target.style.background = 'white';
+    // e.preventDefault();
   }
 
 

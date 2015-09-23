@@ -137,7 +137,7 @@ class AppSlidingMenu extends Component {
 
 class AppNavigationMenu extends Component {
   render(){
-    let menu = appRoutesData.map( e => {
+    let menu = appRoutesData.filter(routeData =>  routeData.isMenu).map( e => {
       return <a className="mdl-navigation__link" href={`/#/${e.route}`}><i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">{e.iconName}</i>{e.label}</a>
     });
 
