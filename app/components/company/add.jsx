@@ -7,7 +7,6 @@ import * as formo from '../../formo';
 
 
 export default class CompanyAddApp extends Component {
-
   componentWillMount() {
   }
 
@@ -18,11 +17,9 @@ export default class CompanyAddApp extends Component {
       </AltContainer>
     );
   }
-
 }
 
 class CompanyAddPanel extends Component {
-
   componentDidMount() {
     componentHandler.upgradeDom();
   }
@@ -54,6 +51,25 @@ let addCompanySchema = new formo.Schema('/Company', {
     label: "Name",
     type: "string",
     required: true,
+  },
+  type: {
+    label: "Type",
+    type: "string",
+    values: {
+      client: 'Client', 
+      partner: 'Partner',
+      tenant: 'Tenant', 
+    },
+    defaultValue: 'client',
+    required: true,
+  },
+  website: {
+    label: "Website",
+    type: "string",
+  },
+  mainCompany: {
+    label: "Main Company",
+    type: "string",
   },
   address: {
     street1 :{ 
@@ -95,17 +111,20 @@ let addCompanySchema = new formo.Schema('/Company', {
       type: 'string',
     },
     vatPct:{
-      label: "VAT Value (%)",
+      label: "VAT",
       type: 'number',
+      unit: '%'
     },
-    minTimeBillable:{
-      label: "Minimum Time Billable",
-      type: 'number',
-    },
-    billableUnit:{
-      label: "Billable Unit",
-      values: ['Day', 'Hour'],
-      defaultValue: 'Day'
+    timeBillable:{
+      minimum:{
+        label: "Minimum Time Billable",
+        type: 'number',
+      },
+      unit:{
+        label: "Billable Unit",
+        values: ['Day', 'Hour'],
+        defaultValue: 'Day'
+      }
     },
     setupPerDay:{
       hours:{
@@ -135,12 +154,9 @@ let addCompanySchema = new formo.Schema('/Company', {
   }
 });
 
+let formoField = addCompanySchema.field.bind(addCompanySchema);
 
 class CompanyAddForm extends Component {
-
-  componentDidMount(){
-    $('.dropdown').dropdown();
-  }
 
   getData(){
     return addCompanySchema.getData();
@@ -159,7 +175,6 @@ class CompanyAddForm extends Component {
     }
 
     return (
-
       <div className="ui form">
         <h5 style={styles.header} className="ui center aligned icon header">
            <i style={styles.icon} className="info circle icon"/>
@@ -168,84 +183,51 @@ class CompanyAddForm extends Component {
         <div className="ui centered grid">
           <div className="ten wide computer fourteen wide tablet column">
             <div className="ui stackable centered grid">
-              <div className="sixteen wide column">
-                <InputFormElement attr='name'/>
+              <div className="twelve wide column">
+                <InputFormElement field={formoField('name')}/>
               </div>
-              <div className="height wide column">
-                <InputFormElement attr='address.street1'/>
-              </div>
-              <div className="height wide column">
-                <InputFormElement attr='address.street2'/>
-              </div>
-              <div className="five wide column">
-                <InputFormElement attr='address.zip'/>
-              </div>
-              <div className="six wide column">
-                <InputFormElement attr='address.city'/>
-              </div>
-              <div className="five wide column">
-                <CountryFormElement attr='address.country'/>
+              <div className="four wide column">
+                <SelectFormElement field={formoField('type')}/>
               </div>
             </div>
           </div>
         </div>
-        <h5  style={styles.header} className="ui center aligned icon header">
-           <i style={styles.icon} className="pie chart icon"/>
-           Billing
-        </h5>
-        <div className="ui centered grid">
-          <div className="ten wide computer fourteen wide tablet column">
-            <div className="ui stackable centered grid">
-              <div className="sixteen wide column">
-                <InputUnitFormElement attr='billing.creditPeriod'/>
-              </div>
-              <div className="sixteen wide column">
-                <InputFormElement attr='billing.invoicingContacts'/>
-              </div>
-              <div className="height wide column">
-                <InputFormElement attr='billing.vatNumber'/>
-              </div>
-              <div className="height wide column">
-                <InputFormElement attr='billing.vatPct'/>
-              </div>
-              <div className="sixteen wide column">
-                <div className="field">
-                  <label>Minimum Time Billable</label>
-                  <div className="ui right labeled input">
-                    <input type="text" placeholder="Minimum Time Billable"/>
-                    <div className="ui dropdown label">
-                      <div className="text">days</div>
-                      <i className="dropdown icon"></i>
-                        <div className="menu">
-                          <div className="item">days</div>
-                          <div className="item">hours</div>
-                        </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
-    )
+      )
   }
 }
 
-@formo.input(addCompanySchema)
 class InputFormElement extends Component {
+  constructor(props){
+    super(props);
+    this.props.field.bind(this);
+  }
+
+  state = {
+    error: false, 
+    value: this.props.field.defaultValue || ""
+  }
 
   handleChange = () => {
-    let value = this.refs[this.attrKey].getDOMNode().value;
+    let value = this.refs[this.props.field.key].getDOMNode().value;
     this.setState({ 
       value: value,
-      error: this.checkValue(value)
+      error: this.props.field.checkValue(value)
     })
+  }
+
+  fieldValue(){
+    let {error, value} = this.state;
+    if(error)throw new Error(this.props.field.errorMessage(value));
+    this.setState({ error: this.props.field.checkValue(value) })
+    if(this.state.error) throw new Error(error);
+    return value;
   }
 
   fieldClassName = () => {
     let klasses = ['field'];
-    if(this.isRequired()) klasses.push('required');
+    if(this.props.field.isRequired()) klasses.push('required');
     if(this.state.error) klasses.push('error');
     return klasses.join(' ');
   }
@@ -260,8 +242,8 @@ class InputFormElement extends Component {
 
     return(
       <div className={this.fieldClassName()}>
-        <label>{this.label}</label>
-        <input type="text" value={this.state.value} placeholder={this.label} ref={this.attrKey} onChange={this.handleChange}/>
+        <label>{this.props.field.label}</label>
+        <input ref={this.props.field.key} type="text" value={this.state.value} placeholder={this.props.field.label} onChange={this.handleChange}/>
         <div style={styles.errorMessage} className="ui pointing red basic label">
           {this.state.error}
         </div>
@@ -270,21 +252,39 @@ class InputFormElement extends Component {
   }
 }
 
+class SelectFormElement extends Component {
+  constructor(props){
+    super(props);
+    this.props.field.bind(this);
+  }
 
-@formo.input(addCompanySchema)
-class InputUnitFormElement extends Component {
+  state = {
+    error: false, 
+    value: this.props.field.defaultValue || ""
+  }
 
-  handleChange = () => {
-    let value = this.refs[this.attrKey].getDOMNode().value;
-    this.setState({ 
-      value: value,
-      error: this.checkValue(value)
-    })
+  componentDidMount(){
+    $('.dropdown.selectFormElement').dropdown({
+      onChange: (value) => {
+        this.setState({
+          value: value,
+          error: this.props.field.checkValue(value)
+        })
+      }
+    });
+  }
+
+  fieldValue(){
+    let {error, value} = this.state;
+    if(error)throw new Error(this.props.field.errorMessage(value));
+    this.setState({ error: this.props.field.checkValue(value) })
+    if(this.state.error) throw new Error(error);
+    return value;
   }
 
   fieldClassName = () => {
     let klasses = ['field'];
-    if(this.isRequired()) klasses.push('required');
+    if(this.props.field.isRequired()) klasses.push('required');
     if(this.state.error) klasses.push('error');
     return klasses.join(' ');
   }
@@ -296,14 +296,21 @@ class InputUnitFormElement extends Component {
         get display(){return element.state.error ? '' : 'none'},
       }
     }
+    let menuItems = _.map(this.props.field.schema.values, (value, key) => {
+      return (
+        <div className="item" key={key} data-value={key}>{value}</div>
+      )
+    });
 
     return(
       <div className={this.fieldClassName()}>
-        <label>{this.label}</label>
-        <div className="ui right labeled input">
-          <input type="text" value={this.state.value} placeholder={this.label} ref={this.attrKey} onChange={this.handleChange}/>
-          <div className="ui label">
-            {this.attrDef.unit}
+        <label>{this.props.field.label}</label>
+        <div className="ui selection dropdown selectFormElement">
+          <input type="hidden" name={this.props.field.key} value={this.state.value} />
+          <i className="dropdown icon"></i>
+          <div className="default text">{this.props.field.label}</div>
+          <div className="menu">
+            {menuItems}
           </div>
         </div>
         <div style={styles.errorMessage} className="ui pointing red basic label">
@@ -314,38 +321,14 @@ class InputUnitFormElement extends Component {
   }
 }
 
-
-
-@formo.input(addCompanySchema)
-class CountryFormElement extends Component {
-
-  handleChange = (value) => {
-    this.setState({ value: value });
-  }
-
-  fieldClassName = () => {
-    let klasses = ['field'];
-    if(this.isRequired()) klasses.push('required');
-    return klasses.join(' ');
-  }
-
-  render(){
-    return(
-      <div className={this.fieldClassName()}>
-        <label>{this.label}</label>
-        <Country handleChange={this.handleChange}/>
-      </div>
-    )
-  }
-}
 
 class CompanyAddHeader extends Component {
 
   componentDidMount(){
     // TODO: doesn't work
     //this.refs.addActions.getDOMNode().dropdown();
-    $('.dropdown').dropdown({
-      action: (text, value) => {
+    $('.dropdown.addActions').dropdown({
+      onChange: (text, value) => {
         console.log('Cancel inputs ...');
       }
     });
@@ -373,7 +356,7 @@ class CompanyAddHeader extends Component {
             </h3>
           </div>
           <div className="right aligned two wide column">
-            <div className="ui dropdown" ref="addActions">
+            <div className="ui dropdown addActions" ref="addActions">
               <i className="material-icons">more_vert</i>
               <div className="menu">
                 <div className="item" data-value="cancel"> Reset inputs </div>
