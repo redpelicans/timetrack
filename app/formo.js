@@ -34,15 +34,22 @@ export class Schema{
     return _.values(this._registered);
   }
 
+  resetData(){
+    for(let field of this.registeredFields()){
+      field.reset();
+    }
+  }
+
   getData(){
     let data = {};
     let errors = [];
     for(let field of this.registeredFields()){
-      try{
-        this.set(data, field.key, field.value); 
-      }catch(e){
-        errors.push(e);
-      }
+      let value = field.value;
+      console.log(field.key, value)
+      field.error = field.checkValue(value);
+      if(!field.error) this.set(data, field.key, field.getCheckedValue()); 
+      // TODO
+      else errors.push({[field.key]: field.error});
     }
     if(errors.length)throw new Error(errors);
     return data;
@@ -54,10 +61,16 @@ class Field{
     this.key = name;
     this.schema = schema;
     this.formo = formo;
+    this.reset();
   }
 
-  bind(component){
-    this.component = component;
+  reset(){
+    this.value = this.defaultValue;
+    this.error = undefined;
+    this.visible = true;
+  }
+
+  register(){
     this.formo.register(this); 
   }
 
@@ -84,8 +97,8 @@ class Field{
     return this.schema.values;
   }
 
-  get value(){
-    return this.getTypedValue(this.component.fieldValue());
+  getCheckedValue(){
+    return this.getTypedValue(this.value);
   }
 
   checkValue(value){

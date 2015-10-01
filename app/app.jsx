@@ -1,59 +1,23 @@
 import _ from 'lodash';
 import React, {Component} from 'react';
 import Router from 'react-router';
-import routes, {appRoutesData} from './routes';
+import routeData from './routes';
 import Avatar from './components/avatar/app';
-import injecttapeventplugin from 'react-tap-event-plugin';
-injecttapeventplugin();
+//import injecttapeventplugin from 'react-tap-event-plugin';
+//injecttapeventplugin();
 
-//import mui from 'material-ui';
-//let thememanager = new mui.styles.thememanager();
+
 
 export default class App extends Component {
-  getChildContext() {
-    //return {muiTheme: ThemeManager.getCurrentTheme()};
-  }
-
-  setActiveRoute() {
-    let appRouteData = _.find(appRoutesData, (appRouteData) => {
-      return this.context.router.isActive(appRouteData.route);
-    });
-
-    this.setState({activeRoute: appRouteData ? appRouteData.route : '/'});
-  }
-
-  componentWillMount() {
-    this.setActiveRoute();
-    // ThemeManager.setPalette({
-    //   accent1Color: mui.Styles.Colors.greenA100,
-    //   accent2Color: mui.Styles.Colors.greenA200,
-    //   accent3Color: mui.Styles.Colors.greenA400,
-    // });
-  }
-
-  componentDidMount() {
-    componentHandler.upgradeDom();
-  }
-
-  componentWillReceiveProps() {
-    this.setActiveRoute();
-  }
-
-  transitionToRoute = (route) => {
-    this.context.router.transitionTo(route);
-    this.setState({activeRoute: route});
-  }
-
-  transitionToHome = () => {
-    this.transitionToRoute('/');
-  }
 
   render(){
     return (
       <AppLayout>
         <AppHeader/>
-        <AppSlidingMenu/>
-        <AppMain/>
+        <AppSlidingMenu location={this.props.location} history={this.props.history}/>
+        <AppMain>
+          {this.props.children}
+        </AppMain>
       </AppLayout>
     )
   }
@@ -63,7 +27,7 @@ class AppMain extends Component {
   render(){
     return (
       <main className="mdl-layout__content mdl-color--grey-100">
-        <Router.RouteHandler />
+        {this.props.children}
       </main>
     )
   }
@@ -73,9 +37,9 @@ class AppLayout extends Component {
   render(){
    
     return (
-        <div className="app-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
-          {this.props.children}
-        </div>
+      <div className="app-layout mdl-layout Xmdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+        {this.props.children}
+      </div>
     )
   }
 }
@@ -129,7 +93,7 @@ class AppSlidingMenu extends Component {
             </ul>
           </div>
         </header>
-        <AppNavigationMenu/>
+        <AppNavigationMenu location={this.props.location} history={this.props.history}/>
       </div>
     )
   }
@@ -137,8 +101,15 @@ class AppSlidingMenu extends Component {
 
 class AppNavigationMenu extends Component {
   render(){
-    let menu = appRoutesData.filter(routeData =>  routeData.isMenu).map( e => {
-      return <a className="mdl-navigation__link" href={`/#/${e.route}`}><i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">{e.iconName}</i>{e.label}</a>
+    let location = this.props.location;
+    let menu = routeData.filter(route => route.isMenu).map( e => {
+      // console.log(location)
+      // let isActive = this.props.history.isActive(location.pathname)
+      // console.log(e.path, isActive)
+
+      //console.log(this.props.history);
+
+      return <a className="mdl-navigation__link" key={e.path} href={`/#/${e.path}`}><i className="mdl-color-text--blue-grey-400 material-icons" role="presentation">{e.iconName}</i>{e.label}</a>
     });
 
     return (
@@ -152,6 +123,5 @@ class AppNavigationMenu extends Component {
 
 }
 
-App.childContextTypes = {muiTheme: React.PropTypes.object};
 App.contextTypes = {router: React.PropTypes.func};
 
