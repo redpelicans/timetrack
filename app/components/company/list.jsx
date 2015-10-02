@@ -28,9 +28,9 @@ class CompanyPanel extends Component {
     this.props.history.pushState(null, "/AddCompany");
   }
 
-  componentDidMount() {
-    componentHandler.upgradeDom();
-  }
+  // componentDidMount() {
+  //   componentHandler.upgradeDom();
+  // }
 
   render() {
     let styles = {

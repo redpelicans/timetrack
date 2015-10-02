@@ -21,6 +21,12 @@ i.material-icons{
 html, body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
 }
+
+.navigation-link:hover {
+  background-color: #00BCD4;
+  color: #37474F;
+}
+
 .app-avatar {
   width: 48px;
   height: 48px;

@@ -1,7 +1,7 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
+//import ReactDOM from 'react-dom'
 import  {Router, Route, Link, IndexRoute} from 'react-router'
-import App from './app';
+import App from './app3';
 import Home from './components/home';
 import NotFound from './components/not-found';
 import routeData from './routes';
@@ -20,7 +20,8 @@ let routes = (
 );
 
 
-ReactDOM.render(<Router>{routes}</Router>, document.body)
+//ReactDOM.render(<Router>{routes}</Router>, document.body)
+React.render(<Router>{routes}</Router>, document.body)
 
 
 
