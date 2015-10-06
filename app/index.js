@@ -1,7 +1,7 @@
 import React from 'react'
 //import ReactDOM from 'react-dom'
 import  {Router, Route, Link, IndexRoute} from 'react-router'
-import App from './app3';
+import App from './app';
 import Home from './components/home';
 import NotFound from './components/not-found';
 import routeData from './routes';

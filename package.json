@@ -59,6 +59,7 @@
     "mongobless": "^2.0.3",
     "morgan": "^1.6.1",
     "react": "^0.13.3",
+    "react-mdl": "^0.14.0",
     "require-dot-file": "^0.4.0",
     "semantic-ui": "^2.1.4",
     "whatwg-fetch": "^0.9.0",

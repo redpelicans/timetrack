@@ -3,6 +3,11 @@ import React, {Component} from 'react';
 import Router from 'react-router';
 import routeData from './routes';
 import Avatar from './components/avatar/app';
+import Layout, { Header, Navigation, HeaderRow, HeaderTabs, Drawer, Content } from 'react-mdl/lib/layout/Layout';
+import Textfield from 'react-mdl/lib/Textfield';
+import IconButton from 'react-mdl/lib/IconButton';
+import Menu, { MenuItem } from 'react-mdl/lib/Menu';
+
 //import injecttapeventplugin from 'react-tap-event-plugin';
 //injecttapeventplugin();
 
@@ -12,37 +17,27 @@ export default class App extends Component {
 
   render(){
     return (
-      <AppLayout>
-        <AppHeader/>
+      <Layout className="mdl-color--grey-100">
+        <Header className="mdl-color--white mdl-color--grey-100 mdl-color-text--grey-600">
+          <HeaderRow title="Timetrack by redpelicans">
+            <Textfield
+                value=""
+                onChange={() => {}}
+                label="Search"
+                expandable={true}
+                expandableIcon="search"
+            />
+          </HeaderRow>
+        </Header>
         <AppSlidingMenu location={this.props.location} history={this.props.history}/>
-        <AppMain>
+        <Content>
           {this.props.children}
-        </AppMain>
-      </AppLayout>
+        </Content>
+      </Layout>
     )
   }
 }
 
-class AppMain extends Component {
-  render(){
-    return (
-      <main className="mdl-layout__content mdl-color--grey-100">
-        {this.props.children}
-      </main>
-    )
-  }
-}
-
-class AppLayout extends Component {
-  render(){
-   
-    return (
-      <div className="app-layout mdl-layout Xmdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
-        {this.props.children}
-      </div>
-    )
-  }
-}
 
 class AppHeader extends Component {
   render(){
