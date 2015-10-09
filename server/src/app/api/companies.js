@@ -39,7 +39,11 @@ function loadCompanies(cb){
 }
 
 function loadCompany(id, cb){
-  Company.findOne({_id: id}, cb);
+  Company.findOne({_id: id}, (err, company) => {
+    if(err)return next(err);
+    if(!company)return cb(new Error(`Unknown company: '${id}'`));
+    cb(null, company);
+  });
 }
 
 function star(starred, company, cb){

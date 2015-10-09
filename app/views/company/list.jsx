@@ -16,7 +16,7 @@ export default class CompanyListApp extends Component {
   };
 
   componentDidMount() {
-    this.unsubscribeModel = companies.prop.onValue( state => {
+    this.unsubscribeModel = companies.state.onValue( state => {
       this.setState(state);
     });
     companies.load();
@@ -30,8 +30,17 @@ export default class CompanyListApp extends Component {
     companies.load();
   }
 
+  handleStarred = () => {
+    companies.toggleStarFilter();
+  }
+
+
   handleAddCompany = () => {
     this.props.history.pushState(null, "/AddCompany");
+  }
+
+  shouldComponentUpdate(nextProps, nextState){
+    return this.state.companies !== nextState.companies;
   }
 
   render(){
@@ -43,6 +52,7 @@ export default class CompanyListApp extends Component {
       <div>
         <Header title={'Companies'} buttonMenu={buttonMenu}>
           <Actions>
+            <Starred starred={this.state.starFilter} onClick={this.handleStarred}/>
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
         </Header>
@@ -57,6 +67,11 @@ export default class CompanyListApp extends Component {
 }
 
 class CompanyList extends Component {
+
+  shouldComponentUpdate(nextProps, nextState){
+    return this.props.model.companies !== nextProps.model.companies;
+  }
+
   render(){
     let styles={
       container:{
@@ -70,7 +85,7 @@ class CompanyList extends Component {
 
     let companies = this.props.model.companies;
     let data = companies.map( company => {
-      return <CompanyListItem key={company.get('_id')} company={company.toJS()}/>
+      return <CompanyListItem key={company.get('_id')} company={company}/>
     });
 
     return (
@@ -83,6 +98,10 @@ class CompanyList extends Component {
 }
 
 class CompanyListItem extends Component {
+  shouldComponentUpdate(nextProps, nextState){
+    return this.props.company !== nextProps.company;
+  }
+
   handleCompanySelection = (company) => {
     //console.log(`CLIENT SELECTION ${company._id}`)
   }
@@ -167,16 +186,18 @@ class CompanyListItem extends Component {
 
     };
 
+    let company = this.props.company.toJS();
+    //console.log("render " + company.name)
     return (
         <div style={styles.container} className='navigation2-link'>
           <div style={styles.avatar}>
-            <Avatar src={this.props.company.avatar}/>
+            <Avatar src={company.avatar}/>
           </div>
           <div style={styles.name}>
-            <span>{this.props.company.name}</span>
+            <span>{company.name}</span>
           </div>
           <div style={styles.billElements}>
-            {billAmounts(this.props.company)}
+            {billAmounts(company)}
           </div>
           <div style={styles.left}>
             <div style={styles.star}>
@@ -197,11 +218,11 @@ class CompanyListItem extends Component {
 
 class StarredCompany extends Component{
   handleChange = () => {
-    companies.toggleStar(this.props.company);
+    companies.toggleStar(this.props.company.toJS());
   }
 
   render(){
-    let company = this.props.company;
+    let company = this.props.company.toJS();
     let style={
       get color(){ return company.starred ? '#00BCD4' : 'grey'; }
     };
@@ -265,6 +286,23 @@ class Refresh extends Component {
     return (
       <div>
         <a href="#" onClick={this.props.onClick} > <i className="material-icons">refresh</i> </a>
+      </div>
+    )
+  }
+}
+
+class Starred extends Component {
+  render(){
+    let filter = this.props.starred;
+    let style={
+      get color(){ return filter ? '#00BCD4' : 'grey'; }
+    }
+
+    return (
+      <div>
+        <a href="#" onClick={this.props.onClick} > 
+          <i style={style} className="material-icons">star_border</i> 
+        </a>
       </div>
     )
   }
