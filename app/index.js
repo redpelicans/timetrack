@@ -1,27 +1,35 @@
 import React from 'react'
-//import ReactDOM from 'react-dom'
-import  {Router, Route, Link, IndexRoute} from 'react-router'
+import ReactDOM from 'react-dom'
+import  {Router, Route, Link, IndexRoute, IndexLink, Redirect} from 'react-router'
+import createBrowserHistory from 'history/lib/createBrowserHistory';
 import App from './app';
-import Home from './components/home';
+import HomeApp from './components/home/app';
 import NotFound from './components/not-found';
 import routeData from './routes';
+import Nav from './models/nav.js';
 
+function onEnter(route, nextState, replaceState){
+  Nav.newTopic(route.topic);
+}
+
+// to be removed
+function getRoutes(data){
+  return data.map(r => {
+    return <Route topic={r.topic} onEnter={onEnter.bind(null, r)} key={r.path} path={r.path} component={r.component}/>
+  })
+}
 
 let routes = (
   <Route path="/" component={App}>
-    <IndexRoute component={Home}/>
-    {
-      routeData.map(r => {
-        return  <Route key={r.path} path={r.path} component={r.component}/>;
-      })
-    }
+  <IndexRoute component={HomeApp}/>
+    { getRoutes(routeData) }
     <Route path="*" component={NotFound} />
   </Route>
 );
 
 
-//ReactDOM.render(<Router>{routes}</Router>, document.body)
-React.render(<Router>{routes}</Router>, document.body)
+let history = createBrowserHistory();
+ReactDOM.render(<Router history={history}>{routes}</Router>, document.body)
 
 
 
