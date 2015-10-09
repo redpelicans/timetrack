@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import  {Router, Route, Link, IndexRoute, IndexLink, Redirect} from 'react-router'
 import createBrowserHistory from 'history/lib/createBrowserHistory';
 import App from './app';
-import HomeApp from './components/home/app';
+import HomeApp from './views/home';
 import NotFound from './components/not-found';
 import routeData from './routes';
 import Nav from './models/nav.js';

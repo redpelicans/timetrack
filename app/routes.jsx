@@ -1,9 +1,9 @@
 import NotFound from './components/not-found';
-import CompanyListApp from './components/company/list';
+import CompanyListApp from './views/company/list';
 import NewCompanyApp from './components/newCompany/app';
 import MissionApp from './components/mission/app';
 import TimesheetApp from './components/timesheet/app';
-import HomeApp from './components/home/app';
+import HomeApp from './views/home';
 
 
 let routeData = [

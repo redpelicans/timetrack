@@ -27,6 +27,13 @@ html, body {
   color: #37474F !important;
 }
 
+.navigation2-link:hover {
+  background-color: #AFEEF6;
+  color: #37474F !important;
+}
+
+
+
 .navigation-link {
    text-decoration:none; 
 }

@@ -168,9 +168,6 @@ class AppBarItem extends Component {
       },
     }
 
-    if(this.props.route.topic === 'home'){
-      console.log(this.context.currentTopic)
-    }
     return (
       <div style={styles.item} className='navigation-link' onClick={this.handleClick}>
         <i className="material-icons" style={this.props.route.topic === this.context.currentTopic ? styles.active_icon : styles.icon}>{this.props.route.iconName}</i>

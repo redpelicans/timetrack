@@ -1,9 +1,6 @@
 import React, {Component} from 'react';
 
-export default class HomeApp extends Component{
-  static contextTypes = {
-    toggleSideBar: React.PropTypes.func.isRequired
-  }
+export default class Header extends Component {
 
   componentDidMount(){
   }
@@ -28,25 +25,29 @@ export default class HomeApp extends Component{
       },
       title:{
         order: 1,
-        flex: '20 0 auto'
+        flex: '10 0 auto'
+      },
+      options:{
+        order: 2,
+        flex: '10 1 auto'
       }
     }
 
     return (
-      <div>
-        <div style={styles.header}>
-          <div style={styles.barButton}>
-            <a href="#" onClick={this.context.toggleSideBar} > <i className="material-icons">menu</i> </a>
-          </div>
-          <div style={styles.title}>
-            <span> TimeTrack By Redpelicans </span>
-          </div>
+      <div style={styles.header}>
+        <div style={styles.barButton}>
+          {this.props.buttonMenu}
         </div>
-        <div className="content">
-          <h1>Home Sweet Home ...</h1>
+        <div style={styles.title}>
+          <span> {this.props.title} </span>
+        </div>
+        <div style={styles.options}>
+          {this.props.children}
         </div>
       </div>
     )
   }
+
 }
+
 
