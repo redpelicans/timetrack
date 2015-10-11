@@ -3,6 +3,7 @@ import Router from 'react-router';
 import SideBar from 'react-sidebar';
 import AppBar from './views/appbar';
 import Nav from './models/nav.js';
+import errors from './models/errors.js';
 import ReactToastr from 'react-toastr';
 let {ToastContainer} = ReactToastr;
 let ToastMessageFactory = React.createFactory(ReactToastr.ToastMessage.animation);
@@ -46,18 +47,20 @@ export default class App extends Component {
     Nav.property.onValue(topic => {
       this.setState({currentTopic: topic.currentTopic});
     });
-    this.refs.container.success(
-      "Welcome welcome welcome!!",
-      "You are now home my friend. Welcome home my friend.", 
-      { 
-        closeButton: true,
-        showDuration: 300, 
-        hideDuration: 1000, 
-        timeOut: 5000,
-        extendedTimeOut: 1000,
-        tapToDismiss: true,
-      }
-    );
+    errors.state.onValue(err => {
+      this.refs.container.error(
+        err.message, 
+        err.header,
+        { 
+          closeButton: true,
+          showDuration: 300, 
+          hideDuration: 1000, 
+          timeOut: 5000,
+          extendedTimeOut: 1000,
+          tapToDismiss: true,
+        }
+      );
+    })
   }
 
   render(){

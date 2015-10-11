@@ -1,8 +1,8 @@
 import Bacon from 'baconjs';
 import Dispatcher from '../utils/dispatcher';
 import Immutable from 'immutable';
-import {requestJson} from '../utils';
-import errors from './errors';
+import {requestJson, pushDataEvent} from '../utils';
+import errors from '../models/errors';
 
 const d = new Dispatcher();
 
@@ -35,9 +35,7 @@ function filter(companies, filter){
 
 const model = {
   load(){
-    requestJson('/api/companies').then( companies =>{
-      loadedCompanies.push(companies);
-    });
+    pushDataEvent(requestJson('/api/companies'), loadedCompanies);
   },
 
   toggleStarFilter(){
@@ -50,7 +48,7 @@ const model = {
   }),
 
   toggleStar(company){
-    return requestJson(`/api/companies/star`, {
+    let request = requestJson(`/api/companies/star`, {
       method: 'post',
       headers:{
         'Accept': 'application/json',
@@ -60,10 +58,13 @@ const model = {
           id: company._id
         , starred: !company.starred
       })
-    }).then( company => {
-      d.push('update', company );
-    }).catch( err => {
-      errors.alert(err);
+    });
+
+    pushDataEvent(request, d.stream('update'), err => {
+      errors.alert({
+        header: 'Communication Problem',
+        message: 'Cannot update company, check your backend server'
+      });
     });
   }
 }

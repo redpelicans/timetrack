@@ -1,3 +1,6 @@
+import errors from '../models/errors';
+
+
 function parseJSON(res) {
   return res.json()
 }
@@ -14,5 +17,22 @@ function checkStatus(res) {
 
 export function requestJson(...params){
   return fetch(...params).then(checkStatus).then(parseJSON);
+}
+
+export function pushDataEvent(request, stream, manageError){
+  request
+  .then(data => {
+    stream.push(data);
+  })
+  .catch(err => {
+    if(manageError){
+      manageError(err);
+    }else{
+      errors.alert({
+        header: 'Communication Problem',
+        message: 'Check your backend server'
+      });
+    }
+  })
 }
 

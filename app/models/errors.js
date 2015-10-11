@@ -2,10 +2,13 @@ import Bacon from 'baconjs';
 import Dispatcher from '../utils/dispatcher';
 import Immutable from 'immutable';
 
-const model = {
 
+const errors = new Bacon.Bus();
+
+const model = {
+  state: errors,
   alert(err){
-    console.log(err)
+    errors.push(err);
   }
 }
 
