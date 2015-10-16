@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import Avatar from '../avatar';
 import Header from '../header';
-import {Input, Glyphicon} from 'react-bootstrap';
+import {Button, Input, Glyphicon} from 'react-bootstrap';
 import MainButtonMenu from '../main_button_menu';
 import companies from '../../models/companies';
 
@@ -250,18 +250,15 @@ class AddCompanyButton extends Component {
         display: 'block',
         right: 0,
         bottom: 0,
-        marginRight: '40px',
-        marginBottom: '40px',
+        marginRight: '30px',
+        marginBottom: '30px',
         zIndex: '900',
-        width: '40px',
-        height: '40px',
-        //backgroundColor: '#ff4081',
     }
 
     return (
-      <button style={style}  onClick={this.props.onAddCompany}>
-        <i className="material-icons">add</i>
-      </button>
+      <Button bsSize="large" bsStyle="primary" style={style}  onClick={this.props.onAddCompany}>
+        <Glyphicon glyph="plus"/>
+      </Button>
     )
   }
 }
