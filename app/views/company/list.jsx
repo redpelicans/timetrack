@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React, {Component} from 'react';
 import Avatar from '../avatar';
+//import Avatar from 'react-avatar';
 import Header from '../header';
 import {Button, Input, Glyphicon} from 'react-bootstrap';
 import MainButtonMenu from '../main_button_menu';
@@ -197,7 +198,7 @@ class CompanyListItem extends Component {
     return (
         <div style={styles.container} className='navigation2-link'>
           <div style={styles.avatar}>
-            <Avatar src={company.avatar}/>
+            <Avatar size="150" src={company.avatar}/>
           </div>
           <div style={styles.name}>
             <span>{company.name}</span>
