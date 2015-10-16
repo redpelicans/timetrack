@@ -25,13 +25,30 @@ const starFilter = Bacon.update(
   [d.stream('toggleStarFilter')], filter => !filter,
 );
 
-function filter(companies, filter){
+function filterWithStar(companies, filter){
   if(filter){
     return companies.filter( c => c.get('starred') );
   }else{
     return companies;
   }
 }
+
+function filterWithSearch(companies, filter){
+  if(filter){
+    return companies.filter( c => {
+      let name = c.get('name') || '';
+      return name.toLowerCase().indexOf(filter) !== -1;
+    })
+  }else{
+    return companies;
+  }
+}
+
+const searchFilter = Bacon.update(
+  '',
+  [d.stream('searchFilter')], (previous, filter) => filter,
+
+);
 
 const model = {
   load(){
@@ -43,9 +60,14 @@ const model = {
   },
 
   state: Bacon.combineTemplate({
-    companies: companies.combine(starFilter, filter),
+    companies: companies.combine(starFilter, filterWithStar).combine(searchFilter, filterWithSearch),
     starFilter: starFilter,
+    searchFilter: searchFilter,
   }),
+
+  searchFilter(filter){
+    d.push('searchFilter', filter);
+  },
 
   toggleStar(company){
     let request = requestJson(`/api/companies/star`, {

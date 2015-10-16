@@ -34,13 +34,18 @@ export default class CompanyListApp extends Component {
     companies.toggleStarFilter();
   }
 
+  handleSearchFilter = (filter) => {
+    companies.searchFilter(filter);
+  }
 
   handleAddCompany = () => {
     this.props.history.pushState(null, "/AddCompany");
   }
 
   shouldComponentUpdate(nextProps, nextState){
-    return this.state.companies !== nextState.companies;
+    return this.state.companies !== nextState.companies || 
+      this.state.searchFilter != nextState.searchFilter || 
+      this.state.starFilter != nextState.starFilter;
   }
 
   render(){
@@ -52,6 +57,7 @@ export default class CompanyListApp extends Component {
       <div>
         <Header title={'Companies'} buttonMenu={buttonMenu}>
           <Actions>
+            <Filter filter={this.state.searchFilter} onChange={this.handleSearchFilter}/>
             <Starred starred={this.state.starFilter} onClick={this.handleStarred}/>
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
@@ -187,7 +193,6 @@ class CompanyListItem extends Component {
     };
 
     let company = this.props.company.toJS();
-    //console.log("render " + company.name)
     return (
         <div style={styles.container} className='navigation2-link'>
           <div style={styles.avatar}>
@@ -286,6 +291,21 @@ class Refresh extends Component {
     return (
       <div>
         <a href="#" onClick={this.props.onClick} > <i className="material-icons">refresh</i> </a>
+      </div>
+    )
+  }
+}
+
+class Filter extends Component{
+
+  handleChange = (e) => {
+    this.props.onChange(e.target.value);
+  }
+
+  render(){
+    return (
+      <div>
+        <input value={this.props.filter} onChange={this.handleChange}/>
       </div>
     )
   }
