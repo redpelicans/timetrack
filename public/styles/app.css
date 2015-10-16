@@ -15,7 +15,7 @@
  */
 
 i.material-icons{
-  color: #757575 !important;
+  color: #757575;
 }
 
 html, body {
@@ -24,146 +24,22 @@ html, body {
 
 .navigation-link:hover {
   background-color: #00BCD4;
-  color: #37474F;
+  color: #37474F !important;
 }
 
-.app-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 24px;
-}
-.app-layout .app-header .mdl-textfield {
-  padding-top: 27px;
-}
-.app-layout .mdl-layout__header .mdl-layout__drawer-button {
-  color: rgba(0, 0, 0, 0.54);
-}
-.mdl-layout__drawer .avatar {
-  margin-bottom: 16px;
-}
-.app-drawer {
-  border: none;
-}
-/* iOS Safari specific workaround */
-.app-drawer .mdl-menu__container {
-  z-index: -1;
-}
-.app-drawer .app-navigation {
-  z-index: -2;
-}
-/* END iOS Safari specific workaround */
-.app-drawer .mdl-menu .mdl-menu__item{
-  display: flex;
-  align-items: center;
-}
-.app-drawer-header {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 16px;
-  height: 151px;
-}
-.app-avatar-dropdown {
-  display: flex;
-  position: relative;
-  flex-direction: row;
-  align-items: center;
-  width: 100%;
+.navigation2-link:hover {
+  background-color: #AFEEF6;
+  color: #37474F !important;
 }
 
-.app-navigation {
-  flex-grow: 1;
-}
-.app-layout .app-navigation .mdl-navigation__link {
-  display: flex !important;
-  flex-direction: row;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.56);
-  font-weight: 500;
-}
-.app-layout .app-navigation .mdl-navigation__link:hover {
-  background-color: #00BCD4;
-  color: #37474F;
-}
-.app-navigation .mdl-navigation__link .material-icons {
-  font-size: 24px;
-  color: rgba(255, 255, 255, 0.56);
-  margin-right: 32px;
+
+
+.navigation-link {
+   text-decoration:none; 
 }
 
-.app-graphs {
-  padding: 16px 32px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-/* TODO: Find a proper solution to have the graphs
- * not float around outside their container in IE10/11.
- * Using a browserhacks.com solution for now.
- */
-_:-ms-input-placeholder, :root .app-graphs {
-  min-height: 664px;
-}
-_:-ms-input-placeholder, :root .app-graph {
-  max-height: 300px;
-}
-/* TODO end */
-.app-graph:nth-child(1) {
-  color: #00b9d8;
-}
-.app-graph:nth-child(2) {
-  color: #d9006e;
+.active-link-navigation {
+  border-bottom: 6px solid #00BCD4;
 }
 
-.app-cards {
-  align-items: flex-start;
-  align-content: flex-start;
-}
-.app-cards .app-separator {
-  height: 32px;
-}
-.app-cards .mdl-card__title.mdl-card__title {
-  color: white;
-  font-size: 24px;
-  font-weight: 400;
-}
-.app-cards ul {
-  padding: 0;
-}
-.app-cards h3 {
-  font-size: 1em;
-}
-.app-updates .mdl-card__title {
-  min-height: 200px;
-  background-image: url('/images/dog.png');
-  background-position: 90% 100%;
-  background-repeat: no-repeat;
-}
-.app-cards .mdl-card__actions a {
-  color: #00BCD4;
-  text-decoration: none;
-}
 
-.app-options h3 {
-  margin: 0;
-}
-.app-options .mdl-checkbox__box-outline {
-  border-color: rgba(255, 255, 255, 0.89);
-}
-.app-options ul {
-  margin: 0;
-  list-style-type: none;
-}
-.app-options li {
-  margin: 4px 0;
-}
-.app-options .material-icons {
-  color: rgba(255, 255, 255, 0.89);
-}
-.app-options .mdl-card__actions {
-  height: 64px;
-  display: flex;
-  box-sizing: border-box;
-  align-items: center;
-}

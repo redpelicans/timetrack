@@ -5,7 +5,7 @@ import AddCompanyActions from './actions';
 import Country from '../country';
 
 
-export default class CompanyAddApp extends Component {
+export default class NewCompanyApp extends Component {
   componentWillMount() {
   }
 
