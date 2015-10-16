@@ -1,11 +1,13 @@
 
-import {validate} from 'jsonschema';
-
 export class Schema{
   constructor(id, jsonSchema){
     this.id = id;
     this.jsonSchema = jsonSchema || {};
     this._registered= {};
+  }
+
+  field(name){
+    return new Field(name, this.get(name) || {label: `${name}-Unknown`, type: 'string'}, this);
   }
 
   get(path){ 
@@ -24,127 +26,121 @@ export class Schema{
     current[lastAttr] = value;
   }
 
-  register(formEntity){
-    this._registered[formEntity.attrKey] = formEntity;
+  register(field){
+    this._registered[field.key] = field;
   }
   
-  renderedEntries(){
+  registeredFields(){
     return _.values(this._registered);
   }
 
-  isRequired(path){
-    //return _.contains(this.jsonSchema.required || [], path);
-    return this.attrDef.required;
+  resetData(){
+    for(let field of this.registeredFields()){
+      field.reset();
+    }
   }
 
   getData(){
     let data = {};
     let errors = [];
-    for(let entry of this.renderedEntries()){
-      try{
-        this.set(data, entry.attrKey, entry.value); 
-      }catch(e){
-        errors.push(e);
-      }
+    for(let field of this.registeredFields()){
+      let value = field.value;
+      console.log(field.key, value)
+      field.error = field.checkValue(value);
+      if(!field.error) this.set(data, field.key, field.getCheckedValue()); 
+      // TODO
+      else errors.push({[field.key]: field.error});
     }
     if(errors.length)throw new Error(errors);
     return data;
   }
 }
 
-export function input(formoSchema){
-  return function(constructor){
-    return class extends constructor{
-      handleChange = () => {
-        this.setState({value: this.refs[this.attrKey].getDOMNode().value});
-      }
-
-      constructor(props){
-        super(props);
-        this.formoSchema = formoSchema || this.props.schema;
-        this.state = {error: false, value: this.attrDef && this.attrDef.defaultValue || ""};
-      }
-
-      get localSchema(){
-        let schema = {
-          id: `${this.formoSchema.id}/${this.attrKey}`,
-          type: "object",
-        };
-        schema.properties = { [this.attrKey]: this.attrDef };
-        if(this.isRequired())schema.required = [this.attrKey];
-        return schema;
-      }
-
-      get inputMessage(){
-        if(this.pattern)return "Input doesn't match pattern!"
-        switch(this.type){
-          case 'number':
-            return "Input is not a number!";
-          case 'integer':
-            return "Input is not an integer!";
-        }
-        return "Wrong input!";
-      }
-
-      get attrDef(){
-        return this.formoSchema.get(this.attrKey) || {label: `${this.attrKey}-Unknown`, type: 'string'};
-      }
-
-      get attrKey(){
-        return this.props && this.props.attr;
-      }
-
-      get type(){
-        return this.attrDef.type;
-      }
-
-      get pattern(){
-        return this.attrDef.pattern || {
-          number: "-?[0-9]*(\.[0-9]+)?" 
-          , integer: "^[0-9]+$" 
-        }[this.attrDef.type];
-      }
-
-      hasNoValue(){
-        let data =  this.state.value;
-        return _.isUndefined(data) || data === "";
-      }
-
-      get value(){
-        let data =  this.state.value;
-        let value = undefined;
-        if(!this.hasNoValue()) value = (this.attrDef.type === 'number' || this.attrDef.type === 'integer' ? Number(data) : data);
-        try{
-          this.validate({[this.attrKey]: value});
-        }catch(e){
-          this.setState({error: true});
-          throw e;
-        }
-        this.setState({error: false});
-        return value;
-      }
-
-      validate(value){
-        let validation = validate(value, this.localSchema);
-        if(validation.errors.length)throw new Error(validation.errors[0]);
-      }
-
-      get label(){
-        return this.attrDef.label;
-      }
-
-      isRequired(){
-        return this.attrDef.required;
-      }
-
-      render(){
-        this.formoSchema.register(this); 
-        return super.render();
-      }
-
-    }
-
+class Field{
+  constructor(name, schema, formo){
+    this.key = name;
+    this.schema = schema;
+    this.formo = formo;
+    this.reset();
   }
+
+  reset(){
+    this.value = this.defaultValue;
+    this.error = undefined;
+    this.visible = true;
+  }
+
+  register(){
+    this.formo.register(this); 
+  }
+
+  get type(){
+    return this.schema.type;
+  }
+
+  get pattern(){
+    return this.schema.pattern || {
+        number: /^[0-9]*(\.[0-9]+)?$/
+      , integer: /^[0-9]+$/ 
+    }[this.schema.type];
+  }
+
+  isNull(value){
+    return _.isUndefined(value) || value === "";
+  }
+
+  get defaultValue(){
+    return this.schema.defaultValue;
+  }
+
+  get values(){
+    return this.schema.values;
+  }
+
+  getCheckedValue(){
+    return this.getTypedValue(this.value);
+  }
+
+  checkValue(value){
+    if(this.isNull(value) && this.isRequired())return this.errorMessage(value);
+    else if(!this.checkPattern(value)) return this.errorMessage(value);
+  }
+
+  checkPattern(value){
+    return value.match(this.pattern);
+  }
+
+  getTypedValue(value){
+    switch(this.type){
+      case 'number':
+      case 'integer':
+        return Number(value);
+      default: return value;
+    }
+  }
+
+  errorMessage(value){
+    if(this.isNull(value) && this.isRequired())return "Input required";
+    if(this.pattern)return "Input doesn't match pattern!"
+    switch(this.type){
+      case 'number':
+        return "Input is not a number!";
+      case 'integer':
+        return "Input is not an integer!";
+    }
+    return "Wrong input!";
+  }
+
+  get label(){
+    return this.schema.label;
+  }
+
+  isRequired(){
+    return this.schema.required;
+  }
+
+
 }
+
 
 

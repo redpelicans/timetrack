@@ -10,24 +10,26 @@ import Avatar from './components/avatar/app';
 
 export default class App extends Component {
 
+  componentDidMount() {
+    componentHandler.upgradeDom();
+  }
+
   render(){
     return (
       <AppLayout>
-        <AppHeader/>
-        <AppSlidingMenu location={this.props.location} history={this.props.history}/>
-        <AppMain>
           {this.props.children}
-        </AppMain>
       </AppLayout>
+
     )
   }
 }
 
 class AppMain extends Component {
+
   render(){
     return (
-      <main className="mdl-layout__content" style={{padding: '10px'}}>
-        <Router.RouteHandler />
+      <main className="mdl-layout__content mdl-color--grey-100">
+        {this.props.children}
       </main>
     )
   }
@@ -35,11 +37,10 @@ class AppMain extends Component {
 
 class AppLayout extends Component {
   render(){
-   
     return (
-      <div className="app-layout mdl-layout Xmdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
-        {this.props.children}
-      </div>
+        <div className="app-layout mdl-layout Xmdl-js-layout Xmdl-layout--fixed-drawer Xmdl-layout--fixed-header">
+          {this.props.children}
+        </div>
     )
   }
 }

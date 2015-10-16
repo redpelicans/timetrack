@@ -16,7 +16,7 @@ export default class CompanyListApp extends Component {
   render() {
     return (
       <AltContainer stores={ {companyStore: CompanyStore} } >
-        <CompanyPanel/>
+        <CompanyPanel history={this.props.history}/>
       </AltContainer>
     );
   }
@@ -24,13 +24,13 @@ export default class CompanyListApp extends Component {
 
 class CompanyPanel extends Component {
   handleAddCompany = () => {
-    this.context.router.transitionTo("/AddCompany");
+    //this.context.history.pushState(null, "/AddCompany");
+    this.props.history.pushState(null, "/AddCompany");
   }
 
-
-  componentDidMount() {
-    componentHandler.upgradeDom();
-  }
+  // componentDidMount() {
+  //   componentHandler.upgradeDom();
+  // }
 
   render() {
     let styles = {
@@ -83,7 +83,7 @@ class CompanyPanel extends Component {
     return (
       <div className="mdl-color--white mdl-shadow--2dp mdl-grid" style={styles.layout}>
         <div style={styles.card} className="mdl-cell mdl-cell--12-col">
-          <CompanyHeader filter={this.props.companyStore.filter} starred={this.props.companyStore.starredFilter} sortMode={this.props.companyStore.sortMode}/>
+          <CompanyHeader history={this.props.history} filter={this.props.companyStore.filter} starred={this.props.companyStore.starredFilter} sortMode={this.props.companyStore.sortMode}/>
           <CompanyList companies={companyRows} />
         </div>
         <button style={styles.addButton} className="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" onClick={this.handleAddCompany}>
@@ -95,14 +95,16 @@ class CompanyPanel extends Component {
   }
 }
 
-CompanyPanel.contextTypes = {
-    router: React.PropTypes.func.isRequired
-};
+//
+// CompanyPanel.contextTypes = {
+//     history: React.PropTypes.history
+// };
 
 
 class CompanyHeader extends Component {
   close = () => {
-    this.context.router.transitionTo("/Home");
+    //this.context.history.pushState(null, "/");
+    this.props.history.pushState(null, "/");
   }
 
   render(){
@@ -188,14 +190,14 @@ class CompanyHeader extends Component {
   }
 }
 
-CompanyHeader.contextTypes = {
-    router: React.PropTypes.func.isRequired
-};
+// CompanyHeader.contextTypes = {
+//     history: React.PropTypes.history
+// };
 
 class CompanyList extends Component {
   render(){
     return (
-      <div className="mdl-cell mdl-cell--12-col mdl-grid">
+      <div className="Xmdl-cell Xmdl-cell--12-col Xmdl-grid">
         {this.props.companies}
       </div>
     )
@@ -367,7 +369,7 @@ class CompanyListSort extends Component {
     }
 
     let menuItems = _.map(menu, (value, key) => {
-      return <li className="mdl-menu__item" onClick={this.handleChange.bind(null, key)}>{sortIcon(key)} {value}</li>
+      return <li key={key} className="mdl-menu__item" onClick={this.handleChange.bind(null, key)}>{sortIcon(key)} {value}</li>
     });
 
 
@@ -427,7 +429,7 @@ class CompanyListActions extends Component {
 
 class CompanyListFilter extends Component {
   handleChange = () => {
-    CompanyActions.filterMainList({ filter: this.refs.filter.getDOMNode().value })
+    CompanyActions.filterMainList({ filter: this.refs.filter.value })
   }
 
   render() {
