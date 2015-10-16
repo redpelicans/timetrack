@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import  {Router, Route, Link, IndexRoute, IndexLink, Redirect} from 'react-router'
-import createBrowserHistory from 'history/lib/createBrowserHistory';
+import { createHistory } from 'history';
 import App from './app';
 import HomeApp from './views/home';
 import NotFound from './components/not-found';
@@ -28,7 +28,7 @@ let routes = (
 );
 
 
-let history = createBrowserHistory();
+let history = createHistory();
 ReactDOM.render(<Router history={history}>{routes}</Router>, document.body)
 
 

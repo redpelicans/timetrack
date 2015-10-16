@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import Avatar from '../components/avatar/app';
 import routeData from '../routes';
 import DropdownList from 'react-widgets/lib/DropdownList';
+import {DropdownButton, MenuItem} from 'react-bootstrap';
 import { Link } from 'react-router'
 
 
@@ -89,7 +90,7 @@ export default class AppBar extends Component {
   }
 }
 
-class DropdownUserMenu extends Component {
+class DropdownUserMenuOld extends Component {
   handleChange = (value) => {
     console.log(value)
   }
@@ -97,6 +98,21 @@ class DropdownUserMenu extends Component {
   render(){
     return (
       <DropdownList onChange={this.handleChange} value={this.props.user.email} data={[ "Logout", "Switch tenant"]}/>
+    )
+  }
+}
+
+class DropdownUserMenu extends Component {
+  handleChange = (value) => {
+    console.log(value)
+  }
+
+  render(){
+    return (
+      <DropdownButton id={'user-dropdown'} onChange={this.handleChange} title={this.props.user.email}>
+        <MenuItem> Logout </MenuItem>
+        <MenuItem> Switch tenant </MenuItem>
+      </DropdownButton>
     )
   }
 
@@ -139,7 +155,9 @@ class AppBarItem extends Component {
   }
 
   handleClick = () => {
-    this.context.history.pushState(null, "/"+this.props.route.path);
+    let history = this.context.history;
+    let href = history.createHref(this.props.route.path);
+    history.pushState(null, href);
     this.props.toggleSideBar();
   }
 

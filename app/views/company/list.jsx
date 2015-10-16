@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import Avatar from '../avatar';
 import Header from '../header';
+import {Input, Glyphicon} from 'react-bootstrap';
 import MainButtonMenu from '../main_button_menu';
 import companies from '../../models/companies';
 
@@ -303,9 +304,11 @@ class Filter extends Component{
   }
 
   render(){
+    //let icon=<i className="material-icons">search</i>;
+    let icon=<Glyphicon glyph="search"/>;
     return (
       <div>
-        <input value={this.props.filter} onChange={this.handleChange}/>
+        <Input type='text' value={this.props.filter} placeholder='search' onChange={this.handleChange} addonAfterXX={icon}/>
       </div>
     )
   }
