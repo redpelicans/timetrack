@@ -274,7 +274,7 @@ class Actions extends Component {
         flexDirection: 'row',
         flexWrap: 'nowrap',
         justifyContent: 'flex-end',
-        alignItems: 'center',
+        alignItems: 'stretch',
         fontSize: 'x-large',
         marginRight: '50px',
       },
