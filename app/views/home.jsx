@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Header from './header';
 import MainButtonMenu from './main_button_menu';
+import DateTimeField from 'react-bootstrap-datetimepicker';
 
 export default class HomeApp extends Component{
   static contextTypes = {
@@ -45,6 +46,7 @@ export default class HomeApp extends Component{
             </label>
           </div>
         </div>
+        <DateTimeField />
         <button type="button" className="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
           Launch demo modal
         </button>
