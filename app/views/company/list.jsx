@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import Avatar from '../avatar';
 //import Avatar from 'react-avatar';
-import Header from '../header';
+//import Header from '../header';
 import {Button, Input, Glyphicon} from 'react-bootstrap';
 import MainButtonMenu from '../main_button_menu';
 import companies from '../../models/companies';
@@ -72,6 +72,17 @@ export default class CompanyListApp extends Component {
     )
   }
 
+}
+
+class Header extends Component {
+  render(){
+    return (
+      <div>
+        <h2>Companies</h2>
+        <hr className="aky"/>
+      </div>
+    )
+  }
 }
 
 class CompanyList extends Component {

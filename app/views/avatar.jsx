@@ -4,8 +4,8 @@ export default class Avatar extends Component {
   render(){
     let styles = {
       avatar: {
-        width: '48px',
-        height: '48px',
+        width: '36px',
+        height: '36px',
         borderRadius: '24'
       }
     }
