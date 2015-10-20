@@ -6,7 +6,7 @@ const d = new Dispatcher();
 
 
 const property = Bacon.update(
-    {currentTopic: 'home'}
+    {currentTopic: undefined}
   , [d.stream('newTopic')], newTopic
 );
 

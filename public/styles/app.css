@@ -1,2 +1,142 @@
+html {
+  font-family: "Roboto";
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+a {
+  background-color: transparent;
+}
+a:active,
+a:hover {
+  outline: 0;
+}
+
+img {
+  border: 0;
+}
+
+body {
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #cfd2da;
+  background-color: #252830;
+}
+
+hr {
+  border-top: 1px solid #434857
+}
+
+.nav-link {
+  color: #cfd2da !important;
+}
+
+.nav-link:hover {
+  color: white !important;
+}
+
+.navbar-brand:hover {
+  color: white !important;
+}
+
+.m-t-70 {
+  margin-top: 55px;
+}
+
+.tm.black{
+  background-color: black !important;
+}
+
+.tm.avatar-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.tm.mobile.button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.tm.avatar{
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+  border: 0;
+  vertical-align: middle;
+}
 
 
+.tm.header{
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.tm.brand {
+  color: #cfd2da;
+}
+
+.tm.mobile.header{
+  font-size: 1.5rem;
+  font-family: Roboto;
+  outline: none !important;
+
+}
+
+.tm.menu.item{
+  padding-top: 5px;
+}
+
+.tm.title{
+  font-size: 1.5rem;
+}
+
+.tm.input{
+  padding-left: 15px;
+  padding-right: 15px;
+  background-color: #434857;
+  border: 1px solid #434857;
+  border-radius: 4px;
+  height: 35px;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.tm.input:focus {
+  color: #252830;
+  background-color: #fff;
+  box-shadow: none;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(255, 255, 255, 0.6);
+  outline: 0;
+}
+
+.tm.input:hover{
+  border-color: #ffffff;
+  outline: 0;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.tm.button {
+  border-radius: 4px;
+  border: 1px solid #1ca8dd;
+  background: #1ca8dd;
+}
+
+.tm.list-item{
+  border: 1px solid #434857;
+  color: #cfd2da;
+  margin-bottom: -1px;
+}
+
+.tm.list-item:hover{
+  text-decoration: none;
+  color: #cfd2da;
+  background-color: #434857;
+}

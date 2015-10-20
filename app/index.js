@@ -8,8 +8,8 @@ import NotFound from './components/not-found';
 import routeData from './routes';
 import Nav from './models/nav.js';
 
+// fct is not called when we reload a page !!
 function onEnter(route, nextState, replaceState){
-
   console.log("===> NEW ROUTE: " + route.topic)
   Nav.newTopic(route.topic);
 }

@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import classNames from 'classnames';
 import Router from 'react-router';
 import routeData from './routes';
 import Nav from './models/nav.js';
@@ -57,22 +58,21 @@ export default class App extends Component {
     let styles={
       toast:{
         position: 'fixed',
-        zIndex: 999999,
+        zIndex: 9999,
         pointerEvents: 'None',
         top: '100px',
         right: '12px'
       },
-      content:{
-        width: '70%',
-      }
     }
     return (
-      <div className="ts">
+      <div>
         <AppNav currentTopic={this.state.currentTopic}/>
-        <div className="ft ui" style={styles.content}>
-          {this.props.children}
+        <div className="m-t-70 container-fluid">
+          <div className="row m-t">
+            {this.props.children}
+          </div>
+          <ToastContainer style={styles.toast} ref="container" toastMessageFactory={ToastMessageFactory} />
         </div>
-        <ToastContainer style={styles.toast} ref="container" toastMessageFactory={ToastMessageFactory} />
       </div>
     )
   }
@@ -104,77 +104,32 @@ class AppNav extends Component{
       )
     });
 
-
-
     let home = this.context.history.createHref('/home');
-    let styles={
-      header:{
-        fontFamily: "Helvetica",
-      },
-      mobile:{
-        header:{
-          fontSize: '2rem',
-          fontFamily: "Helvetica",
-          outline: "none !important",
-        },
-        button:{
-          outline: "none !important",
-        },
-      },
-      button:{
-        padding: "0",
-        border: "0",
-        background: "transparent",
-        outline: "none !important",
-        boxShadow: "none !important",
-      },
-      avatar:{
-        height: "35px",
-        width: "35px",
-        borderRadius: "50%",
-        border: "0",
-        verticalAlign: "middle",
-
-      },
-      popover:{
-        top: "42px",
-        left: "-169px",
-        display: 'block',
-      },
-      arrow:{
-        left: "91.4216%",
-      },
-      item:{
-        width: "20px",
-      }
-    }
 
     return (
-      <div>
-        <div className="collapse hidden-sm-up" id="collapsingNavbar">
-          <div className="bg-inverse p-a">
+      <div >
+        <div className="m-t-70 collapse hidden-md-up bg-inverse p-a" id="collapsingNavbar">
             <ul className="nav nav-pills nav-stacked">
               {menu2}
             </ul>
-          </div>
         </div>
-        <nav className="ci ou g navbar navbar-fixed-top">
-          <button style={styles.mobile.button} className="m-a navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
+        <nav className="navbar navbar-fixed-top navbar-dark bg-inverse tm header black">
+          <button className="p-a navbar-toggler hidden-md-up tm mobile button" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
             <span className="m-r">&#9776;</span>
-            <span style={styles.mobile.header}>Timetrack by redpelicans</span>
+            <span className="tm mobile header">Timetrack by redpelicans</span>
           </button>
-          <div className="ft ui collapse navbar-toggleable-xs" style={styles.header}>
-            <a className="navbar-brand ol tu" href={home}>
+          <div className="collapse navbar-toggleable-sm">
+            <a className="navbar-brand tm brand" href={home}>
               <i className="fa fa-paper-plane m-r"/>
               Timetrack by redpelicans
             </a>
-            <ul className="nav navbar-nav">
+            <ul className="nav navbar-nav tm menu item">
               {menu1}
             </ul>
             <form className="form-inline navbar-form pull-right">
               <div className="dropdown fa oo ny">
-                <button style={styles.button} type="button" id="avatarmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                  <img style={styles.avatar} src="images/user.jpg"/>
+                <button className="tm avatar-button" type="button" id="avatarmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                  <img className="tm avatar" src="images/user.jpg"/>
                 </button>
                 <ul className="dropdown-menu" aria-labelledby="avatarmenu">
                   <li><a href="#" data-action="logout">Logout</a></li>
@@ -200,25 +155,11 @@ class AppNavItem extends Component {
     let currentTopic = this.props.currentTopic;
     let href = this.context.history.createHref(route.path);
 
-
-    let styles={
-      menu:{
-        get borderBottomStyle(){
-          if(route.label === 'companies'){
-            console.log(currentTopic + "===" + route.topic)
-            console.log(route.topic === currentTopic)
-          }
-          return (route.topic === currentTopic ? "solid !important" : "inherit");
-        },
-        get borderBottomColor(){
-          return route.topic === currentTopic ? "#1ca8dd !important" : "inherit";
-        },
-      }
-    }
+    let style = route.topic === currentTopic ? { borderBottomColor: '#1ca8dd !important', borderBottomStyle: 'solid'} : {};
 
     return (
       <li className="nav-item">
-        <a style={styles.menu} href={href}>
+        <a style={style} className="nav-link" href={href}>
           <span>{route.label}</span>
         </a>
       </li>
@@ -245,7 +186,7 @@ class AppMobileNavItem extends Component {
     }
     return (
       <li className="nav-item">
-        <a className="" href={href} onClick={this.props.collapse}>
+        <a className="nav-link" href={href} onClick={this.props.collapse}>
           <i className={`fa fa-${route.iconName} m-a`} style={styles.icon}/>
           {route.label}
         </a>

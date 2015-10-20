@@ -3,14 +3,12 @@ import React, {Component} from 'react';
 import Avatar from '../avatar';
 //import Avatar from 'react-avatar';
 //import Header from '../header';
-import {Button, Input, Glyphicon} from 'react-bootstrap';
-import MainButtonMenu from '../main_button_menu';
+//import MainButtonMenu from '../main_button_menu';
 import companies from '../../models/companies';
 
 export default class CompanyListApp extends Component {
 
   static contextTypes = {
-    toggleSideBar: React.PropTypes.func.isRequired,
   }
 
   state = { 
@@ -51,23 +49,17 @@ export default class CompanyListApp extends Component {
   }
 
   render(){
-    let buttonMenu = (
-      <MainButtonMenu onClick={this.context.toggleSideBar}/>
-    )
-
     return (
-      <div>
-        <Header title={'Companies'} buttonMenu={buttonMenu}>
+      <div className="col-xs-12 col-md-8 col-md-offset-2">
+        <Header title={'Companies'}>
           <Actions>
             <Filter filter={this.state.searchFilter} onChange={this.handleSearchFilter}/>
             <Starred starred={this.state.starFilter} onClick={this.handleStarred}/>
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
         </Header>
-        <div className="content">
-          <AddCompanyButton onAddCompany={this.handleAddCompany}/>
-          <CompanyList model={this.state}/>
-        </div>
+        <CompanyList model={this.state}/>
+        <AddCompanyButton onAddCompany={this.handleAddCompany}/>
       </div>
     )
   }
@@ -76,10 +68,21 @@ export default class CompanyListApp extends Component {
 
 class Header extends Component {
   render(){
+    let style={
+      paddingTop: '1rem',
+    }
     return (
-      <div>
-        <h2>Companies</h2>
-        <hr className="aky"/>
+      <div className="row" style={style}>
+        <div className="col-md-6 tm title">
+          <i className="fa fa-building m-a"/>
+          Companies
+        </div>
+        <div className="col-md-6 tm title">
+          {this.props.children}
+        </div>
+        <div className="col-md-12">
+          <hr/>
+        </div>
       </div>
     )
   }
@@ -94,7 +97,6 @@ class CompanyList extends Component {
   render(){
     let styles={
       container:{
-        width: '80%',
         marginTop: '50px',
         marginBottom: '50px',
         marginLeft: 'auto',
@@ -122,7 +124,7 @@ class CompanyListItem extends Component {
   }
 
   handleCompanySelection = (company) => {
-    //console.log(`CLIENT SELECTION ${company._id}`)
+    console.log(`CLIENT SELECTION ${company._id}`)
   }
 
   render() {
@@ -154,7 +156,7 @@ class CompanyListItem extends Component {
     function billAmounts(company){
       if(company.billed || company.billable){
         return (
-          <span>{[amount(company.billed), amount(company.billable)].join(' / ')}</span>
+          <span className="label label-default">{[amount(company.billed), amount(company.billable)].join(' / ')}</span>
         )
       }
     }
@@ -167,10 +169,10 @@ class CompanyListItem extends Component {
         justifyContent: 'center',
         alignItems: 'stretch',
         padding: '15px',
-        boxShadow: '0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12)',
       },
       avatar:{
         order: 1,
+        cursor: 'pointer',
       },
       billElements:{
         order: 3,
@@ -190,7 +192,8 @@ class CompanyListItem extends Component {
         fontSize: '14px',
         fontWeight: '500',
         order: 2,
-        flex: '1 0 50%'
+        flex: '1 0 30%',
+        cursor: 'pointer',
       },
       left:{
         display: 'flex',
@@ -207,11 +210,11 @@ class CompanyListItem extends Component {
 
     let company = this.props.company.toJS();
     return (
-        <div style={styles.container} className='navigation2-link'>
-          <div style={styles.avatar}>
+        <div href="#" style={styles.container} className='tm list-item'>
+          <div style={styles.avatar} onClick={this.handleCompanySelection}>
             <Avatar size="150" src={company.avatar}/>
           </div>
-          <div style={styles.name}>
+          <div style={styles.name} onClick={this.handleCompanySelection}>
             <span>{company.name}</span>
           </div>
           <div style={styles.billElements}>
@@ -219,35 +222,56 @@ class CompanyListItem extends Component {
           </div>
           <div style={styles.left}>
             <div style={styles.star}>
-              <StarredCompany company={this.props.company}/>
+            <StarredCompany company={this.props.company}/>
             </div>
             <div style={styles.edit}>
-              <div>
-                <i className="material-icons">edit</i>
-              </div>
+              <EditCompany company={this.props.company}/>
             </div>
           </div>
-
         </div>
     );
   }
 }
 
+class EditCompany extends Component{
+  handleChange = (e) => {
+    console.log("Company EDIT");
+    //companies.edit(this.props.company.toJS());
+    e.preventDefault();
+  }
+
+  render(){
+    let style={
+      fontSize: '1.2rem',
+      color: 'grey',
+    };
+
+    return (
+      <a href="#" onClick={this.handleChange}>
+        <i style={style} className="fa fa-pencil m-r"/>
+      </a>
+    )
+  }
+}
+
+
 
 class StarredCompany extends Component{
-  handleChange = () => {
+  handleChange = (e) => {
     companies.toggleStar(this.props.company.toJS());
+    e.preventDefault();
   }
 
   render(){
     let company = this.props.company.toJS();
     let style={
-      get color(){ return company.starred ? '#00BCD4' : 'grey'; }
+      get color(){ return company.starred ? '#00BCD4' : 'grey'; },
+      fontSize: '1.2rem',
     };
 
     return (
       <a href="#" onClick={this.handleChange}>
-        <i style={style} className="material-icons">star_border</i>
+        <i style={style} className="fa fa-star-o m-r"/>
       </a>
     )
   }
@@ -268,9 +292,10 @@ class AddCompanyButton extends Component {
     }
 
     return (
-      <Button bsSize="large" bsStyle="primary" style={style}  onClick={this.props.onAddCompany}>
-        <Glyphicon glyph="plus"/>
-      </Button>
+      <button type="button" className="btn-primary btn-lg tm button"  style={style}  onClick={this.props.onAddCompany}>
+        <i className="fa fa-plus m-r"/>
+        company
+      </button>
     )
   }
 }
@@ -284,8 +309,7 @@ class Actions extends Component {
         flexWrap: 'nowrap',
         justifyContent: 'flex-end',
         alignItems: 'stretch',
-        fontSize: 'x-large',
-        marginRight: '50px',
+        fontSize: '0.9rem',
       },
     }
     return (
@@ -297,43 +321,60 @@ class Actions extends Component {
 }
 
 class Refresh extends Component {
+  handleChange = (e) => {
+    this.props.onClick();
+    e.preventDefault();
+  }
+
   render(){
+    let style={
+      fontSize: '1.5rem',
+      color: 'grey',
+    }
+
     return (
-      <div>
-        <a href="#" onClick={this.props.onClick} > <i className="material-icons">refresh</i> </a>
+      <div className="p-a">
+        <a href="#" onClick={this.handleChange}>
+          <i style={style} className="fa fa-refresh m-r"/>
+        </a>
       </div>
     )
   }
 }
 
 class Filter extends Component{
-
   handleChange = (e) => {
     this.props.onChange(e.target.value);
+    e.preventDefault();
   }
 
   render(){
-    //let icon=<i className="material-icons">search</i>;
-    let icon=<Glyphicon glyph="search"/>;
+    let icon = <i className="fa fa-search m-r"/>
     return (
-      <div>
-        <Input type='text' value={this.props.filter} placeholder='search' onChange={this.handleChange} addonAfterXX={icon}/>
+      <div className="p-a">
+        <input className="tm input" type='text' value={this.props.filter} placeholder='search ...' onChange={this.handleChange} addonAfterXX={icon}/>
       </div>
     )
   }
 }
 
 class Starred extends Component {
+  handleChange = (e) => {
+    this.props.onClick();
+    e.preventDefault();
+  }
+
   render(){
     let filter = this.props.starred;
     let style={
+      fontSize: '1.5rem',
       get color(){ return filter ? '#00BCD4' : 'grey'; }
     }
 
     return (
-      <div>
-        <a href="#" onClick={this.props.onClick} > 
-          <i style={style} className="material-icons">star_border</i> 
+      <div className="p-a">
+        <a href="#" onClick={this.handleChange} > 
+          <i style={style} className="fa fa-star-o m-r"/>
         </a>
       </div>
     )
