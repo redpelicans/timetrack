@@ -102,15 +102,22 @@ class CompanyList extends Component {
         marginLeft: 'auto',
         marginRight: 'auto',
       },
+      item:{
+        height: '80px',
+      }
     }
 
     let companies = this.props.model.companies;
     let data = companies.map( company => {
-      return <CompanyListItem key={company.get('_id')} company={company}/>
+      return (
+        <div className="col-md-6 tm list-item" style={styles.item}> 
+          <CompanyListItem key={company.get('_id')} company={company}/>
+        </div>
+      )
     });
 
     return (
-      <div style={styles.container}>
+      <div className="row" style={styles.container}>
         {data}
       </div>
     )
@@ -176,7 +183,7 @@ class CompanyListItem extends Component {
       },
       billElements:{
         order: 3,
-        flex: '1 0 auto'
+        flex: '1 1 auto'
       },
       star:{
         order: 1,
@@ -192,7 +199,7 @@ class CompanyListItem extends Component {
         fontSize: '14px',
         fontWeight: '500',
         order: 2,
-        flex: '1 0 30%',
+        flex: '1 1 auto',
         cursor: 'pointer',
       },
       left:{
@@ -203,14 +210,14 @@ class CompanyListItem extends Component {
         alignItems: 'center',
         order: 4,
         alignSelf: 'flex-start',
-        flex: '1 1 100%',
+        flex: '1 1 50%',
       },
 
     };
 
     let company = this.props.company.toJS();
     return (
-        <div href="#" style={styles.container} className='tm list-item'>
+        <div href="#" style={styles.container} XclassName='tm list-item'>
           <div style={styles.avatar} onClick={this.handleCompanySelection}>
             <Avatar size="150" src={company.avatar}/>
           </div>
