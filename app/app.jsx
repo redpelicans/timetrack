@@ -105,6 +105,12 @@ class AppNav extends Component{
     });
 
     let home = this.context.history.createHref('/home');
+    let styles={
+      dropdownMenuItem:{
+        color: '#cfd2da',
+        paddingLeft: '20px',
+      }
+    }
 
     return (
       <div >
@@ -127,12 +133,13 @@ class AppNav extends Component{
               {menu1}
             </ul>
             <form className="form-inline navbar-form pull-right">
-              <div className="dropdown fa oo ny">
+              <div>
                 <button className="tm avatar-button" type="button" id="avatarmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                   <img className="tm avatar" src="images/user.jpg"/>
                 </button>
-                <ul className="dropdown-menu" aria-labelledby="avatarmenu">
-                  <li><a href="#" data-action="logout">Logout</a></li>
+                <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="avatarmenu">
+                  <h6 className="dropdown-header">User's actions</h6>
+                  <a className="dropdown-item" href="#">Logout</a>
                 </ul>
               </div>
             </form>

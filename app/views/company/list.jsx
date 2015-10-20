@@ -77,7 +77,7 @@ class Header extends Component {
           <i className="fa fa-building m-a"/>
           Companies
         </div>
-        <div className="col-md-6 tm title">
+        <div className="col-md-6">
           {this.props.children}
         </div>
         <div className="col-md-12">
@@ -110,8 +110,8 @@ class CompanyList extends Component {
     let companies = this.props.model.companies;
     let data = companies.map( company => {
       return (
-        <div className="col-md-6 tm list-item" style={styles.item}> 
-          <CompanyListItem key={company.get('_id')} company={company}/>
+        <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
+          <CompanyListItem company={company}/>
         </div>
       )
     });
@@ -287,6 +287,10 @@ class StarredCompany extends Component{
 
 
 class AddCompanyButton extends Component {
+  componentDidMount(){
+    $('#addCompany').tooltip({animation: true});
+  }
+
   render(){
     let style = {
         position: 'fixed',
@@ -299,9 +303,8 @@ class AddCompanyButton extends Component {
     }
 
     return (
-      <button type="button" className="btn-primary btn-lg tm button"  style={style}  onClick={this.props.onAddCompany}>
-        <i className="fa fa-plus m-r"/>
-        company
+      <button id="addCompany" type="button" className="btn-primary btn tm button"  data-toggle="tooltip" data-placement="left" title="Add a company" style={style}  onClick={this.props.onAddCompany}>
+        <i className="fa fa-plus"/>
       </button>
     )
   }
@@ -342,7 +345,7 @@ class Refresh extends Component {
     return (
       <div className="p-a">
         <a href="#" onClick={this.handleChange}>
-          <i style={style} className="fa fa-refresh m-r"/>
+          <i style={style} className="fa fa-refresh"/>
         </a>
       </div>
     )
@@ -356,10 +359,10 @@ class Filter extends Component{
   }
 
   render(){
-    let icon = <i className="fa fa-search m-r"/>
+    let icon= <span className="fa fa-search"/>
     return (
       <div className="p-a">
-        <input className="tm input" type='text' value={this.props.filter} placeholder='search ...' onChange={this.handleChange} addonAfterXX={icon}/>
+        <input className="tm input form-control" type='text' value={this.props.filter} placeholder='search ...' onChange={this.handleChange} aria-describedby="filterCompanies"/>
       </div>
     )
   }
@@ -381,7 +384,7 @@ class Starred extends Component {
     return (
       <div className="p-a">
         <a href="#" onClick={this.handleChange} > 
-          <i style={style} className="fa fa-star-o m-r"/>
+          <i style={style} className="fa fa-star-o"/>
         </a>
       </div>
     )
