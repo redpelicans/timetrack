@@ -186,9 +186,7 @@ class AppMobileNavItem extends Component {
     let href = this.context.history.createHref(route.path);
     let styles={
       icon:{
-        get color(){
-          return route.topic === currentTopic ? "#1ca8dd" : "";
-        }
+        color: route.topic === currentTopic ? "#1ca8dd" : "",
       }
     }
     return (

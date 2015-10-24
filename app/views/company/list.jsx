@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import React, {Component} from 'react';
 import Avatar from '../avatar';
-//import Avatar from 'react-avatar';
 //import Header from '../header';
 //import MainButtonMenu from '../main_button_menu';
 import companies from '../../models/companies';
@@ -216,10 +215,11 @@ class CompanyListItem extends Component {
     };
 
     let company = this.props.company.toJS();
+    let avatar = company.avatar ? <Avatar src={company.avatar}/> : <Avatar name={company.name}/>;
     return (
         <div href="#" style={styles.container} XclassName='tm list-item'>
           <div style={styles.avatar} onClick={this.handleCompanySelection}>
-            <Avatar size="150" src={company.avatar}/>
+            {avatar}
           </div>
           <div style={styles.name} onClick={this.handleCompanySelection}>
             <span>{company.name}</span>
