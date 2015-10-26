@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import _ from 'lodash';
 
 export default class Avatar extends Component {
   rndColor() {
@@ -7,7 +8,7 @@ export default class Avatar extends Component {
     return colors[ index ];
   }
 
-  getInitials(name){
+  getInitials(name=''){
     let parts = name.split(' ');
     return _.map(parts, part => part.substr(0,1).toUpperCase());
   }
@@ -32,10 +33,12 @@ export default class Avatar extends Component {
 
     if(this.props.src){
       return (
-        <img src={this.props.src} style={imageStyle}/>
+        <div style={this.props.css}>
+          <img src={this.props.src} style={imageStyle}/>
+        </div>
       )
     }else{
-      return <div style={initialsStyle}>{this.getInitials(this.props.name)}</div>
+      return <div style={_.extend(initialsStyle, this.props.css)}>{this.getInitials(this.props.name)}</div>
     }
   }
 

@@ -1,7 +1,8 @@
+import _ from 'lodash';
 import React, {Component} from 'react';
 import classNames from 'classnames';
 import Router from 'react-router';
-import routeData from './routes';
+import routes from './routes';
 import Nav from './models/nav.js';
 import errors from './models/errors.js';
 import Avatar from './views/avatar';
@@ -92,19 +93,19 @@ class AppNav extends Component{
   }
 
   render(){
-    let menu1 = routeData.filter(route => route.isMenu).map( e => {
+    let menu1 = _.values(routes).filter(route => route.isMenu).map( e => {
       return (
         <AppNavItem key={e.topic} route={e} currentTopic={this.props.currentTopic}/>
       )
     });
 
-    let menu2 = routeData.filter(route => route.isMenu).map( e => {
+    let menu2 = _.values(routes).filter(route => route.isMenu).map( e => {
       return (
         <AppMobileNavItem collapse={this.collapseMenu} key={e.topic} route={e} currentTopic={this.props.currentTopic}/>
       )
     });
 
-    let home = this.context.history.createHref('/home');
+    let home = this.context.history.createHref(routes.home.path);
     let styles={
       dropdownMenuItem:{
         color: '#cfd2da',

@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import  {Router, Route, Link, IndexRoute, IndexLink, Redirect} from 'react-router'
@@ -15,7 +16,7 @@ function onEnter(route, nextState, replaceState){
 }
 
 function getRoutes(data){
-  return data.map(r => <Route topic={r.topic} onEnter={onEnter.bind(null, r)} key={r.path} path={r.path} component={r.component}/>)
+  return _.values(data).map(r => <Route topic={r.topic} onEnter={onEnter.bind(null, r)} key={r.path} path={r.path} component={r.component}/>)
 }
 
 let routes = (

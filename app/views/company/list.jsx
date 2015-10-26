@@ -1,5 +1,7 @@
 import _ from 'lodash';
 import React, {Component} from 'react';
+import routes from '../../routes';
+import {Content, Header, Actions} from '../layout';
 import Avatar from '../avatar';
 //import Header from '../header';
 //import MainButtonMenu from '../main_button_menu';
@@ -38,7 +40,7 @@ export default class CompanyListApp extends Component {
   }
 
   handleAddCompany = () => {
-    this.props.history.pushState(null, "/AddCompany");
+    this.props.history.pushState(null, routes.newcompany.path);
   }
 
   shouldComponentUpdate(nextProps, nextState){
@@ -48,9 +50,10 @@ export default class CompanyListApp extends Component {
   }
 
   render(){
+    let leftIcon = <i className="fa fa-building m-a"/>;
     return (
-      <div className="col-xs-12 col-md-8 col-md-offset-2">
-        <Header title={'Companies'}>
+      <Content>
+        <Header leftIcon={leftIcon} title={'Companies'}>
           <Actions>
             <Filter filter={this.state.searchFilter} onChange={this.handleSearchFilter}/>
             <Starred starred={this.state.starFilter} onClick={this.handleStarred}/>
@@ -59,33 +62,12 @@ export default class CompanyListApp extends Component {
         </Header>
         <CompanyList model={this.state}/>
         <AddCompanyButton onAddCompany={this.handleAddCompany}/>
-      </div>
+      </Content>
     )
   }
 
 }
 
-class Header extends Component {
-  render(){
-    let style={
-      paddingTop: '1rem',
-    }
-    return (
-      <div className="row" style={style}>
-        <div className="col-md-6 tm title">
-          <i className="fa fa-building m-a"/>
-          Companies
-        </div>
-        <div className="col-md-6">
-          {this.props.children}
-        </div>
-        <div className="col-md-12">
-          <hr/>
-        </div>
-      </div>
-    )
-  }
-}
 
 class CompanyList extends Component {
 
@@ -209,7 +191,7 @@ class CompanyListItem extends Component {
         alignItems: 'center',
         order: 4,
         alignSelf: 'flex-start',
-        flex: '1 1 50%',
+        //flex: '1 1 50%',
       },
 
     };
@@ -227,7 +209,7 @@ class CompanyListItem extends Component {
           <div style={styles.billElements}>
             {billAmounts(company)}
           </div>
-          <div style={styles.left}>
+          <div className="pull-right" style={styles.left}>
             <div style={styles.star}>
             <StarredCompany company={this.props.company}/>
             </div>
@@ -306,26 +288,6 @@ class AddCompanyButton extends Component {
       <button id="addCompany" type="button" className="btn-primary btn tm button"  data-toggle="tooltip" data-placement="left" title="Add a company" style={style}  onClick={this.props.onAddCompany}>
         <i className="fa fa-plus"/>
       </button>
-    )
-  }
-}
-
-class Actions extends Component {
-  render(){
-    let styles={
-      actions:{
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'nowrap',
-        justifyContent: 'flex-end',
-        alignItems: 'stretch',
-        fontSize: '0.9rem',
-      },
-    }
-    return (
-      <div style={styles.actions}>
-        {this.props.children}
-      </div>
     )
   }
 }

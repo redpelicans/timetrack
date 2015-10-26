@@ -6,10 +6,13 @@ html {
 
 a {
   background-color: transparent;
+  color: #cfd2da;
 }
 a:active,
 a:hover {
   outline: 0;
+  color: white;
+  text-decoration: none;
 }
 
 img {
@@ -97,7 +100,35 @@ hr {
   font-size: 1.5rem;
 }
 
-.tm.input{
+.Select > .Select-control{
+  border: none;
+  background-color: #434857;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.Select > .Select-control:hover{
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(255, 255, 255, 0.6);
+  border: 1px solid #999999;
+}
+
+.Select > .Select-control:focus{
+  border: 1px solid #999999;
+  background-color: #fff;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.is-open > .Select-control{
+  border: 1px solid #999999;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.has-value > .Select-control > .Select-placeholder{
+  color: #cfd2da;
+}
+
+.form-control{
+  color: #cfd2da;
   padding-left: 15px;
   padding-right: 15px;
   background-color: #434857;
@@ -108,7 +139,7 @@ hr {
   transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 
-.tm.input:focus {
+.form-control:focus {
   color: #252830;
   background-color: #fff;
   box-shadow: none;
@@ -117,11 +148,27 @@ hr {
   outline: 0;
 }
 
-.tm.input:hover{
+.form-control:hover{
   border-color: #999999;
   outline: 0;
   box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(255, 255, 255, 0.6);
 }
+
+.form-control.error{
+  background-color: #F69694;
+  color: #252830;
+}
+
+.form-control.error:focus {
+  color: #252830;
+  background-color: #F69694;
+  box-shadow: none;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(255, 255, 255, 0.6);
+  outline: 0;
+}
+
+
 
 .tm.button {
   border-radius: 4px;
