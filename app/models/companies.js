@@ -4,6 +4,7 @@ import Immutable from 'immutable';
 import {requestJson, requestPostJson, pushDataEvent} from '../utils';
 import errors from '../models/errors';
 import _ from 'lodash';
+import moment from 'moment';
 
 const d = new Dispatcher();
 
@@ -87,7 +88,29 @@ const model = {
   ],
 
   load(){
-    pushDataEvent(requestJson('/api/companies'), loadedCompanies);
+    //pushDataEvent(requestJson('/api/companies'), loadedCompanies);
+    requestJson('/api/companies')
+      .then( companies => {
+        for(let company of companies){
+          company.createdAt = moment(company.createdAt);
+          company.updatedAt = moment(company.updatedAt);
+          company.isNew = moment.duration(moment() - company.createdAt).asDays() < 1;
+        }
+        loadedCompanies.push(companies);
+      })
+      .catch( err => {
+        console.error(err.toString());
+        errors.alert({
+          header: 'Runtime Error',
+          message: 'Cannot load companies, check your backend server'
+        });
+      });
+  },
+
+  loadOne(id){
+    return companies.map(companies => {
+      return companies.filter(company => company.get('_id') === id).first();
+    })
   },
 
   create(company){

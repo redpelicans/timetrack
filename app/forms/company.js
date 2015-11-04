@@ -25,7 +25,7 @@ function logoUrlValueChecker(url, state){
   });
 }
 
-export default function newCompany(){
+export default function company(){
   return new Formo([
     new Field('name', {
       label: "Name",

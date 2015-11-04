@@ -11,15 +11,21 @@ import companies from '../../models/companies';
 import {InputField, SelectField, SelectColorField} from '../../utils/formo_fields';
 
 @reactMixin.decorate(Lifecycle)
-export default class NewCompanyApp extends Component {
+export class NewCompanyApp extends Component {
+
+  state = {
+    canLeavePage: false,
+  }
 
   static contextTypes = {
     history: React.PropTypes.object.isRequired,
   }
 
-  routerWillLeave(nextLocation){
+  routerWillLeave = nextLocation => {
     //return "Are you sure you want to leave the page ?"
-    return true;
+    if(this.state.canLeavePage)return true;
+    this.companyForm.cancel({dest: nextLocation.pathname});
+    return false;
   }
 
   componentWillUnmount(){
@@ -27,20 +33,27 @@ export default class NewCompanyApp extends Component {
     this.unsubscribeSubmit();
   }
 
-  goBack = () => {
-    this.props.history.pushState(null, routes.companies.path);
+  leavePage(dest){
+    console.log( dest || this.state.nextLocation);
+    this.state.canLeavePage = true;
+    this.props.history.pushState(null, dest || this.state.nextLocation);
+  }
+
+  get companyPath(){
+    return routes.companies.path;
   }
 
   componentWillMount() {
-    this.newCompany = companyForm();
-    this.unsubscribeSubmit = this.newCompany.submitted.onValue(state => {
-      companies.create(this.newCompany.toJS(state));
-      this.goBack();
+    this.companyForm = companyForm();
+    this.unsubscribeSubmit = this.companyForm.submitted.onValue(state => {
+      companies.create(this.companyForm.toJS(state));
+      this.leavePage(this.companyPath);
     });
-    this.unsubscribeCancel = this.newCompany.cancelled.onValue(state => {
+    this.unsubscribeCancel = this.companyForm.cancelled.onValue(state => {
       if(!state.hasBeenModified){
-        this.goBack();
+        this.leavePage(state.cancelOptions.dest);
       }else{
+        this.state.nextLocation = state.cancelOptions.dest;
         $('#cancelModal').modal('show');
       }
     });
@@ -51,18 +64,34 @@ export default class NewCompanyApp extends Component {
   }
 
   render(){
-    let href = this.context.history.createHref(routes.companies.path);
-    let leftIcon = <a href={href} className="fa fa-arrow-left m-r"/>;
+    return (
+      <div>
+        <EditCompanyContent title={"Add a Company"} companyForm={this.companyForm}/>
+        <CancelModal action={this.leavePage.bind(this)}/>
+      </div>
+    )
+  }
+}
+
+export class EditCompanyApp extends Component {
+}
+
+export default class EditCompanyContent extends Component {
+
+  render(){
+    // let href = this.context.history.createHref(routes.companies.path);
+    // let leftIcon = <a href={href} className="fa fa-arrow-left m-r"/>;
+    let leftIcon = <i className="fa fa-building m-r"/>;
 
     return (
       <Content>
         <div className="row">
           <div className="col-md-12">
-            <Header leftIcon={leftIcon} title={'Add a Company'}>
+            <Header leftIcon={leftIcon} title={this.props.title}>
               <Actions>
-                <AddBtn company={this.newCompany}/>
-                <CancelBtn company={this.newCompany}/>
-                <ResetBtn company={this.newCompany}/>
+                <AddBtn company={this.props.companyForm}/>
+                <CancelBtn company={this.props.companyForm}/>
+                <ResetBtn company={this.props.companyForm}/>
               </Actions>
             </Header>
           </div>
@@ -70,30 +99,29 @@ export default class NewCompanyApp extends Component {
             <Form>
               <div className="row">
                 <div className="col-md-9">
-                  <InputField field={this.newCompany.field('name')}/>
+                  <InputField field={this.props.companyForm.field('name')}/>
                 </div>
                 <div className="col-md-3">
-                  <SelectField field={this.newCompany.field('type')}/>
+                  <SelectField field={this.props.companyForm.field('type')}/>
                 </div>
               </div>
               <div className="row">
                 <div className="col-md-9">
-                  <InputField field={this.newCompany.field('logoUrl')}/>
+                  <InputField field={this.props.companyForm.field('logoUrl')}/>
                 </div>
                 <div className="col-md-1">
-                  <AvatarField company={this.newCompany}/>
+                  <AvatarField company={this.props.companyForm}/>
                 </div>
                 <div className="col-md-2">
-                  <SelectColorField options={colors} field={this.newCompany.field('color')}/>
+                  <SelectColorField options={colors} field={this.props.companyForm.field('color')}/>
                 </div>
                 <div className="col-md-12">
-                  <InputField field={this.newCompany.field('price')}/>
+                  <InputField field={this.props.companyForm.field('price')}/>
                 </div>
               </div>
             </Form>
           </div>
         </div>
-        <CancelModal action={this.goBack}/>
       </Content>
     )
   }
@@ -101,6 +129,11 @@ export default class NewCompanyApp extends Component {
 }
 
 class CancelModal extends Component{
+  handleClick = (e) => {
+    this.props.action();
+    e.preventDefault();
+  }
+
   render(){
     return (
       <div className="modal fade" id="cancelModal" tabIndex="-1" role="dialog" aria-labelledby="cancelModalTitle" aria-hidden="true">
@@ -118,7 +151,7 @@ class CancelModal extends Component{
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" data-dismiss="modal">Continu</button>
-              <button type="button" className="btn btn-warning" data-dismiss="modal" onClick={this.props.action}>Leave</button>
+              <button type="button" className="btn btn-warning" data-dismiss="modal" onClick={this.handleClick}>Leave</button>
             </div>
           </div>
         </div>
@@ -128,7 +161,7 @@ class CancelModal extends Component{
 }
 
 class AvatarField extends Component{
-  state = {name: 'Red Pelicans'};
+  state = {name: 'Red Pelicans'}
 
   componentWillUnmount(){
     this.unsubscribe();
@@ -200,7 +233,7 @@ class AddBtn extends Component {
 class CancelBtn extends Component {
 
   handleChange = (e) => {
-    this.props.company.cancel();
+    this.props.company.cancel({dest: routes.companies.path});
     e.preventDefault();
   }
 

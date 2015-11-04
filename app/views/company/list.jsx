@@ -49,6 +49,10 @@ export default class CompanyListApp extends Component {
     this.props.history.pushState(null, routes.newcompany.path);
   }
 
+  handleEditCompany = (company) => {
+    this.props.history.pushState({id: company._id}, routes.editcompany.path);
+  }
+
   shouldComponentUpdate(nextProps, nextState){
     return this.state.companies !== nextState.companies || 
       this.state.searchFilter != nextState.searchFilter || 
@@ -68,7 +72,7 @@ export default class CompanyListApp extends Component {
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
         </Header>
-        <CompanyList model={this.state}/>
+        <CompanyList model={this.state} onEdit={this.handleEditCompany}/>
         <AddCompanyButton onAddCompany={this.handleAddCompany}/>
       </Content>
     )
@@ -100,7 +104,7 @@ class CompanyList extends Component {
     let data = companies.map( company => {
       return (
         <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <CompanyListItem company={company}/>
+          <CompanyListItem company={company} onEdit={this.props.onEdit}/>
         </div>
       )
     });
@@ -181,7 +185,7 @@ class CompanyListItem extends Component {
     let company = this.props.company.toJS();
     // TODO: remove company.avatar
     let avatar = company.avatar || company.logoUrl ? <Avatar src={company.logoUrl || company.avatar}/> : <Avatar name={company.name}/>;
-    let isNew = moment.duration(moment() - moment(company.createdAt)).asDays() < 1 ? <span className="label label-success">new</span> : <div/>
+    let isNew = company.isNew ? <span className="label label-success">new</span> : <div/>
     return (
       <div style={styles.container}>
         <div style={styles.containerLeft} href="#">
@@ -200,7 +204,7 @@ class CompanyListItem extends Component {
         </div>
         <div style={styles.containerRight} href="#">
           <StarredCompany company={this.props.company}/>
-          <EditCompany company={this.props.company}/>
+          <EditCompany company={this.props.company} onEdit={this.props.onEdit}/>
         </div>
       </div>
     );
@@ -209,8 +213,7 @@ class CompanyListItem extends Component {
 
 class EditCompany extends Component{
   handleChange = (e) => {
-    console.log("Company EDIT");
-    //companies.edit(this.props.company.toJS());
+    this.props.onEdit(this.props.company.toJS());
     e.preventDefault();
   }
 

@@ -1,6 +1,6 @@
 import NotFound from './components/not-found';
 import CompanyListApp from './views/company/list';
-import NewCompanyApp from './views/company/new';
+import {NewCompanyApp, EditCompanyApp} from './views/company/edit';
 import MissionApp from './components/mission/app';
 import TimesheetApp from './components/timesheet/app';
 import HomeApp from './views/home';
@@ -10,6 +10,7 @@ let routeData = {
   home: {path: '/home', topic:'home', label: 'Home', component: HomeApp, isMenu: false, iconName: 'home'},
   companies: {path: '/companies', topic:'companies', label: 'Companies', component: CompanyListApp, isMenu: true, iconName: 'building'},
   newcompany: {path: '/company/new', topic:'companies', component: NewCompanyApp},
+  editcompany: {path: '/company/edit', topic:'companies', component: EditCompanyApp},
   timesheet: {path: '/timesheet', topic:'timesheet', label: 'Timesheet', component: TimesheetApp, isMenu: true, iconName: 'clock-o'},
   missions: {path: '/missions', topic:'missions', label: 'Missions', component: MissionApp, isMenu: true, iconName: 'thumbs-up'},
   invoices: {path: '/invoices', topic:'invoices', label: 'Invoices', component: NotFound, isMenu: true, iconName: 'credit-card'},

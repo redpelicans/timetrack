@@ -19,10 +19,12 @@ export class Formo extends AbstractField{
     this.cancelBus = new Bacon.Bus();
     this.state = combineFields(this.fields);
     this.submitted = this.state.sampledBy(this.submitBus);
-    this.cancelled = this.state.sampledBy(this.cancelBus).map(state => {
-      state.hasBeenModified = this.hasBeenModified(state);
-      return state;
-    });
+    this.cancelled = this.state.sampledBy(this.cancelBus, (state, cancelOptions) => {
+        state.cancelOptions = cancelOptions;
+        state.hasBeenModified = this.hasBeenModified(state);
+        return state;
+      }
+    );
   }
 
   hasBeenModified(state){
@@ -43,8 +45,8 @@ export class Formo extends AbstractField{
     this.submitBus.push(true);
   }
 
-  cancel(){
-    this.cancelBus.push(true);
+  cancel(options){
+    this.cancelBus.push(options);
   }
 
   toJS(state){
