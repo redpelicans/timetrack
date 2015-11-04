@@ -18,6 +18,15 @@ export function init(app){
       res.json(company);
     });
   });
+
+  app.post('/company/new', function(req, res, next){
+    let company = req.body.company;
+    async.waterfall([createCompany.bind(null, company), loadCompany], (err, company) => {
+      if(err)return next(err);
+      res.json(company);
+    });
+  });
+
 }
 
 function computeBill(companies, cb){
@@ -45,6 +54,18 @@ function loadCompany(id, cb){
     cb(null, company);
   });
 }
+
+function createCompany(company, cb){
+  let newCompany = _.pick(company, ['name', 'type', 'logoUrl', 'color']) ;
+  newCompany.createdAt = new Date();
+  newCompany.updatedAt = new Date();
+  newCompany.type = newCompany.type.toLowerCase();
+  Company.collection.insertOne(newCompany, (err, _) => {
+    console.log(newCompany);
+    return cb(err, company._id)
+  })
+}
+
 
 function star(starred, company, cb){
   company.starred = {true: true, false: false}[starred] || false;

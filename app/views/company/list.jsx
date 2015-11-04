@@ -1,8 +1,10 @@
 import _ from 'lodash';
+import moment from 'moment';
 import React, {Component} from 'react';
 import routes from '../../routes';
 import {Content, Header, Actions} from '../layout';
 import Avatar from '../avatar';
+import classNames from 'classnames';
 //import Header from '../header';
 //import MainButtonMenu from '../main_button_menu';
 import companies from '../../models/companies';
@@ -16,7 +18,7 @@ export default class CompanyListApp extends Component {
     companies: []
   };
 
-  componentDidMount() {
+  componentWillMount() {
     this.unsubscribeModel = companies.state.onValue( state => {
       this.setState(state);
     });
@@ -35,6 +37,10 @@ export default class CompanyListApp extends Component {
     companies.toggleStarFilter();
   }
 
+  handleSort = (mode) => {
+    companies.sort(mode)
+  }
+
   handleSearchFilter = (filter) => {
     companies.searchFilter(filter);
   }
@@ -46,6 +52,7 @@ export default class CompanyListApp extends Component {
   shouldComponentUpdate(nextProps, nextState){
     return this.state.companies !== nextState.companies || 
       this.state.searchFilter != nextState.searchFilter || 
+      this.state.sortCond != nextState.sortCond || 
       this.state.starFilter != nextState.starFilter;
   }
 
@@ -56,6 +63,7 @@ export default class CompanyListApp extends Component {
         <Header leftIcon={leftIcon} title={'Companies'}>
           <Actions>
             <Filter filter={this.state.searchFilter} onChange={this.handleSearchFilter}/>
+            <Sort sortCond={this.state.sortCond} onClick={this.handleSort}/>
             <Starred starred={this.state.starFilter} onClick={this.handleStarred}/>
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
@@ -152,72 +160,49 @@ class CompanyListItem extends Component {
     let styles = {
       container:{
         display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'nowrap',
-        justifyContent: 'center',
-        alignItems: 'stretch',
-        padding: '15px',
-      },
-      avatar:{
-        order: 1,
-        cursor: 'pointer',
-      },
-      billElements:{
-        order: 3,
-        flex: '1 1 auto'
-      },
-      star:{
-        order: 1,
-      },
-      edit:{
-        order: 2,
-        color: '#757575',
-      },
-      name:{
-        marginLeft: '20px',
-        marginRight: '20px',
-        fontFamily: 'Roboto',
-        fontSize: '14px',
-        fontWeight: '500',
-        order: 2,
-        flex: '1 1 auto',
-        cursor: 'pointer',
-      },
-      left:{
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'nowrap',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        order: 4,
-        alignSelf: 'flex-start',
-        //flex: '1 1 50%',
+        height: '100%',
       },
-
+      containerLeft:{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'left',
+        padding: '5px',
+      },
+      containerRight:{
+        display: 'flex',
+        justifyContent: 'right',
+        alignItems: 'center',
+        padding: '5px',
+      }
     };
 
     let company = this.props.company.toJS();
-    let avatar = company.avatar ? <Avatar src={company.avatar}/> : <Avatar name={company.name}/>;
+    // TODO: remove company.avatar
+    let avatar = company.avatar || company.logoUrl ? <Avatar src={company.logoUrl || company.avatar}/> : <Avatar name={company.name}/>;
+    let isNew = moment.duration(moment() - moment(company.createdAt)).asDays() < 1 ? <span className="label label-success">new</span> : <div/>
     return (
-        <div href="#" style={styles.container} XclassName='tm list-item'>
-          <div style={styles.avatar} onClick={this.handleCompanySelection}>
+      <div style={styles.container}>
+        <div style={styles.containerLeft} href="#">
+          <div className="p-r">
             {avatar}
           </div>
-          <div style={styles.name} onClick={this.handleCompanySelection}>
+          <div className="p-r">
             <span>{company.name}</span>
           </div>
-          <div style={styles.billElements}>
+          <div className="p-r">
             {billAmounts(company)}
           </div>
-          <div className="pull-right" style={styles.left}>
-            <div style={styles.star}>
-            <StarredCompany company={this.props.company}/>
-            </div>
-            <div style={styles.edit}>
-              <EditCompany company={this.props.company}/>
-            </div>
+          <div className="p-r">
+            {isNew}
           </div>
         </div>
+        <div style={styles.containerRight} href="#">
+          <StarredCompany company={this.props.company}/>
+          <EditCompany company={this.props.company}/>
+        </div>
+      </div>
     );
   }
 }
@@ -237,7 +222,7 @@ class EditCompany extends Component{
 
     return (
       <a href="#" onClick={this.handleChange}>
-        <i style={style} className="fa fa-pencil m-r"/>
+        <i style={style} className="iconButton fa fa-pencil m-r"/>
       </a>
     )
   }
@@ -260,7 +245,7 @@ class StarredCompany extends Component{
 
     return (
       <a href="#" onClick={this.handleChange}>
-        <i style={style} className="fa fa-star-o m-r"/>
+        <i style={style} className="iconButton fa fa-star-o m-r"/>
       </a>
     )
   }
@@ -271,6 +256,11 @@ class StarredCompany extends Component{
 class AddCompanyButton extends Component {
   componentDidMount(){
     $('#addCompany').tooltip({animation: true});
+  }
+
+  handleClick = () => {
+    $('#addCompany').tooltip('hide');
+    this.props.onAddCompany();
   }
 
   render(){
@@ -285,7 +275,7 @@ class AddCompanyButton extends Component {
     }
 
     return (
-      <button id="addCompany" type="button" className="btn-primary btn tm button"  data-toggle="tooltip" data-placement="left" title="Add a company" style={style}  onClick={this.props.onAddCompany}>
+      <button id="addCompany" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title="Add a company" style={style}  onClick={this.handleClick}>
         <i className="fa fa-plus"/>
       </button>
     )
@@ -307,7 +297,7 @@ class Refresh extends Component {
     return (
       <div className="p-a">
         <a href="#" onClick={this.handleChange}>
-          <i style={style} className="fa fa-refresh"/>
+          <i style={style} className="iconButton fa fa-refresh"/>
         </a>
       </div>
     )
@@ -340,14 +330,54 @@ class Starred extends Component {
     let filter = this.props.starred;
     let style={
       fontSize: '1.5rem',
-      get color(){ return filter ? '#00BCD4' : 'grey'; }
+      color: filter ? '#00BCD4' : 'grey',
     }
 
     return (
       <div className="p-a">
         <a href="#" onClick={this.handleChange} > 
-          <i style={style} className="fa fa-star-o"/>
+          <i style={style} className="iconButton fa fa-star-o"/>
         </a>
+      </div>
+    )
+  }
+}
+
+class Sort extends Component {
+  handleClick = (mode, e) => {
+    this.props.onClick(mode);
+    e.preventDefault();
+  }
+
+  render(){
+    function getSortIcon(sortCond, item){
+      if(item.key === sortCond.sortBy){
+        let classnames = sortCond.direction === "desc" ? "fa fa-sort-desc p-l" : "fa fa-sort-asc p-l";
+        return <i className={classnames}/>
+      }
+    }
+    let style={
+      fontSize: '1.5rem',
+      color: 'grey',
+    }
+
+    let menu = _.map(companies.sortBy, item => {
+      return (
+        <a key={item.key} className="dropdown-item p-a" href="#" onClick={this.handleClick.bind(null, item.key)}>
+          {item.label}
+          {getSortIcon(this.props.sortCond, item)}
+        </a>
+      )
+    });
+
+    return (
+      <div className="p-a">
+        <a href="#" onClick={this.handleChange} id="sort-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> 
+          <i style={style} className="iconButton fa fa-sort" onClick={this.handleChange}/>
+        </a>
+        <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="sort-menu">
+          {menu}
+        </ul>
       </div>
     )
   }

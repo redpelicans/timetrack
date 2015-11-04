@@ -1,11 +1,11 @@
 import errors from '../models/errors';
 
 
-function parseJSON(res) {
+export function parseJSON(res) {
   return res.json()
 }
 
-function checkStatus(res) {
+export function checkStatus(res) {
   if (res.status >= 200 && res.status < 300) {
     return res
   } else {
@@ -13,6 +13,17 @@ function checkStatus(res) {
     error.res = res
     throw error
   }
+}
+
+export function requestPostJson(uri, body){
+  return requestJson(uri, {
+    method: 'post',
+    headers:{
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
 }
 
 export function requestJson(...params){

@@ -90,18 +90,6 @@ export default class AppBar extends Component {
   }
 }
 
-class DropdownUserMenuOld extends Component {
-  handleChange = (value) => {
-    console.log(value)
-  }
-
-  render(){
-    return (
-      <DropdownList onChange={this.handleChange} value={this.props.user.email} data={[ "Logout", "Switch tenant"]}/>
-    )
-  }
-}
-
 class DropdownUserMenu extends Component {
   handleChange = (value) => {
     console.log(value)

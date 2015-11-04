@@ -5,7 +5,6 @@ import Router from 'react-router';
 import routes from './routes';
 import Nav from './models/nav.js';
 import errors from './models/errors.js';
-import Avatar from './views/avatar';
 import ReactToastr from 'react-toastr';
 let {ToastContainer} = ReactToastr;
 let ToastMessageFactory = React.createFactory(ReactToastr.ToastMessage.animation);
@@ -110,6 +109,9 @@ class AppNav extends Component{
       dropdownMenuItem:{
         color: '#cfd2da',
         paddingLeft: '20px',
+      },
+      logo:{
+        color: "#cd4436",
       }
     }
 
@@ -127,7 +129,7 @@ class AppNav extends Component{
           </button>
           <div className="collapse navbar-toggleable-sm">
             <a className="navbar-brand tm brand" href={home}>
-              <i className="fa fa-paper-plane m-r"/>
+              <i style={styles.logo} className="fa fa-paper-plane m-r"/>
               Timetrack by redpelicans
             </a>
             <ul className="nav navbar-nav tm menu item">
