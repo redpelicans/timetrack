@@ -1,7 +1,7 @@
 import Bacon from 'baconjs';
 import Dispatcher from '../utils/dispatcher';
 import Immutable from 'immutable';
-import {requestJson, requestPostJson, pushDataEvent} from '../utils';
+import {requestJson, requestVerbJson, pushDataEvent} from '../utils';
 import errors from '../models/errors';
 import _ from 'lodash';
 import moment from 'moment';
@@ -114,10 +114,10 @@ const model = {
   },
 
   create(company){
-    requestPostJson('/api/company/new', {company: company})
-      .then( () => {
-        this.load();
-      })
+    return requestVerbJson('/api/companies', 'post', {company: company})
+      // .then( () => {
+      //   this.load();
+      // })
       .catch(err => {
         console.error(err.toString());
         errors.alert({
@@ -126,6 +126,18 @@ const model = {
         });
       });
   },
+
+  update(previousCompany, updates){
+    return requestVerbJson('/api/company', 'put', {company: _.assign(previousCompany, updates)})
+      .catch(err => {
+        console.error(err.toString());
+        errors.alert({
+          header: 'Runtime Error',
+          message: 'Cannot update company, check your backend server'
+        });
+      });
+  },
+
 
   toggleStarFilter(){
     d.push('toggleStarFilter', 'toggle');

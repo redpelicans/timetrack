@@ -183,8 +183,7 @@ class CompanyListItem extends Component {
     };
 
     let company = this.props.company.toJS();
-    // TODO: remove company.avatar
-    let avatar = company.avatar || company.logoUrl ? <Avatar src={company.logoUrl || company.avatar}/> : <Avatar name={company.name}/>;
+    let avatar = company.logoUrl ? <Avatar src={company.logoUrl}/> : <Avatar color={company.color} name={company.name}/>;
     let isNew = company.isNew ? <span className="label label-success">new</span> : <div/>
     return (
       <div style={styles.container}>

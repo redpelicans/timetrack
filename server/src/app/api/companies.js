@@ -7,6 +7,10 @@ export function init(app){
   app.get('/companies', function(req, res, next){
     async.waterfall([loadCompanies, computeBill], (err, companies) => {
       if(err)return next(err);
+      // TODO: to be removed
+      for(let company of companies){
+        company.logoUrl = company.avatar;
+      }
       res.json(companies);
     });
   });
@@ -19,13 +23,23 @@ export function init(app){
     });
   });
 
-  app.post('/company/new', function(req, res, next){
+  app.post('/companies', function(req, res, next){
     let company = req.body.company;
     async.waterfall([createCompany.bind(null, company), loadCompany], (err, company) => {
       if(err)return next(err);
       res.json(company);
     });
   });
+
+  app.put('/company', function(req, res, next){
+    let newCompany = req.body.company;
+    let id = ObjectId(newCompany._id);
+    async.waterfall([loadCompany.bind(null, id), updateCompany.bind(null, newCompany), loadCompany], (err, company) => {
+      if(err)return next(err);
+      res.json(company);
+    });
+  });
+
 
 }
 
@@ -63,6 +77,17 @@ function createCompany(company, cb){
   Company.collection.insertOne(newCompany, (err, _) => {
     console.log(newCompany);
     return cb(err, company._id)
+  })
+}
+
+
+function updateCompany(newCompany, previousCompany, cb){
+  let updates = _.pick(newCompany, ['name', 'type', 'logoUrl', 'color']) ;
+  updates.updatedAt = new Date();
+  updates.type = updates.type.toLowerCase();
+  Company.collection.updateOne({_id: previousCompany._id}, {$set: updates}, (err) => {
+    console.log(updates);
+    return cb(err, previousCompany._id)
   })
 }
 

@@ -2,22 +2,43 @@ import _ from 'lodash';
 import Bacon from 'baconjs';
 import companies from '../models/companies';
 
-class AbstractField{
-  // TODO
-  // get path(){
-  //   console.log(this.key)
-  //   if(!this.parent) return '';
-  //   return `${this.parent.path}.${this.key}`;
-  // }
+class AbstractMultiField{
+  reset(){
+    _.each(this.fields, field => field.reset());
+  }
+
+  hasBeenModified(state){
+    return _.any(state, (subState, name) => {
+      let field = this.field(name);
+      if(field && field.hasBeenModified) return field.hasBeenModified(subState);
+      else return false;
+    });
+  }
+
+  field(path){
+    return _.inject(path.split('.'), function(o, p){return o && o[p]}, this.fields);
+  }
+
+  get path(){
+    if(!this.parent) return '';
+    return `${this.parent.path}.${this.key}`;
+  }
+
+  get root(){
+    if(!this.parent)return this;
+    return this.parent.root;
+  }
+
 }
 
-export class Formo extends AbstractField{
-  constructor(fields){
-    super('', fields);
+export class Formo extends AbstractMultiField{
+  constructor(fields, document){
+    super();
+    this.document = document;
     this.fields = initFields(fields, this);
     this.submitBus = new Bacon.Bus();
     this.cancelBus = new Bacon.Bus();
-    this.state = combineFields(this.fields);
+    this.state = combineFields(this, this.fields);
     this.submitted = this.state.sampledBy(this.submitBus);
     this.cancelled = this.state.sampledBy(this.cancelBus, (state, cancelOptions) => {
         state.cancelOptions = cancelOptions;
@@ -27,105 +48,139 @@ export class Formo extends AbstractField{
     );
   }
 
-  hasBeenModified(state){
-    return _.any(state, (subState, name) => {
-      return _.isObject(subState) && 'value' in subState && this.field(name).hasBeenModified(subState);
-    });
-  }
-   
-  field(path){
-    return _.inject(path.split('.'), function(o, p){return o && o[p]}, this.fields);
-  }
-
-  reset(){
-    _.each(this.fields, field => field.reset());
-  }
-
   submit(){
     this.submitBus.push(true);
+  }
+
+  getDocumentValue(path){
+    if(!this.document) return;
+    return _.inject(path.split('.').filter(x => x !== ''), function(d, p){return d && d[p]}, this.document);
   }
 
   cancel(options){
     this.cancelBus.push(options);
   }
 
+
   toJS(state){
     let res = {};
     _.each(state, (subState, name) => {
-      if(_.isObject(subState) && 'value' in subState) res[name] = subState.value;
-    }); 
-    return res;
+      if(_.isObject(subState)){
+          if('value' in subState) res[name] = subState.field.castedValue(subState.value);
+          else res[name] = toJS(subState);
+        }
+      }); 
+      return res;
+    }
   }
-}
 
-export class Field{
-  constructor(name, schema){
-    this.schema = schema;
-    this.key = name;
-
-    this.hasNewValue= new Bacon.Bus();
-    this.doReset = new Bacon.Bus();
-
-    let hasValue = this.hasNewValue;
-    let ajaxResponse = new Bacon.Bus();
-    let isLoading = new Bacon.Bus();
-
-    if(this.schema.valueChecker){
-      let stream = hasValue.throttle(this.schema.valueChecker.throttle || 100);
-      hasValue = stream.flatMap( data => {
-        let ajaxRequest = Bacon.fromPromise(this.schema.valueChecker.checker(data.value));
-        isLoading.push(true);
-        return Bacon.constant(data).combine(ajaxRequest, (data, isValid) => {
-            isLoading.push(false);
-            if(!isValid) data.error = this.schema.valueChecker.error || 'Wrong Input!';
-            return data;
-          })
-      });
+  export class MultiField extends AbstractMultiField{
+    constructor(name, fields){
+      super(name, fields);
+      this.key = name;
     }
 
-    this.state = Bacon.update(
-      {
-        value: this.schema.defaultValue,
-        domainValues: this.schema.domainValues,
-        error: this.checkError(this.schema.defaultValue),
-        canSubmit: !this.checkError(this.schema.defaultValue),
-        isLoading: false,
-      },
-      this.doReset, (state, x) => {
-        return {
-          value: this.schema.defaultValue,
-          domainValues: this.schema.domainValues,
-          error: this.checkError(this.schema.defaultValue),
-          canSubmit: !this.checkError(this.schema.defaultValue),
-          isLoading: false,
-        }
-      },
-      isLoading, (state, isLoading) => {
-        state.isLoading = isLoading;
-        state.canSubmit = !(state.isLoading || state.error);
-        return state;
-      },
-      hasValue, (state, data) => {
-        if(this.schema.valueChecker){
-          state.value = data.value;
-          state.error = data.error;
-        }else{
-          if(this.checkValue(data.value)){
-            state.value = data.value;
-            state.error = undefined;
-          }else{
-            state.value = data.value;
-            state.error = this.getError(data.value) 
-          }
-        }
-        state.canSubmit = !(state.isLoading || state.error);
-        return state;
-      },
-    );
+    _init(){
+      this.fields = initFields(fields, this);
+      this.state = combineFields(this, this);
+    }
   }
 
-  hasBeenModified(state){
-    return state.value !== this.defaultValue;
+  export class FieldGroup extends AbstractMultiField{
+    constructor(name, fields){
+      super(name, fields);
+      this.key = name;
+    }
+
+    _init(){
+      this.fields = initFields(fields, this);
+      this.state = combineFields(this, this);
+    }
+  }
+
+  export class Field{
+    constructor(name, schema){
+      this.schema = schema;
+      this.key = name;
+    }
+
+    _init(){
+      this.hasNewValue= new Bacon.Bus();
+      this.doReset = new Bacon.Bus();
+
+      let hasValue = this.hasNewValue;
+      let ajaxResponse = new Bacon.Bus();
+      let isLoading = new Bacon.Bus();
+
+      if(this.schema.valueChecker){
+        let stream = hasValue.throttle(this.schema.valueChecker.throttle || 100);
+        hasValue = stream.flatMap( data => {
+          let ajaxRequest = Bacon.fromPromise(this.schema.valueChecker.checker(data.value));
+          isLoading.push(true);
+          return Bacon.constant(data).combine(ajaxRequest, (data, isValid) => {
+              isLoading.push(false);
+              if(!isValid) data.error = this.schema.valueChecker.error || 'Wrong Input!';
+              return data;
+            })
+        });
+      }
+
+      this.state = Bacon.update(
+        {
+          value: this.defaultValue,
+          field: this,
+          domainValues: this.schema.domainValues,
+          error: this.checkError(this.defaultValue),
+          canSubmit: !this.checkError(this.defaultValue),
+          isLoading: false,
+        },
+        this.doReset, (state, x) => {
+          return {
+            value: this.defaultValue,
+            field: this,
+            domainValues: this.schema.domainValues,
+            error: this.checkError(this.defaultValue),
+            canSubmit: !this.checkError(this.defaultValue),
+            isLoading: false,
+          }
+        },
+        isLoading, (state, isLoading) => {
+          state.isLoading = isLoading;
+          state.canSubmit = !(state.isLoading || state.error);
+          return state;
+        },
+        hasValue, (state, data) => {
+          if(this.schema.valueChecker){
+            state.value = data.value;
+            state.error = data.error;
+          }else{
+            if(this.checkValue(data.value)){
+              state.value = data.value;
+              state.error = undefined;
+            }else{
+              state.value = data.value;
+              state.error = this.getError(data.value) 
+            }
+          }
+          state.canSubmit = !(state.isLoading || state.error);
+          return state;
+        },
+      );
+    }
+
+    castedValue(value){
+      switch(this.type){
+        case 'number':
+        case 'integer':
+          return Number(value);
+        default: 
+          if(value === '')return;
+          return value;
+      }
+    }
+
+    hasBeenModified(state){
+      return this.castedValue(state.value) !== this.defaultValue;
   }
 
   checkValue(value){
@@ -144,7 +199,7 @@ export class Field{
   }
 
   get defaultValue(){
-    return this.schema.defaultValue;
+    return this.root && this.root.getDocumentValue(this.path) || this.schema.defaultValue;
   }
 
   get label(){
@@ -153,6 +208,14 @@ export class Field{
 
   get type(){
     return this.schema.type;
+  }
+
+  get path(){
+    return `${this.parent.path}.${this.key}`;
+  }
+
+  get root(){
+    return this.parent && this.parent.root;
   }
 
   get pattern(){
@@ -193,7 +256,6 @@ export class Field{
     return _.isUndefined(value) || value === "";
   }
 
-
   setValue(value){
     this.hasNewValue.push({value: value});
   }
@@ -206,75 +268,6 @@ export class Field{
     return this.schema.required;
   }
 
-  toJS(state){
-    return state.value;
-  }
-
-}
-
-
-export class MultiField extends AbstractField{
-  constructor(name, fields){
-    super(name, fields);
-    this.key = name;
-    this.fields = initFields(fields, this);
-    this.state = combineFields(this);
-  }
-
-  reset(){
-    _.each(this.fields, field => field.reset());
-  }
-
-  hasBeenModified(state){
-    return _.any(state, (subState, name) => {
-      return _.isObject(subState) && 'value' in subState && this.field(name).hasBeenModified(subState);
-    });
-  }
-
-  field(path){
-    return _.inject(path.split('.'), function(o, p){return o && o[p]}, this.fields);
-  }
-
-  toJS(state, root){
-    let res = {};
-    _.each(state, (subState, name) => {
-      res[name] = field.toJS(subState);
-    }); 
-    return res;
-  }
-
-}
-
-export class FieldGroup extends AbstractField{
-  constructor(name, fields){
-    super(name, fields);
-    this.key = name;
-    this.fields = initFields(fields, this);
-    this.state = combineFields(this);
-  }
-
-  reset(){
-    _.each(this.fields, field => field.reset());
-  }
-
-  hasBeenModified(state){
-    return _.any(state, (subState, name) => {
-      return _.isObject(subState) && 'value' in subState && this.field(name).hasBeenModified(subState);
-    });
-  }
-
-  field(path){
-    return _.inject(path.split('.'), function(o, p){return o && o[p]}, this.fields);
-  }
-
-  toJS(state){
-    let res = {};
-    _.each(state, (subState, name) => {
-      res[name] = field.toJS(subState);
-    }); 
-    return res;
-  }
-
 }
 
 function initFields(fields, parent){
@@ -282,11 +275,13 @@ function initFields(fields, parent){
   for(let field of fields){
     field.parent = parent;
     data[field.key] = field;
+    field._init();
   }
   return data;
 }
 
-function combineFields(fields){
+
+function combineFields(parent, fields){
   let res = _.chain(fields).map((value, key) => {
       return [key, value.state]
     }).object().value();
@@ -295,6 +290,7 @@ function combineFields(fields){
     .map(state => {
       let canSubmit = _.all(_.map(state, field => field.canSubmit));
       state.canSubmit = canSubmit;
+      state.hasBeenModified = parent.hasBeenModified(state);
       return state;
     });
 }

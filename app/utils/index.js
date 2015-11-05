@@ -15,9 +15,9 @@ export function checkStatus(res) {
   }
 }
 
-export function requestPostJson(uri, body){
+export function requestVerbJson(uri, verb, body){
   return requestJson(uri, {
-    method: 'post',
+    method: verb,
     headers:{
     'Accept': 'application/json',
     'Content-Type': 'application/json'

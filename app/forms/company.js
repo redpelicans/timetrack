@@ -25,7 +25,7 @@ function logoUrlValueChecker(url, state){
   });
 }
 
-export default function company(){
+export default function company(document){
   return new Formo([
     new Field('name', {
       label: "Name",
@@ -66,5 +66,5 @@ export default function company(){
     //     domainValues: ['EUR', 'USD'],
     //   })
     // ])
-  ]);
+  ], document);
 }
