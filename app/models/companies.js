@@ -1,7 +1,7 @@
 import Bacon from 'baconjs';
 import Dispatcher from '../utils/dispatcher';
 import Immutable from 'immutable';
-import {requestJson, requestVerbJson, pushDataEvent} from '../utils';
+import {requestJson, pushDataEvent} from '../utils';
 import errors from '../models/errors';
 import _ from 'lodash';
 import moment from 'moment';
@@ -92,9 +92,7 @@ const model = {
     requestJson('/api/companies')
       .then( companies => {
         for(let company of companies){
-          company.createdAt = moment(company.createdAt);
-          company.updatedAt = moment(company.updatedAt);
-          company.isNew = moment.duration(moment() - company.createdAt).asDays() < 1;
+          initCompany(company);
         }
         loadedCompanies.push(companies);
       })
@@ -108,16 +106,24 @@ const model = {
   },
 
   loadOne(id){
-    return companies.map(companies => {
-      return companies.filter(company => company.get('_id') === id).first();
-    })
+    // return companies.map(companies => {
+    //   return companies.filter(company => company.get('_id') === id).first();
+    // })
+    return Bacon.fromPromise(requestJson(`/api/company/${id}`)
+      .then(company => {
+        return initCompany(company);
+      })
+      .catch(err => {
+        console.error(err.toString());
+        errors.alert({
+          header: 'Runtime Error',
+          message: `Cannot load company ${id}, check your backend server`
+        });
+      }) );
   },
 
   create(company){
-    return requestVerbJson('/api/companies', 'post', {company: company})
-      // .then( () => {
-      //   this.load();
-      // })
+    return requestJson('/api/companies', 'post', {company: company})
       .catch(err => {
         console.error(err.toString());
         errors.alert({
@@ -128,7 +134,7 @@ const model = {
   },
 
   update(previousCompany, updates){
-    return requestVerbJson('/api/company', 'put', {company: _.assign(previousCompany, updates)})
+    return requestJson('/api/company', 'put', {company: _.assign(previousCompany, updates)})
       .catch(err => {
         console.error(err.toString());
         errors.alert({
@@ -159,17 +165,8 @@ const model = {
   },
 
   toggleStar(company){
-    let request = requestJson(`/api/companies/star`, {
-      method: 'post',
-      headers:{
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-          id: company._id
-        , starred: !company.starred
-      })
-    });
+    let body = { id: company._id , starred: !company.starred};
+    let request = requestJson(`/api/companies/star`, 'post', body);
 
     pushDataEvent(request, d.stream('update'), err => {
       errors.alert({
@@ -179,5 +176,13 @@ const model = {
     });
   }
 }
+
+function initCompany(company){
+  company.createdAt = moment(company.createdAt);
+  company.updatedAt = moment(company.updatedAt);
+  company.isNew = moment.duration(moment() - company.createdAt).asDays() < 1;
+  return company;
+}
+
 
 export default model;

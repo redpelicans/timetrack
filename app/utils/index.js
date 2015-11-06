@@ -15,18 +15,21 @@ export function checkStatus(res) {
   }
 }
 
-export function requestVerbJson(uri, verb, body){
-  return requestJson(uri, {
-    method: verb,
-    headers:{
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(body)
-  });
+export function requestJson(uri, verb, body){
+  if(!body)
+    return fetchJson(uri, { method: verb || 'get' });
+  else
+    return fetchJson(uri, {
+      method: verb,
+      headers:{
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body||{})
+    });
 }
 
-export function requestJson(...params){
+export function fetchJson(...params){
   return fetch(...params).then(checkStatus).then(parseJSON);
 }
 

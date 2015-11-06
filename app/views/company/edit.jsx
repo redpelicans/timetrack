@@ -116,7 +116,10 @@ export class EditCompanyApp extends Component {
   componentWillMount() {
     let companyId = this.props.location.state.id;
     companies.loadOne(companyId).onValue(company => {
-      this.companyDocument = company.toJS();
+      console.log(this.props.location.state.id)
+      console.log(company)
+      //this.companyDocument = company.toJS();
+      this.companyDocument = company;
       this.companyForm = companyForm(this.companyDocument);
 
       this.unsubscribeSubmit = this.companyForm.submitted.onValue(state => {
@@ -125,6 +128,7 @@ export class EditCompanyApp extends Component {
       });
 
       this.unsubscribeState = this.companyForm.state.onValue(state => {
+        // TODO: setState is called after component is unmounted !!
         this.setState({
           canSubmit: state.canSubmit,
           hasBeenModified: state.hasBeenModified,
@@ -134,7 +138,6 @@ export class EditCompanyApp extends Component {
   }
 
   render(){
-    console.log(this.state);
     let submitBtn = <UpdateBtn onSubmit={this.handleSubmit} canSubmit={this.state.canSubmit && this.state.hasBeenModified}/>;
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>;
 
@@ -165,6 +168,8 @@ export default class EditCompanyContent extends Component {
   }
 
   render(){
+    if(!this.props.companyForm) return false;
+
     let leftIcon = <i className="fa fa-building m-r"/>;
     let styles = {
       time: {

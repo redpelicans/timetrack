@@ -15,6 +15,14 @@ export function init(app){
     });
   });
 
+  app.get('/company/:id', function(req, res, next){
+    let id = ObjectId(req.params.id); 
+    async.waterfall([loadCompany.bind(null, id)], (err, company) => {
+      if(err)return next(err);
+      res.json(company);
+    });
+  })
+
   app.post('/companies/star', function(req, res, next){
     let id = ObjectId(req.body.id); 
     async.waterfall([loadCompany.bind(null, id), star.bind(null, req.body.starred)], (err, company) => {
