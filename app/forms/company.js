@@ -1,4 +1,4 @@
-import {Formo, Field, MultiField} from '../utils/formo';
+import {Formo, Field, FieldGroup, MultiField} from '../utils/formo';
 import _ from 'lodash';
 import {checkStatus, parseJSON} from '../utils';
 
@@ -38,6 +38,11 @@ export default function company(document){
       domainValues: ['Client', 'Partner', 'Tenant'],
       required: true
     }),
+    new Field('starred', {
+      label: 'Preferred',
+      defaultValue: false,
+      type: 'boolean',
+    }),
     new Field('logoUrl', {
       label: "Logo URL",
       type: 'text',
@@ -48,23 +53,27 @@ export default function company(document){
       domainValues: colors,
       defaultValue: rndColor(),
     }),
-    new Field('price', {
-      label: "Price",
-      type: 'integer',
-      defaultValue: 42,
+    new Field('website', {
+      label: "Website",
+      type: "text",
     }),
-
-    // new MultiField('price', [
-    //   new Field('amount', {
-    //     label: "Amount",
-    //     type: "number",
-    //     defaultValue: 42,
-    //     required: true
-    //   }),
-    //   new Field('currency', {
-    //     defaultValue: 'EUR',
-    //     domainValues: ['EUR', 'USD'],
-    //   })
-    // ])
+    new FieldGroup('address', [
+      new Field('street', {
+        label: "Street",
+        type: "text",
+      }),
+      new Field('zipcode', {
+        label: "Zip Code",
+        type: "text",
+      }),
+      new Field('city', {
+        label: "City",
+        type: "text",
+      }),
+      new Field('country', {
+        label: "Country",
+        type: "text",
+      }),
+    ]),
   ], document);
 }

@@ -3,6 +3,12 @@ import Bacon from 'baconjs';
 import companies from '../models/companies';
 
 class AbstractMultiField{
+  constructor(fields, name){
+    this.key = name;
+    this.fields = {};
+    this.initFields(fields);
+  }
+
   reset(){
     _.each(this.fields, field => field.reset());
   }
@@ -16,7 +22,7 @@ class AbstractMultiField{
   }
 
   field(path){
-    return _.inject(path.split('.'), function(o, p){return o && o[p]}, this.fields);
+    return _.inject(path.split('.'), function(o, p){return o && o.fields[p]}, this);
   }
 
   get path(){
@@ -29,23 +35,62 @@ class AbstractMultiField{
     return this.parent.root;
   }
 
+  initFields(fields){
+    for(let field of fields){
+      this.fields[field.key] = field;
+    }
+  }
+
+  combineStates(){
+    let fields = this.fields;
+    let field = this;
+    let res = _.chain(fields).map((value, key) => {
+        return [key, value.state]
+      }).object().value();
+
+    return Bacon.combineTemplate(res)
+      .map(state => {
+        let canSubmit = _.all(_.map(state, subState => subState.canSubmit));
+        state.canSubmit = canSubmit;
+        state.hasBeenModified = field.hasBeenModified(state);
+        return state;
+      });
+  }
+
+  initState(){
+    _.each(this.fields, field =>{
+      field.initState();
+    })
+    this.state = this.combineStates();
+  }
 }
 
 export class Formo extends AbstractMultiField{
   constructor(fields, document){
-    super();
+    super(fields);
+    this.propagateParent();
     this.document = document;
-    this.fields = initFields(fields, this);
     this.submitBus = new Bacon.Bus();
     this.cancelBus = new Bacon.Bus();
-    this.state = combineFields(this, this.fields);
+    this.initState();
+    this.state.log();
     this.submitted = this.state.sampledBy(this.submitBus);
     this.cancelled = this.state.sampledBy(this.cancelBus, (state, cancelOptions) => {
         state.cancelOptions = cancelOptions;
-        state.hasBeenModified = this.hasBeenModified(state);
         return state;
       }
     );
+  }
+
+  propagateParent(){
+    function propagate(parent){
+      if(!parent.fields)return;
+      _.each(parent.fields, field =>{
+        field.parent = parent;
+        propagate(field);
+      })
+    }
+    propagate(this);
   }
 
   submit(){
@@ -66,121 +111,111 @@ export class Formo extends AbstractMultiField{
     let res = {};
     _.each(state, (subState, name) => {
       if(_.isObject(subState)){
-          if('value' in subState) res[name] = subState.field.castedValue(subState.value);
-          else res[name] = toJS(subState);
-        }
-      }); 
-      return res;
-    }
-  }
-
-  export class MultiField extends AbstractMultiField{
-    constructor(name, fields){
-      super(name, fields);
-      this.key = name;
-    }
-
-    _init(){
-      this.fields = initFields(fields, this);
-      this.state = combineFields(this, this);
-    }
-  }
-
-  export class FieldGroup extends AbstractMultiField{
-    constructor(name, fields){
-      super(name, fields);
-      this.key = name;
-    }
-
-    _init(){
-      this.fields = initFields(fields, this);
-      this.state = combineFields(this, this);
-    }
-  }
-
-  export class Field{
-    constructor(name, schema){
-      this.schema = schema;
-      this.key = name;
-    }
-
-    _init(){
-      this.hasNewValue= new Bacon.Bus();
-      this.doReset = new Bacon.Bus();
-
-      let hasValue = this.hasNewValue;
-      let ajaxResponse = new Bacon.Bus();
-      let isLoading = new Bacon.Bus();
-
-      if(this.schema.valueChecker){
-        let stream = hasValue.throttle(this.schema.valueChecker.throttle || 100);
-        hasValue = stream.flatMap( data => {
-          let ajaxRequest = Bacon.fromPromise(this.schema.valueChecker.checker(data.value));
-          isLoading.push(true);
-          return Bacon.constant(data).combine(ajaxRequest, (data, isValid) => {
-              isLoading.push(false);
-              if(!isValid) data.error = this.schema.valueChecker.error || 'Wrong Input!';
-              return data;
-            })
-        });
+        if('value' in subState) res[name] = subState.field.castedValue(subState.value);
+        else res[name] = this.toJS(subState);
       }
+    }); 
+   return res;
+  }
+}
 
-      this.state = Bacon.update(
-        {
+export class MultiField extends AbstractMultiField{
+  constructor(name, fields){
+    super(fields, name);
+  }
+}
+
+export class FieldGroup extends AbstractMultiField{
+  constructor(name, fields){
+    super(fields, name);
+  }
+}
+
+export class Field{
+  constructor(name, schema){
+    this.schema = schema;
+    this.key = name;
+  }
+
+  initState(){
+    this.hasNewValue= new Bacon.Bus();
+    this.doReset = new Bacon.Bus();
+
+    let hasValue = this.hasNewValue;
+    let ajaxResponse = new Bacon.Bus();
+    let isLoading = new Bacon.Bus();
+
+    if(this.schema.valueChecker){
+      let stream = hasValue.throttle(this.schema.valueChecker.throttle || 100);
+      hasValue = stream.flatMap( data => {
+        let ajaxRequest = Bacon.fromPromise(this.schema.valueChecker.checker(data.value));
+        isLoading.push(true);
+        return Bacon.constant(data).combine(ajaxRequest, (data, isValid) => {
+            isLoading.push(false);
+            if(!isValid) data.error = this.schema.valueChecker.error || 'Wrong Input!';
+            return data;
+          })
+      });
+    }
+
+    this.state = Bacon.update(
+      {
+        value: this.defaultValue,
+        field: this,
+        domainValues: this.schema.domainValues,
+        error: this.checkError(this.defaultValue),
+        canSubmit: !this.checkError(this.defaultValue),
+        isLoading: false,
+      },
+      this.doReset, (state, x) => {
+        return {
           value: this.defaultValue,
           field: this,
           domainValues: this.schema.domainValues,
           error: this.checkError(this.defaultValue),
           canSubmit: !this.checkError(this.defaultValue),
           isLoading: false,
-        },
-        this.doReset, (state, x) => {
-          return {
-            value: this.defaultValue,
-            field: this,
-            domainValues: this.schema.domainValues,
-            error: this.checkError(this.defaultValue),
-            canSubmit: !this.checkError(this.defaultValue),
-            isLoading: false,
-          }
-        },
-        isLoading, (state, isLoading) => {
-          state.isLoading = isLoading;
-          state.canSubmit = !(state.isLoading || state.error);
-          return state;
-        },
-        hasValue, (state, data) => {
-          if(this.schema.valueChecker){
+        }
+      },
+      isLoading, (state, isLoading) => {
+        state.isLoading = isLoading;
+        state.canSubmit = !(state.isLoading || state.error);
+        return state;
+      },
+      hasValue, (state, data) => {
+        if(this.schema.valueChecker){
+          state.value = data.value;
+          state.error = data.error;
+        }else{
+          if(this.checkValue(data.value)){
             state.value = data.value;
-            state.error = data.error;
+            state.error = undefined;
           }else{
-            if(this.checkValue(data.value)){
-              state.value = data.value;
-              state.error = undefined;
-            }else{
-              state.value = data.value;
-              state.error = this.getError(data.value) 
-            }
+            state.value = data.value;
+            state.error = this.getError(data.value) 
           }
-          state.canSubmit = !(state.isLoading || state.error);
-          return state;
-        },
-      );
-    }
+        }
+        state.canSubmit = !(state.isLoading || state.error);
+        return state;
+      },
+    );
+  }
 
-    castedValue(value){
-      switch(this.type){
-        case 'number':
-        case 'integer':
-          return Number(value);
-        default: 
-          if(value === '')return;
-          return value;
-      }
+  castedValue(value){
+    switch(this.type){
+      case 'number':
+      case 'integer':
+        return Number(value);
+      case 'boolean':
+        return Boolean(value);
+      default: 
+        if(value === '')return;
+        return value;
     }
+  }
 
-    hasBeenModified(state){
-      return this.castedValue(state.value) !== this.defaultValue;
+  hasBeenModified(state){
+    return this.castedValue(state.value) !== this.defaultValue;
   }
 
   checkValue(value){
@@ -230,6 +265,8 @@ export class Formo extends AbstractMultiField{
         return "Input is not a number!";
       case 'integer':
         return "Input is not an integer!";
+      case 'boolean':
+        return "Input is not an boolean!";
     }
     return "Wrong input!";
   }
@@ -267,31 +304,31 @@ export class Formo extends AbstractMultiField{
   isRequired(){
     return this.schema.required;
   }
-
 }
 
-function initFields(fields, parent){
-  let data = {};
-  for(let field of fields){
-    field.parent = parent;
-    data[field.key] = field;
-    field._init();
-  }
-  return data;
-}
+// function initFields(fields, parent){
+//   let data = {};
+//   for(let field of fields){
+//     field.parent = parent;
+//     data[field.key] = field;
+//     field._init();
+//   }
+//   return data;
+// }
 
 
-function combineFields(parent, fields){
-  let res = _.chain(fields).map((value, key) => {
-      return [key, value.state]
-    }).object().value();
+// function combineFields(parent, fields){
+//   let res = _.chain(fields).map((value, key) => {
+//       return [key, value.state]
+//     }).object().value();
+//
+//   return Bacon.combineTemplate(res)
+//     .map(state => {
+//       let canSubmit = _.all(_.map(state, subState => subState.canSubmit));
+//       state.canSubmit = canSubmit;
+//       state.hasBeenModified = parent.hasBeenModified(state);
+//       return state;
+//     });
+// }
 
-  return Bacon.combineTemplate(res)
-    .map(state => {
-      let canSubmit = _.all(_.map(state, field => field.canSubmit));
-      state.canSubmit = canSubmit;
-      state.hasBeenModified = parent.hasBeenModified(state);
-      return state;
-    });
-}
 

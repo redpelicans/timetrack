@@ -31,12 +31,13 @@ export class NewCompanyApp extends Component {
   }
 
   handleCancel = () => {
-    this.goToCompanies(false);
+    this.goBack(false);
   }
 
-  goToCompanies = (forceLeave) => {
+  goBack = (forceLeave) => {
     this.setState({forceLeave: forceLeave}, () => {
-      this.props.history.pushState(null, routes.companies.path);
+      //this.props.history.pushState(null, routes.companies.path);
+      this.props.history.goBack();
     });
   }
 
@@ -50,7 +51,7 @@ export class NewCompanyApp extends Component {
 
     this.unsubscribeSubmit = this.companyForm.submitted.onValue(state => {
       companies.create(this.companyForm.toJS(state));
-      this.goToCompanies(true);
+      this.goBack(true);
     });
 
     this.unsubscribeState = this.companyForm.state.onValue(state => {
@@ -99,10 +100,10 @@ export class EditCompanyApp extends Component {
   }
 
   handleCancel = () => {
-    this.goToCompanies(false);
+    this.goBack(false);
   }
 
-  goToCompanies = (forceLeave) => {
+  goBack = (forceLeave) => {
     this.setState({forceLeave: forceLeave}, () => {
       this.props.history.pushState(null, routes.companies.path);
     });
@@ -116,15 +117,12 @@ export class EditCompanyApp extends Component {
   componentWillMount() {
     let companyId = this.props.location.state.id;
     companies.loadOne(companyId).onValue(company => {
-      console.log(this.props.location.state.id)
-      console.log(company)
-      //this.companyDocument = company.toJS();
       this.companyDocument = company;
       this.companyForm = companyForm(this.companyDocument);
 
       this.unsubscribeSubmit = this.companyForm.submitted.onValue(state => {
         companies.update(this.companyDocument, this.companyForm.toJS(state));
-        this.goToCompanies(true);
+        this.goBack(true);
       });
 
       this.unsubscribeState = this.companyForm.state.onValue(state => {
@@ -160,7 +158,7 @@ export default class EditCompanyContent extends Component {
     if(this.props.companyDocument){
       let [createdAt, updatedAt] = [this.props.companyDocument.createdAt, this.props.companyDocument.updatedAt];
       let createdAtLabel = <span>Created {createdAt.fromNow()}</span>;
-      let updatedAtLabel = createdAt != updatedAt ? <span>Updated {updatedAt.fromNow()}</span> : '';
+      let updatedAtLabel = updatedAt && createdAt != updatedAt ? <span>Updated {updatedAt.fromNow()}</span> : '';
       return [createdAtLabel, updatedAtLabel];
     }else{
       return [];
@@ -203,19 +201,23 @@ export default class EditCompanyContent extends Component {
               {updatedAtLabel}
             </div>
           </div>
+          <div className="col-md-12 m-b"/>
           <div className="col-md-12">
             <Form>
               <div className="row">
                 <div className="col-md-9">
                   <InputField field={this.props.companyForm.field('name')}/>
                 </div>
-                <div className="col-md-3">
+                <div className="col-md-1">
+                  <StarField field={this.props.companyForm.field('starred')}/>
+                </div>
+                <div className="col-md-2">
                   <SelectField field={this.props.companyForm.field('type')}/>
                 </div>
               </div>
               <div className="row">
                 <div className="col-md-9">
-                  <InputField field={this.props.companyForm.field('logoUrl')}/>
+                  <InputField field={this.props.companyForm.field('logoUrl')} isUrl={true}/>
                 </div>
                 <div className="col-md-1">
                   <AvatarField company={this.props.companyForm}/>
@@ -224,7 +226,19 @@ export default class EditCompanyContent extends Component {
                   <SelectColorField options={colors} field={this.props.companyForm.field('color')}/>
                 </div>
                 <div className="col-md-12">
-                  <InputField field={this.props.companyForm.field('price')}/>
+                  <InputField field={this.props.companyForm.field('website')} isUrl={true}/>
+                </div>
+                <div className="col-md-12">
+                  <InputField field={this.props.companyForm.field('address.street')}/>
+                </div>
+                <div className="col-md-4">
+                  <InputField field={this.props.companyForm.field('address.zipcode')}/>
+                </div>
+                <div className="col-md-4">
+                  <InputField field={this.props.companyForm.field('address.city')}/>
+                </div>
+                <div className="col-md-4">
+                  <InputField field={this.props.companyForm.field('address.country')}/>
                 </div>
               </div>
             </Form>
@@ -268,6 +282,46 @@ export default class EditCompanyContent extends Component {
 //   }
 // }
 
+class StarField extends Component{
+  state = undefined;
+
+  componentWillUnmount(){
+    this.unsubscribe();
+  }
+
+  componentDidMount(){
+    this.unsubscribe = this.props.field.state.onValue( v => {
+      this.setState({starred: v.value});
+    });
+  }
+
+  handleChange = (e) => {
+    this.props.field.setValue( !this.state.starred );
+    e.preventDefault();
+  }
+
+  render(){
+    if(!this.state) return false;
+    let field = this.props.field;
+    let starred = this.state.starred;
+
+    let style={
+      display: 'block',
+      get color(){ return starred ? '#00BCD4' : 'grey'; },
+      fontSize: '1.2rem',
+    };
+
+    return (
+      <fieldset className="form-group">
+        <label htmlFor={field.key}>{field.label}</label>
+        <a id={field.key} href="#" onClick={this.handleChange}>
+          <i style={style} className="iconButton fa fa-star-o"/>
+        </a>
+      </fieldset>
+    )
+  }
+}
+
 class AvatarField extends Component{
   state = {name: 'Red Pelicans'}
 
@@ -286,7 +340,8 @@ class AvatarField extends Component{
   }
 
   render(){
-    let avatarStyle={marginLeft: 'auto', marginRight: 'auto'};
+    //let avatarStyle={marginLeft: 'auto', marginRight: 'auto'};
+    let avatarStyle={};
     return (
       <fieldset className="form-group">
         <label htmlFor="avatar" >Avatar</label>

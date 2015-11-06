@@ -122,6 +122,17 @@ const model = {
       }) );
   },
 
+  delete(company){
+    return requestJson(`/api/company/${company._id}`, 'delete')
+      .catch(err => {
+        console.error(err.toString());
+        errors.alert({
+          header: 'Runtime Error',
+          message: 'Cannot delete company, check your backend server'
+        });
+      });
+  },
+
   create(company){
     return requestJson('/api/companies', 'post', {company: company})
       .catch(err => {
@@ -178,9 +189,10 @@ const model = {
 }
 
 function initCompany(company){
-  company.createdAt = moment(company.createdAt);
-  company.updatedAt = moment(company.updatedAt);
+  company.createdAt = moment(company.createdAt || new Date(1967, 9, 1));
+  if(company.updatedAt) company.updatedAt = moment(company.updatedAt);
   company.isNew = moment.duration(moment() - company.createdAt).asDays() < 1;
+  company.type = company.type[0].toUpperCase() + company.type.slice(1);
   return company;
 }
 

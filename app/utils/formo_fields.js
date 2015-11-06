@@ -35,10 +35,14 @@ export class InputField extends Component {
 
     let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
     let inputClassNames= classNames( 'tm input form-control', { 'form-control-error': hasError() });
+    let labelUrl = this.props.isUrl ? <a href={this.state.value}><i className="fa fa-external-link p-l"/></a> : "";
 
     return(
       <fieldset className={fieldsetClassNames}>
-        <label htmlFor={field.key}>{field.label}</label>
+        <label htmlFor={field.key}>
+          {field.label}
+          {labelUrl}
+        </label>
         {/*<input className={inputClassNames} id={field.key} type={field.htmlType()} defaultValue={this.state.value} placeholder={field.label} onChange={this.handleChange}/>*/}
         <input className={inputClassNames} id={field.key} type={field.htmlType()} value={this.state.value} placeholder={field.label} onChange={this.handleChange}/>
         <small className="text-muted control-label">{message()}</small>

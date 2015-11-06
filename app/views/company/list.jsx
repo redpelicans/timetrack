@@ -53,6 +53,15 @@ export default class CompanyListApp extends Component {
     this.props.history.pushState({id: company._id}, routes.editcompany.path);
   }
 
+  handleDeleteCompany = (company) => {
+    let answer = confirm(`Are you sure to delete the company "${company.name}"`);
+    if(answer){
+      companies.delete(company).then( () => {
+        companies.load();
+      });
+    }
+  }
+
   shouldComponentUpdate(nextProps, nextState){
     return this.state.companies !== nextState.companies || 
       this.state.searchFilter != nextState.searchFilter || 
@@ -72,7 +81,7 @@ export default class CompanyListApp extends Component {
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
         </Header>
-        <CompanyList model={this.state} onEdit={this.handleEditCompany}/>
+        <CompanyList model={this.state} onEdit={this.handleEditCompany} onDelete={this.handleDeleteCompany}/>
         <AddCompanyButton onAddCompany={this.handleAddCompany}/>
       </Content>
     )
@@ -104,7 +113,7 @@ class CompanyList extends Component {
     let data = companies.map( company => {
       return (
         <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <CompanyListItem company={company} onEdit={this.props.onEdit}/>
+          <CompanyListItem company={company} onEdit={this.props.onEdit} onDelete={this.props.onDelete}/>
         </div>
       )
     });
@@ -204,6 +213,7 @@ class CompanyListItem extends Component {
         <div style={styles.containerRight} href="#">
           <StarredCompany company={this.props.company}/>
           <EditCompany company={this.props.company} onEdit={this.props.onEdit}/>
+          <DeleteCompany company={this.props.company} onDelete={this.props.onDelete}/>
         </div>
       </div>
     );
@@ -225,6 +235,26 @@ class EditCompany extends Component{
     return (
       <a href="#" onClick={this.handleChange}>
         <i style={style} className="iconButton fa fa-pencil m-r"/>
+      </a>
+    )
+  }
+}
+
+class DeleteCompany extends Component{
+  handleChange = (e) => {
+    this.props.onDelete(this.props.company.toJS());
+    e.preventDefault();
+  }
+
+  render(){
+    let style={
+      fontSize: '1.2rem',
+      color: 'grey',
+    };
+
+    return (
+      <a href="#" onClick={this.handleChange}>
+        <i style={style} className="iconButton fa fa-trash m-r"/>
       </a>
     )
   }

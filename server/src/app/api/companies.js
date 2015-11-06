@@ -3,6 +3,8 @@ import _ from 'lodash';
 import {Company} from '../../models';
 import {getRandomInt, ObjectId} from '../../helpers';
 
+
+
 export function init(app){
   app.get('/companies', function(req, res, next){
     async.waterfall([loadCompanies, computeBill], (err, companies) => {
@@ -22,6 +24,15 @@ export function init(app){
       res.json(company);
     });
   })
+
+  app.delete('/company/:id', function(req, res, next){
+    let id = ObjectId(req.params.id); 
+    async.waterfall([deleteCompany.bind(null, id)], (err) => {
+      if(err)return next(err);
+      res.json({_id: id, isDeleted: true});
+    });
+  })
+
 
   app.post('/companies/star', function(req, res, next){
     let id = ObjectId(req.body.id); 
@@ -48,7 +59,18 @@ export function init(app){
     });
   });
 
+}
 
+function companyFromJson(json){
+  let attrs = ['name', 'type', 'logoUrl', 'color', 'starred', 'website'];
+  let res = _.pick(json, attrs);
+  if(json.address){
+    let attrs = ['street', 'zipcode', 'city', 'country'];
+    res.address = _.pick(json.address, attrs);
+  }
+  res.updatedAt = new Date(); 
+  res.type = res.type.toLowerCase();
+  return res;
 }
 
 function computeBill(companies, cb){
@@ -66,11 +88,15 @@ function computeBill(companies, cb){
 }
 
 function loadCompanies(cb){
-  Company.findAll({}, cb);
+  Company.findAll({isDeleted: {$ne: true}}, cb);
 }
 
 function loadCompany(id, cb){
-  Company.findOne({_id: id}, (err, company) => {
+  let query = {
+    _id: id,
+    isDeleted: {$ne: true},
+  };
+  Company.findOne(query, (err, company) => {
     if(err)return next(err);
     if(!company)return cb(new Error(`Unknown company: '${id}'`));
     cb(null, company);
@@ -78,10 +104,8 @@ function loadCompany(id, cb){
 }
 
 function createCompany(company, cb){
-  let newCompany = _.pick(company, ['name', 'type', 'logoUrl', 'color']) ;
+  let newCompany = companyFromJson(company) ;
   newCompany.createdAt = new Date();
-  newCompany.updatedAt = new Date();
-  newCompany.type = newCompany.type.toLowerCase();
   Company.collection.insertOne(newCompany, (err, _) => {
     console.log(newCompany);
     return cb(err, company._id)
@@ -90,15 +114,18 @@ function createCompany(company, cb){
 
 
 function updateCompany(newCompany, previousCompany, cb){
-  let updates = _.pick(newCompany, ['name', 'type', 'logoUrl', 'color']) ;
-  updates.updatedAt = new Date();
-  updates.type = updates.type.toLowerCase();
+  let updates = companyFromJson(newCompany) ;
   Company.collection.updateOne({_id: previousCompany._id}, {$set: updates}, (err) => {
     console.log(updates);
     return cb(err, previousCompany._id)
   })
 }
 
+function deleteCompany(id, cb){
+  Company.collection.updateOne({_id: id}, {$set: {isDeleted: true}}, (err) => {
+    return cb(err)
+  })
+}
 
 function star(starred, company, cb){
   company.starred = {true: true, false: false}[starred] || false;
