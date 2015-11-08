@@ -1,15 +1,21 @@
-import {Formo, Field, FieldGroup, MultiField} from '../utils/formo';
+import {Formo, Field, MultiField} from '../utils/formo';
 import _ from 'lodash';
 import {checkStatus, parseJSON} from '../utils';
 
 export const colors = [ '#d73d32', '#7e3794', '#4285f4', '#67ae3f', '#d61a7f', '#ff4080' ];
+
+export const avatarTypes = {
+  color: 'Color Picker', 
+  url: 'Logo URL', 
+  src: 'Logo File',
+}
 
 function rndColor() {
   let index = Math.floor(Math.random() * colors.length);
   return colors[ index ];
 }
 
-function logoUrlValueChecker(url, state){
+function avatartarUrlValueChecker(url, state){
   return fetch('/api/check_url', {
     method: 'post',
     headers:{
@@ -43,21 +49,31 @@ export default function company(document){
       defaultValue: false,
       type: 'boolean',
     }),
-    new Field('logoUrl', {
-      label: "Logo URL",
-      type: 'text',
-      valueChecker: { checker: logoUrlValueChecker, throttle: 200, error: 'Wrong URL!'},
-    }),
-    new Field('color', {
-      label: "Preferred Color",
-      domainValues: colors,
-      defaultValue: rndColor(),
-    }),
+    new MultiField('avatar', [
+      new Field('type', {
+        label: "Avatar Type",
+        defaultValue: avatarTypes.color,
+        domainValues: _.values(avatarTypes),
+      }),
+      new Field('url', {
+        label: "URL",
+        type: 'text',
+        valueChecker: { checker: avatartarUrlValueChecker, throttle: 200, error: 'Wrong URL!'},
+      }),
+      new Field('src', {
+        label: "File",
+      }),
+      new Field('color', {
+        label: "Preferred Color",
+        domainValues: colors,
+        defaultValue: rndColor(),
+      }),
+    ]),
     new Field('website', {
       label: "Website",
       type: "text",
     }),
-    new FieldGroup('address', [
+    new MultiField('address', [
       new Field('street', {
         label: "Street",
         type: "text",
@@ -75,5 +91,9 @@ export default function company(document){
         type: "text",
       }),
     ]),
+    new Field('note', {
+      label: "Note",
+      type: "text",
+    }),
   ], document);
 }

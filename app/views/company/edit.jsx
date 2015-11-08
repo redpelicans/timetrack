@@ -5,10 +5,11 @@ import { Lifecycle } from 'react-router';
 import routes from '../../routes';
 import classNames from 'classnames';
 import Avatar from '../avatar';
-import {Content, Header, Actions} from '../layout';
-import companyForm, {colors} from '../../forms/company';
+import {Content} from '../layout';
+import companyForm, {colors, avatarTypes} from '../../forms/company';
 import companies from '../../models/companies';
-import {InputField, SelectField, SelectColorField} from '../../utils/formo_fields';
+import Select from 'react-select';
+import {FileField, TextAreaField, InputField, SelectField, SelectColorField} from '../../utils/formo_fields';
 
 @reactMixin.decorate(Lifecycle)
 export class NewCompanyApp extends Component {
@@ -36,7 +37,6 @@ export class NewCompanyApp extends Component {
 
   goBack = (forceLeave) => {
     this.setState({forceLeave: forceLeave}, () => {
-      //this.props.history.pushState(null, routes.companies.path);
       this.props.history.goBack();
     });
   }
@@ -72,6 +72,7 @@ export class NewCompanyApp extends Component {
           title={"Add a Company"} 
           submitBtn={submitBtn}
           cancelBtn={cancelBtn}
+          goBack={this.goBack}
           companyForm={this.companyForm}/>
       </div>
     )
@@ -105,18 +106,19 @@ export class EditCompanyApp extends Component {
 
   goBack = (forceLeave) => {
     this.setState({forceLeave: forceLeave}, () => {
-      this.props.history.pushState(null, routes.companies.path);
+      this.props.history.goBack();
     });
   }
 
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
+    this.unsubscribeLoadOne();
   }
 
   componentWillMount() {
     let companyId = this.props.location.state.id;
-    companies.loadOne(companyId).onValue(company => {
+    this.unsubscribeLoadOne = companies.loadOne(companyId).onValue(company => {
       this.companyDocument = company;
       this.companyForm = companyForm(this.companyDocument);
 
@@ -145,6 +147,7 @@ export class EditCompanyApp extends Component {
           title={"Edit Company"} 
           submitBtn={submitBtn}
           cancelBtn={cancelBtn}
+          goBack={this.goBack}
           companyDocument={this.companyDocument} 
           companyForm={this.companyForm}/>
       </div>
@@ -154,21 +157,15 @@ export class EditCompanyApp extends Component {
 
 export default class EditCompanyContent extends Component {
 
-  createdAtAndupdatedAtLabel(){
-    if(this.props.companyDocument){
-      let [createdAt, updatedAt] = [this.props.companyDocument.createdAt, this.props.companyDocument.updatedAt];
-      let createdAtLabel = <span>Created {createdAt.fromNow()}</span>;
-      let updatedAtLabel = updatedAt && createdAt != updatedAt ? <span>Updated {updatedAt.fromNow()}</span> : '';
-      return [createdAtLabel, updatedAtLabel];
-    }else{
-      return [];
-    }
-  }
-
   render(){
     if(!this.props.companyForm) return false;
 
-    let leftIcon = <i className="fa fa-building m-r"/>;
+    function createdAtAndupdatedAtLabel(company){
+      if(!company)return;
+      const [createdAt, updatedAt] = [company.createdAt, company.updatedAt];
+      return <span>{[`Created ${createdAt.fromNow()}`, `Updated ${updatedAt.fromNow()}`].join(' - ')}</span>
+    }
+
     let styles = {
       time: {
         fontSize: '.7rem',
@@ -177,28 +174,20 @@ export default class EditCompanyContent extends Component {
         float: 'right',
       }
     }
-    let [createdAtLabel, updatedAtLabel] = this.createdAtAndupdatedAtLabel();
 
     return (
       <Content>
         <div className="row">
           <div className="col-md-12">
-            <Header leftIcon={leftIcon} title={this.props.title}>
-              <Actions>
-                {this.props.submitBtn}
-                {this.props.cancelBtn}
-                <ResetBtn company={this.props.companyForm}/>
-              </Actions>
+            <Header company={this.props.companyForm} title={this.props.title} goBack={this.props.goBack}>
+              {this.props.submitBtn}
+              {this.props.cancelBtn}
+              <ResetBtn company={this.props.companyForm}/>
             </Header>
           </div>
           <div className="col-md-12">
             <div style={styles.time} >
-              {createdAtLabel}
-            </div>
-          </div>
-          <div className="col-md-12">
-            <div style={styles.time} >
-              {updatedAtLabel}
+              {createdAtAndupdatedAtLabel(this.props.companyDocument)}
             </div>
           </div>
           <div className="col-md-12 m-b"/>
@@ -214,16 +203,8 @@ export default class EditCompanyContent extends Component {
                 <div className="col-md-2">
                   <SelectField field={this.props.companyForm.field('type')}/>
                 </div>
-              </div>
-              <div className="row">
-                <div className="col-md-9">
-                  <InputField field={this.props.companyForm.field('logoUrl')} isUrl={true}/>
-                </div>
-                <div className="col-md-1">
-                  <AvatarField company={this.props.companyForm}/>
-                </div>
-                <div className="col-md-2">
-                  <SelectColorField options={colors} field={this.props.companyForm.field('color')}/>
+                <div className="col-md-12">
+                <AvatarChooser field={this.props.companyForm.field('avatar')}/>
                 </div>
                 <div className="col-md-12">
                   <InputField field={this.props.companyForm.field('website')} isUrl={true}/>
@@ -240,6 +221,9 @@ export default class EditCompanyContent extends Component {
                 <div className="col-md-4">
                   <InputField field={this.props.companyForm.field('address.country')}/>
                 </div>
+                <div className="col-md-12">
+                  <TextAreaField field={this.props.companyForm.field('note')}/>
+                </div>
               </div>
             </Form>
           </div>
@@ -247,8 +231,57 @@ export default class EditCompanyContent extends Component {
       </Content>
     )
   }
-
 }
+
+
+class Header extends Component{
+  render(){
+    const styles={
+      container:{
+        paddingTop: '1rem',
+        display: 'flex',
+        justifyContent: "space-between",
+      },
+      left:{
+        display: 'flex',
+        alignItems: 'center',
+      },
+      right:{
+        display: 'flex',
+        alignItems: 'center',
+      },
+    }
+
+    const handleClick = (e) => {
+      e.preventDefault();
+      this.props.goBack();
+    }
+
+    return (
+      <div>
+        <div style={styles.container} className="tm title">
+          <div style={styles.left}>
+            <div style={styles.goBack}>
+              <a href="#" className="fa fa-arrow-left m-r" onClick={handleClick}/>
+            </div>
+            <div  className="m-r">
+              <AvatarView company={this.props.company}/>
+            </div>
+            <div className="m-r">
+              {this.props.title}
+            </div>
+          </div>
+          <div style={styles.right}>
+            {this.props.children}
+          </div>
+        </div>
+        <hr/>
+      </div>
+    )
+  }
+}
+
+
 
 // class CancelModal extends Component{
 //   handleClick = (e) => {
@@ -282,6 +315,50 @@ export default class EditCompanyContent extends Component {
 //   }
 // }
 
+class AvatarChooser extends Component{
+  state = {type: this.props.field.defaultValue};
+
+  componentWillUnmount(){
+    this.unsubscribe();
+  }
+
+  componentDidMount(){
+    this.colorField = <SelectColorField options={colors} field={this.props.field.field('color')}/>;
+    this.logoUrlField = <InputField field={this.props.field.field('url')} isUrl={true}/>;
+    this.logoFileField = <FileField field={this.props.field.field('src')}/>;
+
+    this.unsubscribe = this.props.field.state.onValue( v => {
+      this.setState({
+        type: v.type.value,
+      });
+    });
+  }
+
+  getField(){
+    switch(this.state.type){
+      case avatarTypes.color:
+        return this.colorField;
+      case avatarTypes.url:
+        return this.logoUrlField;
+      case avatarTypes.src:
+        return this.logoFileField;
+    }
+  }
+
+  render(){
+    return (
+      <div className="row">
+        <div className="col-md-3">
+          <SelectField field={this.props.field.field('type')}/>
+        </div>
+        <div className="col-md-9">
+          {this.getField()}
+        </div>
+      </div>
+    )
+  }
+}
+
 class StarField extends Component{
   state = undefined;
 
@@ -308,7 +385,7 @@ class StarField extends Component{
     let style={
       display: 'block',
       get color(){ return starred ? '#00BCD4' : 'grey'; },
-      fontSize: '1.2rem',
+      fontSize: '1.5rem',
     };
 
     return (
@@ -322,7 +399,7 @@ class StarField extends Component{
   }
 }
 
-class AvatarField extends Component{
+class AvatarView extends Component{
   state = {name: 'Red Pelicans'}
 
   componentWillUnmount(){
@@ -331,96 +408,85 @@ class AvatarField extends Component{
 
   componentWillMount(){
     this.unsubscribe = this.props.company.state.onValue( state => {
+      // TODO: could use: this.props.company.toJS(state.avatar)
       this.setState({
+        type: state.avatar.type.value,
         name: state.name.value,
-        color: state.color.value,
-        src: state.logoUrl.error ? undefined :  state.logoUrl.value,
+        color: state.avatar.color.value,
+        url: state.avatar.url.error ? undefined :  state.avatar.url.value,
+        src: state.avatar.src.value,
       })
     });
   }
 
+  getAvatarType(){
+    const defaultAvatar = <Avatar name={this.state.name} color={this.state.color}/>;
+    switch(this.state.type){
+      case avatarTypes.url:
+        return this.state.url ? <Avatar src={this.state.url}/> : defaultAvatar;
+      case avatarTypes.src:
+        return this.state.src ? <Avatar src={this.state.src}/> : defaultAvatar;
+      default:
+        return defaultAvatar;
+    }
+  }
+
   render(){
-    //let avatarStyle={marginLeft: 'auto', marginRight: 'auto'};
-    let avatarStyle={};
-    return (
-      <fieldset className="form-group">
-        <label htmlFor="avatar" >Avatar</label>
-        <Avatar 
-          id="avatar" 
-          src={this.state.src} 
-          name={this.state.name}
-          color={this.state.color}
-          css={avatarStyle}/> 
-      </fieldset>
-    )
+    return this.getAvatarType();
   }
 }
 
-class Form extends Component {
-  render(){
-    return(
-      <form>
-        {this.props.children}
-      </form>
-    )
-  }
+
+const Form = ({children}) => {
+  return(
+    <form>
+      {children}
+    </form>
+  )
 }
 
-class AddBtn extends Component {
-  handleChange = (e) => {
-    this.props.onSubmit();
+const AddBtn = ({onSubmit, canSubmit}) => {
+  const handleChange = (e) => {
+    onSubmit();
     e.preventDefault();
   }
 
-  render(){
-    let style={};
-    return (
-      <button type="button" className="btn btn-primary m-l" disabled={!this.props.canSubmit} onClick={this.handleChange} style={style}>Create</button>
-    )
-  }
+  return (
+    <button type="button" className="btn btn-primary m-l" disabled={!canSubmit} onClick={handleChange}>Create</button>
+  )
 }
 
-class UpdateBtn extends Component {
-  handleChange = (e) => {
-    this.props.onSubmit();
+const UpdateBtn = ({onSubmit, canSubmit}) => {
+  const handleChange = (e) => {
+    onSubmit();
     e.preventDefault();
   }
 
-  render(){
-    let style={};
-    return (
-      <button type="button" className="btn btn-primary m-l" disabled={!this.props.canSubmit} onClick={this.handleChange} style={style}>Update</button>
-    )
-  }
+  return (
+    <button type="button" className="btn btn-primary m-l" disabled={!canSubmit} onClick={handleChange}>Update</button>
+  )
 }
 
-class CancelBtn extends Component {
-  handleChange = (e) => {
-    this.props.onCancel();
+const CancelBtn = ({onCancel}) => {
+  const handleChange = (e) => {
+    onCancel();
     e.preventDefault();
   }
 
-  render(){
-    let style={};
-    return (
-      <button type="button" className="btn btn-warning m-l" onClick={this.handleChange} >Cancel</button>
-    )
-  }
+  return (
+    <button type="button" className="btn btn-warning m-l" onClick={handleChange}>Cancel</button>
+  )
 }
 
-
-
-class ResetBtn extends Component {
-  handleChange = (e) => {
-    this.props.company.reset();
+const ResetBtn = ({company}) => {
+  const handleChange = (e) => {
+    company.reset();
     e.preventDefault();
   }
 
-  render(){
-    return (
-      <button type="button" className="btn btn-danger m-l"  onClick={this.handleChange}>Reset</button>
-    )
-  }
+  return (
+    <button type="button" className="btn btn-danger m-l"  onClick={handleChange}>Reset</button>
+  )
 }
 
 

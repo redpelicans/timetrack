@@ -10,7 +10,7 @@ export default class Avatar extends Component {
 
   getInitials(name=''){
     let parts = name.split(' ').slice(0, 3);
-    return _.map(parts, part => part.substr(0,1).toUpperCase());
+    return _.map(parts, part => part.substr(0,1).toUpperCase()).join('');
   }
 
   render(){
@@ -21,24 +21,26 @@ export default class Avatar extends Component {
     };
 
     let initialsStyle = {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
       background: this.props.color || this.rndColor(),
       width: this.props.size || '36px',
       height: this.props.size || '36px',
       color: '#FFF',
-      textAlign: 'center',
       textTransform: 'uppercase',
       borderRadius: '50%',
-      paddingTop: '8px',
+      fontSize: '1rem',
     }
 
     if(this.props.src){
       return (
-        <div style={this.props.css}>
+        <div>
           <img src={this.props.src} style={imageStyle}/>
         </div>
       )
     }else{
-      return <div style={_.extend(initialsStyle, this.props.css)}>{this.getInitials(this.props.name)}</div>
+      return <div style={initialsStyle}>{this.getInitials(this.props.name)}</div>
     }
   }
 

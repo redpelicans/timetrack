@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import classNames from 'classnames';
 import Select from 'react-select';
+import FileInput from 'react-file-input';
 
 
 export class InputField extends Component {
@@ -51,45 +52,124 @@ export class InputField extends Component {
   }
 }
 
-// export class SelectField extends Component {
-//   state = {}
-//
-//   componentDidMount(){
-//     this.props.field.state.onValue( v => {
-//       this.setState(v);
-//     });
-//   }
-//
-//   handleChange = (e) => {
-//     this.props.field.setValue( e.target.value );
-//   }
-//
-//   render(){
-//     let field = this.props.field;
-//     let message = () => {
-//       if(this.props.field.isRequired() && this.props.field.isNull(this.state.value))return "Field is required.";
-//     }
-//     let hasError = () => {
-//       return this.props.field.isRequired() && this.props.field.isNull(this.state.value);
-//     }
-//
-//     let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
-//     let selectClassNames= classNames( 'tm select form-control', { 'form-control-error': hasError() });
-//     let menu = _.map(field.domainValues, value => {
-//       return <option key={value} value={value}>{value}</option>
-//     });
-//
-//     return(
-//       <fieldset className={fieldsetClassNames}>
-//         <label htmlFor={field.key}>{field.label}</label>
-//         <select className={selectClassNames} value={this.state.value} id={field.key} onChange={this.handleChange}>
-//           {menu}
-//         </select>
-//         <small className="text-muted control-label">{message()}</small>
-//       </fieldset>
-//     )
-//   }
-// }
+export class FileField extends Component {
+  state = undefined;
+
+  // constructor(props){
+  //   super(props);
+  //   console.log("FileField.constructor")
+  // }
+
+  componentWillUnmount(){
+    this.unsubscribe();
+  }
+
+  componentDidMount(){
+    this.unsubscribe = this.props.field.state.onValue( v => {
+      this.setState({value: v.value});
+    });
+  }
+
+  handleChange = (e) => {
+    this.props.field.setAttrs('fileName', e.target.value);
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      this.props.field.setValue( reader.result );
+    }
+    reader.readAsDataURL(file);
+  }
+
+  render(){
+    if(!this.state)return false;
+
+
+    let field = this.props.field;
+    let message = () => {
+      if(this.state.error) return this.state.error;
+      if(this.state.isLoading) return 'Loading ...';
+    }
+    let hasError = () => {
+      return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
+    }
+
+    let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
+    let inputClassNames= classNames( 'tm input form-control', { 'form-control-error': hasError() });
+    let style={
+      display: 'block',
+      height: '36px',
+    }
+
+    return(
+      <fieldset className={fieldsetClassNames}>
+        <label htmlFor={field.key}>
+          {field.label}
+        </label>
+        <FileInput 
+          className={inputClassNames} 
+          id={field.key} 
+          placeholder={this.props.field.getAttrs('fileName') || field.label} 
+          onChange={this.handleChange}/>
+        <small className="text-muted control-label">{message()}</small>
+      </fieldset>
+    )
+  }
+}
+
+
+export class TextAreaField extends Component {
+  state = undefined;
+
+  componentWillUnmount(){
+    this.unsubscribe();
+  }
+
+  componentDidMount(){
+    this.unsubscribe = this.props.field.state.onValue( v => {
+      this.setState(v);
+    });
+  }
+
+  handleChange = (e) => {
+    this.props.field.setValue( e.target.value );
+  }
+
+  render(){
+    // avoid to render without a state
+    if(!this.state)return false;
+
+    let field = this.props.field;
+    let message = () => {
+      if(this.state.error) return this.state.error;
+      if(this.state.isLoading) return 'Loading ...';
+    }
+    let hasError = () => {
+      return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
+    }
+
+    let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
+    let inputClassNames= classNames( 'tm input form-control', { 'form-control-error': hasError() });
+    let labelUrl = this.props.isUrl ? <a href={this.state.value}><i className="fa fa-external-link p-l"/></a> : "";
+    let styles = {
+      textarea: {
+        minHeight: '200px',
+      }
+    }
+
+    return(
+      <fieldset className={fieldsetClassNames}>
+        <label htmlFor={field.key}>
+          {field.label}
+          {labelUrl}
+        </label>
+        <textarea style={styles.textarea} className={inputClassNames} id={field.key} type={field.htmlType()} value={this.state.value} placeholder={field.label} onChange={this.handleChange}/>
+        <small className="text-muted control-label">{message()}</small>
+      </fieldset>
+    )
+  }
+}
+
+
 
 export class SelectField extends Component {
   state = {}
@@ -194,21 +274,4 @@ export class SelectColorField extends Component {
     )
   }
 }
-
-
-
-
-// export class InputMultiTextField extends Component {
-//   render(){
-//     let schema = this.props.field;
-//     return(
-//       <div>
-//         <input className="tm input form-control" type='text' placeholder={schema.amount.label} onChange={this.handleChange}/>
-//       </div>
-//     )
-//   }
-// }
-//
-
-
 

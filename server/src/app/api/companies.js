@@ -62,11 +62,15 @@ export function init(app){
 }
 
 function companyFromJson(json){
-  let attrs = ['name', 'type', 'logoUrl', 'color', 'starred', 'website'];
+  let attrs = ['name', 'type', 'starred', 'website', 'note'];
   let res = _.pick(json, attrs);
   if(json.address){
     let attrs = ['street', 'zipcode', 'city', 'country'];
     res.address = _.pick(json.address, attrs);
+  }
+  if(json.avatar){
+    let attrs = ['src', 'url', 'color', 'type'];
+    res.avatar = _.pick(json.avatar, attrs);
   }
   res.updatedAt = new Date(); 
   res.type = res.type.toLowerCase();

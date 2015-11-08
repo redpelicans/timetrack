@@ -2,6 +2,18 @@ import _ from 'lodash';
 import Bacon from 'baconjs';
 import companies from '../models/companies';
 
+function storage(constructor){
+  constructor.prototype.setAttrs = function(key, value){
+    if(!this._attrs)this._attrs = {};
+    this._attrs[key] = value;
+  };
+
+  constructor.prototype.getAttrs = function(key){
+    return this._attrs && this._attrs[key];
+  };
+}
+
+@storage
 class AbstractMultiField{
   constructor(fields, name){
     this.key = name;
@@ -125,12 +137,7 @@ export class MultiField extends AbstractMultiField{
   }
 }
 
-export class FieldGroup extends AbstractMultiField{
-  constructor(name, fields){
-    super(fields, name);
-  }
-}
-
+@storage
 export class Field{
   constructor(name, schema){
     this.schema = schema;
@@ -278,6 +285,7 @@ export class Field{
         return 'text';
       case 'color': return 'color';
       case 'url': return 'url';
+      case 'file': return 'file';
       default: return 'text';
     }
   }

@@ -3,7 +3,7 @@ import moment from 'moment';
 import React, {Component} from 'react';
 import routes from '../../routes';
 import {Content, Header, Actions} from '../layout';
-import Avatar from '../avatar';
+import {AvatarView} from './helpers';
 import classNames from 'classnames';
 //import Header from '../header';
 //import MainButtonMenu from '../main_button_menu';
@@ -53,6 +53,10 @@ export default class CompanyListApp extends Component {
     this.props.history.pushState({id: company._id}, routes.editcompany.path);
   }
 
+  handleViewCompany = (company) => {
+    this.props.history.pushState({id: company._id}, routes.viewcompany.path);
+  }
+
   handleDeleteCompany = (company) => {
     let answer = confirm(`Are you sure to delete the company "${company.name}"`);
     if(answer){
@@ -81,7 +85,7 @@ export default class CompanyListApp extends Component {
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
         </Header>
-        <CompanyList model={this.state} onEdit={this.handleEditCompany} onDelete={this.handleDeleteCompany}/>
+        <CompanyList model={this.state} onView={this.handleViewCompany} onEdit={this.handleEditCompany} onDelete={this.handleDeleteCompany}/>
         <AddCompanyButton onAddCompany={this.handleAddCompany}/>
       </Content>
     )
@@ -113,7 +117,7 @@ class CompanyList extends Component {
     let data = companies.map( company => {
       return (
         <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <CompanyListItem company={company} onEdit={this.props.onEdit} onDelete={this.props.onDelete}/>
+          <CompanyListItem company={company} onView={this.props.onView} onEdit={this.props.onEdit} onDelete={this.props.onDelete}/>
         </div>
       )
     });
@@ -132,8 +136,9 @@ class CompanyListItem extends Component {
     return this.props.company !== nextProps.company;
   }
 
-  handleCompanySelection = (company) => {
-    console.log(`CLIENT SELECTION ${company._id}`)
+  handleViewCompany = (e) => {
+    this.props.onView(this.props.company.toJS());
+    e.preventDefault();
   }
 
   render() {
@@ -192,16 +197,16 @@ class CompanyListItem extends Component {
     };
 
     let company = this.props.company.toJS();
-    let avatar = company.logoUrl ? <Avatar src={company.logoUrl}/> : <Avatar color={company.color} name={company.name}/>;
+    let avatar = <AvatarView company={company}/>;
     let isNew = company.isNew ? <span className="label label-success">new</span> : <div/>
     return (
-      <div style={styles.container}>
-        <div style={styles.containerLeft} href="#">
+      <div style={styles.container} >
+        <div style={styles.containerLeft}>
           <div className="p-r">
-            {avatar}
+            <a href="#" onClick={this.handleViewCompany}>{avatar}</a>
           </div>
           <div className="p-r">
-            <span>{company.name}</span>
+            <a href="#" onClick={this.handleViewCompany}>{company.name}</a>
           </div>
           <div className="p-r">
             {billAmounts(company)}
@@ -211,79 +216,68 @@ class CompanyListItem extends Component {
           </div>
         </div>
         <div style={styles.containerRight} href="#">
-          <StarredCompany company={this.props.company}/>
-          <EditCompany company={this.props.company} onEdit={this.props.onEdit}/>
-          <DeleteCompany company={this.props.company} onDelete={this.props.onDelete}/>
+          <StarredCompany company={this.props.company.toJS()}/>
+          <EditCompany company={this.props.company.toJS()} onEdit={this.props.onEdit}/>
+          <DeleteCompany company={this.props.company.toJS()} onDelete={this.props.onDelete}/>
         </div>
       </div>
     );
   }
 }
 
-class EditCompany extends Component{
-  handleChange = (e) => {
-    this.props.onEdit(this.props.company.toJS());
+const EditCompany = ({company, onEdit}) => {
+  const handleChange = (e) => {
+    onEdit(company);
     e.preventDefault();
   }
 
-  render(){
-    let style={
-      fontSize: '1.2rem',
-      color: 'grey',
-    };
+  let style={
+    fontSize: '1.2rem',
+    color: 'grey',
+  };
 
-    return (
-      <a href="#" onClick={this.handleChange}>
-        <i style={style} className="iconButton fa fa-pencil m-r"/>
-      </a>
-    )
-  }
+  return (
+    <a href="#" onClick={handleChange}>
+      <i style={style} className="iconButton fa fa-pencil m-r"/>
+    </a>
+  )
 }
 
-class DeleteCompany extends Component{
-  handleChange = (e) => {
-    this.props.onDelete(this.props.company.toJS());
+const DeleteCompany =({company, onDelete}) => {
+  const handleChange = (e) => {
+    onDelete(company);
     e.preventDefault();
   }
 
-  render(){
-    let style={
-      fontSize: '1.2rem',
-      color: 'grey',
-    };
+  let style={
+    fontSize: '1.2rem',
+    color: 'grey',
+  };
 
-    return (
-      <a href="#" onClick={this.handleChange}>
-        <i style={style} className="iconButton fa fa-trash m-r"/>
-      </a>
-    )
-  }
+  return (
+    <a href="#" onClick={handleChange}>
+      <i style={style} className="iconButton fa fa-trash m-r"/>
+    </a>
+  )
 }
 
-
-
-class StarredCompany extends Component{
-  handleChange = (e) => {
-    companies.toggleStar(this.props.company.toJS());
+const StarredCompany = ({company}) => {
+  const handleChange = (e) => {
+    companies.toggleStar(company);
     e.preventDefault();
   }
 
-  render(){
-    let company = this.props.company.toJS();
-    let style={
-      get color(){ return company.starred ? '#00BCD4' : 'grey'; },
-      fontSize: '1.2rem',
-    };
+  let style={
+    get color(){ return company.starred ? '#00BCD4' : 'grey'; },
+    fontSize: '1.2rem',
+  };
 
-    return (
-      <a href="#" onClick={this.handleChange}>
-        <i style={style} className="iconButton fa fa-star-o m-r"/>
-      </a>
-    )
-  }
+  return (
+    <a href="#" onClick={handleChange}>
+      <i style={style} className="iconButton fa fa-star-o m-r"/>
+    </a>
+  )
 }
-
-
 
 class AddCompanyButton extends Component {
   componentDidMount(){
@@ -314,103 +308,94 @@ class AddCompanyButton extends Component {
   }
 }
 
-class Refresh extends Component {
-  handleChange = (e) => {
-    this.props.onClick();
+const Refresh =({onClick}) => {
+  const handleChange = (e) => {
+    onClick();
     e.preventDefault();
   }
 
-  render(){
-    let style={
-      fontSize: '1.5rem',
-      color: 'grey',
-    }
-
-    return (
-      <div className="p-a">
-        <a href="#" onClick={this.handleChange}>
-          <i style={style} className="iconButton fa fa-refresh"/>
-        </a>
-      </div>
-    )
+  let style={
+    fontSize: '1.5rem',
+    color: 'grey',
   }
+
+  return (
+    <div className="p-a">
+      <a href="#" onClick={handleChange}>
+        <i style={style} className="iconButton fa fa-refresh"/>
+      </a>
+    </div>
+  )
 }
 
-class Filter extends Component{
-  handleChange = (e) => {
-    this.props.onChange(e.target.value);
+const Filter =({filter, onChange}) => {
+  const handleChange = (e) => {
+    onChange(e.target.value);
     e.preventDefault();
   }
 
-  render(){
-    let icon= <span className="fa fa-search"/>
-    return (
-      <div className="p-a">
-        <input className="tm input form-control" type='text' value={this.props.filter} placeholder='search ...' onChange={this.handleChange} aria-describedby="filterCompanies"/>
-      </div>
-    )
-  }
+  let icon= <span className="fa fa-search"/>
+  return (
+    <div className="p-a">
+      <input className="tm input form-control" type='text' value={filter} placeholder='search ...' onChange={handleChange} aria-describedby="filterCompanies"/>
+    </div>
+  )
 }
 
-class Starred extends Component {
-  handleChange = (e) => {
-    this.props.onClick();
+const Starred =({starred, onClick}) => {
+  const handleChange = (e) => {
+    onClick();
     e.preventDefault();
   }
 
-  render(){
-    let filter = this.props.starred;
-    let style={
-      fontSize: '1.5rem',
-      color: filter ? '#00BCD4' : 'grey',
-    }
-
-    return (
-      <div className="p-a">
-        <a href="#" onClick={this.handleChange} > 
-          <i style={style} className="iconButton fa fa-star-o"/>
-        </a>
-      </div>
-    )
+  let style={
+    fontSize: '1.5rem',
+    color: starred ? '#00BCD4' : 'grey',
   }
+
+  return (
+    <div className="p-a">
+      <a href="#" onClick={handleChange} > 
+        <i style={style} className="iconButton fa fa-star-o"/>
+      </a>
+    </div>
+  )
 }
 
-class Sort extends Component {
-  handleClick = (mode, e) => {
-    this.props.onClick(mode);
+const Sort =({sortCond, onClick}) => {
+  const handleClick = (mode, e) => {
+    onClick(mode);
     e.preventDefault();
   }
 
-  render(){
-    function getSortIcon(sortCond, item){
-      if(item.key === sortCond.sortBy){
-        let classnames = sortCond.direction === "desc" ? "fa fa-sort-desc p-l" : "fa fa-sort-asc p-l";
-        return <i className={classnames}/>
-      }
+  function getSortIcon(sortCond, item){
+    if(item.key === sortCond.sortBy){
+      let classnames = sortCond.direction === "desc" ? "fa fa-sort-desc p-l" : "fa fa-sort-asc p-l";
+      return <i className={classnames}/>
     }
-    let style={
-      fontSize: '1.5rem',
-      color: 'grey',
-    }
-
-    let menu = _.map(companies.sortBy, item => {
-      return (
-        <a key={item.key} className="dropdown-item p-a" href="#" onClick={this.handleClick.bind(null, item.key)}>
-          {item.label}
-          {getSortIcon(this.props.sortCond, item)}
-        </a>
-      )
-    });
-
-    return (
-      <div className="p-a">
-        <a href="#" onClick={this.handleChange} id="sort-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> 
-          <i style={style} className="iconButton fa fa-sort" onClick={this.handleChange}/>
-        </a>
-        <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="sort-menu">
-          {menu}
-        </ul>
-      </div>
-    )
   }
+  let style={
+    fontSize: '1.5rem',
+    color: 'grey',
+  }
+
+  let menu = _.map(companies.sortBy, item => {
+    return (
+      <a key={item.key} className="dropdown-item p-a" href="#" onClick={handleClick.bind(null, item.key)}>
+        {item.label}
+        {getSortIcon(sortCond, item)}
+      </a>
+    )
+  });
+
+  return (
+    <div className="p-a">
+      <a href="#"  id="sort-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> 
+        <i style={style} className="iconButton fa fa-sort" />
+      </a>
+      <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="sort-menu">
+        {menu}
+      </ul>
+    </div>
+  )
 }
