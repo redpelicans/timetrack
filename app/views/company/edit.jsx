@@ -5,11 +5,12 @@ import { Lifecycle } from 'react-router';
 import routes from '../../routes';
 import classNames from 'classnames';
 import Avatar from '../avatar';
+import {timeLabels} from './helpers';
 import {Content} from '../layout';
 import companyForm, {colors, avatarTypes} from '../../forms/company';
 import companies from '../../models/companies';
 import Select from 'react-select';
-import {FileField, TextAreaField, InputField, SelectField, SelectColorField} from '../../utils/formo_fields';
+import {FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../utils/formo_fields';
 
 @reactMixin.decorate(Lifecycle)
 export class NewCompanyApp extends Component {
@@ -160,12 +161,6 @@ export default class EditCompanyContent extends Component {
   render(){
     if(!this.props.companyForm) return false;
 
-    function createdAtAndupdatedAtLabel(company){
-      if(!company)return;
-      const [createdAt, updatedAt] = [company.createdAt, company.updatedAt];
-      return <span>{[`Created ${createdAt.fromNow()}`, `Updated ${updatedAt.fromNow()}`].join(' - ')}</span>
-    }
-
     let styles = {
       time: {
         fontSize: '.7rem',
@@ -187,7 +182,7 @@ export default class EditCompanyContent extends Component {
           </div>
           <div className="col-md-12">
             <div style={styles.time} >
-              {createdAtAndupdatedAtLabel(this.props.companyDocument)}
+              {timeLabels(this.props.companyDocument)}
             </div>
           </div>
           <div className="col-md-12 m-b"/>
@@ -222,7 +217,7 @@ export default class EditCompanyContent extends Component {
                   <InputField field={this.props.companyForm.field('address.country')}/>
                 </div>
                 <div className="col-md-12">
-                  <TextAreaField field={this.props.companyForm.field('note')}/>
+                  <MarkdownEditField field={this.props.companyForm.field('note')}/>
                 </div>
               </div>
             </Form>

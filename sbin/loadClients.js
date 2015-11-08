@@ -19,13 +19,17 @@ const fakeSchema = {
       , phone: 'phone.phoneNumber'
     }]
   , address: {
-        number: 'random.number'
-      , street: 'address.streetName'
+        street: 'address.streetAddress'
+      , zipcode: 'address.zipCode'
+      , city: 'address.city'
       , country: 'address.country'
     }
   , website: 'internet.url'
-  , color: 'internet.color'
-  , avatar: 'internet.avatar'
+  , avatar: {
+      type: '#url'
+    , url: 'internet.avatar'
+    , color: 'internet.color'
+  }
   , legalForm: 'hacker.adjective' 
   , createdAt: 'date.recent' 
   , note: 'lorem.paragraphs' 

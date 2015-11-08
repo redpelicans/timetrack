@@ -111,7 +111,7 @@ function createCompany(company, cb){
   let newCompany = companyFromJson(company) ;
   newCompany.createdAt = new Date();
   Company.collection.insertOne(newCompany, (err, _) => {
-    console.log(newCompany);
+    //console.log(newCompany);
     return cb(err, company._id)
   })
 }
@@ -120,7 +120,7 @@ function createCompany(company, cb){
 function updateCompany(newCompany, previousCompany, cb){
   let updates = companyFromJson(newCompany) ;
   Company.collection.updateOne({_id: previousCompany._id}, {$set: updates}, (err) => {
-    console.log(updates);
+    //console.log(updates);
     return cb(err, previousCompany._id)
   })
 }

@@ -3,7 +3,7 @@ import Remarkable from 'remarkable';
 import React, {Component} from 'react';
 import routes from '../../routes';
 import classNames from 'classnames';
-import {AvatarView} from './helpers';
+import {AvatarView, timeLabels} from './helpers';
 import {Content } from '../layout';
 import companies from '../../models/companies';
 
@@ -71,10 +71,10 @@ const CompanyCard = ({company}) =>  {
       <div className="col-md-5">
         <TextLabel label="Street" value={company.address && company.address.street}/>
       </div>
-      <div className="col-md-1">
+      <div className="col-md-2">
         <TextLabel label="Zip Code" value={company.address && company.address.zipcode}/>
       </div>
-      <div className="col-md-3">
+      <div className="col-md-2">
         <TextLabel label="City" value={company.address && company.address.city}/>
       </div>
       <div className="col-md-3">
@@ -88,11 +88,6 @@ const CompanyCard = ({company}) =>  {
 }
 
 const Header = ({company, goBack, onEdit, onDelete}) => {
-  function createdAtAndupdatedAtLabel(){
-    const [createdAt, updatedAt] = [company.createdAt, company.updatedAt];
-    return <span>{[`Created ${createdAt.fromNow()}`, `Updated ${updatedAt.fromNow()}`].join(' - ')}</span>
-  }
-
   const avatar = <AvatarView company={company}/>;
   const styles={
     container:{
@@ -148,7 +143,7 @@ const Header = ({company, goBack, onEdit, onDelete}) => {
       </div>
       <hr/>
       <div style={styles.time} >
-        {createdAtAndupdatedAtLabel()}
+        {timeLabels(company)}
       </div>
     </div>
   )
