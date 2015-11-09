@@ -1,11 +1,11 @@
 import errors from '../models/errors';
 
 
-function parseJSON(res) {
+export function parseJSON(res) {
   return res.json()
 }
 
-function checkStatus(res) {
+export function checkStatus(res) {
   if (res.status >= 200 && res.status < 300) {
     return res
   } else {
@@ -15,7 +15,21 @@ function checkStatus(res) {
   }
 }
 
-export function requestJson(...params){
+export function requestJson(uri, verb, body){
+  if(!body)
+    return fetchJson(uri, { method: verb || 'get' });
+  else
+    return fetchJson(uri, {
+      method: verb,
+      headers:{
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body||{})
+    });
+}
+
+export function fetchJson(...params){
   return fetch(...params).then(checkStatus).then(parseJSON);
 }
 
