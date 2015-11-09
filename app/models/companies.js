@@ -1,6 +1,7 @@
 import Bacon from 'baconjs';
 import Dispatcher from '../utils/dispatcher';
 import Immutable from 'immutable';
+import {avatarTypes} from '../forms/company';
 import {requestJson, pushDataEvent} from '../utils';
 import errors from '../models/errors';
 import _ from 'lodash';
@@ -193,6 +194,9 @@ function initCompany(company){
   if(company.updatedAt) company.updatedAt = moment(company.updatedAt);
   company.isNew = moment.duration(moment() - company.createdAt).asDays() < 1;
   company.type = company.type[0].toUpperCase() + company.type.slice(1);
+  // if(company.avatar){
+  //   company.avatar.type = avatarTypes[company.avatar.type];
+  // }
   return company;
 }
 

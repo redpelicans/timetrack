@@ -58,6 +58,7 @@
     "immutable": "^3.7.5",
     "imports-loader": "^0.6.4",
     "jsonschema": "^1.0.2",
+    "kefir": "^3.1.0",
     "lodash": "^3.10.1",
     "map-stream": "0.0.6",
     "moment": "^2.10.6",

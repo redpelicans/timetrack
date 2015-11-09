@@ -236,14 +236,22 @@ class Header extends Component{
         paddingTop: '1rem',
         display: 'flex',
         justifyContent: "space-between",
+      flexWrap: 'wrap',
       },
       left:{
         display: 'flex',
         alignItems: 'center',
+        flex: 1,
+        minWidth: '500px',
       },
       right:{
         display: 'flex',
+        justifyContent: 'flex-end',
         alignItems: 'center',
+        flex: 1,
+      },
+      name:{
+        flexShrink: 0,
       },
     }
 
@@ -262,7 +270,7 @@ class Header extends Component{
             <div  className="m-r">
               <AvatarView company={this.props.company}/>
             </div>
-            <div className="m-r">
+            <div style={styles.name} className="m-r">
               {this.props.title}
             </div>
           </div>

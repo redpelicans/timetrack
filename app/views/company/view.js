@@ -93,15 +93,23 @@ const Header = ({company, goBack, onEdit, onDelete}) => {
     container:{
       paddingTop: '1rem',
       display: 'flex',
-      justifyContent: "space-between",
+      justifyContent: 'space-between',
+      flexWrap: 'wrap',
     },
     left:{
       display: 'flex',
       alignItems: 'center',
+      flex: 1,
+      minWidth: '500px',
     },
     right:{
       display: 'flex',
+      justifyContent: 'flex-end',
       alignItems: 'center',
+      flex: 1,
+    },
+    name:{
+      flexShrink: 0,
     },
     starred:{
       color: company.starred ? '#00BCD4' : 'grey',
@@ -123,13 +131,13 @@ const Header = ({company, goBack, onEdit, onDelete}) => {
     <div>
       <div style={styles.container} className="tm title">
         <div style={styles.left}>
-          <div style={styles.goBack}>
+          <div>
             <a href="#" className="fa fa-arrow-left m-r" onClick={handleClick}/>
           </div>
           <div className="m-r">
             {avatar}
           </div>
-          <div className="m-r">
+          <div style={styles.name} className="m-r">
             {company.name}
           </div>
           <div>
