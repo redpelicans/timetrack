@@ -280,10 +280,11 @@ export class SelectField extends Component {
   render(){
     let field = this.props.field;
     let message = () => {
-      if(this.props.field.isRequired() && this.props.field.isNull(this.state.value))return "Field is required.";
+      if(this.state.error) return this.state.error;
+      if(this.state.isLoading) return 'Loading ...';
     }
     let hasError = () => {
-      return this.props.field.isRequired() && this.props.field.isNull(this.state.value);
+      return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
     }
 
     let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
@@ -333,11 +334,13 @@ export class SelectColorField extends Component {
 
   render(){
     let field = this.props.field;
+
     let message = () => {
-      if(this.props.field.isRequired() && this.props.field.isNull(this.state.value))return "Field is required.";
+      if(this.state.error) return this.state.error;
+      if(this.state.isLoading) return 'Loading ...';
     }
     let hasError = () => {
-      return this.props.field.isRequired() && this.props.field.isNull(this.state.value);
+      return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
     }
 
     let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
