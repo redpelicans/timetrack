@@ -112,7 +112,7 @@ function createCompany(company, cb){
   newCompany.createdAt = new Date();
   Company.collection.insertOne(newCompany, (err, _) => {
     //console.log(newCompany);
-    return cb(err, company._id)
+    return cb(err, newCompany._id)
   })
 }
 

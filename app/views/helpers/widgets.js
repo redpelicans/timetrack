@@ -13,7 +13,7 @@ export class InputField extends Component {
   }
 
   componentDidMount(){
-    this.unsubscribe = this.props.field.state.onValue( v => {
+    this.unsubscribe = this.props.field.onValue( v => {
       this.setState(v);
     });
   }
@@ -66,13 +66,13 @@ export class FileField extends Component {
   }
 
   componentDidMount(){
-    this.unsubscribe = this.props.field.state.onValue( v => {
+    this.unsubscribe = this.props.field.onValue( v => {
       this.setState({value: v.value});
     });
   }
 
   handleChange = (e) => {
-    this.props.field.setAttrs('fileName', e.target.value);
+    this.props.onFilenameChange(e.target.value);
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -83,7 +83,6 @@ export class FileField extends Component {
 
   render(){
     if(!this.state)return false;
-
 
     let field = this.props.field;
     let message = () => {
@@ -109,7 +108,7 @@ export class FileField extends Component {
         <FileInput 
           className={inputClassNames} 
           id={field.key} 
-          placeholder={this.props.field.getAttrs('fileName') || field.label} 
+          placeholder={this.props.filename || field.label} 
           onChange={this.handleChange}/>
         <small className="text-muted control-label">{message()}</small>
       </fieldset>
@@ -125,7 +124,7 @@ export class MarkdownEditField extends Component {
   }
 
   componentDidMount(){
-    this.unsubscribe = this.props.field.state.onValue( v => {
+    this.unsubscribe = this.props.field.onValue( v => {
       this.setState(v);
     });
   }
@@ -215,7 +214,7 @@ export class TextAreaField extends Component {
   }
 
   componentDidMount(){
-    this.unsubscribe = this.props.field.state.onValue( v => {
+    this.unsubscribe = this.props.field.onValue( v => {
       this.setState(v);
     });
   }
@@ -269,7 +268,7 @@ export class SelectField extends Component {
   }
 
   componentDidMount(){
-    this.unsubscribe = this.props.field.state.onValue( v => {
+    this.unsubscribe = this.props.field.onValue( v => {
       this.setState(v);
     });
   }
@@ -289,7 +288,7 @@ export class SelectField extends Component {
 
     let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
     let selectClassNames= classNames( 'tm select form-control', { 'form-control-error': hasError() });
-    let options = _.map(this.state.domainValues, value => {return {label:value, value:value}} );
+    let options = _.map(field.domainValue, ({key, value}) => {return {label:value, value:key}} );
 
     return(
       <fieldset className={fieldsetClassNames}>
@@ -314,7 +313,7 @@ export class SelectColorField extends Component {
   }
 
   componentDidMount(){
-    this.unsubscribe = this.props.field.state.onValue( v => {
+    this.unsubscribe = this.props.field.onValue( v => {
       this.setState(v);
     });
   }

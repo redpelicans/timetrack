@@ -8,10 +8,10 @@ export const AvatarView = ({company}) => {
   const defaultAvatar = <Avatar name={company.name} color={company.avatar.color}/>;
 
   switch(company.avatar.type){
-    case avatarTypes.url:
-      return <Avatar src={company.avatar.url}/>;
-    case avatarTypes.src:
-      return <Avatar src={company.avatar.src}/>;
+    case 'url':
+      return company.avatar.url ? <Avatar src={company.avatar.url}/> : defaultAvatar;
+    case 'src':
+      return company.avatar.src ? <Avatar src={company.avatar.src}/> : defaultAvatar;
     default:
       return defaultAvatar;
   }

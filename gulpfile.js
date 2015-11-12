@@ -20,14 +20,15 @@ var serverPaths = {
 
 // need this options to use decorators
 var compilerOptions = {
-  stage: 0,
-  optional: [
-    "es7.decorators",
-    "regenerator",
-    "asyncToGenerator",
-    "es7.classProperties",
-    "es7.asyncFunctions"
-  ]
+    // stage: 0,
+    // optional: [
+    //   "es7.decorators",
+    //   "regenerator",
+    //   "asyncToGenerator",
+    //   "es7.classProperties",
+    //   "es7.asyncFunctions"
+    // ]
+//  presets: ['react', 'es2015'],
 };
 
 gulp.task('build-server', function () {

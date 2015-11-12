@@ -8,7 +8,7 @@ import Avatar from '../avatar';
 import {Content, Header, Actions} from '../layout';
 import companyForm, {colors} from '../../forms/company';
 import companies from '../../models/companies';
-import {InputField, SelectField, SelectColorField} from '../../utils/formo_fields';
+import {InputField, SelectField, SelectColorField} from '../../views/helpers/widgets';
 
 @reactMixin.decorate(Lifecycle)
 export default class NewCompanyApp extends Component {

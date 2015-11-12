@@ -193,7 +193,7 @@ function initCompany(company){
   company.createdAt = moment(company.createdAt || new Date(1967, 9, 1));
   if(company.updatedAt) company.updatedAt = moment(company.updatedAt);
   company.isNew = moment.duration(moment() - company.createdAt).asDays() < 1;
-  company.type = company.type[0].toUpperCase() + company.type.slice(1);
+  //company.type = company.type[0].toUpperCase() + company.type.slice(1);
   // if(company.avatar){
   //   company.avatar.type = avatarTypes[company.avatar.type];
   // }

@@ -10,7 +10,7 @@ import {Content} from '../layout';
 import companyForm, {colors, avatarTypes} from '../../forms/company';
 import companies from '../../models/companies';
 import Select from 'react-select';
-import {FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../utils/formo_fields';
+import {FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../views/helpers/widgets';
 
 @reactMixin.decorate(Lifecycle)
 export class NewCompanyApp extends Component {
@@ -50,17 +50,20 @@ export class NewCompanyApp extends Component {
   componentWillMount() {
     this.companyForm = companyForm();
 
-    this.unsubscribeSubmit = this.companyForm.submitted.onValue(state => {
-      companies.create(this.companyForm.toJS(state));
+
+    this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
+      companies.create(this.companyForm.toDocument(state));
       this.goBack(true);
     });
 
-    this.unsubscribeState = this.companyForm.state.onValue(state => {
+    this.unsubscribeState = this.companyForm.onValue( state => {
+      console.log(state)
       this.setState({
         canSubmit: state.canSubmit,
         hasBeenModified: state.hasBeenModified,
       });
     });
+
   }
 
   render(){
@@ -119,22 +122,24 @@ export class EditCompanyApp extends Component {
 
   componentWillMount() {
     let companyId = this.props.location.state.id;
+
     this.unsubscribeLoadOne = companies.loadOne(companyId).onValue(company => {
       this.companyDocument = company;
       this.companyForm = companyForm(this.companyDocument);
 
-      this.unsubscribeSubmit = this.companyForm.submitted.onValue(state => {
-        companies.update(this.companyDocument, this.companyForm.toJS(state));
+      this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
+        companies.update(this.companyDocument, this.companyForm.toDocument(state));
         this.goBack(true);
       });
 
-      this.unsubscribeState = this.companyForm.state.onValue(state => {
-        // TODO: setState is called after component is unmounted !!
+      this.unsubscribeState = this.companyForm.onValue( state => {
+        console.log(state)
         this.setState({
           canSubmit: state.canSubmit,
           hasBeenModified: state.hasBeenModified,
         });
       });
+
     });
   }
 
@@ -205,16 +210,16 @@ export default class EditCompanyContent extends Component {
                   <InputField field={this.props.companyForm.field('website')} isUrl={true}/>
                 </div>
                 <div className="col-md-12">
-                  <InputField field={this.props.companyForm.field('address.street')}/>
+                  <InputField field={this.props.companyForm.field('address/street')}/>
                 </div>
                 <div className="col-md-4">
-                  <InputField field={this.props.companyForm.field('address.zipcode')}/>
+                  <InputField field={this.props.companyForm.field('address/zipcode')}/>
                 </div>
                 <div className="col-md-4">
-                  <InputField field={this.props.companyForm.field('address.city')}/>
+                  <InputField field={this.props.companyForm.field('address/city')}/>
                 </div>
                 <div className="col-md-4">
-                  <InputField field={this.props.companyForm.field('address.country')}/>
+                  <InputField field={this.props.companyForm.field('address/country')}/>
                 </div>
                 <div className="col-md-12">
                   <MarkdownEditField field={this.props.companyForm.field('note')}/>
@@ -321,6 +326,10 @@ class Header extends Component{
 class AvatarChooser extends Component{
   state = {type: this.props.field.defaultValue};
 
+  handleFilenameChange = (filename) => {
+    this.setState({filename: filename});
+  }
+
   componentWillUnmount(){
     this.unsubscribe();
   }
@@ -328,9 +337,9 @@ class AvatarChooser extends Component{
   componentDidMount(){
     this.colorField = <SelectColorField options={colors} field={this.props.field.field('color')}/>;
     this.logoUrlField = <InputField field={this.props.field.field('url')} isUrl={true}/>;
-    this.logoFileField = <FileField field={this.props.field.field('src')}/>;
+    this.logoFileField = <FileField filename={this.state.filename} onFilenameChange={this.handleFilenameChange} field={this.props.field.field('src')}/>;
 
-    this.unsubscribe = this.props.field.state.onValue( v => {
+    this.unsubscribe = this.props.field.onValue( v => {
       this.setState({
         type: v.type.value,
       });
@@ -339,12 +348,12 @@ class AvatarChooser extends Component{
 
   getField(){
     switch(this.state.type){
-      case avatarTypes.color:
-        return this.colorField;
-      case avatarTypes.url:
+      case 'url':
         return this.logoUrlField;
-      case avatarTypes.src:
+      case 'src':
         return this.logoFileField;
+      default:
+        return this.colorField;
     }
   }
 
@@ -370,7 +379,7 @@ class StarField extends Component{
   }
 
   componentDidMount(){
-    this.unsubscribe = this.props.field.state.onValue( v => {
+    this.unsubscribe = this.props.field.onValue( v => {
       this.setState({starred: v.value});
     });
   }
@@ -410,7 +419,8 @@ class AvatarView extends Component{
   }
 
   componentWillMount(){
-    this.unsubscribe = this.props.company.state.onValue( state => {
+
+    this.unsubscribe = this.props.company.onValue( state => {
       // TODO: could use: this.props.company.toJS(state.avatar)
       this.setState({
         type: state.avatar.type.value,
@@ -425,9 +435,9 @@ class AvatarView extends Component{
   getAvatarType(){
     const defaultAvatar = <Avatar name={this.state.name} color={this.state.color}/>;
     switch(this.state.type){
-      case avatarTypes.url:
+      case 'url':
         return this.state.url ? <Avatar src={this.state.url}/> : defaultAvatar;
-      case avatarTypes.src:
+      case 'src':
         return this.state.src ? <Avatar src={this.state.src}/> : defaultAvatar;
       default:
         return defaultAvatar;

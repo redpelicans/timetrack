@@ -1,14 +1,14 @@
-import {Formo, Field, MultiField} from '../utils/formo';
+import {Formo, Field, MultiField} from 'formo';
 import _ from 'lodash';
 import {checkStatus, parseJSON} from '../utils';
 
 export const colors = [ '#d73d32', '#7e3794', '#4285f4', '#67ae3f', '#d61a7f', '#ff4080' ];
 
-export const avatarTypes = {
-  color: 'Color Picker', 
-  url: 'Logo URL', 
-  src: 'Logo File',
-}
+export const avatarTypes = [
+  {key: 'color', value: 'Color Picker'}, 
+  {key: 'url', value: 'Logo URL'}, 
+  {key: 'src', value: 'Logo File'}
+];
 
 function rndColor() {
   let index = Math.floor(Math.random() * colors.length);
@@ -16,6 +16,7 @@ function rndColor() {
 }
 
 function avatartarUrlValueChecker(url, state){
+  if(!url) return new Promise(resolve => resolve({checked: true}));
   return fetch('/api/check_url', {
     method: 'post',
     headers:{
@@ -27,7 +28,10 @@ function avatartarUrlValueChecker(url, state){
   .then(checkStatus)
   .then(parseJSON)
   .then(json => {
-    return json.ok;
+    return { 
+      checked: json.ok, 
+      error: !json.ok && "Wrong URL!" 
+    };
   });
 }
 
@@ -40,8 +44,12 @@ export default function company(document){
     }),
     new Field('type', {
       label: "Type",
-      defaultValue: 'Client',
-      domainValues: ['Client', 'Partner', 'Tenant'],
+      defaultValue: 'client',
+      domainValue: [
+        {key: 'client', value: 'Client'}, 
+        {key: 'partner', value: 'Partner'}, 
+        {key: 'tenant', value: 'Tenant'}, 
+      ],
       required: true
     }),
     new Field('starred', {
@@ -52,20 +60,19 @@ export default function company(document){
     new MultiField('avatar', [
       new Field('type', {
         label: "Avatar Type",
-        defaultValue: avatarTypes.color,
-        domainValues: _.values(avatarTypes),
+        defaultValue: 'color',
+        domainValue: avatarTypes,
       }),
       new Field('url', {
         label: "URL",
-        type: 'text',
-        valueChecker: { checker: avatartarUrlValueChecker, throttle: 200, error: 'Wrong URL!'},
+        valueChecker: { checker: avatartarUrlValueChecker, debounce: 200},
       }),
       new Field('src', {
         label: "File",
       }),
       new Field('color', {
         label: "Preferred Color",
-        domainValues: colors,
+        domainValue: colors,
         defaultValue: rndColor(),
       }),
     ]),
