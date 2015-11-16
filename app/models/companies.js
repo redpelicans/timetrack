@@ -1,204 +1,190 @@
-import Bacon from 'baconjs';
-import Dispatcher from '../utils/dispatcher';
-import Immutable from 'immutable';
-import {avatarTypes} from '../forms/company';
-import {requestJson, pushDataEvent} from '../utils';
-import errors from '../models/errors';
-import _ from 'lodash';
 import moment from 'moment';
+import Immutable from 'immutable';
+import Reflux from 'reflux';
+import {requestJson} from '../utils';
 
-const d = new Dispatcher();
+const actions = Reflux.createActions([
+  "load", 
+  "delete", 
+  "create", 
+  "update", 
+  "loadCompleted", 
+  "filter", 
+  "filterPreferred",
+  "sort", 
+  "togglePreferred",
+]);
 
-let loadedCompanies = new Bacon.Bus();
-
-const companies = Bacon.update(
-  Immutable.List([]),
-  [loadedCompanies], function(state, companies){return Immutable.fromJS(companies)},
-  [d.stream('update')], update,
-);
-
-function update(state, company){
-  let index = state.findIndex( x => x.get('_id') === company._id);
-  return index !== -1 ? state.splice(index, 1, Immutable.fromJS(company)) : state;
-}
-
-const sortCond = Bacon.update(
-  {
-    sortBy: 'name',
-    direction: 'asc' 
-  },
-  [d.stream('sort')], (previous, sortBy) => {
-    let keys = _.pluck(model.sortBy, 'key')
-    if(!_.contains(keys, sortBy))return previous;
-    if(previous.sortBy === sortBy)return {sortBy: sortBy, direction: {asc:'desc', desc: 'asc'}[previous.direction]};
-    else return {sortBy: sortBy, direction: sortBy === 'name' ? 'asc': 'desc'};
-  },
-) 
-
-function doSort(companies, sortCond){
-  function sortAttr(sortMode){
-    if(sortCond.sortBy === 'name') return ['name'];
-    return [sortCond.sortBy, 'name'];
-  }
-
-  function sortOrder(sortCond){
-    return [sortCond.direction, 'asc'];
-  }
-
-  // TODO: rewrite sort with Immutable
-  return Immutable.fromJS(_.sortByOrder(companies.toJS(), sortAttr(sortCond), sortOrder(sortCond)));
-}
-
-const starFilter = Bacon.update(
-  false,
-  [d.stream('toggleStarFilter')], filter => !filter,
-);
-
-function filterWithStar(companies, filter){
-  if(filter){
-    return companies.filter( c => c.get('starred') );
-  }else{
-    return companies;
+const state = {
+  companies: Immutable.fromJS([]),
+  initialLoad: Immutable.fromJS([]),
+  isLoading: false,
+  filter: undefined,
+  filterPreferred: false,
+  sort: {
+    by: 'name',
+    order: 'asc' 
   }
 }
 
-function filterWithSearch(companies, filter){
-  if(filter){
-    return companies.filter( c => {
-      let name = c.get('name') || '';
-      return name.toLowerCase().indexOf(filter) !== -1;
-    })
-  }else{
-    return companies;
+const Mixin = {
+  getById: function(id){
+    const index = state.initialLoad.findIndex( p => p.get('_id') === id);
+    const company =  state.initialLoad.get(index);
+    return company;
   }
 }
 
-const searchFilter = Bacon.update(
-  '',
-  [d.stream('searchFilter')], (previous, filter) => filter,
+const store = Reflux.createStore({
 
-);
+  mixins: [Mixin],
 
-const model = {
-  sortBy: [
-    {key: 'name', label: 'Sort Alphabeticaly'},
-    {key: 'billable', label: 'Sort by billable amount'},
-    {key: 'billed', label: 'Sort by billed amount'},
-    {key: 'createdAt', label: 'Sort by creation date'},
-    {key: 'updatedAt', label: 'Sort by updated date'},
-  ],
+  listenables: [actions],
 
-  load(){
-    //pushDataEvent(requestJson('/api/companies'), loadedCompanies);
-    requestJson('/api/companies')
-      .then( companies => {
-        for(let company of companies){
-          initCompany(company);
-        }
-        loadedCompanies.push(companies);
-      })
-      .catch( err => {
-        console.error(err.toString());
-        errors.alert({
-          header: 'Runtime Error',
-          message: 'Cannot load companies, check your backend server'
+  getInitialState: function(){
+    return state;
+  },
+
+  onLoad: function(forceReload){
+    if(state.initialLoad.size && !forceReload){
+        actions.loadCompleted();
+    }else{;
+      console.log("start loading companies ...")
+      requestJson('/api/companies', {message: 'Cannot load companies, check your backend server'}).then( companies => {
+          state.initialLoad = Immutable.fromJS(_.map(companies, p => Maker(p)));
+          console.log("end loading companies ...")
+          actions.loadCompleted();
         });
+
+      state.isLoading = true;
+      this.trigger(state);
+    }
+  },
+
+  onLoadCompleted: function(){
+    state.companies = filterAndSort();
+    state.isLoading = false;
+    this.trigger(state);
+  },
+
+  onCreate(company){
+    state.isLoading = true;
+    this.trigger(state);
+    requestJson('/api/companies', {verb: 'post', body: {company: company}, message: 'Cannot create company, check your backend server'})
+      .then( company => {
+        state.initialLoad = state.initialLoad.push(Immutable.fromJS(Maker(company)));
+        state.companies = filterAndSort();
+        state.isLoading = false;
+        this.trigger(state);
       });
   },
 
-  loadOne(id){
-    // return companies.map(companies => {
-    //   return companies.filter(company => company.get('_id') === id).first();
-    // })
-    return Bacon.fromPromise(requestJson(`/api/company/${id}`)
-      .then(company => {
-        return initCompany(company);
-      })
-      .catch(err => {
-        console.error(err.toString());
-        errors.alert({
-          header: 'Runtime Error',
-          message: `Cannot load company ${id}, check your backend server`
-        });
-      }) );
-  },
-
-  delete(company){
-    return requestJson(`/api/company/${company._id}`, 'delete')
-      .catch(err => {
-        console.error(err.toString());
-        errors.alert({
-          header: 'Runtime Error',
-          message: 'Cannot delete company, check your backend server'
-        });
+  onUpdate(previous, updates){
+    state.isLoading = true;
+    this.trigger(state);
+    requestJson('/api/company', {verb: 'put', body: {company: _.assign(previous, updates)}, message: 'Cannot update company, check your backend server'})
+      .then( company => {
+        const index = state.initialLoad.findIndex( p => p.get('_id') === company._id);
+        state.initialLoad = state.initialLoad.delete(index).push(Immutable.fromJS(Maker(company)));
+        state.isLoading = false;
+        this.trigger(state);
       });
   },
 
-  create(company){
-    return requestJson('/api/companies', 'post', {company: company})
-      .catch(err => {
-        console.error(err.toString());
-        errors.alert({
-          header: 'Runtime Error',
-          message: 'Cannot create company, check your backend server'
-        });
+  onDelete(company){
+    const id = company.get('_id');
+    state.isLoading = true;
+    this.trigger(state);
+    requestJson(`/api/company/${id}`, {verb: 'delete', message: 'Cannot delete company, check your backend server'})
+      .then( res => {
+        const index = state.initialLoad.findIndex( p => p.get('_id') === id);
+        state.initialLoad = state.initialLoad.delete( index );
+        state.companies = filterAndSort();
+        state.isLoading = false;
+        this.trigger(state);
       });
   },
 
-  update(previousCompany, updates){
-    return requestJson('/api/company', 'put', {company: _.assign(previousCompany, updates)})
-      .catch(err => {
-        console.error(err.toString());
-        errors.alert({
-          header: 'Runtime Error',
-          message: 'Cannot update company, check your backend server'
-        });
-      });
-  },
+  onTogglePreferred(company){
+    let body = { id: company.get('_id') , preferred: !company.get('preferred')};
+    const message = 'Cannot toggle preferred status, check your backend server';
+    let request = requestJson(`/api/companies/preferred`, {verb: 'post', body: body, message: message});
+    state.isLoading = true;
+    this.trigger(state);
 
-
-  toggleStarFilter(){
-    d.push('toggleStarFilter', 'toggle');
-  },
-
-  state: Bacon.combineTemplate({
-    companies: companies.combine(starFilter, filterWithStar).combine(searchFilter, filterWithSearch).combine(sortCond, doSort),
-    starFilter: starFilter,
-    searchFilter: searchFilter,
-    sortCond: sortCond,
-  }),
-
-  searchFilter(filter){
-    d.push('searchFilter', filter);
-  },
-
-  sort(sortBy){
-    d.push('sort', sortBy);
-  },
-
-  toggleStar(company){
-    let body = { id: company._id , starred: !company.starred};
-    let request = requestJson(`/api/companies/star`, 'post', body);
-
-    pushDataEvent(request, d.stream('update'), err => {
-      errors.alert({
-        header: 'Communication Problem',
-        message: 'Cannot update company, check your backend server'
-      });
+    request.then( res => {
+      const index = state.initialLoad.findIndex( p => p.get('_id') === res._id);
+      state.initialLoad = state.initialLoad.update(index, p =>  p.set('preferred', body.preferred) );
+      state.companies = filterAndSort();
+      state.isLoading = false;
+      this.trigger(state);
     });
+  },
+
+  onFilterPreferred(filter){
+    state.filterPreferred = filter;
+    state.companies = filterAndSort();
+    this.trigger(state);
+  },
+
+  onFilter: function(filter){
+    state.filter = filter;
+    state.companies = filterAndSort();
+    this.trigger(state);
+  },
+
+  onSort: function(by){
+    if(state.sort.by === by) state.sort.order = {asc: 'desc', desc: 'asc'}[state.sort.order];
+    state.sort.by = by;
+    state.companies = filterAndSort();
+    this.trigger(state);
+  },
+});
+
+function filterAndSort(){
+  const {initialLoad, filter, filterPreferred, sort} = state;
+  return initialLoad
+    .filter(filterForSearch(filter))
+    .filter(filterForPreferred(filterPreferred))
+    .sort( (a,b) => sortByCond(a, b, sort.by, sort.order));
+}
+
+function sortByCond(a, b, attr, order){
+  return order === 'asc' ? sortBy(a, b, attr) : sortBy(b, a, attr);
+}
+
+function sortBy(a, b, attr){
+  if( a.get(attr) === b.get(attr) ) return sortByCond(a,b, 'name', 'desc');
+  return a.get(attr) >= b.get(attr) ? 1 : -1;
+}
+
+function filterForPreferred(filter){
+  return p => filter ? p.get('preferred') : true;
+}
+
+// TODO: add company
+function filterForSearch(filter=''){
+  return  c => {
+    const name = c.get('name') || '';
+    return name.toLowerCase().indexOf(filter) !== -1;
   }
 }
 
-function initCompany(company){
-  company.createdAt = moment(company.createdAt || new Date(1967, 9, 1));
-  if(company.updatedAt) company.updatedAt = moment(company.updatedAt);
-  company.isNew = moment.duration(moment() - company.createdAt).asDays() < 1;
-  //company.type = company.type[0].toUpperCase() + company.type.slice(1);
-  // if(company.avatar){
-  //   company.avatar.type = avatarTypes[company.avatar.type];
-  // }
-  return company;
+// TODO: add company
+const sortMenu = [
+  {key: 'name', label: 'Sort Alphabeticaly'},
+  {key: 'billable', label: 'Sort by billable amount'},
+  {key: 'billed', label: 'Sort by billed amount'},
+  {key: 'createdAt', label: 'Sort by creation date'},
+  {key: 'updatedAt', label: 'Sort by updated date'},
+];
+
+function Maker(doc){
+  doc.createdAt = moment(doc.createdAt || new Date(1967, 9, 1));
+  if(doc.updatedAt) doc.updatedAt = moment(doc.updatedAt);
+  return doc;
 }
 
+export {sortMenu, store as companiesStore, actions as companiesActions};
 
-export default model;
+

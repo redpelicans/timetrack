@@ -15,7 +15,7 @@ export default class ListApp extends Component {
   state = undefined;
 
   componentWillMount() {
-    peopleActions.load();
+    peopleActions.load(false);
   }
 
   componentDidMount(){
@@ -24,12 +24,12 @@ export default class ListApp extends Component {
     });
   }
 
-  componentWillUnount(){
+  componentWillUnmount(){
     this.unsubscribe();
   }
 
   handleRefresh = () => {
-    peopleActions.load();
+    peopleActions.load(true);
   }
 
   handlePreferred = () => {
@@ -53,19 +53,17 @@ export default class ListApp extends Component {
   }
 
   handleEdit = (person) => {
-    this.props.history.pushState({id: person._id}, routes.editperson.path);
+    this.props.history.pushState({id: person.get('_id')}, routes.editperson.path);
   }
 
   handleView = (person) => {
-    this.props.history.pushState({id: person._id}, routes.viewperson.path);
+    this.props.history.pushState({id: person.get('_id')}, routes.viewperson.path);
   }
 
   handleDelete = (person) => {
-    const answer = confirm(`Are you sure to delete the contact "${person.name}"`);
+    const answer = confirm(`Are you sure to delete the contact "${person.get('name')}"`);
     if(answer){
-      person.delete(person).then( () => {
-        persons.load();
-      });
+      peopleActions.delete(person);
     }
   }
 
@@ -84,7 +82,7 @@ export default class ListApp extends Component {
       <Content>
         <Header leftIcon={leftIcon} title={'People'}>
           <Actions>
-            <Filter filter={this.state.searchFilter} onChange={this.handleSearchFilter}/>
+            <Filter filter={this.state.filter} onChange={this.handleSearchFilter}/>
             <Sort sortCond={this.state.sort} onClick={this.handleSort}/>
             <FilterPreferred starred={this.state.filterPreferred} onClick={this.handlePreferred}/>
             <Refresh onClick={this.handleRefresh}/>

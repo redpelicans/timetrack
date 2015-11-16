@@ -1,11 +1,13 @@
 import moment from 'moment';
 import Immutable from 'immutable';
 import Reflux from 'reflux';
-import errors from '../models/errors';
-import {requestJson, errorMgt} from '../utils';
+import {requestJson} from '../utils';
 
 const actions = Reflux.createActions([
   "load", 
+  "delete", 
+  "create", 
+  "update", 
   "loadCompleted", 
   "filter", 
   "filterPreferred",
@@ -16,6 +18,7 @@ const actions = Reflux.createActions([
 
 const state = {
   persons: Immutable.fromJS([]),
+  initialLoad: Immutable.fromJS([]),
   isLoading: false,
   filter: undefined,
   filterPreferred: false,
@@ -25,7 +28,17 @@ const state = {
   }
 }
 
+const Mixin = {
+  getById: function(id){
+    const index = state.initialLoad.findIndex( p => p.get('_id') === id);
+    const person =  state.initialLoad.get(index);
+    return person;
+  }
+}
+
 const store = Reflux.createStore({
+
+  mixins: [Mixin],
 
   listenables: [actions],
 
@@ -33,47 +46,80 @@ const store = Reflux.createStore({
     return state;
   },
 
-  onLoad: function(){
-    console.log("start loading persons ...")
-    requestJson('/api/people').then( people => {
-        console.log("end loading persons ...")
-        actions.loadCompleted(_.map(people, p => PersonMaker(p)));
-      })
-      .catch( err => {
-        console.error(err.toString());
-        errors.alert({
-          header: 'Runtime Error',
-          message: 'Cannot load people, check your backend server'
+  onLoad: function(forceReload){
+    if(state.initialLoad.size && !forceReload){
+        actions.loadCompleted();
+    }else{;
+      console.log("start loading persons ...")
+      requestJson('/api/people', {message: 'Cannot load people, check your backend server'}).then( people => {
+          state.initialLoad = Immutable.fromJS(_.map(people, p => PersonMaker(p)));
+          console.log("end loading persons ...")
+          actions.loadCompleted();
         });
-      });
 
-    state.isLoading = true;
-    this.trigger(state);
+      state.isLoading = true;
+      this.trigger(state);
+    }
   },
 
-  onLoadCompleted: function(people){
-    state.initialLoad = Immutable.fromJS(people);
+  onLoadCompleted: function(){
     state.persons = filterAndSortPersons();
     state.isLoading = false;
     this.trigger(state);
   },
 
+  onCreate(person){
+    state.isLoading = true;
+    this.trigger(state);
+    requestJson('/api/people', {verb: 'post', body: {person: person}, message: 'Cannot create person, check your backend server'})
+      .then( person => {
+        state.initialLoad = state.initialLoad.push(Immutable.fromJS(PersonMaker(person)));
+        state.persons = filterAndSortPersons();
+        state.isLoading = false;
+        this.trigger(state);
+      });
+  },
+
+  onUpdate(previous, updates){
+    state.isLoading = true;
+    this.trigger(state);
+    requestJson('/api/person', {verb: 'put', body: {person: _.assign(previous, updates)}, message: 'Cannot update person, check your backend server'})
+      .then( person => {
+        const index = state.initialLoad.findIndex( p => p.get('_id') === person._id);
+        state.initialLoad = state.initialLoad.delete(index).push(Immutable.fromJS(PersonMaker(person)));
+        state.isLoading = false;
+        this.trigger(state);
+      });
+  },
+
+  onDelete(person){
+    const id = person.get('_id');
+    state.isLoading = true;
+    this.trigger(state);
+    requestJson(`/api/person/${id}`, {verb: 'delete', message: 'Cannot delete person, check your backend server'})
+      .then( res => {
+        const index = state.initialLoad.findIndex( p => p.get('_id') === id);
+        state.initialLoad = state.initialLoad.delete( index );
+        state.persons = filterAndSortPersons();
+        state.isLoading = false;
+        this.trigger(state);
+      });
+  },
+
   onTogglePreferred(person){
     let body = { id: person.get('_id') , preferred: !person.get('preferred')};
-    let request = requestJson(`/api/people/preferred`, 'post', body);
+    const message = 'Cannot toggle preferred status, check your backend server';
+    let request = requestJson(`/api/people/preferred`, {verb: 'post', body: body, message: message});
+    state.isLoading = true;
+    this.trigger(state);
 
     request.then( res => {
       const index = state.initialLoad.findIndex( p => p.get('_id') === res._id);
       state.initialLoad = state.initialLoad.update(index, p =>  p.set('preferred', body.preferred) );
       state.persons = filterAndSortPersons();
+      state.isLoading = false;
       this.trigger(state);
-    }).catch( err => {
-        console.error(err.toString());
-        errors.alert({
-          header: 'Runtime Error',
-          message: 'Cannot toggle preferred status, check your backend server'
-        });
-      });
+    });
   },
 
   onFilterPreferred(filter){
@@ -109,12 +155,12 @@ function sortByCond(a, b, attr, order){
 }
 
 function sortBy(a, b, attr){
-  if( a.get(attr) === b.get(attr) ) return sort(a,b, 'name', 'desc');
+  if( a.get(attr) === b.get(attr) ) return sortByCond(a,b, 'name', 'desc');
   return a.get(attr) >= b.get(attr) ? 1 : -1;
 }
 
 function filterForPreferred(filter){
-  return  p => p.get('preferred') === filter 
+  return p => filter ? p.get('preferred') : true;
 }
 
 // TODO: add company

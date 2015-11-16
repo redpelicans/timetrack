@@ -1,4 +1,5 @@
 import async from 'async';
+import moment from 'moment';
 import _ from 'lodash';
 import {Company} from '../../models';
 import {getRandomInt, ObjectId} from '../../helpers';
@@ -7,62 +8,58 @@ import {getRandomInt, ObjectId} from '../../helpers';
 
 export function init(app){
   app.get('/companies', function(req, res, next){
-    async.waterfall([loadCompanies, computeBill], (err, companies) => {
+    async.waterfall([loadAll, computeBill], (err, companies) => {
       if(err)return next(err);
-      // TODO: to be removed
-      for(let company of companies){
-        company.logoUrl = company.avatar;
-      }
-      res.json(companies);
+      res.json(_.map(companies, p => Maker(p)));
     });
   });
 
   app.get('/company/:id', function(req, res, next){
     let id = ObjectId(req.params.id); 
-    async.waterfall([loadCompany.bind(null, id)], (err, company) => {
+    async.waterfall([loadOne.bind(null, id)], (err, company) => {
       if(err)return next(err);
-      res.json(company);
+      res.json(Maker(company));
     });
   })
 
   app.delete('/company/:id', function(req, res, next){
     let id = ObjectId(req.params.id); 
-    async.waterfall([deleteCompany.bind(null, id)], (err) => {
+    async.waterfall([del.bind(null, id)], (err) => {
       if(err)return next(err);
       res.json({_id: id, isDeleted: true});
     });
   })
 
 
-  app.post('/companies/star', function(req, res, next){
+  app.post('/companies/preferred', function(req, res, next){
     let id = ObjectId(req.body.id); 
-    async.waterfall([loadCompany.bind(null, id), star.bind(null, req.body.starred)], (err, company) => {
+    async.waterfall([loadOne.bind(null, id), preferred.bind(null, Boolean(req.body.preferred))], (err, company) => {
       if(err)return next(err);
-      res.json(company);
+      res.json(Maker(company));
     });
   });
 
   app.post('/companies', function(req, res, next){
     let company = req.body.company;
-    async.waterfall([createCompany.bind(null, company), loadCompany], (err, company) => {
+    async.waterfall([create.bind(null, company), loadOne], (err, company) => {
       if(err)return next(err);
-      res.json(company);
+      res.json(Maker(company));
     });
   });
 
   app.put('/company', function(req, res, next){
     let newCompany = req.body.company;
     let id = ObjectId(newCompany._id);
-    async.waterfall([loadCompany.bind(null, id), updateCompany.bind(null, newCompany), loadCompany], (err, company) => {
+    async.waterfall([loadOne.bind(null, id), update.bind(null, newCompany), loadOne], (err, company) => {
       if(err)return next(err);
-      res.json(company);
+      res.json(Maker(company));
     });
   });
 
 }
 
-function companyFromJson(json){
-  let attrs = ['name', 'type', 'starred', 'website', 'note'];
+function fromJson(json){
+  let attrs = ['name', 'type', 'preferred', 'website', 'note'];
   let res = _.pick(json, attrs);
   if(json.address){
     let attrs = ['street', 'zipcode', 'city', 'country'];
@@ -91,11 +88,11 @@ function computeBill(companies, cb){
   async.map(companies, setBillElements, err => cb(err, companies));
 }
 
-function loadCompanies(cb){
+function loadAll(cb){
   Company.findAll({isDeleted: {$ne: true}}, cb);
 }
 
-function loadCompany(id, cb){
+function loadOne(id, cb){
   let query = {
     _id: id,
     isDeleted: {$ne: true},
@@ -107,8 +104,8 @@ function loadCompany(id, cb){
   });
 }
 
-function createCompany(company, cb){
-  let newCompany = companyFromJson(company) ;
+function create(company, cb){
+  let newCompany = fromJson(company) ;
   newCompany.createdAt = new Date();
   Company.collection.insertOne(newCompany, (err, _) => {
     //console.log(newCompany);
@@ -117,23 +114,28 @@ function createCompany(company, cb){
 }
 
 
-function updateCompany(newCompany, previousCompany, cb){
-  let updates = companyFromJson(newCompany) ;
+function update(newCompany, previousCompany, cb){
+  let updates = fromJson(newCompany) ;
   Company.collection.updateOne({_id: previousCompany._id}, {$set: updates}, (err) => {
     //console.log(updates);
     return cb(err, previousCompany._id)
   })
 }
 
-function deleteCompany(id, cb){
+function del(id, cb){
   Company.collection.updateOne({_id: id}, {$set: {isDeleted: true}}, (err) => {
     return cb(err)
   })
 }
 
-function star(starred, company, cb){
-  company.starred = {true: true, false: false}[starred] || false;
-  Company.collection.update({_id: company._id}, {$set: {starred: company.starred}}, err => {
+function preferred(isPreferred, company, cb){
+  company.preferred = isPreferred;
+  Company.collection.update({_id: company._id}, {$set: {preferred: company.preferred}}, err => {
     cb(err, company);
   });
+}
+
+function Maker(obj){
+  obj.isNew = moment.duration(moment() - obj.createdAt).asDays() < 1;
+  return obj;
 }

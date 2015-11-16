@@ -1,6 +1,5 @@
 import errors from '../models/errors';
 
-
 export function parseJSON(res) {
   return res.json()
 }
@@ -15,11 +14,13 @@ export function checkStatus(res) {
   }
 }
 
-export function requestJson(uri, verb, body){
+export function requestJson(uri, {verb='get', header='Runtime Error', body, message='Check your backend server'} = {}){
+  let  promise;
+
   if(!body)
-    return fetchJson(uri, { method: verb || 'get' });
+    promise = fetchJson(uri, { method: verb });
   else
-    return fetchJson(uri, {
+    promise = fetchJson(uri, {
       method: verb,
       headers:{
       'Accept': 'application/json',
@@ -27,34 +28,17 @@ export function requestJson(uri, verb, body){
       },
       body: JSON.stringify(body||{})
     });
+
+   return promise.catch( err => {
+      console.error(err.toString());
+      errors.alert({
+        header: header,
+        message: message,
+      });
+   });
 }
 
 export function fetchJson(...params){
   return fetch(...params).then(checkStatus).then(parseJSON);
 }
 
-export function pushDataEvent(request, stream, manageError){
-  request
-  .then(data => {
-    stream.push(data);
-  })
-  .catch(err => {
-    if(manageError){
-      manageError(err);
-    }else{
-      errors.alert({
-        header: 'Communication Problem',
-        message: 'Check your backend server'
-      });
-    }
-  })
-}
-
-export function errorMgt(){
-  return (err => {
-    errors.alert({
-      header: 'Communication Problem',
-      message: err.toString() || 'Check your backend server'
-    });
-  });
-}

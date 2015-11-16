@@ -428,4 +428,30 @@ export class Avatar extends Component {
 
 }
 
+export const TextLabel = ({label, value, isUrl}) => {
+  const labelUrl = isUrl ? <a href={value}><i className="fa fa-external-link p-l"/></a> : "";
+  return(
+    <fieldset className="form-group">
+      <label htmlFor={label}> 
+        {label} 
+        {labelUrl}
+      </label>
+      <span className="form-control" id={label}>{value}</span>
+    </fieldset>
+  )
+}
+
+export const MarkdownText = ({label, value}) => {
+  const md = new Remarkable();
+  const text = {__html: md.render(value)};
+  return(
+    <fieldset className="form-group">
+      <label htmlFor={label}> 
+        {label} 
+      </label>
+      <div style={{height: '100%'}}className="form-control" id={label} dangerouslySetInnerHTML={text}/>
+    </fieldset>
+  )
+}
+
 

@@ -1,90 +1,88 @@
 import _ from 'lodash';
 import moment from 'moment';
 import React, {Component} from 'react';
+import reactMixin from 'react-mixin';
+import Reflux from 'reflux';
 import routes from '../../routes';
 import {Content, Header, Actions} from '../layout';
 import {AvatarView} from '../widgets';
 import classNames from 'classnames';
-import companies from '../../models/companies';
+import {companiesStore, companiesActions, sortMenu} from '../../models/companies';
 
-export default class CompanyListApp extends Component {
+//@reactMixin.decorate(Reflux.connect(companies.store, "companiesStore"))
+export default class ListApp extends Component {
 
-  static contextTypes = {
-  }
-
-  state = { 
-    companies: []
-  };
+  state = undefined;
 
   componentWillMount() {
-    this.unsubscribeModel = companies.state.onValue( state => {
-      this.setState(state);
-    });
-    companies.load();
+    companiesActions.load(false);
   }
 
-  componentWillUnmount() {
-    this.unsubscribeModel();
+  componentDidMount(){
+    this.unsubscribe = companiesStore.listen( state => {
+      this.setState(state);
+    });
+  }
+
+  componentWillUnmount(){
+    this.unsubscribe();
   }
 
   handleRefresh = () => {
-    companies.load();
+    companiesActions.load(true);
   }
 
-  handleStarred = () => {
-    companies.toggleStarFilter();
+  handlePreferred = () => {
+    companiesActions.filterPreferred(!this.state.filterPreferred);
+  }
+
+  handleTogglePreferred = (company) => {
+    companiesActions.togglePreferred(company);
   }
 
   handleSort = (mode) => {
-    companies.sort(mode)
+    companiesActions.sort(mode)
   }
 
   handleSearchFilter = (filter) => {
-    companies.searchFilter(filter);
+    companiesActions.filter(filter);
   }
 
-  handleAddCompany = () => {
+  handleAdd = () => {
     this.props.history.pushState(null, routes.newcompany.path);
   }
 
-  handleEditCompany = (company) => {
-    this.props.history.pushState({id: company._id}, routes.editcompany.path);
+  handleEdit = (company) => {
+    this.props.history.pushState({id: company.get('_id')}, routes.editcompany.path);
   }
 
-  handleViewCompany = (company) => {
-    this.props.history.pushState({id: company._id}, routes.viewcompany.path);
+  handleView = (company) => {
+    this.props.history.pushState({id: company.get('_id')}, routes.viewcompany.path);
   }
 
-  handleDeleteCompany = (company) => {
-    let answer = confirm(`Are you sure to delete the company "${company.name}"`);
+  handleDelete = (company) => {
+    const answer = confirm(`Are you sure to delete the contact "${company.get('name')}"`);
     if(answer){
-      companies.delete(company).then( () => {
-        companies.load();
-      });
+      companiesActions.delete(company);
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState){
-    return this.state.companies !== nextState.companies || 
-      this.state.searchFilter != nextState.searchFilter || 
-      this.state.sortCond != nextState.sortCond || 
-      this.state.starFilter != nextState.starFilter;
-  }
-
   render(){
-    let leftIcon = <i className="fa fa-building m-a"/>;
+    if(!this.state) return false;
+    const leftIcon = this.state.isLoading ? <i className="fa fa-spinner fa-spin m-a"/> : <i className="fa fa-users m-a"/>;
+    const companies = this.state.companies;
     return (
       <Content>
         <Header leftIcon={leftIcon} title={'Companies'}>
           <Actions>
-            <Filter filter={this.state.searchFilter} onChange={this.handleSearchFilter}/>
-            <Sort sortCond={this.state.sortCond} onClick={this.handleSort}/>
-            <Starred starred={this.state.starFilter} onClick={this.handleStarred}/>
+            <Filter filter={this.state.filter} onChange={this.handleSearchFilter}/>
+            <Sort sortCond={this.state.sort} onClick={this.handleSort}/>
+            <FilterPreferred starred={this.state.filterPreferred} onClick={this.handlePreferred}/>
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
         </Header>
-        <CompanyList model={this.state} onView={this.handleViewCompany} onEdit={this.handleEditCompany} onDelete={this.handleDeleteCompany}/>
-        <AddCompanyButton onAddCompany={this.handleAddCompany}/>
+        <List isLoading={this.state.isLoading} companies={companies} onView={this.handleView} onEdit={this.handleEdit} onTogglePreferred={this.handleTogglePreferred} onDelete={this.handleDelete}/>
+        <AddButton onAdd ={this.handleAdd}/>
       </Content>
     )
   }
@@ -92,14 +90,11 @@ export default class CompanyListApp extends Component {
 }
 
 
-class CompanyList extends Component {
-
-  shouldComponentUpdate(nextProps, nextState){
-    return this.props.model.companies !== nextProps.model.companies;
-  }
+class List extends Component {
 
   render(){
-    let styles={
+    if(!this.props.companies) return false;
+    const styles={
       container:{
         marginTop: '50px',
         marginBottom: '50px',
@@ -111,11 +106,10 @@ class CompanyList extends Component {
       }
     }
 
-    let companies = this.props.model.companies;
-    let data = companies.map( company => {
+    const data = this.props.companies.map(company => {
       return (
         <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <CompanyListItem company={company} onView={this.props.onView} onEdit={this.props.onEdit} onDelete={this.props.onDelete}/>
+          <ListItem company={company} onView={this.props.onView} onTogglePreferred={this.props.onTogglePreferred} onEdit={this.props.onEdit} onDelete={this.props.onDelete}/>
         </div>
       )
     });
@@ -129,22 +123,19 @@ class CompanyList extends Component {
 
 }
 
-class CompanyListItem extends Component {
+class ListItem extends Component {
   shouldComponentUpdate(nextProps, nextState){
     return this.props.company !== nextProps.company;
   }
 
-  handleViewCompany = (e) => {
-    this.props.onView(this.props.company.toJS());
+  handleView = (e) => {
+    this.props.onView(this.props.company);
     e.preventDefault();
   }
 
   render() {
-    function phone(company){
-      if(!company.phones || !company.phones.length) return '';
-      let {label, phone} = company.phones[0];
-      return `tel. ${label}: ${phone}`;
-    }
+
+    console.log("render CompanyItem")
 
     function amount(value){
       if(!value) return;
@@ -173,7 +164,7 @@ class CompanyListItem extends Component {
       }
     }
 
-    let styles = {
+    const styles = {
       container:{
         display: 'flex',
         justifyContent: 'space-between',
@@ -194,17 +185,17 @@ class CompanyListItem extends Component {
       }
     };
 
-    let company = this.props.company.toJS();
-    let avatar = <AvatarView company={company}/>;
-    let isNew = company.isNew ? <span className="label label-success">new</span> : <div/>
+    const company = this.props.company;
+    const avatar = <AvatarView obj={company.toJS()}/>;
+    const isNew = company.get('isNew') ? <span className="label label-success">new</span> : <div/>
     return (
       <div style={styles.container} >
         <div style={styles.containerLeft}>
           <div className="p-r">
-            <a href="#" onClick={this.handleViewCompany}>{avatar}</a>
+            <a href="#" onClick={this.handleView}>{avatar}</a>
           </div>
           <div className="p-r">
-            <a href="#" onClick={this.handleViewCompany}>{company.name}</a>
+            <a href="#" onClick={this.handleView}>{company.get('name')}</a>
           </div>
           <div className="p-r">
             {billAmounts(company)}
@@ -214,22 +205,22 @@ class CompanyListItem extends Component {
           </div>
         </div>
         <div style={styles.containerRight} href="#">
-          <StarredCompany company={this.props.company.toJS()}/>
-          <EditCompany company={this.props.company.toJS()} onEdit={this.props.onEdit}/>
-          <DeleteCompany company={this.props.company.toJS()} onDelete={this.props.onDelete}/>
+          <Starred company={company} onTogglePreferred={this.props.onTogglePreferred}/>
+          <Edit company={company} onEdit={this.props.onEdit}/>
+          <Delete company={company} onDelete={this.props.onDelete}/>
         </div>
       </div>
     );
   }
 }
 
-const EditCompany = ({company, onEdit}) => {
+const Edit = ({company, onEdit}) => {
   const handleChange = (e) => {
     onEdit(company);
     e.preventDefault();
   }
 
-  let style={
+  const style={
     fontSize: '1.2rem',
     color: 'grey',
   };
@@ -241,13 +232,13 @@ const EditCompany = ({company, onEdit}) => {
   )
 }
 
-const DeleteCompany =({company, onDelete}) => {
+const Delete =({company, onDelete}) => {
   const handleChange = (e) => {
     onDelete(company);
     e.preventDefault();
   }
 
-  let style={
+  const style={
     fontSize: '1.2rem',
     color: 'grey',
   };
@@ -259,14 +250,14 @@ const DeleteCompany =({company, onDelete}) => {
   )
 }
 
-const StarredCompany = ({company}) => {
+const Starred = ({company, onTogglePreferred}) => {
   const handleChange = (e) => {
-    companies.toggleStar(company);
+    onTogglePreferred(company);
     e.preventDefault();
   }
 
-  let style={
-    get color(){ return company.starred ? '#00BCD4' : 'grey'; },
+  const style={
+    color: company.get('preferred') ? '#00BCD4' : 'grey',
     fontSize: '1.2rem',
   };
 
@@ -277,18 +268,18 @@ const StarredCompany = ({company}) => {
   )
 }
 
-class AddCompanyButton extends Component {
+class AddButton extends Component {
   componentDidMount(){
-    $('#addCompany').tooltip({animation: true});
+    $('#addcompany').tooltip({animation: true});
   }
 
   handleClick = () => {
-    $('#addCompany').tooltip('hide');
-    this.props.onAddCompany();
+    $('#addcompany').tooltip('hide');
+    this.props.onAdd();
   }
 
   render(){
-    let style = {
+    const style = {
         position: 'fixed',
         display: 'block',
         right: 0,
@@ -299,7 +290,7 @@ class AddCompanyButton extends Component {
     }
 
     return (
-      <button id="addCompany" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title="Add a company" style={style}  onClick={this.handleClick}>
+      <button id="addcompany" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title="Add a contact" style={style}  onClick={this.handleClick}>
         <i className="fa fa-plus"/>
       </button>
     )
@@ -312,7 +303,7 @@ const Refresh =({onClick}) => {
     e.preventDefault();
   }
 
-  let style={
+  const style={
     fontSize: '1.5rem',
     color: 'grey',
   }
@@ -332,21 +323,21 @@ const Filter =({filter, onChange}) => {
     e.preventDefault();
   }
 
-  let icon= <span className="fa fa-search"/>
+  const icon= <span className="fa fa-search"/>
   return (
     <div className="p-a">
-      <input className="tm input form-control" type='text' value={filter} placeholder='search ...' onChange={handleChange} aria-describedby="filterCompanies"/>
+      <input className="tm input form-control" type='text' value={filter} placeholder='search ...' onChange={handleChange}/>
     </div>
   )
 }
 
-const Starred =({starred, onClick}) => {
+const FilterPreferred =({starred, onClick}) => {
   const handleChange = (e) => {
     onClick();
     e.preventDefault();
   }
 
-  let style={
+  const style={
     fontSize: '1.5rem',
     color: starred ? '#00BCD4' : 'grey',
   }
@@ -367,17 +358,18 @@ const Sort =({sortCond, onClick}) => {
   }
 
   function getSortIcon(sortCond, item){
-    if(item.key === sortCond.sortBy){
-      let classnames = sortCond.direction === "desc" ? "fa fa-sort-desc p-l" : "fa fa-sort-asc p-l";
+    if(item.key === sortCond.by){
+      const classnames = sortCond.order === "desc" ? "fa fa-sort-desc p-l" : "fa fa-sort-asc p-l";
       return <i className={classnames}/>
     }
   }
-  let style={
+
+  const style={
     fontSize: '1.5rem',
     color: 'grey',
   }
 
-  let menu = _.map(companies.sortBy, item => {
+  const menu = _.map(sortMenu, item => {
     return (
       <a key={item.key} className="dropdown-item p-a" href="#" onClick={handleClick.bind(null, item.key)}>
         {item.label}
