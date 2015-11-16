@@ -46,8 +46,11 @@ const store = Reflux.createStore({
   },
 
   onLoad: function(forceReload){
+    // TODO: test to understand refresh ...
+    state.companies = Immutable.fromJS([]);
+    this.trigger(state);
     if(state.initialLoad.size && !forceReload){
-        actions.loadCompleted();
+      actions.loadCompleted();
     }else{;
       console.log("start loading companies ...")
       requestJson('/api/companies', {message: 'Cannot load companies, check your backend server'}).then( companies => {
@@ -181,7 +184,7 @@ const sortMenu = [
 
 function Maker(doc){
   doc.createdAt = moment(doc.createdAt || new Date(1967, 9, 1));
-  if(doc.updatedAt) doc.updatedAt = moment(doc.updatedAt);
+  doc.updatedAt = moment(doc.updatedAt || new Date(1967, 9, 1));
   return doc;
 }
 

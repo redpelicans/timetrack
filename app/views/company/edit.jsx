@@ -4,13 +4,11 @@ import reactMixin from 'react-mixin';
 import { Lifecycle } from 'react-router';
 import routes from '../../routes';
 import classNames from 'classnames';
-import {Avatar} from '../widgets';
 import {timeLabels} from '../helpers';
 import {Content} from '../layout';
 import companyForm, {colors, avatarTypes} from '../../forms/company';
-import companies from '../../models/companies';
-import Select from 'react-select';
-import {FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../views/widgets';
+import {companiesStore, companiesActions, sortMenu} from '../../models/companies';
+import {Avatar, FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../views/widgets';
 
 @reactMixin.decorate(Lifecycle)
 export class NewCompanyApp extends Component {
@@ -52,7 +50,7 @@ export class NewCompanyApp extends Component {
 
 
     this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
-      companies.create(this.companyForm.toDocument(state));
+      companiesActions.create(this.companyForm.toDocument(state));
       this.goBack(true);
     });
 
@@ -72,7 +70,7 @@ export class NewCompanyApp extends Component {
 
     return (
       <div>
-        <EditCompanyContent 
+        <EditContent 
           title={"Add a Company"} 
           submitBtn={submitBtn}
           cancelBtn={cancelBtn}
@@ -117,29 +115,24 @@ export class EditCompanyApp extends Component {
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
-    this.unsubscribeLoadOne();
   }
 
   componentWillMount() {
     let companyId = this.props.location.state.id;
 
-    this.unsubscribeLoadOne = companies.loadOne(companyId).onValue(company => {
-      this.companyDocument = company;
-      this.companyForm = companyForm(this.companyDocument);
+    this.companyDocument = companiesStore.getById(companyId).toJS();
+    this.companyForm = companyForm(this.companyDocument);
 
-      this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
-        companies.update(this.companyDocument, this.companyForm.toDocument(state));
-        this.goBack(true);
+    this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
+      companiesActions.update(this.companyDocument, this.companyForm.toDocument(state));
+      this.goBack(true);
+    });
+
+    this.unsubscribeState = this.companyForm.onValue( state => {
+      this.setState({
+        canSubmit: state.canSubmit,
+        hasBeenModified: state.hasBeenModified,
       });
-
-      this.unsubscribeState = this.companyForm.onValue( state => {
-        console.log(state)
-        this.setState({
-          canSubmit: state.canSubmit,
-          hasBeenModified: state.hasBeenModified,
-        });
-      });
-
     });
   }
 
@@ -149,7 +142,7 @@ export class EditCompanyApp extends Component {
 
     return (
       <div>
-        <EditCompanyContent 
+        <EditContent 
           title={"Edit Company"} 
           submitBtn={submitBtn}
           cancelBtn={cancelBtn}
@@ -161,7 +154,7 @@ export class EditCompanyApp extends Component {
   }
 }
 
-export default class EditCompanyContent extends Component {
+export default class EditContent extends Component {
 
   render(){
     if(!this.props.companyForm) return false;
@@ -290,39 +283,6 @@ class Header extends Component{
 }
 
 
-
-// class CancelModal extends Component{
-//   handleClick = (e) => {
-//     this.props.onConfirm();
-//     e.preventDefault();
-//   }
-//
-//   render(){
-//     return (
-//       <div className="modal fade" id="cancelModal" tabIndex="-1" role="dialog" aria-labelledby="cancelModalTitle" aria-hidden="true">
-//         <div className="modal-dialog" role="document">
-//           <div className="modal-content">
-//             <div className="modal-header">
-//               <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-//                 <span aria-hidden="true">&times;</span>
-//                 <span className="sr-only">Close</span>
-//               </button>
-//                <h4 className="modal-title" id="cancelModalTitle">New Company </h4>
-//             </div>
-//             <div className="modal-body">
-//               Fields have been modified, do you really wan't to leave this page without saving ?
-//             </div>
-//             <div className="modal-footer">
-//               <button type="button" className="btn btn-secondary" data-dismiss="modal">Continu</button>
-//               <button type="button" className="btn btn-warning" data-dismiss="modal" onClick={this.handleClick}>Leave</button>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     )
-//   }
-// }
-
 class AvatarChooser extends Component{
   state = {type: this.props.field.defaultValue};
 
@@ -380,23 +340,23 @@ class StarField extends Component{
 
   componentDidMount(){
     this.unsubscribe = this.props.field.onValue( v => {
-      this.setState({starred: v.value});
+      this.setState({preferred: v.value});
     });
   }
 
   handleChange = (e) => {
-    this.props.field.setValue( !this.state.starred );
+    this.props.field.setValue( !this.state.preferred );
     e.preventDefault();
   }
 
   render(){
     if(!this.state) return false;
     let field = this.props.field;
-    let starred = this.state.starred;
+    let preferred = this.state.preferred;
 
     let style={
       display: 'block',
-      get color(){ return starred ? '#00BCD4' : 'grey'; },
+      color: preferred ? '#00BCD4' : 'grey',
       fontSize: '1.5rem',
     };
 
@@ -421,7 +381,6 @@ class AvatarView extends Component{
   componentWillMount(){
 
     this.unsubscribe = this.props.company.onValue( state => {
-      // TODO: could use: this.props.company.toJS(state.avatar)
       this.setState({
         type: state.avatar.type.value,
         name: state.name.value,

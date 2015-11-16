@@ -180,7 +180,7 @@ const sortMenu = [
 
 function PersonMaker(doc){
   doc.createdAt = moment(doc.createdAt || new Date(1967, 9, 1));
-  if(doc.updatedAt) doc.updatedAt = moment(doc.updatedAt);
+  doc.updatedAt = moment(doc.updatedAt || new Date(1967, 9, 1));
   return doc;
 }
 

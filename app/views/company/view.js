@@ -1,27 +1,37 @@
 import _ from 'lodash';
+import moment from 'moment';
 import Remarkable from 'remarkable';
 import React, {Component} from 'react';
 import routes from '../../routes';
 import classNames from 'classnames';
-import {AvatarView} from '../widgets';
+import {AvatarView, TextLabel, MarkdownText} from '../widgets';
 import {timeLabels} from '../helpers';
 import {Content } from '../layout';
-import companies from '../../models/companies';
+import {companiesStore, companiesActions, sortMenu} from '../../models/companies';
 
 export default class ViewCompanyApp extends Component {
-  state = {company: undefined};
+  state = {};
 
   static contextTypes = {
     history: React.PropTypes.object.isRequired,
   }
 
-  componentWillUnmount(){
-    this.unsubscribeLoadOne();
-  }
-
   componentWillMount() {
     const companyId = this.props.location.state.id;
-    this.unsubscribeLoadOne = companies.loadOne(companyId).onValue(company => {
+    const company = companiesStore.getById(companyId);
+    this.setState({
+      companyId: companyId,
+      company: company
+    });
+  }
+
+  componentWillUnmount(){
+    this.unsubcribe();
+  }
+
+  componentDidMount(){
+    this.unsubcribe = companiesStore.listen( state => {
+      const company = companiesStore.getById(this.state.companyId);
       this.setState({company: company});
     });
   }
@@ -30,16 +40,15 @@ export default class ViewCompanyApp extends Component {
     this.props.history.goBack();
   }
 
-  handleEditCompany = (company) => {
-    this.props.history.pushState({id: company._id}, routes.editcompany.path);
+  handleEdit= (company) => {
+    this.props.history.pushState({id: company.get('_id')}, routes.editcompany.path);
   }
 
-  handleDeleteCompany = (company) => {
-    let answer = confirm(`Are you sure to delete the company "${company.name}"`);
+  handleDelete = (company) => {
+    let answer = confirm(`Are you sure to delete the company "${company.get('name')}"`);
     if(answer){
-      companies.delete(company).then( () => {
-        this.goBack();
-      });
+      companiesActions.delete(company);
+      this.goBack();
     }
   }
 
@@ -47,14 +56,14 @@ export default class ViewCompanyApp extends Component {
     if(!this.state.company) return false;
     return (
       <Content>
-        <Header company={this.state.company} goBack={this.goBack} onEdit={this.handleEditCompany} onDelete={this.handleDeleteCompany}/>
-        <CompanyCard company={this.state.company}/>
+        <Header company={this.state.company} goBack={this.goBack} onEdit={this.handleEdit} onDelete={this.handleDelete}/>
+        <Card company={this.state.company}/>
       </Content>
     )
   }
 }
 
-const CompanyCard = ({company}) =>  {
+const Card = ({company}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -64,32 +73,36 @@ const CompanyCard = ({company}) =>  {
   return (
     <div style={styles.container} className="row" >
       <div className="col-md-4 ">
-        <TextLabel label="Type" value={company.type}/>
+        <TextLabel label="Type" value={company.get('type')}/>
       </div>
       <div className="col-md-8 ">
-        <TextLabel isUrl={true} label="website" value={company.website}/>
+        <TextLabel isUrl={true} label="website" value={company.get('website')}/>
       </div>
       <div className="col-md-5">
-        <TextLabel label="Street" value={company.address && company.address.street}/>
+        <TextLabel label="Street" value={company.getIn(['address', 'street'])}/>
       </div>
       <div className="col-md-2">
-        <TextLabel label="Zip Code" value={company.address && company.address.zipcode}/>
+        <TextLabel label="Zip Code" value={company.getIn(['address', 'zipcode'])}/>
       </div>
       <div className="col-md-2">
-        <TextLabel label="City" value={company.address && company.address.city}/>
+        <TextLabel label="City" value={company.getIn(['address', 'city'])}/>
       </div>
       <div className="col-md-3">
-        <TextLabel label="Country" value={company.address && company.address.country}/>
+        <TextLabel label="Country" value={company.getIn(['address', 'country'])}/>
       </div>
       <div className="col-md-12">
-        <MarkdownText label="Note" value={company.note}/>
+        <MarkdownText label="Note" value={company.get('note')}/>
       </div>
     </div>
   )
 }
 
+const Phones = ({company}) => {
+  return render.length ? render : <div/>;
+}
+
 const Header = ({company, goBack, onEdit, onDelete}) => {
-  const avatar = <AvatarView company={company}/>;
+  const avatar = <AvatarView obj={company.toJS()}/>;
   const styles={
     container:{
       paddingTop: '1rem',
@@ -112,8 +125,8 @@ const Header = ({company, goBack, onEdit, onDelete}) => {
     name:{
       flexShrink: 0,
     },
-    starred:{
-      color: company.starred ? '#00BCD4' : 'grey',
+    perferred:{
+      color: company.get('preferred') ? '#00BCD4' : 'grey',
     },
     time: {
       fontSize: '.7rem',
@@ -139,66 +152,26 @@ const Header = ({company, goBack, onEdit, onDelete}) => {
             {avatar}
           </div>
           <div style={styles.name} className="m-r">
-            {company.name}
+            {company.get('name')}
           </div>
           <div>
-            <i style={styles.starred} className="fa fa-star-o m-r"/>
+            <i style={styles.perferred} className="fa fa-star-o m-r"/>
           </div>
         </div>
         <div style={styles.right}>
-          <EditCompany company={company} onEdit={onEdit}/>
-          <DeleteCompany company={company} onDelete={onDelete}/>
+          <Edit company={company} onEdit={onEdit}/>
+          <Delete company={company} onDelete={onDelete}/>
         </div>
       </div>
       <hr/>
       <div style={styles.time} >
-        {timeLabels(company)}
+        {timeLabels(company.toJS())}
       </div>
     </div>
   )
 }
 
-class StarredCompany extends Component{
-  render(){
-    const company = this.props.company;
-    const style={
-      get color(){ return company.starred ? '#00BCD4' : 'grey'; },
-      //fontSize: '1.2rem',
-    };
-
-    return (
-      <i style={style} className="iconButton fa fa-star-o"/>
-    )
-  }
-}
-
-const TextLabel = ({label, value, isUrl}) => {
-  const labelUrl = isUrl ? <a href={value}><i className="fa fa-external-link p-l"/></a> : "";
-  return(
-    <fieldset className="form-group">
-      <label htmlFor={label}> 
-        {label} 
-        {labelUrl}
-      </label>
-      <span className="form-control" id={label}>{value}</span>
-    </fieldset>
-  )
-}
-
-const MarkdownText = ({label, value}) => {
-  const md = new Remarkable();
-  const text = {__html: md.render(value)};
-  return(
-    <fieldset className="form-group">
-      <label htmlFor={label}> 
-        {label} 
-      </label>
-      <div style={{height: '100%'}}className="form-control" id={label} dangerouslySetInnerHTML={text}/>
-    </fieldset>
-  )
-}
-
-const EditCompany = ({company, onEdit}) => {
+const Edit = ({company, onEdit}) => {
   const handleChange = (e) => {
     onEdit(company);
     e.preventDefault();
@@ -216,7 +189,7 @@ const EditCompany = ({company, onEdit}) => {
   )
 }
 
-const DeleteCompany =({company, onDelete}) => {
+const Delete =({company, onDelete}) => {
   const handleChange = (e) => {
     onDelete(company);
     e.preventDefault();
