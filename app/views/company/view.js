@@ -3,7 +3,8 @@ import Remarkable from 'remarkable';
 import React, {Component} from 'react';
 import routes from '../../routes';
 import classNames from 'classnames';
-import {AvatarView, timeLabels} from './helpers';
+import {AvatarView} from '../widgets';
+import {timeLabels} from '../helpers';
 import {Content } from '../layout';
 import companies from '../../models/companies';
 

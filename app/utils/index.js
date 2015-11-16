@@ -50,3 +50,11 @@ export function pushDataEvent(request, stream, manageError){
   })
 }
 
+export function errorMgt(){
+  return (err => {
+    errors.alert({
+      header: 'Communication Problem',
+      message: err.toString() || 'Check your backend server'
+    });
+  });
+}

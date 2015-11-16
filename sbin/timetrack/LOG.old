@@ -1,0 +1,11 @@
+2015/11/13-11:01:52.027618 7fd0caefe700 Recovering log #125
+2015/11/13-11:01:52.028783 7fd0caefe700 Level-0 table #127: started
+2015/11/13-11:01:52.094057 7fd0caefe700 Level-0 table #127: 86992 bytes OK
+2015/11/13-11:01:52.210892 7fd0caefe700 Delete type=0 #125
+2015/11/13-11:01:52.211046 7fd0caefe700 Delete type=3 #123
+2015/11/13-11:01:52.211125 7fd0caefe700 Delete type=2 #126
+2015/11/13-11:01:52.360485 7fd0c8efa700 Compacting 3@0 + 2@1 files
+2015/11/13-11:01:52.460668 7fd0c8efa700 Generated table #129: 2717 keys, 2122937 bytes
+2015/11/13-11:01:52.518928 7fd0c8efa700 Generated table #130: 3260 keys, 483033 bytes
+2015/11/13-11:01:52.518966 7fd0c8efa700 Compacted 3@0 + 2@1 files => 2605970 bytes
+2015/11/13-11:01:52.593891 7fd0c8efa700 compacted to: files[ 0 2 0 0 0 0 0 ]

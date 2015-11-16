@@ -4,13 +4,13 @@ import reactMixin from 'react-mixin';
 import { Lifecycle } from 'react-router';
 import routes from '../../routes';
 import classNames from 'classnames';
-import Avatar from '../avatar';
-import {timeLabels} from './helpers';
+import {Avatar} from '../widgets';
+import {timeLabels} from '../helpers';
 import {Content} from '../layout';
 import companyForm, {colors, avatarTypes} from '../../forms/company';
 import companies from '../../models/companies';
 import Select from 'react-select';
-import {FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../views/helpers/widgets';
+import {FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../views/widgets';
 
 @reactMixin.decorate(Lifecycle)
 export class NewCompanyApp extends Component {

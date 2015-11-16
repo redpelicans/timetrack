@@ -1,5 +1,6 @@
 import NotFound from './views/not-found';
 import CompanyListApp from './views/company/list';
+import PersonListApp from './views/person/list';
 import {NewCompanyApp, EditCompanyApp} from './views/company/edit';
 import ViewCompanyApp from './views/company/view';
 // import MissionApp from './components/mission/app';
@@ -17,7 +18,7 @@ let routeData = {
   missions: {path: '/missions', topic:'missions', label: 'Missions', component: NotFound, isMenu: true, iconName: 'thumbs-up'},
   invoices: {path: '/invoices', topic:'invoices', label: 'Invoices', component: NotFound, isMenu: true, iconName: 'credit-card'},
   stats: {path: '/stats', topic:'stats', label: 'Stats', component: NotFound, isMenu: true, iconName: 'tachometer'},
-  people: {path: '/people', topic:'people', label: 'People', component: NotFound, isMenu: true, iconName: 'users'},
+  persons: {path: '/persons', topic:'people', label: 'People', component: PersonListApp, isMenu: true, iconName: 'users'},
   marketplace: {path: '/marketplace', topic:'marketplace', label: 'MarketPlace', component: NotFound, isMenu: true, iconName: 'globe'},
 };
 

@@ -3,10 +3,8 @@ import moment from 'moment';
 import React, {Component} from 'react';
 import routes from '../../routes';
 import {Content, Header, Actions} from '../layout';
-import {AvatarView} from './helpers';
+import {AvatarView} from '../widgets';
 import classNames from 'classnames';
-//import Header from '../header';
-//import MainButtonMenu from '../main_button_menu';
 import companies from '../../models/companies';
 
 export default class CompanyListApp extends Component {
