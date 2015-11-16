@@ -80,6 +80,7 @@ const Card = ({person}) =>  {
 
   const birthdate = person.get('birthdate') ? moment(person.get('birthdate')).format('DD/MM/YY') : "";
   return (
+    <div>
     <div style={styles.container} className="row" >
       <div className="col-md-1">
         <TextLabel label="Prefix" value={person.get('prefix')}/>
@@ -93,9 +94,14 @@ const Card = ({person}) =>  {
       <div className="col-md-2">
         <TextLabel label="BirthDate" value={birthdate}/>
       </div>
-
+      <div className="col-md-12">
+        <TextLabel label="Company" value={person.getIn(['company', 'name'])}/>
+      </div>
+    </div>
+    <div className="row">
       {phones} 
-
+    </div>
+    <div className="row" >
       <div className="col-md-4">
         <TextLabel label="JobTitle" value={person.get('jobTitle')}/>
       </div>
@@ -113,6 +119,7 @@ const Card = ({person}) =>  {
       <div className="col-md-12">
         <MarkdownText label="Note" value={person.get('note')}/>
       </div>
+    </div>
     </div>
   )
 }

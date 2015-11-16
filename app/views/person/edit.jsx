@@ -8,6 +8,7 @@ import {timeLabels} from '../helpers';
 import {Content} from '../layout';
 import personForm, {colors, avatarTypes} from '../../forms/person';
 import {personsStore as peopleStore, personsActions as peopleActions, sortMenu} from '../../models/persons';
+import {companiesStore, companiesActions} from '../../models/companies';
 import {Avatar, FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../views/widgets';
 
 @reactMixin.decorate(Lifecycle)
@@ -43,11 +44,17 @@ export class NewPersonApp extends Component {
   componentWillUnmount(){
     this.unsubscribeSubmit();
     this.unsubscribeState();
+    this.unsubscribeCompanies();
   }
 
   componentWillMount() {
     this.personForm = personForm();
 
+    companiesActions.load(false);
+
+    this.unsubscribeCompanies = companiesStore.listen( state => {
+      this.setState({companies: state.companies});
+    });
 
     this.unsubscribeSubmit = this.personForm.onSubmit( state => {
       peopleActions.create(this.personForm.toDocument(state));
@@ -75,6 +82,7 @@ export class NewPersonApp extends Component {
           submitBtn={submitBtn}
           cancelBtn={cancelBtn}
           goBack={this.goBack}
+          companies={this.state.companies}
           personForm={this.personForm}/>
       </div>
     )
@@ -113,14 +121,21 @@ export class EditPersonApp extends Component {
   }
 
   componentWillUnmount(){
-    if(this.unsubscribeSubmit) this.unsubscribeSubmit();
-    if(this.unsubscribeState) this.unsubscribeState();
+    this.unsubscribeSubmit();
+    this.unsubscribeState();
+    this.unsubscribeCompanies();
   }
 
   componentWillMount() {
     let personId = this.props.location.state.id;
+    companiesActions.load(false);
 
     this.personDocument = peopleStore.getById(personId).toJS();
+
+    this.unsubscribeCompanies = companiesStore.listen( state => {
+      this.setState({companies: state.companies});
+    });
+
     this.personForm = personForm(this.personDocument);
 
     this.unsubscribeSubmit = this.personForm.onSubmit( state => {
@@ -148,6 +163,7 @@ export class EditPersonApp extends Component {
           cancelBtn={cancelBtn}
           goBack={this.goBack}
           personDocument={this.personDocument} 
+          companies={this.state.companies}
           personForm={this.personForm}/>
       </div>
     )
@@ -155,6 +171,10 @@ export class EditPersonApp extends Component {
 }
 
 export default class EditContent extends Component {
+  companiesValues(){
+    if(!this.props.companies) return [];
+    return this.props.companies.map( company => { return {key: company.get('_id'), value: company.get('name')} } ).toJS();
+  }
 
   render(){
     if(!this.props.personForm) return false;
@@ -167,6 +187,9 @@ export default class EditContent extends Component {
         float: 'right',
       }
     }
+
+    const companyId = this.props.personForm.field('companyId');
+    companyId.schema.domainValue = this.companiesValues();
 
     return (
       <Content>
@@ -198,6 +221,9 @@ export default class EditContent extends Component {
                 </div>
                 <div className="col-md-1">
                   <StarField field={this.props.personForm.field('preferred')}/>
+                </div>
+                <div className="col-md-12">
+                  <SelectField field={companyId}/>
                 </div>
                 <div className="col-md-12">
                 <AvatarChooser field={this.props.personForm.field('avatar')}/>

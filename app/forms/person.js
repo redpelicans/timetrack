@@ -23,6 +23,9 @@ export default function person(document){
       type: "text",
       required: true,
     }),
+    new Field('companyId', {
+      label: 'Company',
+    }),
     new Field('preferred', {
       label: 'Preferred',
       defaultValue: false,

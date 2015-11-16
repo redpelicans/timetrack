@@ -2,12 +2,14 @@ import moment from 'moment';
 import Immutable from 'immutable';
 import Reflux from 'reflux';
 import {requestJson} from '../utils';
+import {companiesStore, companiesActions} from './companies';
 
 const actions = Reflux.createActions([
   "load", 
   "delete", 
   "create", 
   "update", 
+  "loadPartial", 
   "loadCompleted", 
   "filter", 
   "filterPreferred",
@@ -17,8 +19,8 @@ const actions = Reflux.createActions([
 
 
 const state = {
-  persons: Immutable.fromJS([]),
-  initialLoad: Immutable.fromJS([]),
+  source: Immutable.Map(),
+  persons: Immutable.List(),
   isLoading: false,
   filter: undefined,
   filterPreferred: false,
@@ -30,10 +32,9 @@ const state = {
 
 const Mixin = {
   getById: function(id){
-    const index = state.initialLoad.findIndex( p => p.get('_id') === id);
-    const person =  state.initialLoad.get(index);
+    const person =  state.source.get(id);
     return person;
-  }
+  },
 }
 
 const store = Reflux.createStore({
@@ -46,24 +47,40 @@ const store = Reflux.createStore({
     return state;
   },
 
-  onLoad: function(forceReload){
-    if(state.initialLoad.size && !forceReload){
-        actions.loadCompleted();
-    }else{;
-      console.log("start loading persons ...")
-      requestJson('/api/people', {message: 'Cannot load people, check your backend server'}).then( people => {
-          state.initialLoad = Immutable.fromJS(_.map(people, p => PersonMaker(p)));
-          console.log("end loading persons ...")
-          actions.loadCompleted();
-        });
+  init(){
+    this.joinTrailing(companiesActions.loadCompleted, actions.loadPartial, (res1, res2) => {
+      console.log("joinTrailing")
+      const companies = res1[0];
+      const people = res2[0];
+      let source = Immutable.Map();
+      _.each(people, person => {
+        const p = Immutable.fromJS(Maker(person));
+        source = source.set(person._id, updateCompany(p, companies));
+      });
+      actions.loadCompleted(source, companies);
+    });
+  },
 
+  onLoad: function(forceReload){
+    companiesActions.load();
+    if(state.source.size && !forceReload){
+        actions.loadCompleted(state.source, state.companies);
+    }else{
+      console.log("start loading persons ...")
       state.isLoading = true;
       this.trigger(state);
+      requestJson('/api/people', {message: 'Cannot load people, check your backend server'}).then( people => {
+          console.log("end loading persons ...")
+          //actions.loadPartial( Immutable.fromJS(_.chain(people).map( p => [p._id, Maker(p)]).value()) );
+          actions.loadPartial( people );
+        });
     }
   },
 
-  onLoadCompleted: function(){
-    state.persons = filterAndSortPersons();
+  onLoadCompleted: function(source, companies){
+    state.source = source;
+    state.companies = companies;
+    state.persons = filterAndSort();
     state.isLoading = false;
     this.trigger(state);
   },
@@ -73,8 +90,11 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson('/api/people', {verb: 'post', body: {person: person}, message: 'Cannot create person, check your backend server'})
       .then( person => {
-        state.initialLoad = state.initialLoad.push(Immutable.fromJS(PersonMaker(person)));
-        state.persons = filterAndSortPersons();
+        state.source = state.source.set(person._id,  updateCompany(
+          Immutable.fromJS(Maker(person)),
+          state.companies
+        ));
+        state.persons = filterAndSort();
         state.isLoading = false;
         this.trigger(state);
       });
@@ -85,8 +105,13 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson('/api/person', {verb: 'put', body: {person: _.assign(previous, updates)}, message: 'Cannot update person, check your backend server'})
       .then( person => {
-        const index = state.initialLoad.findIndex( p => p.get('_id') === person._id);
-        state.initialLoad = state.initialLoad.delete(index).push(Immutable.fromJS(PersonMaker(person)));
+        state.source = state.source.set( 
+          person._id, 
+          updateCompany(
+            Immutable.fromJS(Maker(person)),
+            state.companies
+          )
+        );
         state.isLoading = false;
         this.trigger(state);
       });
@@ -98,9 +123,8 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson(`/api/person/${id}`, {verb: 'delete', message: 'Cannot delete person, check your backend server'})
       .then( res => {
-        const index = state.initialLoad.findIndex( p => p.get('_id') === id);
-        state.initialLoad = state.initialLoad.delete( index );
-        state.persons = filterAndSortPersons();
+        state.source = state.source.delete( id );
+        state.persons = filterAndSort();
         state.isLoading = false;
         this.trigger(state);
       });
@@ -114,9 +138,8 @@ const store = Reflux.createStore({
     this.trigger(state);
 
     request.then( res => {
-      const index = state.initialLoad.findIndex( p => p.get('_id') === res._id);
-      state.initialLoad = state.initialLoad.update(index, p =>  p.set('preferred', body.preferred) );
-      state.persons = filterAndSortPersons();
+      state.source = state.source.update(res._id, p =>  p.set('preferred', body.preferred) );
+      state.persons = filterAndSort();
       state.isLoading = false;
       this.trigger(state);
     });
@@ -124,27 +147,28 @@ const store = Reflux.createStore({
 
   onFilterPreferred(filter){
     state.filterPreferred = filter;
-    state.persons = filterAndSortPersons();
+    state.persons = filterAndSort();
     this.trigger(state);
   },
 
   onFilter: function(filter){
     state.filter = filter;
-    state.persons = filterAndSortPersons();
+    state.persons = filterAndSort();
     this.trigger(state);
   },
 
   onSort: function(by){
     if(state.sort.by === by) state.sort.order = {asc: 'desc', desc: 'asc'}[state.sort.order];
     state.sort.by = by;
-    state.persons = filterAndSortPersons();
+    state.persons = filterAndSort();
     this.trigger(state);
   },
 });
 
-function filterAndSortPersons(){
-  const {initialLoad, filter, filterPreferred, sort} = state;
-  return initialLoad
+function filterAndSort(){
+  const {source, filter, filterPreferred, sort} = state;
+  return source
+    .toSetSeq()
     .filter(filterForSearch(filter))
     .filter(filterForPreferred(filterPreferred))
     .sort( (a,b) => sortByCond(a, b, sort.by, sort.order));
@@ -166,7 +190,7 @@ function filterForPreferred(filter){
 // TODO: add company
 function filterForSearch(filter=''){
   return  c => {
-    const name = c.get('name') || '';
+    const name = [c.get('name'), c.getIn(['company', 'name'])].join(" ");
     return name.toLowerCase().indexOf(filter) !== -1;
   }
 }
@@ -178,10 +202,15 @@ const sortMenu = [
   {key: 'updatedAt', label: 'Sort by updated date'},
 ];
 
-function PersonMaker(doc){
+function Maker(doc){
   doc.createdAt = moment(doc.createdAt || new Date(1967, 9, 1));
   doc.updatedAt = moment(doc.updatedAt || new Date(1967, 9, 1));
   return doc;
+}
+
+function updateCompany(person, companies){
+  if(!person.get('companyId')) return person;
+  return person.set('company', companies.get(person.get('companyId')));
 }
 
 export {sortMenu, store as personsStore, actions as personsActions};

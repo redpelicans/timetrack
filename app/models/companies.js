@@ -17,7 +17,7 @@ const actions = Reflux.createActions([
 
 const state = {
   companies: Immutable.fromJS([]),
-  initialLoad: Immutable.fromJS([]),
+  source: Immutable.Map(),
   isLoading: false,
   filter: undefined,
   filterPreferred: false,
@@ -29,8 +29,7 @@ const state = {
 
 const Mixin = {
   getById: function(id){
-    const index = state.initialLoad.findIndex( p => p.get('_id') === id);
-    const company =  state.initialLoad.get(index);
+    const company =  state.source.get(id);
     return company;
   }
 }
@@ -45,18 +44,18 @@ const store = Reflux.createStore({
     return state;
   },
 
-  onLoad: function(forceReload){
+  onLoad: function(forceReload=false){
     // TODO: test to understand refresh ...
     state.companies = Immutable.fromJS([]);
     this.trigger(state);
-    if(state.initialLoad.size && !forceReload){
-      actions.loadCompleted();
+    if(state.source.size && !forceReload){
+      actions.loadCompleted(state.source);
     }else{;
       console.log("start loading companies ...")
       requestJson('/api/companies', {message: 'Cannot load companies, check your backend server'}).then( companies => {
-          state.initialLoad = Immutable.fromJS(_.map(companies, p => Maker(p)));
+          state.source = Immutable.fromJS(_.chain(companies).map( p => [p._id, Maker(p)]).object().value());
           console.log("end loading companies ...")
-          actions.loadCompleted();
+          actions.loadCompleted(state.source);
         });
 
       state.isLoading = true;
@@ -75,7 +74,7 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson('/api/companies', {verb: 'post', body: {company: company}, message: 'Cannot create company, check your backend server'})
       .then( company => {
-        state.initialLoad = state.initialLoad.push(Immutable.fromJS(Maker(company)));
+        state.source = state.source.set(company._id, Immutable.fromJS(Maker(company)));
         state.companies = filterAndSort();
         state.isLoading = false;
         this.trigger(state);
@@ -87,8 +86,7 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson('/api/company', {verb: 'put', body: {company: _.assign(previous, updates)}, message: 'Cannot update company, check your backend server'})
       .then( company => {
-        const index = state.initialLoad.findIndex( p => p.get('_id') === company._id);
-        state.initialLoad = state.initialLoad.delete(index).push(Immutable.fromJS(Maker(company)));
+        state.source = state.source.set(company._id, companyImmutable.fromJS(Maker(company)));
         state.isLoading = false;
         this.trigger(state);
       });
@@ -100,8 +98,7 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson(`/api/company/${id}`, {verb: 'delete', message: 'Cannot delete company, check your backend server'})
       .then( res => {
-        const index = state.initialLoad.findIndex( p => p.get('_id') === id);
-        state.initialLoad = state.initialLoad.delete( index );
+        state.source = state.source.delete( id );
         state.companies = filterAndSort();
         state.isLoading = false;
         this.trigger(state);
@@ -116,8 +113,7 @@ const store = Reflux.createStore({
     this.trigger(state);
 
     request.then( res => {
-      const index = state.initialLoad.findIndex( p => p.get('_id') === res._id);
-      state.initialLoad = state.initialLoad.update(index, p =>  p.set('preferred', body.preferred) );
+      state.source = state.source.update(res._id, p =>  p.set('preferred', body.preferred) );
       state.companies = filterAndSort();
       state.isLoading = false;
       this.trigger(state);
@@ -145,8 +141,9 @@ const store = Reflux.createStore({
 });
 
 function filterAndSort(){
-  const {initialLoad, filter, filterPreferred, sort} = state;
-  return initialLoad
+  const {source, filter, filterPreferred, sort} = state;
+  return source
+    .toSetSeq()
     .filter(filterForSearch(filter))
     .filter(filterForPreferred(filterPreferred))
     .sort( (a,b) => sortByCond(a, b, sort.by, sort.order));

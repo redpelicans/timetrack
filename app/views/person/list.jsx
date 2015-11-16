@@ -176,6 +176,9 @@ class ListItem extends Component {
     const person = this.props.person;
     const avatar = <AvatarView obj={person.toJS()}/>;
     const isNew = person.get('isNew') ? <span className="label label-success">new</span> : <div/>
+    const companyName = person.getIn(['company', 'name']);
+    const companyLabel = companyName ? <div className="p-r"> <a href="#" onClick={this.handleView}>{companyName}</a> </div> : "";
+     
     return (
       <div style={styles.container} >
         <div style={styles.containerLeft}>
@@ -185,6 +188,7 @@ class ListItem extends Component {
           <div className="p-r">
             <a href="#" onClick={this.handleView}>{person.get('name')}</a>
           </div>
+          {companyLabel}
           <div className="p-r">
             {isNew}
           </div>

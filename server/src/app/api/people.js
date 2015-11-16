@@ -96,7 +96,7 @@ function preferred(isPreferred, person, cb){
 }
 
 function fromJson(json){
-  let attrs = ['prefix', 'firstName', 'lastName', 'preferred', 'jobTitle', 'jobArea', 'jobType', 'birthdate', 'note'];
+  let attrs = ['prefix', 'firstName', 'lastName', 'companyId', 'preferred', 'jobTitle', 'jobArea', 'jobType', 'birthdate', 'note'];
   let res = _.pick(json, attrs);
   if(json.phones){
     let attrs = ['label', 'phone'];
