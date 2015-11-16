@@ -113,6 +113,7 @@ const store = Reflux.createStore({
           )
         );
         state.isLoading = false;
+        state.persons = filterAndSort();
         this.trigger(state);
       });
   },
