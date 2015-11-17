@@ -7,43 +7,31 @@ import classNames from 'classnames';
 import {AvatarView, TextLabel, MarkdownText} from '../widgets';
 import {timeLabels} from '../helpers';
 import {Content } from '../layout';
+import {companiesAppStore, companiesAppActions, sortMenu} from '../../models/companies-app';
 import {companiesStore, companiesActions} from '../../models/companies';
-import {personsStore as peopleStore, personsActions as peopleActions} from '../../models/persons';
 
 export default class ViewCompanyApp extends Component {
   state = {};
 
-  static contextTypes = {
-    history: React.PropTypes.object.isRequired,
-  }
+  // static contextTypes = {
+  //   history: React.PropTypes.object.isRequired,
+  // }
 
   componentWillMount() {
     const companyId = this.props.location.query.id || this.props.location.state.id;
-    companiesActions.loadMany([companyId]);
+    companiesAppActions.load({ids: [companyId]});
 
-    this.unsubcribePeople = peopleStore.listen( state => {
-      if(this.state.company){
-        this.setState({
-          //people: _.chain(company.get('personIds')).map( id => [id, peopleStore.getById(id)] ).object().value()
-          people: {}
-        });
-      }
-    });
-
-    this.unsubcribeCompanies = companiesStore.listen( state => {
-      const company = companiesStore.getById(companyId);
-      if(company){
-        this.setState({company: company}, () => {
-          const personIds = company.get('personIds');
-          //peopleActions.loadMany(personIds);
-        })
-      }
+    this.unsubcribe = companiesAppStore.listen( state => {
+      const company = state.companies.get(companyId);
+      this.setState({
+        company: state.companies.get(companyId),
+        persons: state.persons
+      })
     });
   }
 
   componentWillUnmount(){
-    this.unsubcribeCompanies();
-    this.unsubcribePeople();
+    this.unsubcribe();
   }
 
   goBack = () => {
@@ -63,17 +51,24 @@ export default class ViewCompanyApp extends Component {
   }
 
   render(){
-    if(!this.state.company) return false;
+    if( !this.state.company) return false;
     return (
       <Content>
-        <Header company={this.state.company} goBack={this.goBack} onEdit={this.handleEdit} onDelete={this.handleDelete}/>
-        <Card company={this.state.company} people={this.state.people}/>
+        <Header 
+          company={this.state.company} 
+          goBack={this.goBack} 
+          onEdit={this.handleEdit} 
+          onDelete={this.handleDelete}/>
+        <Card 
+          company={this.state.company} 
+          persons={this.state.persons} 
+          history={this.props.history}/>
       </Content>
     )
   }
 }
 
-const Card = ({company, people}) =>  {
+const Card = ({company, persons, history}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -104,13 +99,17 @@ const Card = ({company, people}) =>  {
         <MarkdownText label="Note" value={company.get('note')}/>
       </div>
       <div className="col-md-12">
-        <Persons label="Contacts" people={people} company={company}/>
+        <Persons 
+          label="Contacts" 
+          persons={persons} 
+          company={company} 
+          history={history}/>
       </div>
     </div>
   )
 }
 
-const Persons = ({label, company, people}) => {
+const Persons = ({label, company, persons, history}) => {
   const styles = {
     person:{
       height: '60px',
@@ -130,7 +129,6 @@ const Persons = ({label, company, people}) => {
   const ids = company.get('personIds').toJS();
   if(!ids.length) return <div/>;
 
-  console.log(people)
   return <div/>
   // const persons = _.map(ids, id => {
   //   const person = peopleStore.getById(id);

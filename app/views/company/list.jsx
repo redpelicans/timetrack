@@ -7,7 +7,8 @@ import routes from '../../routes';
 import {Content, Header, Actions} from '../layout';
 import {AvatarView} from '../widgets';
 import classNames from 'classnames';
-import {companiesStore, companiesActions, sortMenu} from '../../models/companies';
+import {companiesAppStore, companiesAppActions, sortMenu} from '../../models/companies-app';
+import {companiesStore, companiesActions} from '../../models/companies';
 
 //@reactMixin.decorate(Reflux.connect(companies.store, "companiesStore"))
 export default class ListApp extends Component {
@@ -15,13 +16,10 @@ export default class ListApp extends Component {
   state = undefined;
 
   componentWillMount() {
-    companiesActions.load(false);
-  }
-
-  componentDidMount(){
-    this.unsubscribe = companiesStore.listen( state => {
-      this.setState(state);
+    this.unsubscribe = companiesAppStore.listen( state => {
+      this.setState({companies: state});
     });
+    companiesAppActions.load(false);
   }
 
   componentWillUnmount(){
@@ -29,11 +27,11 @@ export default class ListApp extends Component {
   }
 
   handleRefresh = () => {
-    companiesActions.load(true);
+    companiesAppActions.load(true);
   }
 
   handlePreferred = () => {
-    companiesActions.filterPreferred(!this.state.filterPreferred);
+    companiesAppActions.filterPreferred(!this.state.companies.filterPreferred);
   }
 
   handleTogglePreferred = (company) => {
@@ -41,11 +39,11 @@ export default class ListApp extends Component {
   }
 
   handleSort = (mode) => {
-    companiesActions.sort(mode)
+    companiesAppActions.sort(mode)
   }
 
   handleSearchFilter = (filter) => {
-    companiesActions.filter(filter);
+    companiesAppActions.filter(filter);
   }
 
   handleAdd = () => {
@@ -68,20 +66,26 @@ export default class ListApp extends Component {
   }
 
   render(){
-    if(!this.state) return false;
-    const leftIcon = this.state.isLoading ? <i className="fa fa-spinner fa-spin m-a"/> : <i className="fa fa-users m-a"/>;
-    const companies = this.state.companies;
+    if(!this.state || !this.state.companies) return false;
+    const leftIcon = this.state.companies.isLoading ? <i className="fa fa-spinner fa-spin m-a"/> : <i className="fa fa-users m-a"/>;
+    const companies = this.state.companies.data;
     return (
       <Content>
         <Header leftIcon={leftIcon} title={'Companies'}>
           <Actions>
-            <Filter filter={this.state.filter} onChange={this.handleSearchFilter}/>
-            <Sort sortCond={this.state.sort} onClick={this.handleSort}/>
-            <FilterPreferred starred={this.state.filterPreferred} onClick={this.handlePreferred}/>
+            <Filter filter={this.state.companies.filter} onChange={this.handleSearchFilter}/>
+            <Sort sortCond={this.state.companies.sort} onClick={this.handleSort}/>
+            <FilterPreferred starred={this.state.companies.filterPreferred} onClick={this.handlePreferred}/>
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
         </Header>
-        <List isLoading={this.state.isLoading} companies={companies} onView={this.handleView} onEdit={this.handleEdit} onTogglePreferred={this.handleTogglePreferred} onDelete={this.handleDelete}/>
+        <List 
+          isLoading={this.state.companies.isLoading} 
+          companies={companies} 
+          onView={this.handleView} 
+          onEdit={this.handleEdit} 
+          onTogglePreferred={this.handleTogglePreferred} 
+          onDelete={this.handleDelete}/>
         <AddButton onAdd ={this.handleAdd}/>
       </Content>
     )

@@ -7,49 +7,47 @@ import routes from '../../routes';
 import {Content, Header, Actions} from '../layout';
 import {AvatarView} from '../widgets';
 import classNames from 'classnames';
-import {personsStore as peopleStore, personsActions as peopleActions, sortMenu} from '../../models/persons';
+import {personsStore,  personsActions} from '../../models/persons';
+import {personsAppStore,  personsAppActions, sortMenu} from '../../models/persons-app';
 
 //@reactMixin.decorate(Reflux.connect(persons.store, "peopleStore"))
 export default class ListApp extends Component {
 
   state = undefined;
 
-  // static contextTypes = {
-  //   history: React.PropTypes.object.isRequired,
-  // }
-
   componentWillMount() {
-    peopleActions.load();
+    this.unsubscribe = personsAppStore.listen( state => {
+      this.setState({persons: state});
+    });
+
+    personsAppActions.load();
   }
 
   componentDidMount(){
-    this.unsubscribe = peopleStore.listen( state => {
-      this.setState(state);
-    });
-  }
+      }
 
   componentWillUnmount(){
     this.unsubscribe();
   }
 
   handleRefresh = () => {
-    peopleActions.load({forceReload: true});
+    personsAppActions.load({forceReload: true});
   }
 
   handlePreferred = () => {
-    peopleActions.filterPreferred(!this.state.filterPreferred);
+    personsAppActions.filterPreferred(!this.state.persons.filterPreferred);
   }
 
   handleTogglePreferred = (person) => {
-    peopleActions.togglePreferred(person);
+    personsActions.togglePreferred(person);
   }
 
   handleSort = (mode) => {
-    peopleActions.sort(mode)
+    personsAppActions.sort(mode)
   }
 
   handleSearchFilter = (filter) => {
-    peopleActions.filter(filter);
+    personsAppActions.filter(filter);
   }
 
   handleAdd = () => {
@@ -71,7 +69,7 @@ export default class ListApp extends Component {
   handleDelete = (person) => {
     const answer = confirm(`Are you sure to delete the contact "${person.get('name')}"`);
     if(answer){
-      peopleActions.delete(person);
+      personsActions.delete(person);
     }
   }
 
@@ -83,22 +81,24 @@ export default class ListApp extends Component {
   // }
 
   render(){
-    if(!this.state) return false;
-    const leftIcon = this.state.isLoading ? <i className="fa fa-spinner fa-spin m-a"/> : <i className="fa fa-users m-a"/>;
-    const persons = this.state.persons;
+    if(!this.state || !this.state.persons) return false;
+    const leftIcon = this.state.persons.isLoading ? <i className="fa fa-spinner fa-spin m-a"/> : <i className="fa fa-users m-a"/>;
+    const persons = this.state.persons.data;
+    const companies = this.state.persons.companies;
     return (
       <Content>
         <Header leftIcon={leftIcon} title={'People'}>
           <Actions>
-            <Filter filter={this.state.filter} onChange={this.handleSearchFilter}/>
-            <Sort sortCond={this.state.sort} onClick={this.handleSort}/>
-            <FilterPreferred starred={this.state.filterPreferred} onClick={this.handlePreferred}/>
+            <Filter filter={this.state.persons.filter} onChange={this.handleSearchFilter}/>
+            <Sort sortCond={this.state.persons.sort} onClick={this.handleSort}/>
+            <FilterPreferred starred={this.state.persons.filterPreferred} onClick={this.handlePreferred}/>
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
         </Header>
         <List 
-          isLoading={this.state.isLoading} 
+          isLoading={this.state.persons.isLoading} 
           persons={persons} 
+          companies={companies} 
           onView={this.handleView} 
           onViewCompany={this.handleViewCompany} 
           onEdit={this.handleEdit} 
@@ -137,6 +137,7 @@ class List extends Component {
         <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
           <ListItem 
             person={person} 
+            companies={this.props.companies} 
             onView={this.props.onView} 
             onViewCompany={this.props.onViewCompany} 
             onTogglePreferred={this.props.onTogglePreferred} 
@@ -181,9 +182,9 @@ class ListItem extends Component {
     }
     
     const companyUrl = () => {
-      const companyName = person.getIn(['company', 'name']);
-      if(companyName){
-        return <div style={styles.company} className="p-r"> <a href="#" onClick={this.handleViewCompany}>{companyName}</a> </div> ;
+      const company = this.props.companies.get(person.get('companyId'));
+      if(company){
+        return <div style={styles.company} className="p-r"> <a href="#" onClick={this.handleViewCompany}>{company.get('name')}</a> </div> ;
       }else{
         return '';
       }

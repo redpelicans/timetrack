@@ -7,7 +7,8 @@ import classNames from 'classnames';
 import {AvatarView, TextLabel, MarkdownText} from '../widgets';
 import {timeLabels} from '../helpers';
 import {Content } from '../layout';
-import {personsStore as peopleStore, personsActions as peopleActions} from '../../models/persons';
+import {personsStore,  personsActions} from '../../models/persons';
+import {personsAppStore,  personsAppActions, sortMenu} from '../../models/persons-app';
 
 export default class ViewPersonApp extends Component {
   state = {};
@@ -18,19 +19,18 @@ export default class ViewPersonApp extends Component {
 
   componentWillMount() {
     const personId = this.props.location.state.id;
-    peopleActions.loadMany([personId], {include: ['company']});
-    this.unsubcribe = peopleStore.listen( state => {
-      const person = peopleStore.getById(personId);
-      console.log(person.toJS())
-      this.setState({person: person});
+    personsAppActions.load({ids: [personId]});
+    this.unsubcribe = personsAppStore.listen( state => {
+      this.setState({
+        person: state.persons.get(personId),
+        companies: state.companies
+      });
     });
-
   }
 
   componentWillUnmount(){
     this.unsubcribe();
   }
-
 
   goBack = () => {
     this.props.history.goBack();
@@ -43,7 +43,7 @@ export default class ViewPersonApp extends Component {
   handleDelete = (person) => {
     let answer = confirm(`Are you sure to delete the person "${person.get('name')}"`);
     if(answer){
-      peopleActions.delete(person);
+      personsActions.delete(person);
       this.goBack();
     }
   }
@@ -52,14 +52,21 @@ export default class ViewPersonApp extends Component {
     if(!this.state.person) return false;
     return (
       <Content>
-        <Header person={this.state.person} goBack={this.goBack} onEdit={this.handleEdit} onDelete={this.handleDelete}/>
-        <Card person={this.state.person} history={this.props.history}/>
+        <Header 
+          person={this.state.person} 
+          goBack={this.goBack} 
+          onEdit={this.handleEdit} 
+          onDelete={this.handleDelete}/>
+        <Card 
+          person={this.state.person} 
+          companies={this.state.companies} 
+          history={this.props.history}/>
       </Content>
     )
   }
 }
 
-const Card = ({person, history}) =>  {
+const Card = ({person, history, companies}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -75,8 +82,20 @@ const Card = ({person, history}) =>  {
   });
 
   const birthdate = person.get('birthdate') ? moment(person.get('birthdate')).format('DD/MM/YY') : "";
-  const company = person.get('company');
-  const companyUrl = company ? history.createHref("/company/view?id=" + company.get('_id')) : '';
+
+  const company = () => {
+    const company = companies.get(person.get('companyId'));
+    if(!company) return <div/>
+    return (
+      <div className="col-md-12">
+        <TextLabel 
+          label="Company" 
+          url={history.createHref("/company/view?id=" + company.get('_id')) } 
+          value={company && company.get('name')}/>
+      </div>
+    )
+  }  
+
   return (
     <div>
     <div style={styles.container} className="row" >
@@ -92,9 +111,7 @@ const Card = ({person, history}) =>  {
       <div className="col-md-2">
         <TextLabel label="BirthDate" value={birthdate}/>
       </div>
-      <div className="col-md-12">
-        <TextLabel label="Company" url={companyUrl} value={person.getIn(['company', 'name'])}/>
-      </div>
+      {company()}
     </div>
     <div className="row">
       {phones} 
