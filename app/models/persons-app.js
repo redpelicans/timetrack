@@ -35,7 +35,7 @@ const store = Reflux.createStore({
 
   init: function(){
     this.joinTrailing(companiesActions.loadCompleted, personsActions.loadCompleted, (res1, res2) => {
-      console.log("personListStore loaded.")
+      console.log("personListAppStore loaded.")
       const companies = res1[0];
       const persons = res2[0];
       state.companies = companies;
@@ -53,6 +53,9 @@ const store = Reflux.createStore({
   },
 
   onLoad: function({forceReload=false, ids} = {}){
+    state.persons = Immutable.Map();
+    state.companies = Immutable.Map();
+    this.trigger(state);
     personsActions.load({forceReload: forceReload, ids: ids});
     companiesActions.load({forceReload: forceReload});
   },
@@ -92,8 +95,8 @@ function sortByCond(a, b, attr, order){
 }
 
 function sortBy(a, b, attr){
-  if( a.get(attr) === b.get(attr) ) return sortByCond(a,b, 'name', 'desc');
-  return a.get(attr) >= b.get(attr) ? 1 : -1;
+  if( a.get(attr) === b.get(attr) ) return attr !== 'name' ? sortByCond(a,b, 'name', 'desc') : 0;
+  return a.get(attr) > b.get(attr) ? 1 : -1;
 }
 
 function filterForPreferred(filter){

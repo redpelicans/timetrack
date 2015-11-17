@@ -58,7 +58,7 @@ const store = Reflux.createStore({
 
   onLoad: function({forceReload=false, ids} = {}){
     companiesActions.load({forceReload: forceReload, ids: ids});
-    personsActions.load({forceReload: forceReload, ids: ids});
+    personsActions.load();
   },
 
   onFilterPreferred(filter){
@@ -95,7 +95,7 @@ function sortByCond(a, b, attr, order){
 }
 
 function sortBy(a, b, attr){
-  if( a.get(attr) === b.get(attr) ) return sortByCond(a,b, 'name', 'desc');
+  if( a.get(attr) === b.get(attr) ) return attr !== 'name' ? sortByCond(a,b, 'name', 'desc') : 0;
   return a.get(attr) >= b.get(attr) ? 1 : -1;
 }
 

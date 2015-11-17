@@ -7,7 +7,8 @@ import classNames from 'classnames';
 import {timeLabels} from '../helpers';
 import {Content} from '../layout';
 import companyForm, {colors, avatarTypes} from '../../forms/company';
-import {companiesStore, companiesActions, sortMenu} from '../../models/companies';
+import {companiesAppStore, companiesAppActions} from '../../models/companies-app';
+import {companiesActions} from '../../models/companies';
 import {Avatar, FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../views/widgets';
 
 @reactMixin.decorate(Lifecycle)
@@ -48,7 +49,6 @@ export class NewCompanyApp extends Component {
   componentWillMount() {
     this.companyForm = companyForm();
 
-
     this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
       companiesActions.create(this.companyForm.toDocument(state));
       this.goBack(true);
@@ -85,10 +85,10 @@ export class NewCompanyApp extends Component {
 @reactMixin.decorate(Lifecycle)
 export class EditCompanyApp extends Component {
 
-  static contextTypes = {
-    history: React.PropTypes.object.isRequired,
-  }
-
+  // static contextTypes = {
+  //   history: React.PropTypes.object.isRequired,
+  // }
+  
   state = {
     forceLeave: false,
   }
@@ -120,12 +120,10 @@ export class EditCompanyApp extends Component {
 
   componentWillMount() {
     let companyId = this.props.location.state.id;
-    companiesActions.loadMany([companyId]);
-    //this.setState({companyId: companyId});
 
-    this.unsubscribeCompanies = companiesStore.listen( state => {
-      const company = companiesStore.getById(companyId);
-      if(company){
+    this.unsubscribeCompanies = companiesAppStore.listen( state => {
+      const company = state.companies.get(companyId);
+      if(company && !this.companyDocument){
         this.companyDocument = company.toJS();
         this.companyForm = companyForm(this.companyDocument);
 
@@ -142,6 +140,8 @@ export class EditCompanyApp extends Component {
         });
       }
     });
+
+    companiesAppActions.load({ids: [companyId]});
   }
 
   render(){
@@ -199,7 +199,7 @@ export default class EditContent extends Component {
                   <InputField field={this.props.companyForm.field('name')}/>
                 </div>
                 <div className="col-md-1">
-                  <StarField field={this.props.companyForm.field('starred')}/>
+                  <StarField field={this.props.companyForm.field('preferred')}/>
                 </div>
                 <div className="col-md-2">
                   <SelectField field={this.props.companyForm.field('type')}/>
@@ -343,7 +343,7 @@ class StarField extends Component{
   state = undefined;
 
   componentWillUnmount(){
-    this.unsubscribe();
+    if(this.unsubscribe) this.unsubscribe();
   }
 
   componentDidMount(){

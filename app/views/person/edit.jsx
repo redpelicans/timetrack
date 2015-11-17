@@ -7,8 +7,9 @@ import classNames from 'classnames';
 import {timeLabels} from '../helpers';
 import {Content} from '../layout';
 import personForm, {colors, avatarTypes} from '../../forms/person';
-import {personsStore as peopleStore, personsActions as peopleActions, sortMenu} from '../../models/persons';
-import {companiesStore, companiesActions} from '../../models/companies';
+import {personsStore,  personsActions} from '../../models/persons';
+import {companiesStore,  companiesActions} from '../../models/companies';
+import {personsAppStore,  personsAppActions} from '../../models/persons-app';
 import {Avatar, FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../views/widgets';
 
 @reactMixin.decorate(Lifecycle)
@@ -18,10 +19,10 @@ export class NewPersonApp extends Component {
     forceLeave: false,
   }
 
-  static contextTypes = {
-    history: React.PropTypes.object.isRequired,
-  }
-
+  // static contextTypes = {
+  //   history: React.PropTypes.object.isRequired,
+  // }
+  
   routerWillLeave = nextLocation => {
     if(!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving new person?";
     return true;
@@ -50,25 +51,23 @@ export class NewPersonApp extends Component {
   componentWillMount() {
     this.personForm = personForm();
 
-    companiesActions.load(false);
-
     this.unsubscribeCompanies = companiesStore.listen( state => {
-      this.setState({companies: state.companies});
+      this.setState({companies: state.data});
     });
 
     this.unsubscribeSubmit = this.personForm.onSubmit( state => {
-      peopleActions.create(this.personForm.toDocument(state));
+      personsActions.create(this.personForm.toDocument(state));
       this.goBack(true);
     });
 
     this.unsubscribeState = this.personForm.onValue( state => {
-      console.log(state)
       this.setState({
         canSubmit: state.canSubmit,
         hasBeenModified: state.hasBeenModified,
       });
     });
 
+    companiesActions.load();
   }
 
   render(){
@@ -123,29 +122,23 @@ export class EditPersonApp extends Component {
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
-    this.unsubscribeCompanies();
-    this.unsubscribePeople();
+    this.unsubscribePersons();
   }
 
   componentWillMount() {
     let personId = this.props.location.state.id;
-    peopleActions.loadMany([personId]);
-    this.setState({ personId: personId });
+    personsAppActions.load({ids: [personId]});
 
-    //companiesActions.load();
-
-    this.unsubscribeCompanies = companiesStore.listen( state => {
+    this.unsubscribePersons = personsAppStore.listen( state => {
+      console.log(state)
       this.setState({companies: state.companies});
-    });
-
-    this.unsubscribePeople = peopleStore.listen( state => {
-      const person = peopleStore.getById(personId);
-      if(person){
+      const person = state.persons.get(personId);
+      if(person && !this.personDocument){
         this.personDocument = person.toJS();
         this.personForm = personForm(this.personDocument);
 
         this.unsubscribeSubmit = this.personForm.onSubmit( state => {
-          peopleActions.update(this.personDocument, this.personForm.toDocument(state));
+          personsActions.update(this.personDocument, this.personForm.toDocument(state));
           this.goBack(true);
         });
 
@@ -183,7 +176,7 @@ export class EditPersonApp extends Component {
 export default class EditContent extends Component {
   companiesValues(){
     if(!this.props.companies) return [];
-    return this.props.companies.map( company => { return {key: company.get('_id'), value: company.get('name')} } ).toJS();
+    return _.map(this.props.companies.toJS(), company => { return {key: company._id, value: company.name} } );
   }
 
   render(){

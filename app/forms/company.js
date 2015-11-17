@@ -21,7 +21,7 @@ export default function company(document){
       ],
       required: true
     }),
-    new Field('starred', {
+    new Field('preferred', {
       label: 'Preferred',
       defaultValue: false,
       type: 'boolean',

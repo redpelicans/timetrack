@@ -27,7 +27,7 @@ export default class ListApp extends Component {
   }
 
   handleRefresh = () => {
-    companiesAppActions.load(true);
+    companiesAppActions.load({forceReload: true});
   }
 
   handlePreferred = () => {

@@ -26,23 +26,19 @@ const store = Reflux.createStore({
   },
 
   onLoad: function({forceReload=false, ids} = {}){
-    // TODO: test to understand refresh ...
-    state.data = Immutable.Map();
-    this.trigger(state);
-
     const objs = _.map(ids || [], id => state.data.get(id));
     let doRequest = forceReload || !_.all(objs) || !state.data.size;
 
     if(!doRequest) return actions.loadCompleted(state.data);
 
     console.log("start loading companies ...")
+    state.isLoading = true;
+    this.trigger(state);
     requestJson('/api/companies', {message: 'Cannot load companies, check your backend server'}).then( companies => {
         console.log("end loading companies ...")
         actions.loadCompleted(Immutable.fromJS(_.chain(companies).map( p => [p._id, Maker(p)]).object().value()));
       });
 
-    state.isLoading = true;
-    this.trigger(state);
   },
 
   onLoadCompleted: function(data){

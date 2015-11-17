@@ -13,7 +13,7 @@ import {personsAppStore,  personsAppActions, sortMenu} from '../../models/person
 //@reactMixin.decorate(Reflux.connect(persons.store, "peopleStore"))
 export default class ListApp extends Component {
 
-  state = undefined;
+  state = {};
 
   componentWillMount() {
     this.unsubscribe = personsAppStore.listen( state => {
@@ -81,7 +81,7 @@ export default class ListApp extends Component {
   // }
 
   render(){
-    if(!this.state || !this.state.persons) return false;
+    if(!this.state.persons) return false;
     const leftIcon = this.state.persons.isLoading ? <i className="fa fa-spinner fa-spin m-a"/> : <i className="fa fa-users m-a"/>;
     const persons = this.state.persons.data;
     const companies = this.state.persons.companies;
@@ -114,12 +114,13 @@ export default class ListApp extends Component {
 
 class List extends Component {
 
-  // shouldComponentUpdate(nextProps, nextState){
-  //   return this.props.model.people !== nextProps.model.people;
-  // }
+  shouldComponentUpdate(nextProps, nextState){
+    return this.props.persons !== nextProps.persons || this.props.companies !== nextProps.companies;
+  }
 
   render(){
-    if(!this.props.persons) return false;
+    if(!this.props.persons.size || !this.props.companies.size) return false;
+
     const styles={
       container:{
         marginTop: '50px',
@@ -158,7 +159,7 @@ class List extends Component {
 
 class ListItem extends Component {
   shouldComponentUpdate(nextProps, nextState){
-    return this.props.person !== nextProps.person;
+    return this.props.person !== nextProps.person || this.props.companies !== nextProps.companies;
   }
 
   handleView = (e) => {
@@ -166,12 +167,10 @@ class ListItem extends Component {
     e.preventDefault();
   }
 
-  handleViewCompany = (e) => {
-    this.props.onViewCompany(this.props.person.get('company'));
+  handleViewCompany = (company, e) => {
+    this.props.onViewCompany(company);
     e.preventDefault();
   }
-
-  
 
   render() {
     console.log("render PersonItem")
@@ -184,7 +183,7 @@ class ListItem extends Component {
     const companyUrl = () => {
       const company = this.props.companies.get(person.get('companyId'));
       if(company){
-        return <div style={styles.company} className="p-r"> <a href="#" onClick={this.handleViewCompany}>{company.get('name')}</a> </div> ;
+        return <div style={styles.company} className="p-r"> <a href="#" onClick={this.handleViewCompany.bind(null, company)}>{company.get('name')}</a> </div> ;
       }else{
         return '';
       }
