@@ -115,24 +115,32 @@ export class EditCompanyApp extends Component {
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
+    this.unsubscribeCompanies();
   }
 
   componentWillMount() {
     let companyId = this.props.location.state.id;
+    companiesActions.loadMany([companyId]);
+    //this.setState({companyId: companyId});
 
-    this.companyDocument = companiesStore.getById(companyId).toJS();
-    this.companyForm = companyForm(this.companyDocument);
+    this.unsubscribeCompanies = companiesStore.listen( state => {
+      const company = companiesStore.getById(companyId);
+      if(company){
+        this.companyDocument = company.toJS();
+        this.companyForm = companyForm(this.companyDocument);
 
-    this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
-      companiesActions.update(this.companyDocument, this.companyForm.toDocument(state));
-      this.goBack(true);
-    });
+        this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
+          companiesActions.update(this.companyDocument, this.companyForm.toDocument(state));
+          this.goBack(true);
+        });
 
-    this.unsubscribeState = this.companyForm.onValue( state => {
-      this.setState({
-        canSubmit: state.canSubmit,
-        hasBeenModified: state.hasBeenModified,
-      });
+        this.unsubscribeState = this.companyForm.onValue( state => {
+          this.setState({
+            canSubmit: state.canSubmit,
+            hasBeenModified: state.hasBeenModified,
+          });
+        });
+      }
     });
   }
 

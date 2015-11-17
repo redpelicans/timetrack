@@ -1,7 +1,7 @@
 import async from 'async';
 import moment from 'moment';
 import _ from 'lodash';
-import {Company} from '../../models';
+import {Person, Company} from '../../models';
 import {getRandomInt, ObjectId} from '../../helpers';
 
 
@@ -9,7 +9,7 @@ import {getRandomInt, ObjectId} from '../../helpers';
 export function init(app){
   app.get('/companies', function(req, res, next){
     async.waterfall([loadAll, computeBill], (err, companies) => {
-      if(err)return next(err);
+      if(err) return next(err);
       res.json(_.map(companies, p => Maker(p)));
     });
   });
@@ -88,20 +88,42 @@ function computeBill(companies, cb){
   async.map(companies, setBillElements, err => cb(err, companies));
 }
 
+function loadPersonsCompany(company, cb){
+  Person.findAll({companyId: company._id}, (err, persons) => {
+    if(err) return cb(err);
+    company.personIds = _.map(persons, p => p._id);
+    cb(null, company);
+  });
+}
+
 function loadAll(cb){
-  Company.findAll({isDeleted: {$ne: true}}, cb);
+  function load(cb){
+    Company.findAll({isDeleted: {$ne: true}}, cb);
+  }
+
+  function loadPersons(companies, cb){
+    async.map(companies, loadPersonsCompany, cb);
+  }
+
+  async.waterfall([load, loadPersons], cb);
 }
 
 function loadOne(id, cb){
+
+  function load(cb){
+    Company.findOne(query, (err, company) => {
+      if(err) return cb(err);
+      if(!company) return cb(new Error(`Unknown company: '${id}'`));
+      cb(null, company);
+    });
+  }
+
   let query = {
     _id: id,
     isDeleted: {$ne: true},
   };
-  Company.findOne(query, (err, company) => {
-    if(err)return next(err);
-    if(!company)return cb(new Error(`Unknown company: '${id}'`));
-    cb(null, company);
-  });
+
+  async.waterfall([load, loadPersonsCompany], cb);
 }
 
 function create(company, cb){

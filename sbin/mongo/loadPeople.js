@@ -1,10 +1,10 @@
 // run as: "babel-node --stage 0 loadClients.js"
 
 import mongobless from 'mongobless';
-import {Person} from '../../server/src/models';
+import {Company, Person} from '../../server/src/models';
 import async from 'async';
 import _ from 'lodash';
-import {makeFakeObject} from './util';
+import {getRandomInt, makeFakeObject} from './util';
 import params from '../../params';
 
 
@@ -36,7 +36,7 @@ const COUNT = 100;
 
 mongobless.connect(params.db, (err) => {
   if(err) throw err;
-  async.waterfall([generate, insert], (err, data) => {
+  async.waterfall([loadCompanies, generate, insert], (err, data) => {
     if(err){
       mongobless.close();
       throw err;
@@ -51,7 +51,18 @@ function insert(obj, cb){
   Person.collection.insertMany(obj, err => cb(err, obj));
 }
 
-function generate(cb){
-  cb(null, _.times(COUNT, makeFakeObject.bind(null, fakeSchema)));
+function loadCompanies(cb){
+  Company.findAll({isDeleted: {$ne: true}}, cb);
+}
+
+function generate(companies, cb){
+  function make(schema){
+    const obj = makeFakeObject(schema); 
+    const company = companies[getRandomInt(0, companies.length-1)];
+    obj.companyId = company._id;
+    return obj;
+  }
+
+  cb(null, _.times(COUNT, make.bind(null, fakeSchema)));
 }
 

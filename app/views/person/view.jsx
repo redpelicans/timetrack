@@ -18,23 +18,19 @@ export default class ViewPersonApp extends Component {
 
   componentWillMount() {
     const personId = this.props.location.state.id;
-    const person = peopleStore.getById(personId);
-    this.setState({
-      personId: personId,
-      person: person
+    peopleActions.loadMany([personId], {include: ['company']});
+    this.unsubcribe = peopleStore.listen( state => {
+      const person = peopleStore.getById(personId);
+      console.log(person.toJS())
+      this.setState({person: person});
     });
+
   }
 
   componentWillUnmount(){
     this.unsubcribe();
   }
 
-  componentDidMount(){
-    this.unsubcribe = peopleStore.listen( state => {
-      const person = peopleStore.getById(this.state.personId);
-      this.setState({person: person});
-    });
-  }
 
   goBack = () => {
     this.props.history.goBack();
@@ -57,13 +53,13 @@ export default class ViewPersonApp extends Component {
     return (
       <Content>
         <Header person={this.state.person} goBack={this.goBack} onEdit={this.handleEdit} onDelete={this.handleDelete}/>
-        <Card person={this.state.person}/>
+        <Card person={this.state.person} history={this.props.history}/>
       </Content>
     )
   }
 }
 
-const Card = ({person}) =>  {
+const Card = ({person, history}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -79,6 +75,8 @@ const Card = ({person}) =>  {
   });
 
   const birthdate = person.get('birthdate') ? moment(person.get('birthdate')).format('DD/MM/YY') : "";
+  const company = person.get('company');
+  const companyUrl = company ? history.createHref("/company/view?id=" + company.get('_id')) : '';
   return (
     <div>
     <div style={styles.container} className="row" >
@@ -95,7 +93,7 @@ const Card = ({person}) =>  {
         <TextLabel label="BirthDate" value={birthdate}/>
       </div>
       <div className="col-md-12">
-        <TextLabel label="Company" value={person.getIn(['company', 'name'])}/>
+        <TextLabel label="Company" url={companyUrl} value={person.getIn(['company', 'name'])}/>
       </div>
     </div>
     <div className="row">

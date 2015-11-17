@@ -7,7 +7,8 @@ import classNames from 'classnames';
 import {AvatarView, TextLabel, MarkdownText} from '../widgets';
 import {timeLabels} from '../helpers';
 import {Content } from '../layout';
-import {companiesStore, companiesActions, sortMenu} from '../../models/companies';
+import {companiesStore, companiesActions} from '../../models/companies';
+import {personsStore as peopleStore, personsActions as peopleActions} from '../../models/persons';
 
 export default class ViewCompanyApp extends Component {
   state = {};
@@ -17,23 +18,32 @@ export default class ViewCompanyApp extends Component {
   }
 
   componentWillMount() {
-    const companyId = this.props.location.state.id;
-    const company = companiesStore.getById(companyId);
-    this.setState({
-      companyId: companyId,
-      company: company
+    const companyId = this.props.location.query.id || this.props.location.state.id;
+    companiesActions.loadMany([companyId]);
+
+    this.unsubcribePeople = peopleStore.listen( state => {
+      if(this.state.company){
+        this.setState({
+          //people: _.chain(company.get('personIds')).map( id => [id, peopleStore.getById(id)] ).object().value()
+          people: {}
+        });
+      }
+    });
+
+    this.unsubcribeCompanies = companiesStore.listen( state => {
+      const company = companiesStore.getById(companyId);
+      if(company){
+        this.setState({company: company}, () => {
+          const personIds = company.get('personIds');
+          //peopleActions.loadMany(personIds);
+        })
+      }
     });
   }
 
   componentWillUnmount(){
-    this.unsubcribe();
-  }
-
-  componentDidMount(){
-    this.unsubcribe = companiesStore.listen( state => {
-      const company = companiesStore.getById(this.state.companyId);
-      this.setState({company: company});
-    });
+    this.unsubcribeCompanies();
+    this.unsubcribePeople();
   }
 
   goBack = () => {
@@ -57,13 +67,13 @@ export default class ViewCompanyApp extends Component {
     return (
       <Content>
         <Header company={this.state.company} goBack={this.goBack} onEdit={this.handleEdit} onDelete={this.handleDelete}/>
-        <Card company={this.state.company}/>
+        <Card company={this.state.company} people={this.state.people}/>
       </Content>
     )
   }
 }
 
-const Card = ({company}) =>  {
+const Card = ({company, people}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -76,7 +86,7 @@ const Card = ({company}) =>  {
         <TextLabel label="Type" value={company.get('type')}/>
       </div>
       <div className="col-md-8 ">
-        <TextLabel isUrl={true} label="website" value={company.get('website')}/>
+        <TextLabel url={company.get('website')} label="website" value={company.get('website')}/>
       </div>
       <div className="col-md-5">
         <TextLabel label="Street" value={company.getIn(['address', 'street'])}/>
@@ -93,8 +103,58 @@ const Card = ({company}) =>  {
       <div className="col-md-12">
         <MarkdownText label="Note" value={company.get('note')}/>
       </div>
+      <div className="col-md-12">
+        <Persons label="Contacts" people={people} company={company}/>
+      </div>
     </div>
   )
+}
+
+const Persons = ({label, company, people}) => {
+  const styles = {
+    person:{
+      height: '60px',
+    },
+    container:{
+      display: 'flex',
+      justifyContent: 'left',
+      alignItems: 'center',
+      padding: '5px',
+      height: '100%',
+    },
+  }
+
+  const handleView = () => {
+  }
+
+  const ids = company.get('personIds').toJS();
+  if(!ids.length) return <div/>;
+
+  console.log(people)
+  return <div/>
+  // const persons = _.map(ids, id => {
+  //   const person = peopleStore.getById(id);
+  //   const avatar = <AvatarView obj={person.toJS()}/>;
+  //   return (
+  //     <div style={styles.container} className="form-control col-md-4" key={id}>
+  //       <div className="p-r">
+  //         <a href="#" onClick={handleView}>{avatar}</a>
+  //       </div>
+  //       <div style={styles.name} className="p-r">
+  //         <a href="#" onClick={handleView}>{person.get('name')}</a>
+  //       </div>
+  //     </div>
+  //   )
+  // });
+  //
+  // return (
+  //   <fieldset className="form-group">
+  //     <label htmlFor={label}> {label} </label>
+  //     <div className="">
+  //       {persons}
+  //     </div>
+  //   </fieldset>
+  // )
 }
 
 const Phones = ({company}) => {

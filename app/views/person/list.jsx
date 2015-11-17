@@ -14,8 +14,12 @@ export default class ListApp extends Component {
 
   state = undefined;
 
+  // static contextTypes = {
+  //   history: React.PropTypes.object.isRequired,
+  // }
+
   componentWillMount() {
-    peopleActions.load(false);
+    peopleActions.load();
   }
 
   componentDidMount(){
@@ -29,7 +33,7 @@ export default class ListApp extends Component {
   }
 
   handleRefresh = () => {
-    peopleActions.load(true);
+    peopleActions.load({forceReload: true});
   }
 
   handlePreferred = () => {
@@ -60,6 +64,10 @@ export default class ListApp extends Component {
     this.props.history.pushState({id: person.get('_id')}, routes.viewperson.path);
   }
 
+  handleViewCompany = (company) => {
+    this.props.history.pushState({id: company.get('_id')}, routes.viewcompany.path);
+  }
+
   handleDelete = (person) => {
     const answer = confirm(`Are you sure to delete the contact "${person.get('name')}"`);
     if(answer){
@@ -88,7 +96,14 @@ export default class ListApp extends Component {
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
         </Header>
-        <List isLoading={this.state.isLoading} persons={persons} onView={this.handleView} onEdit={this.handleEdit} onTogglePreferred={this.handleTogglePreferred} onDelete={this.handleDelete}/>
+        <List 
+          isLoading={this.state.isLoading} 
+          persons={persons} 
+          onView={this.handleView} 
+          onViewCompany={this.handleViewCompany} 
+          onEdit={this.handleEdit} 
+          onTogglePreferred={this.handleTogglePreferred} 
+          onDelete={this.handleDelete}/>
         <AddButton onAdd ={this.handleAdd}/>
       </Content>
     )
@@ -120,7 +135,13 @@ class List extends Component {
     const data = this.props.persons.map(person => {
       return (
         <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <ListItem person={person} onView={this.props.onView} onTogglePreferred={this.props.onTogglePreferred} onEdit={this.props.onEdit} onDelete={this.props.onDelete}/>
+          <ListItem 
+            person={person} 
+            onView={this.props.onView} 
+            onViewCompany={this.props.onViewCompany} 
+            onTogglePreferred={this.props.onTogglePreferred} 
+            onEdit={this.props.onEdit} 
+            onDelete={this.props.onDelete}/>
         </div>
       )
     });
@@ -144,12 +165,28 @@ class ListItem extends Component {
     e.preventDefault();
   }
 
+  handleViewCompany = (e) => {
+    this.props.onViewCompany(this.props.person.get('company'));
+    e.preventDefault();
+  }
+
+  
+
   render() {
     console.log("render PersonItem")
     function phone(person){
       if(!person.phones || !person.phones.length) return '';
       const {label, phone} = person.phones[0];
       return `tel. ${label}: ${phone}`;
+    }
+    
+    const companyUrl = () => {
+      const companyName = person.getIn(['company', 'name']);
+      if(companyName){
+        return <div style={styles.company} className="p-r"> <a href="#" onClick={this.handleViewCompany}>{companyName}</a> </div> ;
+      }else{
+        return '';
+      }
     }
 
     const styles = {
@@ -170,14 +207,22 @@ class ListItem extends Component {
         justifyContent: 'right',
         alignItems: 'center',
         padding: '5px',
+      },
+      names:{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+      },
+      name:{
+      },
+      company:{
+        fontStyle: 'italic',
       }
     };
 
     const person = this.props.person;
     const avatar = <AvatarView obj={person.toJS()}/>;
     const isNew = person.get('isNew') ? <span className="label label-success">new</span> : <div/>
-    const companyName = person.getIn(['company', 'name']);
-    const companyLabel = companyName ? <div className="p-r"> <a href="#" onClick={this.handleView}>{companyName}</a> </div> : "";
      
     return (
       <div style={styles.container} >
@@ -185,10 +230,12 @@ class ListItem extends Component {
           <div className="p-r">
             <a href="#" onClick={this.handleView}>{avatar}</a>
           </div>
-          <div className="p-r">
-            <a href="#" onClick={this.handleView}>{person.get('name')}</a>
+          <div style={styles.names}>
+            <div style={styles.name} className="p-r">
+              <a href="#" onClick={this.handleView}>{person.get('name')}</a>
+            </div>
+            {companyUrl()}
           </div>
-          {companyLabel}
           <div className="p-r">
             {isNew}
           </div>

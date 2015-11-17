@@ -428,8 +428,8 @@ export class Avatar extends Component {
 
 }
 
-export const TextLabel = ({label, value, isUrl}) => {
-  const labelUrl = isUrl ? <a href={value}><i className="fa fa-external-link p-l"/></a> : "";
+export const TextLabel = ({label, value, url}) => {
+  const labelUrl = url ? <a href={url}><i className="fa fa-external-link p-l"/></a> : "";
   return(
     <fieldset className="form-group">
       <label htmlFor={label}> 
@@ -449,7 +449,7 @@ export const MarkdownText = ({label, value}) => {
       <label htmlFor={label}> 
         {label} 
       </label>
-      <div style={{height: '100%'}}className="form-control" id={label} dangerouslySetInnerHTML={text}/>
+      <div style={{height: '100%', minHeight: '36px'}}className="form-control" id={label} dangerouslySetInnerHTML={text}/>
     </fieldset>
   )
 }

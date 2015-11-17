@@ -121,37 +121,47 @@ export class EditPersonApp extends Component {
   }
 
   componentWillUnmount(){
-    this.unsubscribeSubmit();
-    this.unsubscribeState();
+    if(this.unsubscribeSubmit) this.unsubscribeSubmit();
+    if(this.unsubscribeState) this.unsubscribeState();
     this.unsubscribeCompanies();
+    this.unsubscribePeople();
   }
 
   componentWillMount() {
     let personId = this.props.location.state.id;
-    companiesActions.load(false);
+    peopleActions.loadMany([personId]);
+    this.setState({ personId: personId });
 
-    this.personDocument = peopleStore.getById(personId).toJS();
+    //companiesActions.load();
 
     this.unsubscribeCompanies = companiesStore.listen( state => {
       this.setState({companies: state.companies});
     });
 
-    this.personForm = personForm(this.personDocument);
+    this.unsubscribePeople = peopleStore.listen( state => {
+      const person = peopleStore.getById(personId);
+      if(person){
+        this.personDocument = person.toJS();
+        this.personForm = personForm(this.personDocument);
 
-    this.unsubscribeSubmit = this.personForm.onSubmit( state => {
-      peopleActions.update(this.personDocument, this.personForm.toDocument(state));
-      this.goBack(true);
-    });
+        this.unsubscribeSubmit = this.personForm.onSubmit( state => {
+          peopleActions.update(this.personDocument, this.personForm.toDocument(state));
+          this.goBack(true);
+        });
 
-    this.unsubscribeState = this.personForm.onValue( state => {
-      this.setState({
-        canSubmit: state.canSubmit,
-        hasBeenModified: state.hasBeenModified,
-      });
+        this.unsubscribeState = this.personForm.onValue( state => {
+          this.setState({
+            canSubmit: state.canSubmit,
+            hasBeenModified: state.hasBeenModified,
+          });
+        });
+      }
     });
   }
 
   render(){
+    if(!this.personDocument) return false;
+
     let submitBtn = <UpdateBtn onSubmit={this.handleSubmit} canSubmit={this.state.canSubmit && this.state.hasBeenModified}/>;
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>;
 

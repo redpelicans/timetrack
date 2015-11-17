@@ -6,6 +6,7 @@ import {companiesStore, companiesActions} from './companies';
 
 const actions = Reflux.createActions([
   "load", 
+  "loadMany", 
   "delete", 
   "create", 
   "update", 
@@ -49,7 +50,7 @@ const store = Reflux.createStore({
 
   init(){
     this.joinTrailing(companiesActions.loadCompleted, actions.loadPartial, (res1, res2) => {
-      console.log("joinTrailing")
+      console.log("joinTrailing between persons and companies")
       const companies = res1[0];
       const people = res2[0];
       let source = Immutable.Map();
@@ -61,8 +62,9 @@ const store = Reflux.createStore({
     });
   },
 
-  onLoad: function(forceReload){
-    companiesActions.load();
+  onLoad: function({forceReload=false, include=[]} = {}){
+    const loadCompany = _.contains(include, 'company');
+    if(loadCompany) companiesActions.load();
     if(state.source.size && !forceReload){
         actions.loadCompleted(state.source, state.companies);
     }else{
@@ -70,16 +72,36 @@ const store = Reflux.createStore({
       state.isLoading = true;
       this.trigger(state);
       requestJson('/api/people', {message: 'Cannot load people, check your backend server'}).then( people => {
+        console.log("end loading persons ...")
+        if(loadCompany) actions.loadPartial( people );
+        else actions.loadCompleted(Immutable.fromJS(_.chain(people).map( p => [p._id, Maker(p)]).object().value()));
+      });
+    }
+  },
+
+  onLoadMany: function(ids, {forceReload=false, include=[]} = {}){
+    const loadCompany = _.contains(include, 'company');
+    if(loadCompany) companiesActions.load();
+    const personIds = _.map(ids, id => state.source.get(id));
+    if( _.all(personIds) && !forceReload){
+        actions.loadCompleted(state.source, state.companies);
+    }else{
+      // TODO: should load only person with ids
+      console.log("start loading partial persons ...")
+      state.isLoading = true;
+      this.trigger(state);
+      requestJson('/api/people', {message: 'Cannot load people, check your backend server'}).then( people => {
           console.log("end loading persons ...")
-          //actions.loadPartial( Immutable.fromJS(_.chain(people).map( p => [p._id, Maker(p)]).value()) );
-          actions.loadPartial( people );
+          if(loadCompany) actions.loadPartial( people );
+          else actions.loadCompleted(Immutable.fromJS(_.chain(people).map( p => [p._id, Maker(p)]).object().value()));
         });
     }
   },
 
+
   onLoadCompleted: function(source, companies){
     state.source = source;
-    state.companies = companies;
+    if(companies) state.companies = companies;
     state.persons = filterAndSort();
     state.isLoading = false;
     this.trigger(state);

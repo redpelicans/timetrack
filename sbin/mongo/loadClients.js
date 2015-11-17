@@ -3,7 +3,7 @@
 import {Client} from '../server/src/models';
 import async from 'async';
 import _ from 'lodash';
-import {makeFakeObject} from './util';
+import {getRandomInt, makeFakeObject} from './util';
 
 
 const fakeSchema = {
@@ -30,7 +30,7 @@ const fakeSchema = {
   , note: 'lorem.paragraphs' 
 };
 
-const nb = 100;
+const COUNT = 100;
 
 mongobless.connect(params.db, (err) => {
   if(err) throw err;
@@ -45,11 +45,15 @@ mongobless.connect(params.db, (err) => {
   });
 });
 
+
 function insert(obj, cb){
   Client.collection.insertMany(obj, err => cb(err, obj));
 }
 
-function generate(cb){
-  cb(null, _.times(100, makeFakeObject.bind(null, fakeSchema)));
+function generate(companies, cb){
+  cb(null, _.times(COUNT, makeFakeObject.bind(null, fakeSchema)));
 }
+
+
+
 

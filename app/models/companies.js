@@ -5,6 +5,7 @@ import {requestJson} from '../utils';
 
 const actions = Reflux.createActions([
   "load", 
+  "loadMany", 
   "delete", 
   "create", 
   "update", 
@@ -44,11 +45,32 @@ const store = Reflux.createStore({
     return state;
   },
 
-  onLoad: function(forceReload=false){
+  onLoad: function({forceReload=false} = {}){
     // TODO: test to understand refresh ...
     state.companies = Immutable.fromJS([]);
     this.trigger(state);
     if(state.source.size && !forceReload){
+      actions.loadCompleted(state.source);
+    }else{;
+      console.log("start loading companies ...")
+      requestJson('/api/companies', {message: 'Cannot load companies, check your backend server'}).then( companies => {
+          state.source = Immutable.fromJS(_.chain(companies).map( p => [p._id, Maker(p)]).object().value());
+          console.log("end loading companies ...")
+          actions.loadCompleted(state.source);
+        });
+
+      state.isLoading = true;
+      this.trigger(state);
+    }
+  },
+
+  onLoadMany: function(ids, {forceReload=false} = {}){
+    // TODO: test to understand refresh ...
+    state.companies = Immutable.fromJS([]);
+    this.trigger(state);
+
+    const companyIds = _.map(ids, id => state.source.get(id));
+    if( _.all(companyIds) && !forceReload){
       actions.loadCompleted(state.source);
     }else{;
       console.log("start loading companies ...")
@@ -86,8 +108,9 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson('/api/company', {verb: 'put', body: {company: _.assign(previous, updates)}, message: 'Cannot update company, check your backend server'})
       .then( company => {
-        state.source = state.source.set(company._id, companyImmutable.fromJS(Maker(company)));
+        state.source = state.source.set(company._id, Immutable.fromJS(Maker(company)));
         state.isLoading = false;
+        state.companies = filterAndSort();
         this.trigger(state);
       });
   },
