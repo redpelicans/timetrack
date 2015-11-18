@@ -1,12 +1,13 @@
 import _ from 'lodash';
 import moment from 'moment';
+import classNames from 'classnames';
 import React, {Component} from 'react';
 import reactMixin from 'react-mixin';
 import Reflux from 'reflux';
 import routes from '../../routes';
 import {Content, Header, Actions} from '../layout';
-import {AvatarView} from '../widgets';
-import classNames from 'classnames';
+import {AvatarView, Edit, Preferred} from '../widgets';
+import {Delete} from './widgets';
 import {companiesAppStore, companiesAppActions, sortMenu} from '../../models/companies-app';
 import {companiesStore, companiesActions} from '../../models/companies';
 
@@ -61,7 +62,7 @@ export default class ListApp extends Component {
   handleDelete = (company) => {
     const answer = confirm(`Are you sure to delete the contact "${company.get('name')}"`);
     if(answer){
-      companiesActions.delete(company);
+      companiesActions.delete(company.toJS());
     }
   }
 
@@ -75,7 +76,7 @@ export default class ListApp extends Component {
           <Actions>
             <Filter filter={this.state.companies.filter} onChange={this.handleSearchFilter}/>
             <Sort sortCond={this.state.companies.sort} onClick={this.handleSort}/>
-            <FilterPreferred starred={this.state.companies.filterPreferred} onClick={this.handlePreferred}/>
+            <FilterPreferred preferred={this.state.companies.filterPreferred} onClick={this.handlePreferred}/>
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
         </Header>
@@ -113,7 +114,12 @@ class List extends Component {
     const data = this.props.companies.map(company => {
       return (
         <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <ListItem company={company} onView={this.props.onView} onTogglePreferred={this.props.onTogglePreferred} onEdit={this.props.onEdit} onDelete={this.props.onDelete}/>
+          <Company
+            company={company} 
+            onView={this.props.onView} 
+            onTogglePreferred={this.props.onTogglePreferred} 
+            onEdit={this.props.onEdit} 
+            onDelete={this.props.onDelete}/>
         </div>
       )
     });
@@ -127,7 +133,7 @@ class List extends Component {
 
 }
 
-class ListItem extends Component {
+class Company extends Component {
   shouldComponentUpdate(nextProps, nextState){
     return this.props.company !== nextProps.company;
   }
@@ -139,7 +145,7 @@ class ListItem extends Component {
 
   render() {
 
-    console.log("render CompanyItem")
+    console.log("render Company")
 
     function amount(value){
       if(!value) return;
@@ -209,67 +215,13 @@ class ListItem extends Component {
           </div>
         </div>
         <div style={styles.containerRight} href="#">
-          <Starred company={company} onTogglePreferred={this.props.onTogglePreferred}/>
-          <Edit company={company} onEdit={this.props.onEdit}/>
+          <Preferred obj={company} onTogglePreferred={this.props.onTogglePreferred}/>
+          <Edit obj={company} onEdit={this.props.onEdit}/>
           <Delete company={company} onDelete={this.props.onDelete}/>
         </div>
       </div>
     );
   }
-}
-
-const Edit = ({company, onEdit}) => {
-  const handleChange = (e) => {
-    onEdit(company);
-    e.preventDefault();
-  }
-
-  const style={
-    fontSize: '1.2rem',
-    color: 'grey',
-  };
-
-  return (
-    <a href="#" onClick={handleChange}>
-      <i style={style} className="iconButton fa fa-pencil m-r"/>
-    </a>
-  )
-}
-
-const Delete =({company, onDelete}) => {
-  const handleChange = (e) => {
-    onDelete(company);
-    e.preventDefault();
-  }
-
-  const style={
-    fontSize: '1.2rem',
-    color: 'grey',
-  };
-
-  return (
-    <a href="#" onClick={handleChange}>
-      <i style={style} className="iconButton fa fa-trash m-r"/>
-    </a>
-  )
-}
-
-const Starred = ({company, onTogglePreferred}) => {
-  const handleChange = (e) => {
-    onTogglePreferred(company);
-    e.preventDefault();
-  }
-
-  const style={
-    color: company.get('preferred') ? '#00BCD4' : 'grey',
-    fontSize: '1.2rem',
-  };
-
-  return (
-    <a href="#" onClick={handleChange}>
-      <i style={style} className="iconButton fa fa-star-o m-r"/>
-    </a>
-  )
 }
 
 class AddButton extends Component {
@@ -309,7 +261,6 @@ const Refresh =({onClick}) => {
 
   const style={
     fontSize: '1.5rem',
-    color: 'grey',
   }
 
   return (
@@ -335,7 +286,7 @@ const Filter =({filter, onChange}) => {
   )
 }
 
-const FilterPreferred =({starred, onClick}) => {
+const FilterPreferred =({preferred, onClick}) => {
   const handleChange = (e) => {
     onClick();
     e.preventDefault();
@@ -343,13 +294,17 @@ const FilterPreferred =({starred, onClick}) => {
 
   const style={
     fontSize: '1.5rem',
-    color: starred ? '#00BCD4' : 'grey',
   }
+
+  const classnames = classNames("iconButton star fa fa-star-o", {
+    preferred: preferred,
+  });
+
 
   return (
     <div className="p-a">
       <a href="#" onClick={handleChange} > 
-        <i style={style} className="iconButton fa fa-star-o"/>
+        <i style={style} className={classnames}/>
       </a>
     </div>
   )
@@ -370,7 +325,6 @@ const Sort =({sortCond, onClick}) => {
 
   const style={
     fontSize: '1.5rem',
-    color: 'grey',
   }
 
   const menu = _.map(sortMenu, item => {

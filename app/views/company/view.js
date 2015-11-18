@@ -4,11 +4,12 @@ import Remarkable from 'remarkable';
 import React, {Component} from 'react';
 import routes from '../../routes';
 import classNames from 'classnames';
-import {AvatarView, TextLabel, MarkdownText} from '../widgets';
+import {PersonPreview, AvatarView, AddPerson, Edit, Preferred, TextLabel, MarkdownText} from '../widgets';
 import {timeLabels} from '../helpers';
-import {Content } from '../layout';
-import {companiesAppStore, companiesAppActions, sortMenu} from '../../models/companies-app';
+import {Content} from '../layout';
+import {Delete} from './widgets';
 import {companiesStore, companiesActions} from '../../models/companies';
+import {personsStore, personsActions} from '../../models/persons';
 
 export default class ViewCompanyApp extends Component {
   state = {};
@@ -19,19 +20,22 @@ export default class ViewCompanyApp extends Component {
 
   componentWillMount() {
     const companyId = this.props.location.query.id || this.props.location.state.id;
-    companiesAppActions.load({ids: [companyId]});
+    companiesActions.load({ids: [companyId]});
 
-    this.unsubcribe = companiesAppStore.listen( state => {
-      const company = state.companies.get(companyId);
-      this.setState({
-        company: state.companies.get(companyId),
-        persons: state.persons
-      })
+    this.unsubcribeCompanies = companiesStore.listen( companies => {
+      const company = companies.data.get(companyId);
+      this.setState({ company: companies.data.get(companyId) });
+      if(company) personsActions.load({ids: company.personsIds});
+    });
+
+    this.unsubcribePersons = personsStore.listen( persons => {
+      this.setState({ persons: persons.data })
     });
   }
 
   componentWillUnmount(){
-    this.unsubcribe();
+    this.unsubcribeCompanies();
+    this.unsubcribePersons();
   }
 
   goBack = () => {
@@ -45,30 +49,57 @@ export default class ViewCompanyApp extends Component {
   handleDelete = (company) => {
     let answer = confirm(`Are you sure to delete the company "${company.get('name')}"`);
     if(answer){
-      companiesActions.delete(company);
+      companiesActions.delete(company.toJS());
       this.goBack();
     }
   }
 
+  handleTogglePreferredPerson = (person) => {
+    personsActions.togglePreferred(person);
+  }
+
+  handleEditPerson = (person) => {
+    this.props.history.pushState({id: person.get('_id')}, routes.editperson.path);
+  }
+
+  handleViewPerson = (person) => {
+    this.props.history.pushState({id: person.get('_id')}, routes.viewperson.path);
+  }
+
+  handleDeletePerson = (person) => {
+    const answer = confirm(`Are you sure to delete the contact "${person.get('name')}"`);
+    if(answer){
+      personsActions.delete(person.toJS());
+    }
+  }
+
+  handleAddPerson = (company) => {
+    this.props.history.pushState({companyId: company.get('_id')}, routes.newperson.path);
+  }
+
   render(){
-    if( !this.state.company) return false;
+    if( !this.state.company || !this.state.persons) return false;
     return (
       <Content>
         <Header 
           company={this.state.company} 
           goBack={this.goBack} 
           onEdit={this.handleEdit} 
+          onAddPerson={this.handleAddPerson} 
           onDelete={this.handleDelete}/>
         <Card 
           company={this.state.company} 
           persons={this.state.persons} 
-          history={this.props.history}/>
+          onViewPerson={this.handleViewPerson}
+          onTogglePreferredPerson={this.handleTogglePreferredPerson}
+          onEditPerson={this.handleEditPerson}
+          onDeletePerson={this.handleDeletePerson}/>
       </Content>
     )
   }
 }
 
-const Card = ({company, persons, history}) =>  {
+const Card = ({company, persons, onViewPerson, onTogglePreferredPerson, onEditPerson, onDeletePerson}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -102,64 +133,55 @@ const Card = ({company, persons, history}) =>  {
         <Persons 
           label="Contacts" 
           persons={persons} 
-          company={company} 
-          history={history}/>
+          company={company}
+          onView={onViewPerson} 
+          onTogglePreferred={onTogglePreferredPerson}
+          onEdit={onEditPerson}
+          onDelete={onDeletePerson}/>
       </div>
     </div>
   )
 }
 
-const Persons = ({label, company, persons, history}) => {
-  const styles = {
-    person:{
-      height: '60px',
-    },
+const Persons = ({label, company, persons, onView, onTogglePreferred, onEdit, onDelete}) => {
+ const styles={
     container:{
-      display: 'flex',
-      justifyContent: 'left',
-      alignItems: 'center',
-      padding: '5px',
-      height: '100%',
+      marginBottom: '50px',
+      marginLeft: 'auto',
+      marginRight: 'auto',
     },
-  }
-
-  const handleView = () => {
-  }
+    item:{
+      height: '80px',
+    }
+  };
 
   const ids = company.get('personIds').toJS();
-  if(!ids.length) return <div/>;
+  const data = _.chain(ids).map(id => persons.get(id)).compact().map( person => {
+    return (
+      <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
+        <PersonPreview
+          person={person} 
+          onView={onView} 
+          onTogglePreferred={onTogglePreferred} 
+          onEdit={onEdit} 
+          onDelete={onDelete}/>
+      </div>
+      )
+    }).value();
 
-  return <div/>
-  // const persons = _.map(ids, id => {
-  //   const person = peopleStore.getById(id);
-  //   const avatar = <AvatarView obj={person.toJS()}/>;
-  //   return (
-  //     <div style={styles.container} className="form-control col-md-4" key={id}>
-  //       <div className="p-r">
-  //         <a href="#" onClick={handleView}>{avatar}</a>
-  //       </div>
-  //       <div style={styles.name} className="p-r">
-  //         <a href="#" onClick={handleView}>{person.get('name')}</a>
-  //       </div>
-  //     </div>
-  //   )
-  // });
-  //
-  // return (
-  //   <fieldset className="form-group">
-  //     <label htmlFor={label}> {label} </label>
-  //     <div className="">
-  //       {persons}
-  //     </div>
-  //   </fieldset>
-  // )
+  if(!data.length) return <div/>;
+
+  return (
+    <fieldset className="form-group">
+      <label> {label} </label>
+      <div className="row" style={styles.container}>
+        {data}
+      </div>
+    </fieldset>
+  )
 }
 
-const Phones = ({company}) => {
-  return render.length ? render : <div/>;
-}
-
-const Header = ({company, goBack, onEdit, onDelete}) => {
+const Header = ({company, goBack, onEdit, onDelete, onAddPerson}) => {
   const avatar = <AvatarView obj={company.toJS()}/>;
   const styles={
     container:{
@@ -212,12 +234,11 @@ const Header = ({company, goBack, onEdit, onDelete}) => {
           <div style={styles.name} className="m-r">
             {company.get('name')}
           </div>
-          <div>
-            <i style={styles.perferred} className="fa fa-star-o m-r"/>
-          </div>
+          <Preferred obj={company}/>
         </div>
         <div style={styles.right}>
-          <Edit company={company} onEdit={onEdit}/>
+          <AddPerson company={company} onAdd={onAddPerson}/>
+          <Edit obj={company} onEdit={onEdit}/>
           <Delete company={company} onDelete={onDelete}/>
         </div>
       </div>
@@ -228,41 +249,3 @@ const Header = ({company, goBack, onEdit, onDelete}) => {
     </div>
   )
 }
-
-const Edit = ({company, onEdit}) => {
-  const handleChange = (e) => {
-    onEdit(company);
-    e.preventDefault();
-  }
-
-  let style={
-    fontSize: '1.2rem',
-    color: 'grey',
-  };
-
-  return (
-    <a href="#" onClick={handleChange}>
-      <i style={style} className="iconButton fa fa-pencil m-r"/>
-    </a>
-  )
-}
-
-const Delete =({company, onDelete}) => {
-  const handleChange = (e) => {
-    onDelete(company);
-    e.preventDefault();
-  }
-
-  let style={
-    fontSize: '1.2rem',
-    color: 'grey',
-  };
-
-  return (
-    <a href="#" onClick={handleChange}>
-      <i style={style} className="iconButton fa fa-trash m-r"/>
-    </a>
-  )
-}
-
-

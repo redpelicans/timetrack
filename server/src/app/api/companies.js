@@ -8,7 +8,8 @@ import {getRandomInt, ObjectId} from '../../helpers';
 
 export function init(app){
   app.get('/companies', function(req, res, next){
-    async.waterfall([loadAll, computeBill], (err, companies) => {
+    const ids = _.map(req.query.ids, id => ObjectId(id));
+    async.waterfall([loadAll.bind(null, ids), computeBill], (err, companies) => {
       if(err) return next(err);
       res.json(_.map(companies, p => Maker(p)));
     });
@@ -89,16 +90,22 @@ function computeBill(companies, cb){
 }
 
 function loadPersonsCompany(company, cb){
-  Person.findAll({companyId: company._id}, (err, persons) => {
+  const query = {
+    companyId: company._id,
+    isDeleted: {$ne: true}
+  };
+  Person.findAll(query, (err, persons) => {
     if(err) return cb(err);
     company.personIds = _.map(persons, p => p._id);
     cb(null, company);
   });
 }
 
-function loadAll(cb){
+function loadAll(ids, cb){
   function load(cb){
-    Company.findAll({isDeleted: {$ne: true}}, cb);
+    const query = { isDeleted: {$ne: true}};
+    if(ids.length) query._id = {$in: ids};
+    Company.findAll(query, cb);
   }
 
   function loadPersons(companies, cb){

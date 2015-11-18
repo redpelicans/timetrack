@@ -5,7 +5,7 @@ import reactMixin from 'react-mixin';
 import Reflux from 'reflux';
 import routes from '../../routes';
 import {Content, Header, Actions} from '../layout';
-import {AvatarView} from '../widgets';
+import {PersonPreview, Preferred, Delete, Edit} from '../widgets';
 import classNames from 'classnames';
 import {personsStore,  personsActions} from '../../models/persons';
 import {personsAppStore,  personsAppActions, sortMenu} from '../../models/persons-app';
@@ -38,10 +38,6 @@ export default class ListApp extends Component {
     personsAppActions.filterPreferred(!this.state.persons.filterPreferred);
   }
 
-  handleTogglePreferred = (person) => {
-    personsActions.togglePreferred(person);
-  }
-
   handleSort = (mode) => {
     personsAppActions.sort(mode)
   }
@@ -54,6 +50,10 @@ export default class ListApp extends Component {
     this.props.history.pushState(null, routes.newperson.path);
   }
 
+  handleTogglePreferred = (person) => {
+    personsActions.togglePreferred(person);
+  }
+
   handleEdit = (person) => {
     this.props.history.pushState({id: person.get('_id')}, routes.editperson.path);
   }
@@ -62,15 +62,15 @@ export default class ListApp extends Component {
     this.props.history.pushState({id: person.get('_id')}, routes.viewperson.path);
   }
 
-  handleViewCompany = (company) => {
-    this.props.history.pushState({id: company.get('_id')}, routes.viewcompany.path);
-  }
-
   handleDelete = (person) => {
     const answer = confirm(`Are you sure to delete the contact "${person.get('name')}"`);
     if(answer){
-      personsActions.delete(person);
+      personsActions.delete(person.toJS());
     }
+  }
+
+  handleViewCompany = (company) => {
+    this.props.history.pushState({id: company.get('_id')}, routes.viewcompany.path);
   }
 
   // shouldComponentUpdate(nextProps, nextState){
@@ -91,12 +91,11 @@ export default class ListApp extends Component {
           <Actions>
             <Filter filter={this.state.persons.filter} onChange={this.handleSearchFilter}/>
             <Sort sortCond={this.state.persons.sort} onClick={this.handleSort}/>
-            <FilterPreferred starred={this.state.persons.filterPreferred} onClick={this.handlePreferred}/>
+            <FilterPreferred preferred={this.state.persons.filterPreferred} onClick={this.handlePreferred}/>
             <Refresh onClick={this.handleRefresh}/>
           </Actions>
         </Header>
         <List 
-          isLoading={this.state.persons.isLoading} 
           persons={persons} 
           companies={companies} 
           onView={this.handleView} 
@@ -136,9 +135,9 @@ class List extends Component {
     const data = this.props.persons.map(person => {
       return (
         <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <ListItem 
+          <PersonPreview
             person={person} 
-            companies={this.props.companies} 
+            company={this.props.companies.get(person.get('companyId'))} 
             onView={this.props.onView} 
             onViewCompany={this.props.onViewCompany} 
             onTogglePreferred={this.props.onTogglePreferred} 
@@ -155,153 +154,6 @@ class List extends Component {
     )
   }
 
-}
-
-class ListItem extends Component {
-  shouldComponentUpdate(nextProps, nextState){
-    return this.props.person !== nextProps.person || this.props.companies !== nextProps.companies;
-  }
-
-  handleView = (e) => {
-    this.props.onView(this.props.person);
-    e.preventDefault();
-  }
-
-  handleViewCompany = (company, e) => {
-    this.props.onViewCompany(company);
-    e.preventDefault();
-  }
-
-  render() {
-    console.log("render PersonItem")
-    function phone(person){
-      if(!person.phones || !person.phones.length) return '';
-      const {label, phone} = person.phones[0];
-      return `tel. ${label}: ${phone}`;
-    }
-    
-    const companyUrl = () => {
-      const company = this.props.companies.get(person.get('companyId'));
-      if(company){
-        return <div style={styles.company} className="p-r"> <a href="#" onClick={this.handleViewCompany.bind(null, company)}>{company.get('name')}</a> </div> ;
-      }else{
-        return '';
-      }
-    }
-
-    const styles = {
-      container:{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        height: '100%',
-      },
-      containerLeft:{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'left',
-        padding: '5px',
-      },
-      containerRight:{
-        display: 'flex',
-        justifyContent: 'right',
-        alignItems: 'center',
-        padding: '5px',
-      },
-      names:{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-      },
-      name:{
-      },
-      company:{
-        fontStyle: 'italic',
-      }
-    };
-
-    const person = this.props.person;
-    const avatar = <AvatarView obj={person.toJS()}/>;
-    const isNew = person.get('isNew') ? <span className="label label-success">new</span> : <div/>
-     
-    return (
-      <div style={styles.container} >
-        <div style={styles.containerLeft}>
-          <div className="p-r">
-            <a href="#" onClick={this.handleView}>{avatar}</a>
-          </div>
-          <div style={styles.names}>
-            <div style={styles.name} className="p-r">
-              <a href="#" onClick={this.handleView}>{person.get('name')}</a>
-            </div>
-            {companyUrl()}
-          </div>
-          <div className="p-r">
-            {isNew}
-          </div>
-        </div>
-        <div style={styles.containerRight} href="#">
-          <Starred person={person} onTogglePreferred={this.props.onTogglePreferred}/>
-          <Edit person={person} onEdit={this.props.onEdit}/>
-          <Delete person={person} onDelete={this.props.onDelete}/>
-        </div>
-      </div>
-    );
-  }
-}
-
-const Edit = ({person, onEdit}) => {
-  const handleChange = (e) => {
-    onEdit(person);
-    e.preventDefault();
-  }
-
-  const style={
-    fontSize: '1.2rem',
-    color: 'grey',
-  };
-
-  return (
-    <a href="#" onClick={handleChange}>
-      <i style={style} className="iconButton fa fa-pencil m-r"/>
-    </a>
-  )
-}
-
-const Delete =({person, onDelete}) => {
-  const handleChange = (e) => {
-    onDelete(person);
-    e.preventDefault();
-  }
-
-  const style={
-    fontSize: '1.2rem',
-    color: 'grey',
-  };
-
-  return (
-    <a href="#" onClick={handleChange}>
-      <i style={style} className="iconButton fa fa-trash m-r"/>
-    </a>
-  )
-}
-
-const Starred = ({person, onTogglePreferred}) => {
-  const handleChange = (e) => {
-    onTogglePreferred(person);
-    e.preventDefault();
-  }
-
-  const style={
-    color: person.get('preferred') ? '#00BCD4' : 'grey',
-    fontSize: '1.2rem',
-  };
-
-  return (
-    <a href="#" onClick={handleChange}>
-      <i style={style} className="iconButton fa fa-star-o m-r"/>
-    </a>
-  )
 }
 
 class AddButton extends Component {
@@ -341,7 +193,6 @@ const Refresh =({onClick}) => {
 
   const style={
     fontSize: '1.5rem',
-    color: 'grey',
   }
 
   return (
@@ -367,7 +218,7 @@ const Filter =({filter, onChange}) => {
   )
 }
 
-const FilterPreferred =({starred, onClick}) => {
+const FilterPreferred =({preferred, onClick}) => {
   const handleChange = (e) => {
     onClick();
     e.preventDefault();
@@ -375,7 +226,7 @@ const FilterPreferred =({starred, onClick}) => {
 
   const style={
     fontSize: '1.5rem',
-    color: starred ? '#00BCD4' : 'grey',
+    color: preferred ? '#00BCD4' : 'grey',
   }
 
   return (
@@ -402,7 +253,6 @@ const Sort =({sortCond, onClick}) => {
 
   const style={
     fontSize: '1.5rem',
-    color: 'grey',
   }
 
   const menu = _.map(sortMenu, item => {

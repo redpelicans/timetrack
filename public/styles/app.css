@@ -38,9 +38,32 @@ a:hover {
   text-decoration: none;
 }
 
-.iconButton:hover{
-  color: white !important;
+.iconButton {
+  font-size: 1.2rem;
+  color: grey;
 }
+
+.iconButton.star.preferred {
+  color: #00BCD4;
+}
+
+.iconButton.star.preferred:hover {
+  color: #00BCD4;
+}
+
+.iconButton.disable {
+  font-size: 1.2rem;
+  color: rgba(128, 128, 128, 0.21);
+}
+
+.iconButton:hover{
+  color: white;
+}
+
+.iconButton.disable:hover {
+  color: rgba(128, 128, 128, 0.21);
+}
+
 
 img {
   border: 0;

@@ -105,7 +105,8 @@ function filterForPreferred(filter){
 
 function filterForSearch(filter=''){
   return  p => {
-    const name = [p.get('name'), state.companies.get(p.get('companyId'))].join( ' ') ;
+    const company = state.companies.get(p.get('companyId'));
+    const name = [p.get('name'), company && company.get('name')].join( ' ') ;
     return name.toLowerCase().indexOf(filter) !== -1;
   }
 }

@@ -454,4 +454,158 @@ export const MarkdownText = ({label, value}) => {
   )
 }
 
+export const Edit = ({obj, onEdit}) => {
+  const handleChange = (e) => {
+    onEdit(obj);
+    e.preventDefault();
+  }
+
+  return (
+    <a href="#" onClick={handleChange}>
+      <i className="iconButton fa fa-pencil m-r"/>
+    </a>
+  )
+}
+
+export const AddPerson =({company, onAdd}) => {
+  const handleChange = (e) => {
+    onAdd(company);
+    e.preventDefault();
+  }
+
+  return (
+    <a href="#" onClick={handleChange}>
+      <i className="iconButton fa fa-user-plus m-r"/>
+    </a>
+  )
+}
+
+
+export const Delete =({obj, onDelete}) => {
+  const handleChange = (e) => {
+    onDelete(obj);
+    e.preventDefault();
+  }
+
+  return (
+    <a href="#" onClick={handleChange}>
+      <i className="iconButton fa fa-trash m-r"/>
+    </a>
+  )
+}
+
+export const Preferred = ({obj, onTogglePreferred}) => {
+  const handleChange = (e) => {
+    onTogglePreferred(obj);
+    e.preventDefault();
+  }
+
+  const classnames = classNames("iconButton star fa fa-star-o m-r", {
+    preferred: obj.get('preferred'),
+  });
+
+  if(onTogglePreferred){
+    return (
+      <a href="#" onClick={handleChange}>
+        <i className={classnames}/>
+      </a>
+    )
+  }else{
+    return (
+      <i className={classnames}/>
+    )
+
+  }
+}
+
+export class PersonPreview extends Component {
+  shouldComponentUpdate(nextProps, nextState){
+    return this.props.person !== nextProps.person || this.props.company !== nextProps.company;
+  }
+
+  handleView = (e) => {
+    this.props.onView(this.props.person);
+    e.preventDefault();
+  }
+
+  handleViewCompany = (company, e) => {
+    this.props.onViewCompany(company);
+    e.preventDefault();
+  }
+
+  render() {
+    console.log("render Person")
+    function phone(person){
+      if(!person.phones || !person.phones.length) return '';
+      const {label, phone} = person.phones[0];
+      return `tel. ${label}: ${phone}`;
+    }
+    
+    const company = () => {
+      const company = this.props.company;
+      if(!company) return '';
+      return <div style={styles.company} className="p-r"> <a href="#" onClick={this.handleViewCompany.bind(null, company)}>{company.get('name')}</a> </div> ;
+    }
+
+    const styles = {
+      container:{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        height: '100%',
+      },
+      containerLeft:{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'left',
+        padding: '5px',
+      },
+      containerRight:{
+        display: 'flex',
+        justifyContent: 'right',
+        alignItems: 'center',
+        padding: '5px',
+      },
+      names:{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+      },
+      name:{
+      },
+      company:{
+        fontStyle: 'italic',
+      }
+    };
+
+    const person = this.props.person;
+    const avatar = <AvatarView obj={person.toJS()}/>;
+    const isNew = person.get('isNew') ? <span className="label label-success">new</span> : <div/>
+     
+    return (
+      <div style={styles.container} >
+        <div style={styles.containerLeft}>
+          <div className="p-r">
+            <a href="#" onClick={this.handleView}>{avatar}</a>
+          </div>
+          <div style={styles.names}>
+            <div style={styles.name} className="p-r">
+              <a href="#" onClick={this.handleView}>{person.get('name')}</a>
+            </div>
+            {company()}
+          </div>
+          <div className="p-r">
+            {isNew}
+          </div>
+        </div>
+        <div style={styles.containerRight} href="#">
+          <Preferred obj={person} onTogglePreferred={this.props.onTogglePreferred}/>
+          <Edit obj={person} onEdit={this.props.onEdit}/>
+          <Delete obj={person} onDelete={this.props.onDelete}/>
+        </div>
+      </div>
+    );
+  }
+}
+
 

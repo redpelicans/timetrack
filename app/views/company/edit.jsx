@@ -7,8 +7,7 @@ import classNames from 'classnames';
 import {timeLabels} from '../helpers';
 import {Content} from '../layout';
 import companyForm, {colors, avatarTypes} from '../../forms/company';
-import {companiesAppStore, companiesAppActions} from '../../models/companies-app';
-import {companiesActions} from '../../models/companies';
+import {companiesActions, companiesStore} from '../../models/companies';
 import {Avatar, FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../views/widgets';
 
 @reactMixin.decorate(Lifecycle)
@@ -121,8 +120,8 @@ export class EditCompanyApp extends Component {
   componentWillMount() {
     let companyId = this.props.location.state.id;
 
-    this.unsubscribeCompanies = companiesAppStore.listen( state => {
-      const company = state.companies.get(companyId);
+    this.unsubscribeCompanies = companiesStore.listen( companies => {
+      const company = companies.data.get(companyId);
       if(company && !this.companyDocument){
         this.companyDocument = company.toJS();
         this.companyForm = companyForm(this.companyDocument);
@@ -141,7 +140,7 @@ export class EditCompanyApp extends Component {
       }
     });
 
-    companiesAppActions.load({ids: [companyId]});
+    companiesActions.load({ids: [companyId]});
   }
 
   render(){

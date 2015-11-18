@@ -2,6 +2,7 @@ import moment from 'moment';
 import Immutable from 'immutable';
 import Reflux from 'reflux';
 import {requestJson} from '../utils';
+import {companiesActions} from './companies';
 
 const actions = Reflux.createActions([
   "load", 
@@ -75,6 +76,7 @@ const store = Reflux.createStore({
     requestJson('/api/people', {verb: 'post', body: {person: person}, message: 'Cannot create person, check your backend server'})
       .then( person => {
         state.data = state.data.set(person._id,  Immutable.fromJS(Maker(person)));
+        companiesActions.updateRelations([person.companyId]);
         state.isLoading = false;
         this.trigger(state);
       });
@@ -83,21 +85,24 @@ const store = Reflux.createStore({
   onUpdate(previous, updates){
     state.isLoading = true;
     this.trigger(state);
+    const previousCompanyId = previous.companyId;
     requestJson('/api/person', {verb: 'put', body: {person: _.assign(previous, updates)}, message: 'Cannot update person, check your backend server'})
       .then( person => {
         state.data = state.data.set( person._id, Immutable.fromJS(Maker(person)) );
+        companiesActions.updateRelations([previousCompanyId, updates.companyId]);
         state.isLoading = false;
         this.trigger(state);
       });
   },
 
   onDelete(person){
-    const id = person.get('_id');
+    const id = person._id;
     state.isLoading = true;
     this.trigger(state);
     requestJson(`/api/person/${id}`, {verb: 'delete', message: 'Cannot delete person, check your backend server'})
       .then( res => {
         state.data = state.data.delete( id );
+        companiesActions.updateRelations([person.companyId]);
         state.isLoading = false;
         this.trigger(state);
       });

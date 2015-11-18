@@ -5,9 +5,11 @@ import {requestJson} from '../utils';
 
 const actions = Reflux.createActions([
   "load", 
+  "reload", 
   "delete", 
   "create", 
   "update", 
+  "updateRelations",
   "loadCompleted", 
   "togglePreferred"
 ]);
@@ -25,20 +27,27 @@ const store = Reflux.createStore({
     return state;
   },
 
-  onLoad: function({forceReload=false, ids} = {}){
-    const objs = _.map(ids || [], id => state.data.get(id));
+  onLoad: function({forceReload=false, ids=[]} = {}){
+    const objs = _.map(ids, id => state.data.get(id));
     let doRequest = forceReload || !_.all(objs) || !state.data.size;
 
     if(!doRequest) return actions.loadCompleted(state.data);
 
+    // const params = _.map(ids, id => `ids[]=${id}`).join('&');
+    // const url = ['/api/companies', params].join('?');
+    const url = '/api/companies';
+
     console.log("start loading companies ...")
     state.isLoading = true;
     this.trigger(state);
-    requestJson('/api/companies', {message: 'Cannot load companies, check your backend server'}).then( companies => {
+    requestJson(url, {message: 'Cannot load companies, check your backend server'}).then( companies => {
         console.log("end loading companies ...")
         actions.loadCompleted(Immutable.fromJS(_.chain(companies).map( p => [p._id, Maker(p)]).object().value()));
       });
 
+  },
+
+  onReload: function(ids){
   },
 
   onLoadCompleted: function(data){
@@ -68,9 +77,14 @@ const store = Reflux.createStore({
         this.trigger(state);
       });
   },
+  
+  onUpdateRelations(ids){
+    const companyIds = _.chain(ids).compact().uniq().value();
+    actions.load({ids: companyIds, forceReload: true});
+  },
 
   onDelete(company){
-    const id = company.get('_id');
+    const id = company._id;
     state.isLoading = true;
     this.trigger(state);
     requestJson(`/api/company/${id}`, {verb: 'delete', message: 'Cannot delete company, check your backend server'})

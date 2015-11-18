@@ -4,11 +4,11 @@ import Remarkable from 'remarkable';
 import React, {Component} from 'react';
 import routes from '../../routes';
 import classNames from 'classnames';
-import {AvatarView, TextLabel, MarkdownText} from '../widgets';
+import {AvatarView, TextLabel, MarkdownText, Edit, Delete, Preferred} from '../widgets';
 import {timeLabels} from '../helpers';
 import {Content } from '../layout';
 import {personsStore,  personsActions} from '../../models/persons';
-import {personsAppStore,  personsAppActions, sortMenu} from '../../models/persons-app';
+import {companiesStore,  companiesActions} from '../../models/companies';
 
 export default class ViewPersonApp extends Component {
   state = {};
@@ -19,17 +19,28 @@ export default class ViewPersonApp extends Component {
 
   componentWillMount() {
     const personId = this.props.location.state.id;
-    personsAppActions.load({ids: [personId]});
-    this.unsubcribe = personsAppStore.listen( state => {
-      this.setState({
-        person: state.persons.get(personId),
-        companies: state.companies
-      });
+
+    this.unsubcribeCompanies = companiesStore.listen( companies => {
+      const company = companies.data.get(this.state.person.get('companyId'));
+      //this.setState({companies: companies.data});
+      this.setState({company: company});
     });
+
+    this.unsubcribePersons = personsStore.listen( persons => {
+      const person = persons.data.get(personId);
+      if(person) {
+        this.setState({person: person}, () => {
+          companiesActions.load({ids: [person.get('companyId')]});
+        })
+      }
+    });
+
+    personsActions.load({ids: [personId]});
   }
 
   componentWillUnmount(){
-    this.unsubcribe();
+    this.unsubcribePersons();
+    this.unsubcribeCompanies();
   }
 
   goBack = () => {
@@ -43,13 +54,13 @@ export default class ViewPersonApp extends Component {
   handleDelete = (person) => {
     let answer = confirm(`Are you sure to delete the person "${person.get('name')}"`);
     if(answer){
-      personsActions.delete(person);
+      personsActions.delete(person.toJS());
       this.goBack();
     }
   }
 
   render(){
-    if(!this.state.person) return false;
+    if(!this.state.person || !this.state.company) return false;
     return (
       <Content>
         <Header 
@@ -59,14 +70,14 @@ export default class ViewPersonApp extends Component {
           onDelete={this.handleDelete}/>
         <Card 
           person={this.state.person} 
-          companies={this.state.companies} 
+          company={this.state.company} 
           history={this.props.history}/>
       </Content>
     )
   }
 }
 
-const Card = ({person, history, companies}) =>  {
+const Card = ({person, history, company}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -83,8 +94,7 @@ const Card = ({person, history, companies}) =>  {
 
   const birthdate = person.get('birthdate') ? moment(person.get('birthdate')).format('DD/MM/YY') : "";
 
-  const company = () => {
-    const company = companies.get(person.get('companyId'));
+  const companyElement = () => {
     if(!company) return <div/>
     return (
       <div className="col-md-12">
@@ -111,7 +121,7 @@ const Card = ({person, history, companies}) =>  {
       <div className="col-md-2">
         <TextLabel label="BirthDate" value={birthdate}/>
       </div>
-      {company()}
+      {companyElement()}
     </div>
     <div className="row">
       {phones} 
@@ -167,9 +177,6 @@ const Header = ({person, goBack, onEdit, onDelete}) => {
     name:{
       flexShrink: 0,
     },
-    perferred:{
-      color: person.get('preferred') ? '#00BCD4' : 'grey',
-    },
     time: {
       fontSize: '.7rem',
       fontStyle: 'italic',
@@ -196,13 +203,11 @@ const Header = ({person, goBack, onEdit, onDelete}) => {
           <div style={styles.name} className="m-r">
             {person.get('name')}
           </div>
-          <div>
-            <i style={styles.perferred} className="fa fa-star-o m-r"/>
-          </div>
+          <Preferred obj={person}/>
         </div>
         <div style={styles.right}>
-          <Edit person={person} onEdit={onEdit}/>
-          <Delete person={person} onDelete={onDelete}/>
+          <Edit obj={person} onEdit={onEdit}/>
+          <Delete obj={person} onDelete={onDelete}/>
         </div>
       </div>
       <hr/>
@@ -210,42 +215,6 @@ const Header = ({person, goBack, onEdit, onDelete}) => {
         {timeLabels(person.toJS())}
       </div>
     </div>
-  )
-}
-
-const Edit = ({person, onEdit}) => {
-  const handleChange = (e) => {
-    onEdit(person);
-    e.preventDefault();
-  }
-
-  let style={
-    fontSize: '1.2rem',
-    color: 'grey',
-  };
-
-  return (
-    <a href="#" onClick={handleChange}>
-      <i style={style} className="iconButton fa fa-pencil m-r"/>
-    </a>
-  )
-}
-
-const Delete =({person, onDelete}) => {
-  const handleChange = (e) => {
-    onDelete(person);
-    e.preventDefault();
-  }
-
-  let style={
-    fontSize: '1.2rem',
-    color: 'grey',
-  };
-
-  return (
-    <a href="#" onClick={handleChange}>
-      <i style={style} className="iconButton fa fa-trash m-r"/>
-    </a>
   )
 }
 

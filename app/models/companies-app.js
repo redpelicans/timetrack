@@ -38,15 +38,15 @@ const store = Reflux.createStore({
   },
 
   init: function(){
-    this.joinTrailing(companiesActions.loadCompleted, personsActions.loadCompleted, (res1, res2) => {
-      console.log("companiesAppStore loaded.")
-      const companies = res1[0];
-      const persons = res2[0];
-      state.companies = companies;
-      state.persons = persons;
-      state.data = filterAndSort();
-      this.trigger(state);
-    });
+    // this.joinTrailing(companiesActions.loadCompleted, personsActions.loadCompleted, (res1, res2) => {
+    //   console.log("companiesAppStore loaded.")
+    //   const companies = res1[0];
+    //   const persons = res2[0];
+    //   state.companies = companies;
+    //   state.persons = persons;
+    //   state.data = filterAndSort();
+    //   this.trigger(state);
+    // });
 
     companiesStore.listen( companies => {
       state.companies = companies.data;

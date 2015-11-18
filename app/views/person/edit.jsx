@@ -9,8 +9,7 @@ import {Content} from '../layout';
 import personForm, {colors, avatarTypes} from '../../forms/person';
 import {personsStore,  personsActions} from '../../models/persons';
 import {companiesStore,  companiesActions} from '../../models/companies';
-import {personsAppStore,  personsAppActions} from '../../models/persons-app';
-import {Avatar, FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../../views/widgets';
+import {Avatar, FileField, MarkdownEditField, InputField, SelectField, SelectColorField} from '../widgets';
 
 @reactMixin.decorate(Lifecycle)
 export class NewPersonApp extends Component {
@@ -43,13 +42,14 @@ export class NewPersonApp extends Component {
   }
 
   componentWillUnmount(){
-    this.unsubscribeSubmit();
-    this.unsubscribeState();
-    this.unsubscribeCompanies();
+    if(this.unsubscribeSubmit) this.unsubscribeSubmit();
+    if(this.unsubscribeState) this.unsubscribeState();
+    if(this.unsubscribeCompanies) this.unsubscribeCompanies();
   }
 
   componentWillMount() {
-    this.personForm = personForm();
+    let companyId = this.props.location.state && this.props.location.state.companyId;
+    this.personForm =  companyId ? personForm({companyId: companyId}) : personForm();
 
     this.unsubscribeCompanies = companiesStore.listen( state => {
       this.setState({companies: state.data});
@@ -122,17 +122,19 @@ export class EditPersonApp extends Component {
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
-    this.unsubscribePersons();
+    if(this.unsubscribePersons) this.unsubscribePersons();
+    if(this.unsubscribeCompanies) this.unsubscribeCompanies();
   }
 
   componentWillMount() {
     let personId = this.props.location.state.id;
-    personsAppActions.load({ids: [personId]});
 
-    this.unsubscribePersons = personsAppStore.listen( state => {
-      console.log(state)
-      this.setState({companies: state.companies});
-      const person = state.persons.get(personId);
+    this.unsubscribeCompanies = companiesStore.listen( companies => {
+      this.setState({companies: companies.data});
+    });
+
+    this.unsubscribePersons = personsStore.listen( persons => {
+      const person = persons.data.get(personId);
       if(person && !this.personDocument){
         this.personDocument = person.toJS();
         this.personForm = personForm(this.personDocument);
@@ -150,6 +152,9 @@ export class EditPersonApp extends Component {
         });
       }
     });
+
+    personsActions.load({ids: [personId]});
+    companiesActions.load();
   }
 
   render(){
