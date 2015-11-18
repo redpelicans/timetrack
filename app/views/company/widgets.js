@@ -12,13 +12,15 @@ export const Delete =({company, onDelete}) => {
 
   const companyHasPersons = company.get('personIds').size;
 
-  const classnames = classNames("iconButton fa fa-trash m-r",{
-    disable: companyHasPersons,
-  });
-    
-  return (
-    <a href="#" onClick={handleChange}>
-      <i className={classnames}/>
-    </a>
-  )
+  if(companyHasPersons){
+    return (
+      <i className="iconButton disable fa fa-trash m-r"/>
+    )
+  }else{
+    return (
+      <a href="#" onClick={handleChange}>
+        <i className="iconButton fa fa-trash m-r"/>
+      </a>
+    )
+  }
 }

@@ -9,6 +9,8 @@ const actions = Reflux.createActions([
   "delete", 
   "create", 
   "update", 
+  "addPerson",
+  "removePerson",
   "updateRelations",
   "loadCompleted", 
   "togglePreferred"
@@ -45,6 +47,33 @@ const store = Reflux.createStore({
         actions.loadCompleted(Immutable.fromJS(_.chain(companies).map( p => [p._id, Maker(p)]).object().value()));
       });
 
+  },
+
+  onAddPerson(person){
+    console.log("onAddPerson")
+    console.log(person._id);
+    console.log(person)
+    console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
+    if(!person.companyId) return;
+    state.data = state.data.update( person.companyId, c => c.update('personIds', ids => ids.push(person._id)));
+    console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
+    this.trigger(state);
+  },
+
+  onRemovePerson(person){
+    console.log("onRemovePerson")
+    console.log(person._id);
+    console.log(person.companyId);
+    console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
+    if(!person.companyId) return;
+    state.data = state.data.update( person.companyId, c => {
+      const index = c.get('personIds').findIndex(id => id === person._id);
+      // send error
+      if(index === -1) return c;
+      return c.update('personIds', ids => ids.delete(index));
+    });
+    console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
+    this.trigger(state);
   },
 
   onReload: function(ids){

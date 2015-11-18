@@ -181,7 +181,9 @@ export class EditPersonApp extends Component {
 export default class EditContent extends Component {
   companiesValues(){
     if(!this.props.companies) return [];
-    return _.map(this.props.companies.toJS(), company => { return {key: company._id, value: company.name} } );
+    const values = _.map(this.props.companies.toJS(), company => { return {key: company._id, value: company.name} } );
+    values.push({key: '', value: 'No Company'});
+    return values;
   }
 
   render(){
