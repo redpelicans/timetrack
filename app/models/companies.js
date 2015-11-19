@@ -2,6 +2,7 @@ import moment from 'moment';
 import Immutable from 'immutable';
 import Reflux from 'reflux';
 import {requestJson} from '../utils';
+import {personsActions} from './persons';
 
 const actions = Reflux.createActions([
   "load", 
@@ -9,6 +10,7 @@ const actions = Reflux.createActions([
   "delete", 
   "create", 
   "update", 
+  "leave", 
   "addPerson",
   "removePerson",
   "updateRelations",
@@ -50,21 +52,16 @@ const store = Reflux.createStore({
   },
 
   onAddPerson(person){
-    console.log("onAddPerson")
-    console.log(person._id);
-    console.log(person)
-    console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
     if(!person.companyId) return;
     state.data = state.data.update( person.companyId, c => c.update('personIds', ids => ids.push(person._id)));
-    console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
     this.trigger(state);
   },
 
   onRemovePerson(person){
-    console.log("onRemovePerson")
-    console.log(person._id);
-    console.log(person.companyId);
-    console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
+    // console.log("onRemovePerson")
+    // console.log(person._id);
+    // console.log(person.companyId);
+    // console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
     if(!person.companyId) return;
     state.data = state.data.update( person.companyId, c => {
       const index = c.get('personIds').findIndex(id => id === person._id);
@@ -72,8 +69,12 @@ const store = Reflux.createStore({
       if(index === -1) return c;
       return c.update('personIds', ids => ids.delete(index));
     });
-    console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
+    //console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
     this.trigger(state);
+  },
+
+  onLeave: function(company, person){
+    personsActions.update(person.toJS(), person.set('companyId', undefined).toJS());
   },
 
   onReload: function(ids){

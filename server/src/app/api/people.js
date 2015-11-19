@@ -73,7 +73,7 @@ function create(person, cb){
 }
 
 function update(newPerson, previousPerson, cb){
-  let updates = fromJson(newPerson) ;
+  let updates = fromJson(newPerson);
   Person.collection.updateOne({_id: previousPerson._id}, {$set: updates}, (err) => {
     //console.log(updates);
     return cb(err, previousPerson._id)
@@ -98,7 +98,7 @@ function preferred(isPreferred, person, cb){
 function fromJson(json){
   let attrs = ['prefix', 'firstName', 'lastName', 'preferred', 'jobTitle', 'jobArea', 'jobType', 'birthdate', 'note'];
   let res = _.pick(json, attrs);
-  if(json.companyId) res.companyId = ObjectId(json.companyId);
+  res.companyId = json.companyId ? ObjectId(json.companyId) : undefined;
   if(json.phones){
     let attrs = ['label', 'phone'];
     res.phones = _.map(json.phones, p => _.pick(p, attrs));

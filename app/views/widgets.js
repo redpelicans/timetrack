@@ -369,15 +369,16 @@ export class SelectColorField extends Component {
 }
 
 export const AvatarView = ({obj, name = obj.name}) => {
-  if(!obj || !obj.avatar) return <Avatar name={"?"}/>;
+  if(!obj || !obj.get('avatar')) return <Avatar name={"?"}/>;
 
-  const defaultAvatar = <Avatar name={name} color={obj.avatar.color}/>;
+  const avatar = obj.get('avatar').toJS();
+  const defaultAvatar = <div className="m-r"><Avatar name={name} color={avatar.color}/></div>;
 
-  switch(obj.avatar.type){
+  switch(avatar.type){
     case 'url':
-      return obj.avatar.url ? <Avatar src={obj.avatar.url}/> : defaultAvatar;
+      return avatar.url ? <div className="m-r"><Avatar src={avatar.url}/></div> : defaultAvatar;
     case 'src':
-      return obj.avatar.src ? <Avatar src={obj.avatar.src}/> : defaultAvatar;
+      return avatar.src ? <div className="m-r"><Avatar src={avatar.src}/></div> : defaultAvatar;
     default:
       return defaultAvatar;
   }
@@ -454,9 +455,9 @@ export const MarkdownText = ({label, value}) => {
   )
 }
 
-export const Edit = ({obj, onEdit}) => {
+export const Edit = ({onEdit}) => {
   const handleChange = (e) => {
-    onEdit(obj);
+    onEdit();
     e.preventDefault();
   }
 
@@ -467,9 +468,9 @@ export const Edit = ({obj, onEdit}) => {
   )
 }
 
-export const AddPerson =({company, onAdd}) => {
+export const AddPerson =({onAdd}) => {
   const handleChange = (e) => {
-    onAdd(company);
+    onAdd();
     e.preventDefault();
   }
 
@@ -480,10 +481,22 @@ export const AddPerson =({company, onAdd}) => {
   )
 }
 
-
-export const Delete =({obj, onDelete}) => {
+export const LeaveCompany =({onLeaveCompany}) => {
   const handleChange = (e) => {
-    onDelete(obj);
+    onLeaveCompany();
+    e.preventDefault();
+  }
+
+  return (
+    <a href="#" onClick={handleChange}>
+      <i className="iconButton fa fa-sign-out m-r"/>
+    </a>
+  )
+}
+
+export const Delete =({onDelete}) => {
+  const handleChange = (e) => {
+    onDelete();
     e.preventDefault();
   }
 
@@ -491,6 +504,34 @@ export const Delete =({obj, onDelete}) => {
     <a href="#" onClick={handleChange}>
       <i className="iconButton fa fa-trash m-r"/>
     </a>
+  )
+}
+
+export const GoBack =({goBack, history}) => {
+  const handleChange = (e) => {
+    if(goBack) goBack();
+    else history.goBack();
+    e.preventDefault();
+  }
+
+  return (
+    <a href="#" onClick={handleChange}>
+      <i className="iconButton fa fa-arrow-left m-r"/>
+    </a>
+  )
+}
+
+export const Title =({title}) => {
+  const styles={
+    name:{
+      flexShrink: 0,
+    },
+  }
+
+  return (
+    <div style={styles.name} className="m-r">
+      {title}
+    </div>
   )
 }
 
@@ -523,8 +564,8 @@ export class PersonPreview extends Component {
     return this.props.person !== nextProps.person || this.props.company !== nextProps.company;
   }
 
-  handleView = (e) => {
-    this.props.onView(this.props.person);
+  handleViewPerson = (e) => {
+    this.props.onViewPerson(this.props.person);
     e.preventDefault();
   }
 
@@ -579,18 +620,19 @@ export class PersonPreview extends Component {
     };
 
     const person = this.props.person;
-    const avatar = <AvatarView obj={person.toJS()}/>;
+    const avatar = <AvatarView obj={person}/>;
     const isNew = person.get('isNew') ? <span className="label label-success">new</span> : <div/>
-     
+    //const children = React.Children.map( this.props.children, child =>  React.cloneElement( child, {obj: person}) );
+    
     return (
       <div style={styles.container} >
         <div style={styles.containerLeft}>
           <div className="p-r">
-            <a href="#" onClick={this.handleView}>{avatar}</a>
+            <a href="#" onClick={this.handleViewPerson}>{avatar}</a>
           </div>
           <div style={styles.names}>
             <div style={styles.name} className="p-r">
-              <a href="#" onClick={this.handleView}>{person.get('name')}</a>
+              <a href="#" onClick={this.handleViewPerson}>{person.get('name')}</a>
             </div>
             {company()}
           </div>
@@ -599,12 +641,400 @@ export class PersonPreview extends Component {
           </div>
         </div>
         <div style={styles.containerRight} href="#">
-          <Preferred obj={person} onTogglePreferred={this.props.onTogglePreferred}/>
-          <Edit obj={person} onEdit={this.props.onEdit}/>
-          <Delete obj={person} onDelete={this.props.onDelete}/>
+          {this.props.children}
         </div>
       </div>
     );
+  }
+}
+
+export const HeaderLeft = ({children}) => {
+  const styles={
+    left:{
+      display: 'flex',
+      alignItems: 'center',
+      flex: 1,
+      minWidth: '500px',
+    },
+  }
+
+  return (
+    <div style={styles.left}>
+      {children}
+    </div>
+  )
+}
+
+export const HeaderRight = ({children}) => {
+  const styles={
+    right:{
+      display: 'flex',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      flex: 1,
+    },
+  }
+
+  return (
+    <div style={styles.right}>
+      {children}
+    </div>
+  )
+}
+
+export const Header = ({obj, children}) => {
+  const styles={
+    container:{
+      paddingTop: '1rem',
+      display: 'flex',
+      justifyContent: 'space-between',
+      flexWrap: 'wrap',
+    },
+    name:{
+      flexShrink: 0,
+    },
+    time: {
+      fontSize: '.7rem',
+      fontStyle: 'italic',
+      display: 'block',
+      float: 'right',
+    },
+  }
+
+  const left = () => {
+    return React.Children.toArray(children).find(child => child.type === HeaderLeft);
+  };
+
+  const right = () => {
+    return React.Children.toArray(children).find(child => child.type === HeaderRight);
+  };
+
+  const timeLabels = (obj) => {
+    if(!obj || !obj.get('createdAt'))return <span/>;
+    const res = [`Created ${obj.get('createdAt').fromNow()}`];
+    if(obj.get('updatedAt')) res.push(`Updated ${obj.get('updatedAt').fromNow()}`);
+    return <span>{res.join(' - ')}</span>
+  }
+
+  const time = () => {
+    if(!obj) return "";
+    return (
+      <div style={styles.time} >
+        {timeLabels(obj)}
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <div style={styles.container} className="tm title">
+        {left()}
+        {right()}
+      </div>
+      <hr/>
+      {time()}
+    </div>
+  )
+}
+
+export class AvatarViewField extends Component{
+  state = {name: 'Red Pelicans'}
+
+  componentWillUnmount(){
+    this.unsubscribe();
+  }
+
+  componentWillMount(){
+    this.unsubscribe = this.props.obj.onValue( state => {
+      let name;
+      if(this.props.type === 'company')
+        name = state.name.value;
+      else
+        name = [state.firstName.value, state.lastName.value].join(' ');
+      this.setState({
+        type: state.avatar.type.value,
+        name: name,
+        color: state.avatar.color.value,
+        url: state.avatar.url.error ? undefined :  state.avatar.url.value,
+        src: state.avatar.src.value,
+      })
+    });
+  }
+
+  getAvatarType(){
+    const defaultAvatar = <div className="m-r"><Avatar name={this.state.name} color={this.state.color}/></div>;
+    switch(this.state.type){
+      case 'url':
+        return this.state.url ? <div className="m-r"> <Avatar src={this.state.url}/></div> : defaultAvatar;
+      case 'src':
+        return this.state.src ? <div className="m-r"><Avatar src={this.state.src}/></div> : defaultAvatar;
+      default:
+        return defaultAvatar;
+    }
+  }
+
+  render(){
+    return this.getAvatarType();
+  }
+}
+
+export class AvatarChooserField extends Component{
+  state = {type: this.props.field.defaultValue};
+
+  handleFilenameChange = (filename) => {
+    this.setState({filename: filename});
+  }
+
+  componentWillUnmount(){
+    this.unsubscribe();
+  }
+
+  componentDidMount(){
+    this.colorField = <SelectColorField options={colors} field={this.props.field.field('color')}/>;
+    this.logoUrlField = <InputField field={this.props.field.field('url')} isUrl={true}/>;
+    this.logoFileField = <FileField filename={this.state.filename} onFilenameChange={this.handleFilenameChange} field={this.props.field.field('src')}/>;
+
+    this.unsubscribe = this.props.field.onValue( v => {
+      this.setState({
+        type: v.type.value,
+      });
+    });
+  }
+
+  getField(){
+    switch(this.state.type){
+      case 'url':
+        return this.logoUrlField;
+      case 'src':
+        return this.logoFileField;
+      default:
+        return this.colorField;
+    }
+  }
+
+  render(){
+    return (
+      <div className="row">
+        <div className="col-md-3">
+          <SelectField field={this.props.field.field('type')}/>
+        </div>
+        <div className="col-md-9">
+          {this.getField()}
+        </div>
+      </div>
+    )
+  }
+}
+
+export const Form = ({children}) => {
+  return(
+    <form>
+      {children}
+    </form>
+  )
+}
+
+export const AddBtn = ({onSubmit, canSubmit}) => {
+  const handleChange = (e) => {
+    onSubmit();
+    e.preventDefault();
+  }
+
+  return (
+    <button type="button" className="btn btn-primary m-l" disabled={!canSubmit} onClick={handleChange}>Create</button>
+  )
+}
+
+export const UpdateBtn = ({onSubmit, canSubmit}) => {
+  const handleChange = (e) => {
+    onSubmit();
+    e.preventDefault();
+  }
+
+  return (
+    <button type="button" className="btn btn-primary m-l" disabled={!canSubmit} onClick={handleChange}>Update</button>
+  )
+}
+
+export const CancelBtn = ({onCancel}) => {
+  const handleChange = (e) => {
+    onCancel();
+    e.preventDefault();
+  }
+
+  return (
+    <button type="button" className="btn btn-warning m-l" onClick={handleChange}>Cancel</button>
+  )
+}
+
+export const ResetBtn = ({obj}) => {
+  const handleChange = (e) => {
+    obj.reset();
+    e.preventDefault();
+  }
+
+  return (
+    <button type="button" className="btn btn-danger m-l"  onClick={handleChange}>Reset</button>
+  )
+}
+
+export class StarField extends Component{
+  state = undefined;
+
+  componentWillUnmount(){
+    if(this.unsubscribe) this.unsubscribe();
+  }
+
+  componentDidMount(){
+    this.unsubscribe = this.props.field.onValue( v => {
+      this.setState({preferred: v.value});
+    });
+  }
+
+  handleChange = (e) => {
+    this.props.field.setValue( !this.state.preferred );
+    e.preventDefault();
+  }
+
+  render(){
+    if(!this.state) return false;
+    let field = this.props.field;
+    let preferred = this.state.preferred;
+
+    let style={
+      display: 'block',
+      color: preferred ? '#00BCD4' : 'grey',
+      fontSize: '1.5rem',
+    };
+
+    return (
+      <fieldset className="form-group">
+        <label htmlFor={field.key}>{field.label}</label>
+        <a id={field.key} href="#" onClick={this.handleChange}>
+          <i style={style} className="iconButton fa fa-star-o"/>
+        </a>
+      </fieldset>
+    )
+  }
+}
+
+export const Refresh =({onClick}) => {
+  const handleChange = (e) => {
+    onClick();
+    e.preventDefault();
+  }
+
+  const style={
+    fontSize: '1.5rem',
+  }
+
+  return (
+    <div className="m-l">
+      <a href="#" onClick={handleChange}>
+        <i style={style} className="iconButton fa fa-refresh"/>
+      </a>
+    </div>
+  )
+}
+
+export const Filter =({filter, onChange}) => {
+  const handleChange = (e) => {
+    onChange(e.target.value);
+    e.preventDefault();
+  }
+
+  const icon= <span className="fa fa-search"/>
+  return (
+    <div className="m-l">
+      <input className="tm input form-control" type='text' value={filter} placeholder='search ...' onChange={handleChange}/>
+    </div>
+  )
+}
+
+export const FilterPreferred =({preferred, onClick}) => {
+  const handleChange = (e) => {
+    onClick();
+    e.preventDefault();
+  }
+
+  const style={
+    fontSize: '1.5rem',
+    color: preferred ? '#00BCD4' : 'grey',
+  }
+
+  return (
+    <div className="m-l">
+      <a href="#" onClick={handleChange} > 
+        <i style={style} className="iconButton fa fa-star-o"/>
+      </a>
+    </div>
+  )
+}
+
+export const Sort =({sortMenu, sortCond, onClick}) => {
+  const handleClick = (mode, e) => {
+    onClick(mode);
+    e.preventDefault();
+  }
+
+  function getSortIcon(sortCond, item){
+    if(item.key === sortCond.by){
+      const classnames = sortCond.order === "desc" ? "fa fa-sort-desc p-l" : "fa fa-sort-asc p-l";
+      return <i className={classnames}/>
+    }
+  }
+
+  const style={
+    fontSize: '1.5rem',
+  }
+
+  const menu = _.map(sortMenu, item => {
+    return (
+      <a key={item.key} className="dropdown-item p-a" href="#" onClick={handleClick.bind(null, item.key)}>
+        {item.label}
+        {getSortIcon(sortCond, item)}
+      </a>
+    )
+  });
+
+  return (
+    <div className="m-l">
+      <a href="#"  id="sort-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> 
+        <i style={style} className="iconButton fa fa-sort" />
+      </a>
+      <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="sort-menu">
+        {menu}
+      </ul>
+    </div>
+  )
+}
+
+export class AddButton extends Component {
+  componentDidMount(){
+    $('#addObject').tooltip({animation: true});
+  }
+
+  handleClick = () => {
+    $('#addObject').tooltip('hide');
+    this.props.onAdd();
+  }
+
+  render(){
+    const style = {
+        position: 'fixed',
+        display: 'block',
+        right: 0,
+        bottom: 0,
+        marginRight: '30px',
+        marginBottom: '30px',
+        zIndex: '900',
+    }
+
+    return (
+      <button id="addObject" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title={this.props.title} style={style}  onClick={this.handleClick}>
+        <i className="fa fa-plus"/>
+      </button>
+    )
   }
 }
 

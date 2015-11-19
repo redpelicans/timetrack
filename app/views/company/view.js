@@ -4,10 +4,9 @@ import Remarkable from 'remarkable';
 import React, {Component} from 'react';
 import routes from '../../routes';
 import classNames from 'classnames';
-import {PersonPreview, AvatarView, AddPerson, Edit, Preferred, TextLabel, MarkdownText} from '../widgets';
-import {timeLabels} from '../helpers';
+import {Header, HeaderLeft, HeaderRight, GoBack, Title, PersonPreview, AvatarView, LeaveCompany, AddPerson, Edit, Preferred, Delete, TextLabel, MarkdownText} from '../widgets';
 import {Content} from '../layout';
-import {Delete} from './widgets';
+import {Delete as DeleteCompany} from './widgets';
 import {companiesStore, companiesActions} from '../../models/companies';
 import {personsStore, personsActions} from '../../models/persons';
 
@@ -77,29 +76,45 @@ export default class ViewCompanyApp extends Component {
     this.props.history.pushState({companyId: company.get('_id')}, routes.newperson.path);
   }
 
+  handleLeaveCompany = (company, person) => {
+    const answer = confirm(`Can you confirm you want to fire "${person.get('name')}"`);
+    if(answer){
+      companiesActions.leave(company, person);
+    }
+  }
+
   render(){
     if( !this.state.company || !this.state.persons) return false;
+    const company = this.state.company;
     return (
       <Content>
-        <Header 
-          company={this.state.company} 
-          goBack={this.goBack} 
-          onEdit={this.handleEdit} 
-          onAddPerson={this.handleAddPerson} 
-          onDelete={this.handleDelete}/>
+        <Header obj={company}>
+          <HeaderLeft>
+            <GoBack history={this.props.history}/>
+            <AvatarView obj={company}/>
+            <Title title={company.get('name')}/>
+            <Preferred obj={company}/>
+          </HeaderLeft>
+          <HeaderRight>
+            <AddPerson onAdd={this.handleAddPerson.bind(null, company)}/>
+            <Edit onEdit={this.handleEdit.bind(null, company)}/>
+            <DeleteCompany company={company} onDelete={this.handleDelete.bind(null, company)}/>
+          </HeaderRight>
+        </Header>
         <Card 
           company={this.state.company} 
           persons={this.state.persons} 
           onViewPerson={this.handleViewPerson}
           onTogglePreferredPerson={this.handleTogglePreferredPerson}
           onEditPerson={this.handleEditPerson}
+          onLeaveCompany={this.handleLeaveCompany.bind(null, this.state.company)}
           onDeletePerson={this.handleDeletePerson}/>
       </Content>
     )
   }
 }
 
-const Card = ({company, persons, onViewPerson, onTogglePreferredPerson, onEditPerson, onDeletePerson}) =>  {
+const Card = ({company, persons, onViewPerson, onLeaveCompany, onTogglePreferredPerson, onEditPerson, onDeletePerson}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -137,13 +152,14 @@ const Card = ({company, persons, onViewPerson, onTogglePreferredPerson, onEditPe
           onView={onViewPerson} 
           onTogglePreferred={onTogglePreferredPerson}
           onEdit={onEditPerson}
+          onLeaveCompany={onLeaveCompany}
           onDelete={onDeletePerson}/>
       </div>
     </div>
   )
 }
 
-const Persons = ({label, company, persons, onView, onTogglePreferred, onEdit, onDelete}) => {
+const Persons = ({label, company, persons, onView, onLeaveCompany, onTogglePreferred, onEdit, onDelete}) => {
  const styles={
     container:{
       marginBottom: '50px',
@@ -156,18 +172,23 @@ const Persons = ({label, company, persons, onView, onTogglePreferred, onEdit, on
   };
 
   const ids = company.get('personIds').toJS();
-  const data = _.chain(ids).map(id => persons.get(id)).compact().map( person => {
-    return (
-      <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-        <PersonPreview
-          person={person} 
-          onView={onView} 
-          onTogglePreferred={onTogglePreferred} 
-          onEdit={onEdit} 
-          onDelete={onDelete}/>
-      </div>
-      )
-    }).value();
+  const data = _.chain(ids)
+    .map(id => persons.get(id))
+    .compact()
+    .sortBy( person => person.get('name') )
+    .map( person => {
+      return (
+        <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
+          <PersonPreview person={person} onViewPerson={onView}>
+            <Preferred obj={person} onTogglePreferred={onTogglePreferred}/>
+            <LeaveCompany onLeaveCompany={onLeaveCompany.bind(null, person)}/>
+            <Edit onEdit={onEdit.bind(null, person)}/>
+            <Delete onDelete={onDelete.bind(null, person)}/>
+          </PersonPreview>
+        </div>
+        )
+      })
+    .value();
 
   if(!data.length) return <div/>;
 
@@ -178,74 +199,5 @@ const Persons = ({label, company, persons, onView, onTogglePreferred, onEdit, on
         {data}
       </div>
     </fieldset>
-  )
-}
-
-const Header = ({company, goBack, onEdit, onDelete, onAddPerson}) => {
-  const avatar = <AvatarView obj={company.toJS()}/>;
-  const styles={
-    container:{
-      paddingTop: '1rem',
-      display: 'flex',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-    },
-    left:{
-      display: 'flex',
-      alignItems: 'center',
-      flex: 1,
-      minWidth: '500px',
-    },
-    right:{
-      display: 'flex',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-      flex: 1,
-    },
-    name:{
-      flexShrink: 0,
-    },
-    perferred:{
-      color: company.get('preferred') ? '#00BCD4' : 'grey',
-    },
-    time: {
-      fontSize: '.7rem',
-      fontStyle: 'italic',
-      display: 'block',
-      float: 'right',
-    },
-  }
-
-  const handleClick = (e) => {
-    e.preventDefault();
-    goBack();
-  }
-
-  return (
-    <div>
-      <div style={styles.container} className="tm title">
-        <div style={styles.left}>
-          <div>
-            <a href="#" className="fa fa-arrow-left m-r" onClick={handleClick}/>
-          </div>
-          <div className="m-r">
-            {avatar}
-          </div>
-          <div style={styles.name} className="m-r">
-            {company.get('name')}
-          </div>
-          <Preferred obj={company}/>
-        </div>
-        <div style={styles.right}>
-          <AddPerson company={company} onAdd={onAddPerson}/>
-          <Edit obj={company} onEdit={onEdit}/>
-          <Delete company={company} onDelete={onDelete}/>
-        </div>
-      </div>
-      <hr/>
-      <div style={styles.time} >
-        {timeLabels(company.toJS())}
-      </div>
-    </div>
   )
 }

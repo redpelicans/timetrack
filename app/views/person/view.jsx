@@ -4,7 +4,7 @@ import Remarkable from 'remarkable';
 import React, {Component} from 'react';
 import routes from '../../routes';
 import classNames from 'classnames';
-import {AvatarView, TextLabel, MarkdownText, Edit, Delete, Preferred} from '../widgets';
+import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, Edit, Preferred, Delete, TextLabel, MarkdownText} from '../widgets';
 import {timeLabels} from '../helpers';
 import {Content } from '../layout';
 import {personsStore,  personsActions} from '../../models/persons';
@@ -60,18 +60,29 @@ export default class ViewPersonApp extends Component {
   }
 
   render(){
-    if(!this.state.person || !this.state.company) return false;
+    if(!this.state.person) return false;
+    const person = this.state.person;
     return (
       <Content>
-        <Header 
-          person={this.state.person} 
-          goBack={this.goBack} 
-          onEdit={this.handleEdit} 
-          onDelete={this.handleDelete}/>
+
+        <Header obj={person}>
+          <HeaderLeft>
+            <GoBack history={this.props.history}/>
+            <AvatarView obj={person}/>
+            <Title title={person.get('name')}/>
+            <Preferred obj={person}/>
+          </HeaderLeft>
+          <HeaderRight>
+            <Edit onEdit={this.handleEdit.bind(null, person)}/>
+            <Delete obj={person} onDelete={this.handleDelete.bind(null, person)}/>
+          </HeaderRight>
+        </Header>
+
         <Card 
           person={this.state.person} 
           company={this.state.company} 
           history={this.props.history}/>
+
       </Content>
     )
   }
@@ -86,7 +97,7 @@ const Card = ({person, history, company}) =>  {
 
   const phones = _.map(person.get('phones') && person.get('phones').toJS() || [], p => {
     return (
-      <div key={p.label} className="col-md-4">
+      <div key={p.phone+p.label} className="col-md-4">
         <TextLabel label={`Phone: ${p.label}`} value={p.phone}/>
       </div>
     )
@@ -148,74 +159,4 @@ const Card = ({person, history, company}) =>  {
     </div>
   )
 }
-
-const Phones = ({person}) => {
-  return render.length ? render : <div/>;
-}
-
-const Header = ({person, goBack, onEdit, onDelete}) => {
-  const avatar = <AvatarView obj={person.toJS()}/>;
-  const styles={
-    container:{
-      paddingTop: '1rem',
-      display: 'flex',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-    },
-    left:{
-      display: 'flex',
-      alignItems: 'center',
-      flex: 1,
-      minWidth: '500px',
-    },
-    right:{
-      display: 'flex',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-      flex: 1,
-    },
-    name:{
-      flexShrink: 0,
-    },
-    time: {
-      fontSize: '.7rem',
-      fontStyle: 'italic',
-      display: 'block',
-      float: 'right',
-    },
-  }
-
-  const handleClick = (e) => {
-    e.preventDefault();
-    goBack();
-  }
-
-  return (
-    <div>
-      <div style={styles.container} className="tm title">
-        <div style={styles.left}>
-          <div>
-            <a href="#" className="fa fa-arrow-left m-r" onClick={handleClick}/>
-          </div>
-          <div className="m-r">
-            {avatar}
-          </div>
-          <div style={styles.name} className="m-r">
-            {person.get('name')}
-          </div>
-          <Preferred obj={person}/>
-        </div>
-        <div style={styles.right}>
-          <Edit obj={person} onEdit={onEdit}/>
-          <Delete obj={person} onDelete={onDelete}/>
-        </div>
-      </div>
-      <hr/>
-      <div style={styles.time} >
-        {timeLabels(person.toJS())}
-      </div>
-    </div>
-  )
-}
-
 
