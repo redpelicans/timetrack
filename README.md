@@ -8,6 +8,8 @@ Beyond thoses librairies or products the target is to find and teach good practi
 * how to design stable, optimized http requests between front and server
 * how to draw a clear separation of concern between front and server
 * how to optimize the requests stream between client and server
+* how to manage relationships between entities of our model (Client / Person)
+* how to cache data
 * how to design a reactive client made of stores or streams
 * how to build forms effectively
 * how to reuse React components
