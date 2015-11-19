@@ -23,7 +23,8 @@ Beyond librairies or products selected to build timetrack, the target is to find
 
 It's an open source project, so you are welcome to collaborate, produce code or blogs and challenge us ...
 
-Timetrack is in its early stage (when those lines were writen it was version 0.2):  
+Timetrack is in its early stage (version 0.2), its actually a POC, tomorrow a CRM Lite, after tomorrow a training plate form and after after tomorrow the basement for redpelicans information system and may be one day a market place to match Javascrip client's requirements with redpelicans offer.
+
 * we have a simplistic MongoDB model: Client and Person
 * NodeJS offers CRUD http requests for the model
 * we use a first version of [Formo](https://github.com/redpelicans/formo) to manage forms
