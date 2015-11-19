@@ -35,17 +35,22 @@ Timetrack is in its early stage (when those lines were writen it was version 0.2
 * Write tests
 * Use Authentification
 * Go live for first version (CRM Lite) 
+* write documentation
 * Add features (Missions, Works, Invoices)
 * Enrich CRM Lite version
 * Extend Formo features
 * Be native
+* Offer disconnected CRUD functionalities
 
 
 ## Setup
 
     $ npm install -g babel gulp
     $ npm install
+    $ npm test
 
-## Usage
+## Launch server
+
+setup `params.js` then launch:
 
     $ gulp
