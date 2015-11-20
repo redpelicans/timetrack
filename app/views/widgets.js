@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import Select from 'react-select';
 import FileInput from 'react-file-input';
 import Remarkable from 'remarkable';
-import {avatarTypes, colors} from '../forms/company';
+import {colors} from '../forms/company';
 
 
 export class InputField extends Component {
@@ -985,7 +985,12 @@ export const Sort =({sortMenu, sortCond, onClick}) => {
   }
 
   const style={
-    fontSize: '1.5rem',
+    button:{
+      fontSize: '1.5rem',
+    },
+    menu:{
+      marginTop: '15px',
+    }
   }
 
   const menu = _.map(sortMenu, item => {
@@ -998,11 +1003,11 @@ export const Sort =({sortMenu, sortCond, onClick}) => {
   });
 
   return (
-    <div className="m-l">
+    <div className="dropdown m-l">
       <a href="#"  id="sort-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> 
         <i style={style} className="iconButton fa fa-sort" />
       </a>
-      <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="sort-menu">
+      <ul style={styles.menu} className="dropdown-menu dropdown-menu-right" aria-labelledby="sort-menu">
         {menu}
       </ul>
     </div>
