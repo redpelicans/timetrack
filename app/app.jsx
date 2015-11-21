@@ -2,9 +2,9 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import classNames from 'classnames';
 import Router from 'react-router';
-import routes from './routes';
-import Nav from './models/nav.js';
-import errors from './models/errors.js';
+import sitemap from './sitemap';
+import {navStore} from './models/nav';
+import errors from './models/errors';
 import ReactToastr from 'react-toastr';
 let {ToastContainer} = ReactToastr;
 let ToastMessageFactory = React.createFactory(ReactToastr.ToastMessage.animation);
@@ -21,10 +21,6 @@ export default class App extends Component {
     currentTopic: React.PropTypes.string,
   }
 
-  componentDidMount(){
-    //console.log("==========> app mounted ...")
-  }
-
   getChildContext(){
     return {
       history: this.props.history,
@@ -35,8 +31,8 @@ export default class App extends Component {
   state = {sidebarOpen: false}
 
   componentDidMount(){
-    Nav.property.onValue(topic => {
-      this.setState({currentTopic: topic.currentTopic});
+    navStore.listen( state => {
+      this.setState({currentTopic: state.topic});
     });
     errors.state.onValue(err => {
       this.refs.container.error(
@@ -92,19 +88,19 @@ class AppNav extends Component{
   }
 
   render(){
-    let menu1 = _.values(routes).filter(route => route.isMenu).map( e => {
+    let menu1 = sitemap.routes.filter(route => route.isMenu).map( e => {
       return (
         <AppNavItem key={e.topic} route={e} currentTopic={this.props.currentTopic}/>
       )
     });
 
-    let menu2 = _.values(routes).filter(route => route.isMenu).map( e => {
+    let menu2 = sitemap.routes.filter(route => route.isMenu).map( e => {
       return (
         <AppMobileNavItem collapse={this.collapseMenu} key={e.topic} route={e} currentTopic={this.props.currentTopic}/>
       )
     });
 
-    let home = this.context.history.createHref(routes.home.path);
+    let home = this.context.history.createHref(sitemap.defaultRoute.path);
     let styles={
       dropdownMenuItem:{
         color: '#cfd2da',
@@ -161,11 +157,11 @@ class AppNavItem extends Component {
   }
 
   render(){
-    let route = this.props.route;
-    let currentTopic = this.props.currentTopic;
-    let href = this.context.history.createHref(route.path);
+    const route = this.props.route;
+    const currentTopic = this.props.currentTopic;
+    const href = this.context.history.createHref(route.path);
 
-    let style = route.topic === currentTopic ? { borderBottomColor: '#1ca8dd !important', borderBottomStyle: 'solid'} : {};
+    const style = route.topic === currentTopic ? { borderBottomColor: '#1ca8dd !important', borderBottomStyle: 'solid'} : {};
 
     return (
       <li className="nav-item">

@@ -1,28 +1,16 @@
-import Bacon from 'baconjs';
-import Dispatcher from '../utils/dispatcher';
+import Reflux from 'reflux';
 
+const actions = Reflux.createActions(["register", "replace"]);
 
-const d = new Dispatcher();
+const state = { topic: undefined };
 
+const store = Reflux.createStore({
+  listenables: [actions],
 
-const property = Bacon.update(
-    {currentTopic: undefined}
-  , [d.stream('newTopic')], newTopic
-);
-
-function newTopic(state, topic){
-  return {currentTopic: topic};
-}
-
-
-const Nav = {
-  get property(){
-    return property;
-  },
-  newTopic(topic){
-    d.push('newTopic', topic);
+  onRegister: function(route){
+    state.topic = route.topic;
+    this.trigger(state);
   }
-}
+});
 
-export default Nav;
-
+export {store as navStore, actions as navActions};

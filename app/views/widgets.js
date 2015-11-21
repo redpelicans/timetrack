@@ -984,7 +984,7 @@ export const Sort =({sortMenu, sortCond, onClick}) => {
     }
   }
 
-  const style={
+  const styles = {
     button:{
       fontSize: '1.5rem',
     },
@@ -1005,7 +1005,7 @@ export const Sort =({sortMenu, sortCond, onClick}) => {
   return (
     <div className="dropdown m-l">
       <a href="#"  id="sort-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> 
-        <i style={style} className="iconButton fa fa-sort" />
+        <i style={styles.button} className="iconButton fa fa-sort" />
       </a>
       <ul style={styles.menu} className="dropdown-menu dropdown-menu-right" aria-labelledby="sort-menu">
         {menu}
