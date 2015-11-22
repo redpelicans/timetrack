@@ -1,6 +1,7 @@
 import Reflux from 'reflux';
 import {requestJson} from '../utils';
 import {navActions} from './nav';
+import routes from '../sitemap';
 
 const actions = Reflux.createActions([
   "login", 
@@ -17,10 +18,9 @@ const store = Reflux.createStore({
 
   listenables: [actions],
 
-  onLogin(user, nextPath){
-    console.log("==> login");
+  onLogin(user, nextRouteName){
     actions.loggedIn(user, 1);
-    navActions.replace(nextPath);
+    navActions.replace(nextRouteName);
   },
 
   onLoggedIn(user, token ){
@@ -33,6 +33,7 @@ const store = Reflux.createStore({
     state.user = undefined;
     state.token = undefined;
     this.trigger(state);
+    navActions.push(routes.defaultRoute);
   },
 
   isLoggedIn(){

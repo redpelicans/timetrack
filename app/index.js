@@ -7,14 +7,22 @@ import sitemap from './sitemap';
 import {navActions} from './models/nav';
 import {loginStore, loginActions} from './models/login';
 
-navActions.replace.listen(path => {
-  history.replaceState(null, path)
+navActions.goBack.listen( ()=> {
+  history.goBack();
+})
+
+navActions.replaceRoute.listen(nextRoute => {
+  history.replaceState(null, nextRoute.path)
+})
+
+navActions.pushRoute.listen(nextRoute => {
+  history.pushState(null, nextRoute.path)
 })
 
 function onEnter(nextState, replaceState){
-  console.log("===> ENTER ROUTE: " + this.topic)
-  navActions.register(this);
-  if(this.authRequired && !loginStore.isLoggedIn()) replaceState({nextPath: nextState.location.path}, sitemap.login.path); 
+  console.log("===> ENTER ROUTE: " + this.path)
+  navActions.enter(this);
+  if(this.authRequired && !loginStore.isLoggedIn()) replaceState({nextRouteName: this.name}, sitemap.login.path); 
 }
 
 function onLeave(location){
@@ -28,7 +36,7 @@ function getRoutes(routes){
       return <Route 
         topic={r.topic} 
         onEnter={onEnter.bind(r)} 
-        onLeave={onLeave.bind(r)} 
+        //onLeave={onLeave.bind(r)} 
         key={r.path} 
         path={r.path} 
         component={r.component}/>

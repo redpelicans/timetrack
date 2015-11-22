@@ -2,53 +2,48 @@ import _ from 'lodash';
 import moment from 'moment';
 import Remarkable from 'remarkable';
 import React, {Component} from 'react';
-import routes from '../../routes';
+import routes from '../../sitemap';
 import classNames from 'classnames';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, Edit, Preferred, Delete, TextLabel, MarkdownText} from '../widgets';
 import {timeLabels} from '../helpers';
 import {Content } from '../layout';
-import {personsStore,  personsActions} from '../../models/persons';
+import {personsActions} from '../../models/persons';
+import {personStore,  personActions} from '../../models/person';
+import {navActions} from '../../models/nav';
 import {companiesStore,  companiesActions} from '../../models/companies';
 
 export default class ViewPersonApp extends Component {
   state = {};
 
-  static contextTypes = {
-    history: React.PropTypes.object.isRequired,
-  }
-
   componentWillMount() {
-    const personId = this.props.location.state.id;
 
     this.unsubcribeCompanies = companiesStore.listen( companies => {
       const company = companies.data.get(this.state.person.get('companyId'));
-      //this.setState({companies: companies.data});
       this.setState({company: company});
     });
 
-    this.unsubcribePersons = personsStore.listen( persons => {
-      const person = persons.data.get(personId);
-      if(person) {
-        this.setState({person: person}, () => {
-          companiesActions.load({ids: [person.get('companyId')]});
-        })
-      }
+    this.unsubcribePerson = personStore.listen( ctx => {
+      const person = ctx.person;
+      if(!person) return navActions.replace('people');
+      this.setState({person}, () => {
+        companiesActions.load({ids: [person.get('companyId')]});
+      })
     });
 
-    personsActions.load({ids: [personId]});
+    personActions.load();
   }
 
   componentWillUnmount(){
-    this.unsubcribePersons();
-    this.unsubcribeCompanies();
+    if(this.unsubcribePerson) this.unsubcribePerson();
+    if(this.unsubcribeCompanies) this.unsubcribeCompanies();
   }
 
   goBack = () => {
-    this.props.history.goBack();
+    navActions.goBack();
   }
 
   handleEdit= (person) => {
-    this.props.history.pushState({id: person.get('_id')}, routes.editperson.path);
+    personActions.edit({person});
   }
 
   handleDelete = (person) => {
@@ -64,10 +59,9 @@ export default class ViewPersonApp extends Component {
     const person = this.state.person;
     return (
       <Content>
-
         <Header obj={person}>
           <HeaderLeft>
-            <GoBack history={this.props.history}/>
+            <GoBack goBack={this.goBack}/>
             <AvatarView obj={person}/>
             <Title title={person.get('name')}/>
             <Preferred obj={person}/>
@@ -80,15 +74,13 @@ export default class ViewPersonApp extends Component {
 
         <Card 
           person={this.state.person} 
-          company={this.state.company} 
-          history={this.props.history}/>
-
+          company={this.state.company}/>
       </Content>
     )
   }
 }
 
-const Card = ({person, history, company}) =>  {
+const Card = ({person, company}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -105,57 +97,71 @@ const Card = ({person, history, company}) =>  {
 
   const birthdate = person.get('birthdate') ? moment(person.get('birthdate')).format('DD/MM/YY') : "";
 
+  const handleClick = (e) => {
+    e.preventDefault();
+    companyAction.view({company});
+  }
+
   const companyElement = () => {
     if(!company) return <div/>
     return (
       <div className="col-md-12">
         <TextLabel 
           label="Company" 
-          url={history.createHref("/company/view?id=" + company.get('_id')) } 
+          onClick={handleClick}
           value={company && company.get('name')}/>
       </div>
     )
   }  
 
-  return (
-    <div>
-    <div style={styles.container} className="row" >
-      <div className="col-md-1">
-        <TextLabel label="Prefix" value={person.get('prefix')}/>
-      </div>
-      <div className="col-md-4">
-        <TextLabel label="FirstName" value={person.get('firstName')}/>
-      </div>
-      <div className="col-md-5">
-        <TextLabel label="LastName" value={person.get('lastName')}/>
-      </div>
-      <div className="col-md-2">
-        <TextLabel label="BirthDate" value={birthdate}/>
-      </div>
-      {companyElement()}
-    </div>
-    <div className="row">
-      {phones} 
-    </div>
-    <div className="row" >
-      <div className="col-md-4">
-        <TextLabel label="JobTitle" value={person.get('jobTitle')}/>
-      </div>
-      <div className="col-md-4">
-        <TextLabel label="JobArea" value={person.get('jobArea')}/>
-      </div>
-      <div className="col-md-4">
-        <TextLabel label="JobType" value={person.get('jobType')}/>
-      </div>
-
+  const jobDescription = () => {
+    if(!person.get('jobDescription')) return <div/>
+    return (
       <div className="col-md-12">
-        <TextLabel label="JobDescription" value={person.get('jobDescription')}/>
+        <MarkdownText label="Job Description" value={person.get('jobDescription')}/>
       </div>
+    )
+  }
 
+  const note = () => {
+    if(!person.get('note')) return <div/>
+    return (
       <div className="col-md-12">
         <MarkdownText label="Note" value={person.get('note')}/>
       </div>
-    </div>
+    )
+  }
+
+  return (
+    <div>
+      <div style={styles.container} className="row" >
+        <div className="col-md-1">
+          <TextLabel label="Prefix" value={person.get('prefix')}/>
+        </div>
+        <div className="col-md-4">
+          <TextLabel label="First Name" value={person.get('firstName')}/>
+        </div>
+        <div className="col-md-5">
+          <TextLabel label="Last Name" value={person.get('lastName')}/>
+        </div>
+        <div className="col-md-2">
+          <TextLabel label="Birth Date" value={birthdate}/>
+        </div>
+        {companyElement()}
+      </div>
+      <div className="row">
+        {phones} 
+      </div>
+      <div className="row" >
+        <div className="col-md-6">
+          <TextLabel label="Job Title" value={person.get('jobTitle')}/>
+        </div>
+        <div className="col-md-6">
+          <TextLabel label="Email" value={person.get('email')}/>
+        </div>
+        {jobDescription}
+        {note}
+      </div>
     </div>
   )
 }

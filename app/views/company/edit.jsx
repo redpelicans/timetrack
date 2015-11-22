@@ -2,12 +2,12 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import reactMixin from 'react-mixin';
 import { Lifecycle } from 'react-router';
-import routes from '../../routes';
 import Immutable from 'immutable';
-import classNames from 'classnames';
 import {Content} from '../layout';
 import companyForm, {colors, avatarTypes} from '../../forms/company';
-import {companiesActions, companiesStore} from '../../models/companies';
+import {companiesActions} from '../../models/companies';
+import {companyActions, companyStore} from '../../models/company';
+import {navActions} from '../../models/nav';
 import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, SelectField} from '../../views/widgets';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title } from '../widgets';
 
@@ -37,7 +37,7 @@ export class NewCompanyApp extends Component {
 
   goBack = (forceLeave) => {
     this.setState({forceLeave: forceLeave}, () => {
-      this.props.history.goBack();
+      navActions.goBack();
     });
   }
 
@@ -55,13 +55,11 @@ export class NewCompanyApp extends Component {
     });
 
     this.unsubscribeState = this.companyForm.onValue( state => {
-      console.log(state)
       this.setState({
         canSubmit: state.canSubmit,
         hasBeenModified: state.hasBeenModified,
       });
     });
-
   }
 
   render(){
@@ -81,14 +79,9 @@ export class NewCompanyApp extends Component {
   }
 }
 
-
 @reactMixin.decorate(Lifecycle)
 export class EditCompanyApp extends Component {
 
-  // static contextTypes = {
-  //   history: React.PropTypes.object.isRequired,
-  // }
-  
   state = {
     forceLeave: false,
   }
@@ -108,22 +101,21 @@ export class EditCompanyApp extends Component {
 
   goBack = (forceLeave) => {
     this.setState({forceLeave: forceLeave}, () => {
-      this.props.history.goBack();
+      navActions.goBack();
     });
   }
 
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
-    this.unsubscribeCompanies();
+    this.unsubscribeCompany();
   }
 
   componentWillMount() {
-    let companyId = this.props.location.state.id;
-
-    this.unsubscribeCompanies = companiesStore.listen( companies => {
-      const company = companies.data.get(companyId);
-      if(company && !this.companyDocument){
+    this.unsubscribeCompany = companyStore.listen( ctx => {
+      const company = ctx.company;
+      if(!company) return navActions.replace('companies');
+      if(!this.companyDocument){
         this.companyDocument = company.toJS();
         this.companyForm = companyForm(this.companyDocument);
 
@@ -141,7 +133,7 @@ export class EditCompanyApp extends Component {
       }
     });
 
-    companiesActions.load({ids: [companyId]});
+    companyActions.load();
   }
 
   render(){

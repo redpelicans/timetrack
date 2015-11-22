@@ -2,12 +2,14 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import reactMixin from 'react-mixin';
 import { Lifecycle } from 'react-router';
-import routes from '../../routes';
+import routes from '../../sitemap';
 import Immutable from 'immutable';
 import classNames from 'classnames';
 import personForm, {colors, avatarTypes} from '../../forms/person';
 import {personsStore,  personsActions} from '../../models/persons';
+import {personStore,  personActions} from '../../models/person';
 import {companiesStore,  companiesActions} from '../../models/companies';
+import {navActions} from '../../models/nav';
 import {Content} from '../layout';
 import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, SelectField} from '../widgets';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title} from '../widgets';
@@ -19,10 +21,6 @@ export class NewPersonApp extends Component {
     forceLeave: false,
   }
 
-  // static contextTypes = {
-  //   history: React.PropTypes.object.isRequired,
-  // }
-  
   routerWillLeave = nextLocation => {
     if(!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving new person?";
     return true;
@@ -38,7 +36,7 @@ export class NewPersonApp extends Component {
 
   goBack = (forceLeave) => {
     this.setState({forceLeave: forceLeave}, () => {
-      this.props.history.goBack();
+      navActions.goBack();
     });
   }
 
@@ -46,32 +44,39 @@ export class NewPersonApp extends Component {
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
     if(this.unsubscribeCompanies) this.unsubscribeCompanies();
+    if(this.unsubscribePerson) this.unsubscribePerson();
   }
 
   componentWillMount() {
-    let companyId = this.props.location.state && this.props.location.state.companyId;
-    this.personForm =  companyId ? personForm({companyId: companyId}) : personForm();
-
     this.unsubscribeCompanies = companiesStore.listen( state => {
       this.setState({companies: state.data});
     });
 
-    this.unsubscribeSubmit = this.personForm.onSubmit( state => {
-      personsActions.create(this.personForm.toDocument(state));
-      this.goBack(true);
+    this.unsubscribePerson = personStore.listen( ctx => {
+      if(!this.personForm){
+        this.personForm =  ctx.company ? personForm({companyId: ctx.company.get('_id')}) : personForm();
+
+        this.unsubscribeSubmit = this.personForm.onSubmit( state => {
+          personsActions.create(this.personForm.toDocument(state));
+          this.goBack(true);
+        });
+
+        this.unsubscribeState = this.personForm.onValue( state => {
+          this.setState({
+            canSubmit: state.canSubmit,
+            hasBeenModified: state.hasBeenModified,
+          });
+        });
+      }
     });
 
-    this.unsubscribeState = this.personForm.onValue( state => {
-      this.setState({
-        canSubmit: state.canSubmit,
-        hasBeenModified: state.hasBeenModified,
-      });
-    });
-
+    personActions.load();
     companiesActions.load();
   }
 
   render(){
+    if(!this.personForm) return false;
+
     let submitBtn = <AddBtn onSubmit={this.handleSubmit} canSubmit={this.state.canSubmit}/>;
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>;
 
@@ -93,9 +98,6 @@ export class NewPersonApp extends Component {
 @reactMixin.decorate(Lifecycle)
 export class EditPersonApp extends Component {
 
-  static contextTypes = {
-    history: React.PropTypes.object.isRequired,
-  }
 
   state = {
     forceLeave: false,
@@ -116,32 +118,32 @@ export class EditPersonApp extends Component {
 
   goBack = (forceLeave) => {
     this.setState({forceLeave: forceLeave}, () => {
-      this.props.history.goBack();
+      navActions.goBack();
     });
   }
 
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
-    if(this.unsubscribePersons) this.unsubscribePersons();
+    if(this.unsubscribePerson) this.unsubscribePerson();
     if(this.unsubscribeCompanies) this.unsubscribeCompanies();
   }
 
   componentWillMount() {
-    let personId = this.props.location.state.id;
 
     this.unsubscribeCompanies = companiesStore.listen( companies => {
       this.setState({companies: companies.data});
     });
 
-    this.unsubscribePersons = personsStore.listen( persons => {
-      const person = persons.data.get(personId);
-      if(person && !this.personDocument){
+    this.unsubscribePerson = personStore.listen( ctx => {
+      const person = ctx.person;
+      if(!person) return navActions.replace('people');
+      if(!this.personDocument){
         this.personDocument = person.toJS();
         this.personForm = personForm(this.personDocument);
 
         this.unsubscribeSubmit = this.personForm.onSubmit( state => {
-          console.log(this.personForm.toDocument(state))
+          //console.log(this.personForm.toDocument(state))
           personsActions.update(this.personDocument, this.personForm.toDocument(state));
           this.goBack(true);
         });
@@ -155,7 +157,7 @@ export class EditPersonApp extends Component {
       }
     });
 
-    personsActions.load({ids: [personId]});
+    personActions.load();
     companiesActions.load();
   }
 
@@ -246,7 +248,13 @@ export default class EditContent extends Component {
                   <SelectField field={companyId}/>
                 </div>
                 <div className="col-md-12">
+                  <InputField field={this.props.personForm.field('email')}/>
+                </div>
+                <div className="col-md-12">
                 <AvatarChooserField field={this.props.personForm.field('avatar')}/>
+                </div>
+                <div className="col-md-12">
+                  <MarkdownEditField field={this.props.personForm.field('jobDescription')}/>
                 </div>
                 <div className="col-md-12">
                   <MarkdownEditField field={this.props.personForm.field('note')}/>

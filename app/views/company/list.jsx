@@ -1,19 +1,15 @@
-import _ from 'lodash';
-import moment from 'moment';
-import classNames from 'classnames';
 import React, {Component} from 'react';
 import reactMixin from 'react-mixin';
 import Reflux from 'reflux';
-import routes from '../../routes';
 import {Content} from '../layout';
 import {AvatarView, Edit, Preferred} from '../widgets';
 import {AddButton, Sort, FilterPreferred, Filter, Refresh} from '../widgets';
 import {Header, HeaderLeft, HeaderRight, Title} from '../widgets';
 import {Delete} from './widgets';
 import {companiesAppStore, companiesAppActions, sortMenu} from '../../models/companies-app';
-import {companiesStore, companiesActions} from '../../models/companies';
+import {companiesActions} from '../../models/companies';
+import {companyActions} from '../../models/company';
 
-//@reactMixin.decorate(Reflux.connect(companies.store, "companiesStore"))
 export default class ListApp extends Component {
 
   state = undefined;
@@ -50,15 +46,15 @@ export default class ListApp extends Component {
   }
 
   handleAdd = () => {
-    this.props.history.pushState(null, routes.newcompany.path);
+    companyActions.create();
   }
 
   handleEdit = (company) => {
-    this.props.history.pushState({id: company.get('_id')}, routes.editcompany.path);
+    companyActions.edit({company});
   }
 
   handleView = (company) => {
-    this.props.history.pushState({id: company.get('_id')}, routes.viewcompany.path);
+    companyActions.view({company});
   }
 
   handleDelete = (company) => {
@@ -233,41 +229,3 @@ class Company extends Component {
   }
 }
 
-
-// const Sort =({sortCond, onClick}) => {
-//   const handleClick = (mode, e) => {
-//     onClick(mode);
-//     e.preventDefault();
-//   }
-//
-//   function getSortIcon(sortCond, item){
-//     if(item.key === sortCond.by){
-//       const classnames = sortCond.order === "desc" ? "fa fa-sort-desc p-l" : "fa fa-sort-asc p-l";
-//       return <i className={classnames}/>
-//     }
-//   }
-//
-//   const style={
-//     fontSize: '1.5rem',
-//   }
-//
-//   const menu = _.map(sortMenu, item => {
-//     return (
-//       <a key={item.key} className="dropdown-item p-a" href="#" onClick={handleClick.bind(null, item.key)}>
-//         {item.label}
-//         {getSortIcon(sortCond, item)}
-//       </a>
-//     )
-//   });
-//
-//   return (
-//     <div className="p-a">
-//       <a href="#"  id="sort-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> 
-//         <i style={style} className="iconButton fa fa-sort" />
-//       </a>
-//       <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="sort-menu">
-//         {menu}
-//       </ul>
-//     </div>
-//   )
-// }

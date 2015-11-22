@@ -12,7 +12,7 @@ export default class LoginApp extends Component {
   }
 
   componentWillMount(){
-    const nextPath = this.props.location.state ? this.props.location.state.nextPath : '/';
+    const nextRouteName = this.props.location.state && this.props.location.state.nextRouteName;
     this.loginForm = loginForm();
 
     this.unsubscribeState = this.loginForm.onValue( state => {
@@ -22,7 +22,7 @@ export default class LoginApp extends Component {
     });
 
     this.unsubscribeSubmit = this.loginForm.onSubmit( state => {
-      loginActions.login(this.loginForm.toDocument(state), nextPath);
+      loginActions.login(this.loginForm.toDocument(state), nextRouteName);
     });
   }
 

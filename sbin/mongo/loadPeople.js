@@ -15,8 +15,8 @@ const fakeSchema = {
   , lastName: 'name.lastName'
   , jobTitle: 'name.jobTitle'
   , jobDescriptor: 'name.jobDescriptor'
-  , jobArea: 'name.jobArea'
-  , jobType: 'name.jobType'
+  , department: 'commerce.department'
+  , email: 'internet.email'
   , birthdate: 'date.past'
   , phones: [{
         label: 'hacker.noun'
@@ -30,6 +30,22 @@ const fakeSchema = {
   , createdAt: 'date.recent' 
   , note: 'lorem.paragraphs' 
 };
+
+const me = {
+    type: 'contact'
+  , prefix: 'Mr'
+  , firstName: 'eric'
+  , lastName: 'basley'
+  , jobTitle: 'President'
+  , email: 'eric.basley@redpelicans.com'
+  , birthdate: new Date(1967, 1, 9)
+  , phones: [{
+        label: 'mobile'
+      , phone: '06 85 80 63 16'
+    }]
+  , createdAt: new Date()
+};
+
 
 
 const COUNT = 100;
@@ -48,6 +64,7 @@ mongobless.connect(params.db, (err) => {
 });
 
 function insert(obj, cb){
+  obj.push(me);
   Person.collection.insertMany(obj, err => cb(err, obj));
 }
 

@@ -50,6 +50,22 @@ export default function person(document){
         defaultValue: rndColor(),
       }),
     ]),
+    new Field('email', {
+      label: "Email",
+      type: "text",
+    }),
+    new Field('department', {
+      label: "Department",
+      type: "text",
+    }),
+    new Field('jobTitle', {
+      label: "Job Title",
+      type: "text",
+    }),
+    new Field('jobDescription', {
+      label: "Job Description",
+      type: "text",
+    }),
     new Field('note', {
       label: "Note",
       type: "text",

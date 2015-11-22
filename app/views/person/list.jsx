@@ -1,17 +1,14 @@
-import _ from 'lodash';
-import moment from 'moment';
 import React, {Component} from 'react';
 import reactMixin from 'react-mixin';
 import Reflux from 'reflux';
-import routes from '../../routes';
 import {Content} from '../layout';
 import {AddButton, PersonPreview, Preferred, Delete, Edit, Sort, FilterPreferred, Filter, Refresh} from '../widgets';
 import {Header, HeaderLeft, HeaderRight, Title} from '../widgets';
-import classNames from 'classnames';
-import {personsStore,  personsActions} from '../../models/persons';
+import {personsActions} from '../../models/persons';
+import {personActions} from '../../models/person';
+import {companyActions} from '../../models/company';
 import {personsAppStore,  personsAppActions, sortMenu} from '../../models/persons-app';
 
-//@reactMixin.decorate(Reflux.connect(persons.store, "peopleStore"))
 export default class ListApp extends Component {
 
   state = {};
@@ -45,7 +42,7 @@ export default class ListApp extends Component {
   }
 
   handleAdd = () => {
-    this.props.history.pushState(null, routes.newperson.path);
+    personActions.create();
   }
 
   handleTogglePreferred = (person) => {
@@ -53,11 +50,11 @@ export default class ListApp extends Component {
   }
 
   handleEdit = (person) => {
-    this.props.history.pushState({id: person.get('_id')}, routes.editperson.path);
+    personActions.edit({person});
   }
 
   handleView = (person) => {
-    this.props.history.pushState({id: person.get('_id')}, routes.viewperson.path);
+    personActions.view({person});
   }
 
   handleDelete = (person) => {
@@ -68,7 +65,7 @@ export default class ListApp extends Component {
   }
 
   handleViewCompany = (company) => {
-    this.props.history.pushState({id: company.get('_id')}, routes.viewcompany.path);
+    companyActions.view({company});
   }
 
   // shouldComponentUpdate(nextProps, nextState){

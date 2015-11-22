@@ -1,48 +1,43 @@
 import _ from 'lodash';
-import moment from 'moment';
-import Remarkable from 'remarkable';
 import React, {Component} from 'react';
-import routes from '../../routes';
-import classNames from 'classnames';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title, PersonPreview, AvatarView, LeaveCompany, AddPerson, Edit, Preferred, Delete, TextLabel, MarkdownText} from '../widgets';
 import {Content} from '../layout';
 import {Delete as DeleteCompany} from './widgets';
-import {companiesStore, companiesActions} from '../../models/companies';
+import {companiesActions} from '../../models/companies';
 import {personsStore, personsActions} from '../../models/persons';
+import {personActions} from '../../models/person';
+import {companyActions, companyStore} from '../../models/company';
+import {navActions} from '../../models/nav';
 
 export default class ViewCompanyApp extends Component {
   state = {};
 
-  // static contextTypes = {
-  //   history: React.PropTypes.object.isRequired,
-  // }
-
   componentWillMount() {
-    const companyId = this.props.location.query.id || this.props.location.state.id;
-    companiesActions.load({ids: [companyId]});
-
-    this.unsubcribeCompanies = companiesStore.listen( companies => {
-      const company = companies.data.get(companyId);
-      this.setState({ company: companies.data.get(companyId) });
-      if(company) personsActions.load({ids: company.personsIds});
-    });
-
     this.unsubcribePersons = personsStore.listen( persons => {
       this.setState({ persons: persons.data })
     });
+
+    this.unsubcribeCompany = companyStore.listen( ctx => {
+      const company = ctx.company;
+      if(!company) return navActions.replace('companies');
+      this.setState({company});
+      personsActions.load({ids: company.personsIds});
+    });
+
+    companyActions.load();
   }
 
   componentWillUnmount(){
-    this.unsubcribeCompanies();
+    this.unsubcribeCompany();
     this.unsubcribePersons();
   }
 
   goBack = () => {
-    this.props.history.goBack();
+    navActions.goBack();
   }
 
   handleEdit= (company) => {
-    this.props.history.pushState({id: company.get('_id')}, routes.editcompany.path);
+    companyActions.edit({company});
   }
 
   handleDelete = (company) => {
@@ -58,11 +53,11 @@ export default class ViewCompanyApp extends Component {
   }
 
   handleEditPerson = (person) => {
-    this.props.history.pushState({id: person.get('_id')}, routes.editperson.path);
+    personActions.edit({person});
   }
 
   handleViewPerson = (person) => {
-    this.props.history.pushState({id: person.get('_id')}, routes.viewperson.path);
+    personActions.view({person});
   }
 
   handleDeletePerson = (person) => {
@@ -73,7 +68,7 @@ export default class ViewCompanyApp extends Component {
   }
 
   handleAddPerson = (company) => {
-    this.props.history.pushState({companyId: company.get('_id')}, routes.newperson.path);
+    personActions.create({company});
   }
 
   handleLeaveCompany = (company, person) => {
@@ -90,7 +85,7 @@ export default class ViewCompanyApp extends Component {
       <Content>
         <Header obj={company}>
           <HeaderLeft>
-            <GoBack history={this.props.history}/>
+            <GoBack goBack={this.goBack}/>
             <AvatarView obj={company}/>
             <Title title={company.get('name')}/>
             <Preferred obj={company}/>
