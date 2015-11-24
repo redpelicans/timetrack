@@ -1,6 +1,7 @@
 import Reflux from 'reflux';
 import routes from '../sitemap';
 import {navActions} from './nav';
+import {companiesStore} from './companies';
 
 const actions = Reflux.createActions([
   "load", 
@@ -14,6 +15,15 @@ const state = {};
 const store = Reflux.createStore({
 
   listenables: [actions],
+
+  init: function(){
+    companiesStore.listen( companies => {
+      if(state.company && state.company !== companies.data.get(state.company.get('_id'))){
+        state.company = companies.data.get(state.company.get('_id'));
+        this.trigger(state);
+      }
+    });
+  },
 
   onLoad: function(){
     this.trigger(state);

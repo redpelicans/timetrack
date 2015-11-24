@@ -2,10 +2,11 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import classNames from 'classnames';
 import sitemap from './sitemap';
-import {navStore} from './models/nav';
+import {navActions, navStore} from './models/nav';
 import {loginStore, loginActions} from './models/login';
 import errors from './models/errors';
 import ReactToastr from 'react-toastr';
+import {AvatarView} from './views/widgets';
 const {ToastContainer} = ReactToastr;
 const ToastMessageFactory = React.createFactory(ReactToastr.ToastMessage.animation);
 
@@ -142,10 +143,10 @@ class AppNav extends Component{
         <form className="form-inline navbar-form pull-right">
           <div>
             <button className="tm avatar-button" type="button" id="avatarmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-              <img className="tm avatar" src="images/user.jpg"/>
+              <AvatarView obj={this.props.user}/>
             </button>
             <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="avatarmenu">
-              <h6 className="dropdown-header">{this.props.user.name}</h6>
+              <h6 className="dropdown-header">{this.props.user.get('email')}</h6>
               <a className="dropdown-item" href="#" onClick={this.handleLogout} >Logout</a>
             </ul>
           </div>

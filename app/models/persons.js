@@ -18,16 +18,9 @@ const state = {
   isLoading: false,
 }
 
-const Mixin = {
-  getById: function(id){
-    const person =  state.data.get(id);
-    return person;
-  },
-}
 
 const store = Reflux.createStore({
 
-  mixins: [Mixin],
 
   listenables: [actions],
 

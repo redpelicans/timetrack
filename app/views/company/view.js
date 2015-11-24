@@ -19,6 +19,8 @@ export default class ViewCompanyApp extends Component {
 
     this.unsubcribeCompany = companyStore.listen( ctx => {
       const company = ctx.company;
+      console.log("ViewCompanyApp")
+      console.log(ctx)
       if(!company) return navActions.replace('companies');
       this.setState({company});
       personsActions.load({ids: company.personsIds});

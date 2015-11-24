@@ -6,6 +6,7 @@ import {ObjectId} from '../../helpers';
 
 export function init(app){
   app.get('/people', function(req, res, next){
+    console.log(req.cookies.access_token)
     async.waterfall([loadAll], (err, people) => {
       if(err)return next(err);
       res.json(_.map(people, p => Maker(p)));

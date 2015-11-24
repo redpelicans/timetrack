@@ -6,6 +6,7 @@ import async from 'async';
 import {default as logger} from 'morgan';
 import {default as bodyParser} from 'body-parser';
 import {default as cookieParser} from 'cookie-parser';
+import findUser from '../middleware/find_user';
 import express from 'express';
 
 let logerror = debug('timetrack:error')
@@ -55,8 +56,11 @@ export function start(params, resources, cb) {
     // register morgan logger
     app.use(logger('dev'));
 
+    require('./login').init(app, resources, params);
 
-    app.use('/api', require('./api').init(app, resources));
+    // require auth 
+    app.use(findUser(params.secretKey));
+    app.use('/api', require('./api').init(app, resources, params));
     
     app.use(errors);
 

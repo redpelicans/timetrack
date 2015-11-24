@@ -1,6 +1,6 @@
 import express from 'express';
 
-export function init(mainApp, resources) {
+export function init(mainApp, resources, params) {
   let app = express();
 
   require('./companies').init(app, resources);

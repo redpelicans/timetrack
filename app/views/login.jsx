@@ -1,63 +1,53 @@
 import React, {Component} from 'react';
 import classNames from 'classnames';
-import loginForm from '../forms/login';
 import {loginStore,  loginActions} from '../models/login';
-import {Form, InputField} from './widgets';
+import {Content} from './layout';
 
 export default class LoginApp extends Component {
 
-  componentWillUnmount(){
-    if(this.unsubscribeSubmit) this.unsubscribeSubmit();
-    if(this.unsubscribeState) this.unsubscribeState();
-  }
+  componentDidMount(){
+    gapi.load('auth2', () => { 
+      let auth2 = gapi.auth2.getAuthInstance();
+      if(!auth2){
+        auth2 = gapi.auth2.init({
+          client_id: "1013003508849-ke0dsjttftqcl0ee3jl7nv7av9iuij8p.apps.googleusercontent.com"
+        });
+      }
 
-  componentWillMount(){
-    const nextRouteName = this.props.location.state && this.props.location.state.nextRouteName;
-    this.loginForm = loginForm();
+      const onFailure = (err) => {
+        console.log("onFailure")
+        console.log(err)
+      } 
 
-    this.unsubscribeState = this.loginForm.onValue( state => {
-      this.setState({
-        canLogin: state.canSubmit,
-      });
-    });
+      const onSuccess = (user) => {
+        console.log('Signed in as ' + user.getBasicProfile().getEmail());
+        const nextRouteName = this.props.location.state && this.props.location.state.nextRouteName;
+        loginActions.login(user, nextRouteName);
+      } 
 
-    this.unsubscribeSubmit = this.loginForm.onSubmit( state => {
-      loginActions.login(this.loginForm.toDocument(state), nextRouteName);
-    });
-  }
+      auth2.attachClickHandler('signin-button', {}, onSuccess, onFailure);
 
-  handleLogin = () => {
-    this.loginForm.submit();
+    })
   }
 
   render(){
+    const styles={
+      container:{
+        display: 'flex',
+        justifyContent: 'center',
+        marginTop: '10%',
+      }
+    };
+
     return(
-      <div>
-        <Form>
-          <div className="row">
-            <div className="col-md-12">
-              <InputField field={this.loginForm.field('userName')}/>
-            </div>
-            <div className="col-md-12">
-              <InputField field={this.loginForm.field('password')}/>
-            </div>
-            <LoginBtn onLogin={this.handleLogin} canLogin={this.state.canLogin}/>
-          </div>
-        </Form>
-      </div>
+      <Content>
+        <div style={styles.container}>
+          <a href="#" id='signin-button'>
+            <img src="https://developers.google.com/accounts/images/sign-in-with-google.png"/>
+          </a>
+        </div>
+      </Content>
     )
   }
+
 }
-
-export const LoginBtn = ({onLogin, canLogin}) => {
-  const handleChange = (e) => {
-    onLogin();
-    e.preventDefault();
-  }
-
-  return (
-    <button type="button" className="btn btn-primary m-l" disabled={!canLogin} onClick={handleChange}>Login</button>
-  )
-}
-
-

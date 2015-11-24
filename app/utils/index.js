@@ -18,24 +18,30 @@ export function requestJson(uri, {verb='get', header='Runtime Error', body, mess
   let  promise;
 
   if(!body)
-    promise = fetchJson(uri, { method: verb });
+    promise = fetchJson(uri, { 
+      method: verb,
+      credentials: 'same-origin',
+    });
   else
     promise = fetchJson(uri, {
       method: verb,
+      credentials: 'same-origin',
       headers:{
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
       },
       body: JSON.stringify(body||{})
     });
 
-   return promise.catch( err => {
+   promise.catch( err => {
       console.error(err.toString());
       errors.alert({
         header: header,
         message: message,
       });
    });
+
+   return promise;
 }
 
 export function fetchJson(...params){

@@ -24,6 +24,8 @@ module.exports = {
       native_parser: true
     },
     database: 'timetrack',
+  },
+  google:{
+    clientId: "1013003508849-ke0dsjttftqcl0ee3jl7nv7av9iuij8p.apps.googleusercontent.com"
   }
-
 }
