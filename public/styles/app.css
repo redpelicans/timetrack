@@ -273,3 +273,7 @@ button:hover {
   margin-right: 5px;
 }
 
+.Select.is-disabled > .Select-control {
+  background-color: #434857;
+
+}

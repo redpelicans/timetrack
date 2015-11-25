@@ -279,6 +279,7 @@ export class SelectField extends Component {
   }
 
   render(){
+    console.log("render " + this.props.field.label)
     let field = this.props.field;
     let message = () => {
       if(this.state.error) return this.state.error;
@@ -288,22 +289,27 @@ export class SelectField extends Component {
       return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
     }
 
-    let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
-    let selectClassNames= classNames( 'tm select form-control', { 'form-control-error': hasError() });
-    let options = _.map(field.domainValue, ({key, value}) => {return {label:value, value:key}} );
+    const fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
+    const selectClassNames= classNames( 'tm select form-control', { 'form-control-error': hasError() });
+    const options = _.map(field.domainValue, ({key, value}) => {return {label:value, value:key}} );
 
-    return(
-      <fieldset className={fieldsetClassNames}>
-        <label htmlFor={field.key}>{field.label}</label>
-        <Select 
-          options={options}  
-          value={this.state.value} 
-          id={field.key} 
-          clearable={false}
-          onChange={this.handleChange}/>
-        <small className="text-muted control-label">{message()}</small>
-      </fieldset>
-    )
+    if(this.state.disabled){
+      const keyValue = _.find(field.domainValue, x => x.key === this.state.value);
+      return <TextLabel label={field.label} value={keyValue && keyValue.value}/>
+    }else{
+      return(
+        <fieldset className={fieldsetClassNames}>
+          <label htmlFor={field.key}>{field.label}</label>
+          <Select 
+            options={options}  
+            value={this.state.value} 
+            id={field.key} 
+            clearable={false}
+            onChange={this.handleChange}/>
+          <small className="text-muted control-label">{message()}</small>
+        </fieldset>
+      )
+    }
   }
 }
 
@@ -368,11 +374,12 @@ export class SelectColorField extends Component {
   }
 }
 
-export const AvatarView = ({obj, name = obj.name}) => {
+export const AvatarView = ({obj}) => {
   if(!obj || !obj.get('avatar')) return <Avatar name={"?"}/>;
 
   const avatar = obj.get('avatar').toJS();
-  const defaultAvatar = <div className="m-r"><Avatar name={name} color={avatar.color}/></div>;
+  console.log("AvatarView")
+  const defaultAvatar = <div className="m-r"><Avatar name={obj.get('name')} color={avatar.color}/></div>;
 
   switch(avatar.type){
     case 'url':

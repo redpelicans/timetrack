@@ -1,6 +1,6 @@
 import {checkStatus, parseJSON} from '../utils';
 
-export const colors = [ '#d73d32', '#7e3794', '#4285f4', '#67ae3f', '#d61a7f', '#ff4080' ];
+export const colors = [ '#d73d32', '#CD4436', '#4285f4', '#67ae3f', '#d61a7f', '#ff4080' ];
 
 export const avatarTypes = [
   {key: 'color', value: 'Color Picker'}, 
@@ -33,8 +33,8 @@ export function avatartarUrlValueChecker(url, state){
   });
 }
 
-export function emailUniqueness(email){
-  if(!email) return new Promise(resolve => resolve({checked: true}));
+export function emailUniqueness(email, person={}){
+  if(!email || person.email === email) return new Promise(resolve => resolve({checked: true}));
   return fetch('/api/person/check_email_uniqueness', {
     method: 'post',
     headers:{

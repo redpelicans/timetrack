@@ -48,7 +48,7 @@ export function init(app){
   });
 
   app.post('/person/check_email_uniqueness', function(req, res, next){
-    let email = req.body.email;
+    let email = req.body.email && req.body.email.trim();
     Person.findAll({email: email}, {_id: 1}, (err, data) => {
       if(err)return next(err);
       if(data.length) return res.json({email: email, ok: false});
@@ -108,7 +108,7 @@ function preferred(isPreferred, person, cb){
 }
 
 function fromJson(json){
-  let attrs = ['prefix', 'firstName', 'lastName', 'preferred', 'jobDescription', 'department', 'email', 'birthdate', 'note'];
+  let attrs = ['prefix', 'firstName', 'lastName', 'type', 'jobType', 'preferred', 'jobDescription', 'department', 'skills', 'roles', 'email', 'birthdate', 'note'];
   let res = _.pick(json, attrs);
   res.companyId = json.companyId ? ObjectId(json.companyId) : undefined;
   if(json.phones){

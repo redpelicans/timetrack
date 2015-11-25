@@ -3,6 +3,8 @@ import Immutable from 'immutable';
 import {requestJson} from '../utils';
 import {navActions} from './nav';
 import routes from '../sitemap';
+import {personsStore} from './persons';
+
 
 const actions = Reflux.createActions([
   "login", 
@@ -14,12 +16,29 @@ const state = {
   user: undefined,
 }
 
+const Mixin = {
+  getUser: function(){
+    return state.user;
+  },
+}
 
 const store = Reflux.createStore({
 
-  //mixins: [Mixin],
+  mixins: [Mixin],
 
   listenables: [actions],
+
+  init(){
+    personsStore.listen( persons => {
+      if(state.user){
+        const person = persons.data.get(state.user.get('_id'));
+        if(person && person != state.user){
+          state.user = person;
+          this.trigger(state);
+        }
+      }
+    });
+  },
 
   onLogin(googleUser, nextRouteName){
     console.log("====> onLogin")

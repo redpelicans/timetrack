@@ -7,6 +7,7 @@ import Immutable from 'immutable';
 import classNames from 'classnames';
 import personForm, {colors, avatarTypes} from '../../forms/person';
 import {personsStore,  personsActions} from '../../models/persons';
+import {loginStore} from '../../models/login';
 import {personStore,  personActions} from '../../models/person';
 import {companiesStore,  companiesActions} from '../../models/companies';
 import {navActions} from '../../models/nav';
@@ -183,6 +184,13 @@ export class EditPersonApp extends Component {
 }
 
 export default class EditContent extends Component {
+
+  componentWillMount(){
+    // dynamic behavior
+    emailRule(this.props.personForm);
+    companyRule(this.props.personForm);
+  }
+
   companiesValues(){
     if(!this.props.companies) return [];
     const values = _.chain(this.props.companies.toJS())
@@ -194,7 +202,8 @@ export default class EditContent extends Component {
   }
 
   render(){
-    if(!this.props.personForm) return false;
+    const person = this.props.personForm;
+    if(!person) return false;
 
     let styles = {
       time: {
@@ -206,8 +215,10 @@ export default class EditContent extends Component {
     }
 
     const fakePerson = Immutable.fromJS(_.pick(this.props.personDocument, 'createdAt', 'updatedAt'));
-    const companyId = this.props.personForm.field('companyId');
+    const companyId = person.field('companyId');
     companyId.schema.domainValue = this.companiesValues();
+
+
 
     return (
       <Content>
@@ -217,13 +228,13 @@ export default class EditContent extends Component {
             <Header obj={fakePerson}>
               <HeaderLeft>
                 <GoBack goBack={this.props.goBack}/>
-                <AvatarViewField type='person' obj={this.props.personForm}/>
+                <AvatarViewField type='person' obj={person}/>
                 <Title title={this.props.title}/>
               </HeaderLeft>
               <HeaderRight>
                 {this.props.submitBtn}
                 {this.props.cancelBtn}
-                <ResetBtn obj={this.props.personForm}/>
+                <ResetBtn obj={person}/>
               </HeaderRight>
             </Header>
 
@@ -233,31 +244,40 @@ export default class EditContent extends Component {
             <Form>
               <div className="row">
                 <div className="col-md-3">
-                  <SelectField field={this.props.personForm.field('prefix')}/>
+                  <SelectField field={person.field('prefix')}/>
                 </div>
                 <div className="col-md-4">
-                  <InputField field={this.props.personForm.field('firstName')}/>
+                  <InputField field={person.field('firstName')}/>
                 </div>
                 <div className="col-md-4">
-                  <InputField field={this.props.personForm.field('lastName')}/>
+                  <InputField field={person.field('lastName')}/>
                 </div>
                 <div className="col-md-1">
-                  <StarField field={this.props.personForm.field('preferred')}/>
+                  <StarField field={person.field('preferred')}/>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-md-3">
+                  <SelectField field={person.field('type')}/>
+                </div>
+                <div className="col-md-6">
+                  <InputField field={person.field('email')}/>
+                </div>
+                <div className="col-md-3">
+                  <SelectField field={person.field('jobType')}/>
                 </div>
                 <div className="col-md-12">
                   <SelectField field={companyId}/>
                 </div>
                 <div className="col-md-12">
-                  <InputField field={this.props.personForm.field('email')}/>
+                  <SelectField field={person.field('skills')}/>
+                </div>
+                <AvatarChooser person={person}/>
+                <div className="col-md-12">
+                  <MarkdownEditField field={person.field('jobDescription')}/>
                 </div>
                 <div className="col-md-12">
-                <AvatarChooserField field={this.props.personForm.field('avatar')}/>
-                </div>
-                <div className="col-md-12">
-                  <MarkdownEditField field={this.props.personForm.field('jobDescription')}/>
-                </div>
-                <div className="col-md-12">
-                  <MarkdownEditField field={this.props.personForm.field('note')}/>
+                  <MarkdownEditField field={person.field('note')}/>
                 </div>
               </div>
             </Form>
@@ -267,3 +287,53 @@ export default class EditContent extends Component {
     )
   }
 }
+
+class AvatarChooser extends Component{
+  componentWillMount(){
+    const type = this.props.person.field('type');
+    type.onValue( state => {
+      this.setState({value: state.value})
+    });
+  }
+
+  render(){
+    if(this.state.value === 'worker'){
+      return <div/>
+    }else{
+      return (
+        <div className="col-md-12">
+          <AvatarChooserField field={this.props.person.field('avatar')}/>
+        </div>
+      )
+    }
+  }
+}
+
+function companyRule(person){
+  const type = person.field('type');
+  const companyId = person.field('companyId');
+
+  type.onValue( state => {
+    if(state.value === 'worker'){
+      companyId.setValue(loginStore.getUser().get('companyId'));
+      companyId.disabled(true);
+    }else{
+      companyId.disabled(false);
+    }
+  })
+}
+
+function emailRule(person){
+  const type = person.field('type');
+  const email = person.field('email');
+
+  type.onValue( state => {
+    if(state.value === 'worker'){
+      email.schema.required = true;
+    }else{
+      email.schema.required = false;
+    }
+    email.refresh();
+  });
+}
+

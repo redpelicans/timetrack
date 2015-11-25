@@ -4,8 +4,27 @@ import {colors, rndColor, avatarTypes, avatartarUrlValueChecker, emailUniqueness
 
 export {colors, avatarTypes};
 
+const types = [
+  {key: 'contact', value: 'Contact'},
+  {key: 'consultant', value: 'Consultant'},
+  {key: 'worker', value: 'Worker'},
+]
+
+const jobType = [
+  {key: 'designer', value: 'Designer'},
+  {key: 'developer', value: 'Developer'},
+  {key: 'manager', value: 'Manager'},
+  {key: 'sales', value: 'Sales'},
+]
+
 export default function person(document){
   return new Formo([
+    new Field('type', {
+      label: "Type",
+      type: "text",
+      domainValue: types,
+      defaultValue: 'contact',
+    }),
     new Field('prefix', {
       label: "Prefix",
       type: "text",
@@ -58,6 +77,15 @@ export default function person(document){
     }),
     new Field('department', {
       label: "Department",
+      type: "text",
+    }),
+    new Field('jobType', {
+      label: "Job Type",
+      type: "text",
+      domainValue: jobType
+    }),
+    new Field('skills', {
+      label: "Skills",
       type: "text",
     }),
     new Field('jobTitle', {
