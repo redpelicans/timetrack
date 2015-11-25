@@ -33,4 +33,25 @@ export function avatartarUrlValueChecker(url, state){
   });
 }
 
+export function emailUniqueness(email){
+  if(!email) return new Promise(resolve => resolve({checked: true}));
+  return fetch('/api/person/check_email_uniqueness', {
+    method: 'post',
+    headers:{
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({email: email})
+  })
+  .then(checkStatus)
+  .then(parseJSON)
+  .then(json => {
+    return { 
+      checked: json.ok, 
+      error: !json.ok && "Email already exists!" 
+    };
+  });
+}
+
+
 

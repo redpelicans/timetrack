@@ -3,17 +3,18 @@ import moment from 'moment';
 import _ from 'lodash';
 import {Person} from '../../models';
 import {ObjectId} from '../../helpers';
+import checkUser  from '../../middleware/check_user';
 
 export function init(app){
   app.get('/people', function(req, res, next){
-    console.log(req.cookies.access_token)
+    //console.log(req.cookies.access_token)
     async.waterfall([loadAll], (err, people) => {
       if(err)return next(err);
       res.json(_.map(people, p => Maker(p)));
     });
   });
 
-  app.post('/people/preferred', function(req, res, next){
+  app.post('/people/preferred', checkUser('admin'), function(req, res, next){
     let id = ObjectId(req.body.id); 
     async.waterfall([loadOne.bind(null, id), preferred.bind(null, Boolean(req.body.preferred))], (err, person) => {
       if(err)return next(err);
@@ -45,6 +46,16 @@ export function init(app){
       res.json(Maker(person));
     });
   });
+
+  app.post('/person/check_email_uniqueness', function(req, res, next){
+    let email = req.body.email;
+    Person.findAll({email: email}, {_id: 1}, (err, data) => {
+      if(err)return next(err);
+      if(data.length) return res.json({email: email, ok: false});
+      res.json({email: email, ok: true});
+    });
+  });
+
 
 }
 

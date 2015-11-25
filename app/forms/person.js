@@ -1,6 +1,6 @@
 import {Formo, Field, MultiField} from 'formo';
 import _ from 'lodash';
-import {colors, rndColor, avatarTypes, avatartarUrlValueChecker} from './helpers';
+import {colors, rndColor, avatarTypes, avatartarUrlValueChecker, emailUniqueness} from './helpers';
 
 export {colors, avatarTypes};
 
@@ -53,6 +53,8 @@ export default function person(document){
     new Field('email', {
       label: "Email",
       type: "text",
+      valueChecker: { checker: emailUniqueness, debounce: 200},
+      pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
     }),
     new Field('department', {
       label: "Department",

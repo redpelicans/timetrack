@@ -36,9 +36,6 @@ export function init(app, resources, params){
 }
 
 function loadUser(googleUser, cb){
-  console.log("loadUser");
-  console.log(googleUser)
-  console.log(cb)
   Person.findOne({isDeleted: {$ne: true}, email: googleUser.email}, (err, user) => {
     if(err)return cb(err);
     if(!user) return cb(new Error("Unknwon email: " + googleUser.email));
@@ -47,7 +44,6 @@ function loadUser(googleUser, cb){
 }
 
 function updateAvatar(user, googleUser, cb){
-  console.log(user)
   if(!googleUser.picture || user.avatar && user.avatar.url === googleUser.picture)return setImmediate(cb, null, user);
   Person.collection.updateOne({_id: user._id}, {$set: {'avatar.avatarType': 'url', 'avatar.url': googleUser.picture}}, err => {
     cb(err, user);

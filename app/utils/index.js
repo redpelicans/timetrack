@@ -1,12 +1,24 @@
 import errors from '../models/errors';
+import {navActions} from '../models/nav';
 
 export function parseJSON(res) {
-  return res.json()
+  return res ? res.json() : {};
 }
 
 export function checkStatus(res) {
   if (res.status >= 200 && res.status < 300) {
     return res
+  } else if(res.status === 401){
+    var error = new Error("Insufficient privilege, you cannot access this page")
+    error.res = res
+    error.forceMessage = true;
+    navActions.gotoLogin();
+    throw error
+  } else if(res.status === 403){
+    var error = new Error("Unauthorized access")
+    error.res = res
+    error.forceMessage = true;
+    throw error
   } else {
     var error = new Error(res.statusText)
     error.res = res
@@ -35,10 +47,11 @@ export function requestJson(uri, {verb='get', header='Runtime Error', body, mess
 
    promise.catch( err => {
       console.error(err.toString());
-      errors.alert({
-        header: header,
-        message: message,
-      });
+      if(err.forceMessage){
+        errors.alert({ header: err.message });
+      }else{
+        errors.alert({ header: header, message: message });
+      }
    });
 
    return promise;

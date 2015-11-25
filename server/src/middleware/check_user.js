@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-export default  function checkUser(roles) {
+export default function checkUser(roles) {
   if (typeof roles == 'string') roles = [roles];
   const requestedRoles = roles;
   return function(req, res, next) {
@@ -13,4 +13,4 @@ export default  function checkUser(roles) {
 
 function hasAllRoles(user, roles){
   return _.chain(roles).difference(user.roles || []).isEmpty().value();
-},
+}

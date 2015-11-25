@@ -11,10 +11,10 @@ export default function findUser(secretKey){
         console.log(err);
         return res.sendStatus(401);
       }
-      Person.findOne({isDeleted: {$ne: true}, _id: ObjectId(token.sub)}, (err, user) => {
-        if(err || !user)return next();
+      Person.findOne({isDeleted: {$ne: true}, _id: ObjectId(token.body.sub)}, (err, user) => {
+        if(err || !user) return next(new Error("Unknown User"));
         req.user = user;
-        console.log(`user: ${user.email}`);
+        console.log(`==> user: ${user.email}`);
         next();
       });
     });

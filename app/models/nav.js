@@ -10,6 +10,7 @@ const actions = Reflux.createActions([
   "replaceRoute",
   "pushRoute",
   "goBack",
+  "gotoLogin",
 ]);
 
 const state = { topic: undefined };
@@ -34,6 +35,10 @@ const store = Reflux.createStore({
     const route = _.isString(nameOrRoute) ? routes[nameOrRoute] : nameOrRoute;
     if(!route) errors.alert({header: "Client error", message: `Unknown route name: ${nameOrRoute}`});
     actions.pushRoute(route);
+  },
+
+  onGotoLogin(){
+    actions.pushRoute(routes.login);
   },
 
 });
