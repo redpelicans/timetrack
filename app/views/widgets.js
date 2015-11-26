@@ -6,8 +6,8 @@ import Remarkable from 'remarkable';
 import {colors} from '../forms/company';
 
 
-export class InputField extends Component {
-  state = undefined;
+class BaseField extends Component{
+  state = {}
 
   componentWillUnmount(){
     this.unsubscribe();
@@ -23,54 +23,41 @@ export class InputField extends Component {
     this.props.field.setValue( e.target.value );
   }
 
+  message = () => {
+    if(this.state.error) return this.state.error;
+    if(this.state.isLoading) return 'Loading ...';
+  }
+
+  hasError = () => {
+    return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
+  }
+
+  fieldsetClassNames = () => classNames( "form-group", { 'has-error': this.hasError() });
+  inputClassNames = () => classNames( 'tm input form-control', { 'form-control-error': this.hasError() });
+}
+
+
+export class InputField extends BaseField {
+
   render(){
-    // avoid to render without a state
     if(!this.state)return false;
-
-    let field = this.props.field;
-    let message = () => {
-      if(this.state.error) return this.state.error;
-      if(this.state.isLoading) return 'Loading ...';
-    }
-    let hasError = () => {
-      return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
-    }
-
-    let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
-    let inputClassNames= classNames( 'tm input form-control', { 'form-control-error': hasError() });
-    let labelUrl = this.props.isUrl ? <a href={this.state.value}><i className="fa fa-external-link p-l"/></a> : "";
+    const field = this.props.field;
+    const labelUrl = this.props.isUrl ? <a href={this.state.value}><i className="fa fa-external-link p-l"/></a> : "";
 
     return(
-      <fieldset className={fieldsetClassNames}>
+      <fieldset className={this.fieldsetClassNames()}>
         <label htmlFor={field.key}>
           {field.label}
           {labelUrl}
         </label>
-        {/*<input className={inputClassNames} id={field.key} type={field.htmlType()} defaultValue={this.state.value} placeholder={field.label} onChange={this.handleChange}/>*/}
-        <input className={inputClassNames} id={field.key} type={field.htmlType()} value={this.state.value} placeholder={field.label} onChange={this.handleChange}/>
-        <small className="text-muted control-label">{message()}</small>
+        <input className={this.inputClassNames()} id={field.key} type={field.htmlType()} value={this.state.value} placeholder={field.label} onChange={this.handleChange}/>
+        <small className="text-muted control-label">{this.message()}</small>
       </fieldset>
     )
   }
 }
 
-export class FileField extends Component {
-  state = undefined;
-
-  // constructor(props){
-  //   super(props);
-  //   console.log("FileField.constructor")
-  // }
-
-  componentWillUnmount(){
-    this.unsubscribe();
-  }
-
-  componentDidMount(){
-    this.unsubscribe = this.props.field.onValue( v => {
-      this.setState({value: v.value});
-    });
-  }
+export class FileField extends BaseField {
 
   handleChange = (e) => {
     this.props.onFilenameChange(e.target.value);
@@ -85,75 +72,40 @@ export class FileField extends Component {
   render(){
     if(!this.state)return false;
 
-    let field = this.props.field;
-    let message = () => {
-      if(this.state.error) return this.state.error;
-      if(this.state.isLoading) return 'Loading ...';
-    }
-    let hasError = () => {
-      return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
-    }
+    const field = this.props.field;
 
-    let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
-    let inputClassNames= classNames( 'tm input form-control', { 'form-control-error': hasError() });
-    let style={
+    const style={
       display: 'block',
       height: '36px',
     }
 
     return(
-      <fieldset className={fieldsetClassNames}>
+      <fieldset className={this.fieldsetClassNames()}>
         <label htmlFor={field.key}>
           {field.label}
         </label>
         <FileInput 
-          className={inputClassNames} 
+          className={this.inputClassNames()} 
           id={field.key} 
           placeholder={this.props.filename || field.label} 
           onChange={this.handleChange}/>
-        <small className="text-muted control-label">{message()}</small>
+        <small className="text-muted control-label">{this.message()}</small>
       </fieldset>
     )
   }
 }
 
-export class MarkdownEditField extends Component {
+export class MarkdownEditField extends BaseField {
   state = { mode: 'write' };
-
-  componentWillUnmount(){
-    this.unsubscribe();
-  }
-
-  componentDidMount(){
-    this.unsubscribe = this.props.field.onValue( v => {
-      this.setState(v);
-    });
-  }
 
   handleClick = (mode, e) => {
     e.preventDefault();
     this.setState({mode: mode});
   }
 
-  handleChange = (e) => {
-    this.props.field.setValue( e.target.value );
-  }
-
   render(){
     if(!this.state)return false;
     let field = this.props.field;
-
-    let message = () => {
-      if(this.state.error) return this.state.error;
-      if(this.state.isLoading) return 'Loading ...';
-    }
-
-    let hasError = () => {
-      return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
-    }
-
-    let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
-    let inputClassNames= classNames( 'tm input form-control', { 'form-control-error': hasError() });
 
     let styles = {
       textarea: {
@@ -177,7 +129,7 @@ export class MarkdownEditField extends Component {
     const writer = () => {
       return <textarea 
         style={styles.textarea} 
-        className={inputClassNames} 
+        className={this.inputClassNames()} 
         id={field.key} 
         type={field.htmlType()} 
         value={this.state.value} 
@@ -188,7 +140,7 @@ export class MarkdownEditField extends Component {
     let widget = this.state.mode === 'write' ? writer() : reader();
 
     return(
-      <fieldset className={fieldsetClassNames}>
+      <fieldset className={this.fieldsetClassNames()}>
         <label htmlFor={field.key}>
           {field.label}
         </label>
@@ -201,45 +153,22 @@ export class MarkdownEditField extends Component {
           </label>
         </div>
         {widget}
-        <small className="text-muted control-label">{message()}</small>
+        <small className="text-muted control-label">{this.message()}</small>
       </fieldset>
-
     )
   }
 }
-export class TextAreaField extends Component {
-  state = undefined;
 
-  componentWillUnmount(){
-    this.unsubscribe();
-  }
+export class TextAreaField extends BaseField {
 
-  componentDidMount(){
-    this.unsubscribe = this.props.field.onValue( v => {
-      this.setState(v);
-    });
-  }
-
-  handleChange = (e) => {
-    this.props.field.setValue( e.target.value );
-  }
 
   render(){
     // avoid to render without a state
     if(!this.state)return false;
 
     let field = this.props.field;
-    let message = () => {
-      if(this.state.error) return this.state.error;
-      if(this.state.isLoading) return 'Loading ...';
-    }
-    let hasError = () => {
-      return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
-    }
-
-    let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
-    let inputClassNames= classNames( 'tm input form-control', { 'form-control-error': hasError() });
     let labelUrl = this.props.isUrl ? <a href={this.state.value}><i className="fa fa-external-link p-l"/></a> : "";
+
     let styles = {
       textarea: {
         minHeight: '200px',
@@ -247,88 +176,53 @@ export class TextAreaField extends Component {
     }
 
     return(
-      <fieldset className={fieldsetClassNames}>
+      <fieldset className={this.fieldsetClassNames()}>
         <label htmlFor={field.key}>
           {field.label}
           {labelUrl}
         </label>
         <textarea style={styles.textarea} className={inputClassNames} id={field.key} type={field.htmlType()} value={this.state.value} placeholder={field.label} onChange={this.handleChange}/>
-        <small className="text-muted control-label">{message()}</small>
+        <small className="text-muted control-label">{this.message()}</small>
       </fieldset>
     )
   }
 }
 
-
-
-export class SelectField extends Component {
-  state = {}
-
-  componentWillUnmount(){
-    this.unsubscribe();
-  }
-
-  componentDidMount(){
-    this.unsubscribe = this.props.field.onValue( v => {
-      this.setState(v);
-    });
-  }
-
+class BaseSelectField extends BaseField{
   handleChange = (value) => {
     this.props.field.setValue( value );
   }
 
+  selectClassNames = () => classNames( 'tm select form-control', { 'form-control-error': this.hasError() });
+  options = () => _.map(this.props.field.domainValue, ({key, value}) => {return {label:value, value:key}} );
+}
+
+export class SelectField extends BaseSelectField {
   render(){
     console.log("render " + this.props.field.label)
     let field = this.props.field;
-    let message = () => {
-      if(this.state.error) return this.state.error;
-      if(this.state.isLoading) return 'Loading ...';
-    }
-    let hasError = () => {
-      return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
-    }
-
-    const fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
-    const selectClassNames= classNames( 'tm select form-control', { 'form-control-error': hasError() });
-    const options = _.map(field.domainValue, ({key, value}) => {return {label:value, value:key}} );
 
     if(this.state.disabled){
       const keyValue = _.find(field.domainValue, x => x.key === this.state.value);
       return <TextLabel label={field.label} value={keyValue && keyValue.value}/>
     }else{
       return(
-        <fieldset className={fieldsetClassNames}>
+        <fieldset className={this.fieldsetClassNames()}>
           <label htmlFor={field.key}>{field.label}</label>
           <Select 
-            options={options}  
+            options={this.options()}  
             value={this.state.value} 
             id={field.key} 
             clearable={false}
             onChange={this.handleChange}/>
-          <small className="text-muted control-label">{message()}</small>
+          <small className="text-muted control-label">{this.message()}</small>
         </fieldset>
       )
     }
   }
 }
 
-export class SelectColorField extends Component {
-  state = {}
-
-  componentWillUnmount(){
-    this.unsubscribe();
-  }
-
-  componentDidMount(){
-    this.unsubscribe = this.props.field.onValue( v => {
-      this.setState(v);
-    });
-  }
-
-  handleChange = (value) => {
-    this.props.field.setValue( value );
-  }
+export class SelectColorField extends BaseSelectField {
 
   renderOption(option){
     let style = {
@@ -342,23 +236,12 @@ export class SelectColorField extends Component {
   render(){
     let field = this.props.field;
 
-    let message = () => {
-      if(this.state.error) return this.state.error;
-      if(this.state.isLoading) return 'Loading ...';
-    }
-    let hasError = () => {
-      return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
-    }
-
-    let fieldsetClassNames = classNames( "form-group", { 'has-error': hasError() });
-    let selectClassNames= classNames( 'tm select form-control', { 'form-control-error': hasError() });
-
     let options = _.map(this.props.options, color => {
       return { key: color, value: color};
     });
 
     return(
-      <fieldset className={fieldsetClassNames}>
+      <fieldset className={this.fieldsetClassNames()}>
         <label htmlFor={field.key}>{field.label}</label>
         <Select 
           options={options}  
@@ -368,10 +251,43 @@ export class SelectColorField extends Component {
           id={field.key} 
           clearable={false}
           onChange={this.handleChange}/>
-        <small className="text-muted control-label">{message()}</small>
+        <small className="text-muted control-label">{this.message()}</small>
       </fieldset>
     )
   }
+}
+
+export class MultiSelectField extends BaseSelectField{
+
+  handleChange = (value) => {
+    this.props.field.setValue( value && value.split(',') || [] );
+  }
+
+  render(){
+    console.log("render " + this.props.field.label)
+    let field = this.props.field;
+
+    if(this.state.disabled){
+      const keyValue = _.find(field.domainValue, x => x.key === this.state.value);
+      return <TextLabel label={field.label} value={keyValue && keyValue.value}/>
+    }else{
+      return(
+        <fieldset className={this.fieldsetClassNames()}>
+          <label htmlFor={field.key}>{field.label}</label>
+          <Select 
+            options={this.options()}  
+            value={this.state.value} 
+            id={field.key} 
+            clearable={false}
+            allowCreate={this.props.allowCreate}
+            multi={true}
+            onChange={this.handleChange}/>
+          <small className="text-muted control-label">{this.message()}</small>
+        </fieldset>
+      )
+    }
+  }
+
 }
 
 export const AvatarView = ({obj}) => {

@@ -8,6 +8,7 @@ export function init(mainApp, resources, params) {
   require('./missions').init(app, resources);
   require('./workblocks').init(app, resources);
   require('./check_url').init(app, resources);
+  require('./skills').init(app, resources);
 
   return app;
 }

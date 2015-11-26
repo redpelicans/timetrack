@@ -235,7 +235,6 @@ hr {
   outline: 0;
 }
 
-
 button {
   border-radius: 4px;
 }
@@ -276,4 +275,12 @@ button:hover {
 .Select.is-disabled > .Select-control {
   background-color: #434857;
 
+}
+
+.Select-item{
+  color: #333;
+}
+
+.Select-input{
+  color: #cfd2da;
 }

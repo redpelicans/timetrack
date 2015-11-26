@@ -8,11 +8,12 @@ import classNames from 'classnames';
 import personForm, {colors, avatarTypes} from '../../forms/person';
 import {personsStore,  personsActions} from '../../models/persons';
 import {loginStore} from '../../models/login';
+import {skillsActions, skillsStore} from '../../models/skills';
 import {personStore,  personActions} from '../../models/person';
 import {companiesStore,  companiesActions} from '../../models/companies';
 import {navActions} from '../../models/nav';
 import {Content} from '../layout';
-import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, SelectField} from '../widgets';
+import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, MultiSelectField, SelectField} from '../widgets';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title} from '../widgets';
 
 @reactMixin.decorate(Lifecycle)
@@ -46,6 +47,7 @@ export class NewPersonApp extends Component {
     if(this.unsubscribeState) this.unsubscribeState();
     if(this.unsubscribeCompanies) this.unsubscribeCompanies();
     if(this.unsubscribePerson) this.unsubscribePerson();
+    if(this.unsubscribeSkills) this.unsubscribeSkills();
   }
 
   componentWillMount() {
@@ -53,11 +55,17 @@ export class NewPersonApp extends Component {
       this.setState({companies: state.data});
     });
 
+    this.unsubscribeSkills = skillsStore.listen( skills => {
+      this.setState({skills: skills.data});
+    })
+
     this.unsubscribePerson = personStore.listen( ctx => {
       if(!this.personForm){
         this.personForm =  ctx.company ? personForm({companyId: ctx.company.get('_id')}) : personForm();
 
         this.unsubscribeSubmit = this.personForm.onSubmit( state => {
+
+          console.log(this.personForm.toDocument(state));
           personsActions.create(this.personForm.toDocument(state));
           this.goBack(true);
         });
@@ -73,6 +81,7 @@ export class NewPersonApp extends Component {
 
     personActions.load();
     companiesActions.load();
+    skillsActions.load();
   }
 
   render(){
@@ -89,6 +98,7 @@ export class NewPersonApp extends Component {
           cancelBtn={cancelBtn}
           goBack={this.goBack}
           companies={this.state.companies}
+          skills={this.state.skills}
           personForm={this.personForm}/>
       </div>
     )
@@ -128,6 +138,7 @@ export class EditPersonApp extends Component {
     if(this.unsubscribeState) this.unsubscribeState();
     if(this.unsubscribePerson) this.unsubscribePerson();
     if(this.unsubscribeCompanies) this.unsubscribeCompanies();
+    if(this.unsubscribeSkills) this.unsubscribeSkills();
   }
 
   componentWillMount() {
@@ -135,6 +146,10 @@ export class EditPersonApp extends Component {
     this.unsubscribeCompanies = companiesStore.listen( companies => {
       this.setState({companies: companies.data});
     });
+
+    this.unsubscribeSkills = skillsStore.listen( skills => {
+      this.setState({skills: skills.data});
+    })
 
     this.unsubscribePerson = personStore.listen( ctx => {
       const person = ctx.person;
@@ -160,6 +175,7 @@ export class EditPersonApp extends Component {
 
     personActions.load();
     companiesActions.load();
+    skillsActions.load();
   }
 
   render(){
@@ -177,6 +193,7 @@ export class EditPersonApp extends Component {
           goBack={this.goBack}
           personDocument={this.personDocument} 
           companies={this.state.companies}
+          skills={this.state.skills}
           personForm={this.personForm}/>
       </div>
     )
@@ -215,10 +232,12 @@ export default class EditContent extends Component {
     }
 
     const fakePerson = Immutable.fromJS(_.pick(this.props.personDocument, 'createdAt', 'updatedAt'));
+
     const companyId = person.field('companyId');
     companyId.schema.domainValue = this.companiesValues();
 
-
+    const skills = person.field('skills');
+    skills.schema.domainValue = this.props.skills && this.props.skills.toJS() || [];
 
     return (
       <Content>
@@ -270,7 +289,7 @@ export default class EditContent extends Component {
                   <SelectField field={companyId}/>
                 </div>
                 <div className="col-md-12">
-                  <SelectField field={person.field('skills')}/>
+                  <MultiSelectField field={skills} allowCreate={true}/>
                 </div>
                 <AvatarChooser person={person}/>
                 <div className="col-md-12">

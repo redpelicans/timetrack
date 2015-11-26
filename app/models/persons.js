@@ -38,7 +38,6 @@ const store = Reflux.createStore({
     state.isLoading = true;
     this.trigger(state);
     requestJson('/api/people', {message: 'Cannot load people, check your backend server'}).then( people => {
-      console.log("end loading persons ...")
       actions.loadCompleted(Immutable.fromJS(_.chain(people).map( p => [p._id, Maker(p)]).object().value()));
     });
   },

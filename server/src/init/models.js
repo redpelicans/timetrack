@@ -26,7 +26,8 @@ export default function init(params) {
 function ensureIndexes(cb){
   async.parallel([
     person_email,
-    person_company_id
+    person_company_id,
+    person_skills,
   ], cb);
 }
 
@@ -36,4 +37,8 @@ function person_email(cb){
 
 function person_company_id(cb){
   Person.collection.ensureIndex({company_id:1}, {background: true}, cb);
+}
+
+function person_skills(cb){
+  Person.collection.ensureIndex({skills:1}, {background: true}, cb);
 }

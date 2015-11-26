@@ -4,6 +4,7 @@ import _ from 'lodash';
 import {Person} from '../../models';
 import {ObjectId} from '../../helpers';
 import checkUser  from '../../middleware/check_user';
+import uppercamelcase  from 'uppercamelcase';
 
 export function init(app){
   app.get('/people', function(req, res, next){
@@ -108,9 +109,12 @@ function preferred(isPreferred, person, cb){
 }
 
 function fromJson(json){
-  let attrs = ['prefix', 'firstName', 'lastName', 'type', 'jobType', 'preferred', 'jobDescription', 'department', 'skills', 'roles', 'email', 'birthdate', 'note'];
+  let attrs = ['prefix', 'firstName', 'lastName', 'type', 'jobType', 'preferred', 'jobDescription', 'department', 'roles', 'email', 'birthdate', 'note'];
   let res = _.pick(json, attrs);
   res.companyId = json.companyId ? ObjectId(json.companyId) : undefined;
+  if(json.skills){
+    res.skills = _.chain(json.skills).compact().map( skill => uppercamelcase(skill) ).sort().value();
+  }
   if(json.phones){
     let attrs = ['label', 'phone'];
     res.phones = _.map(json.phones, p => _.pick(p, attrs));

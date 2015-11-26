@@ -87,6 +87,7 @@ export default function person(document){
     new Field('skills', {
       label: "Skills",
       type: "text",
+      domainValue: ['skill1', 'skill2']
     }),
     new Field('jobTitle', {
       label: "Job Title",

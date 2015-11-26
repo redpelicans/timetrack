@@ -76,6 +76,7 @@
     "remarkable": "^1.6.0",
     "request": "^2.65.0",
     "require-dot-file": "^0.4.0",
+    "uppercamelcase": "^1.1.0",
     "uuid": "^2.0.1",
     "whatwg-fetch": "^0.9.0"
   },
