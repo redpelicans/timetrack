@@ -3,6 +3,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import {Person, Company} from '../../models';
 import {getRandomInt, ObjectId} from '../../helpers';
+import checkUser  from '../../middleware/check_user';
 
 
 
@@ -23,7 +24,7 @@ export function init(app){
     });
   })
 
-  app.delete('/company/:id', function(req, res, next){
+  app.delete('/company/:id', checkUser('admin'), function(req, res, next){
     let id = ObjectId(req.params.id); 
     async.waterfall([del.bind(null, id)], (err) => {
       if(err)return next(err);
@@ -32,7 +33,7 @@ export function init(app){
   })
 
 
-  app.post('/companies/preferred', function(req, res, next){
+  app.post('/companies/preferred', checkUser('admin'), function(req, res, next){
     let id = ObjectId(req.body.id); 
     async.waterfall([loadOne.bind(null, id), preferred.bind(null, Boolean(req.body.preferred))], (err, company) => {
       if(err)return next(err);
@@ -40,7 +41,7 @@ export function init(app){
     });
   });
 
-  app.post('/companies', function(req, res, next){
+  app.post('/companies', checkUser('admin'), function(req, res, next){
     let company = req.body.company;
     async.waterfall([create.bind(null, company), loadOne], (err, company) => {
       if(err)return next(err);
@@ -48,7 +49,7 @@ export function init(app){
     });
   });
 
-  app.put('/company', function(req, res, next){
+  app.put('/company', checkUser('admin'), function(req, res, next){
     let newCompany = req.body.company;
     let id = ObjectId(newCompany._id);
     async.waterfall([loadOne.bind(null, id), update.bind(null, newCompany), loadOne], (err, company) => {

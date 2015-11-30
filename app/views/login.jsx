@@ -26,7 +26,6 @@ export default class LoginApp extends Component {
       } 
 
       auth2.attachClickHandler('signin-button', {}, onSuccess, onFailure);
-
     })
   }
 

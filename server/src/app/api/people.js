@@ -23,7 +23,7 @@ export function init(app){
     });
   });
 
-  app.delete('/person/:id', function(req, res, next){
+  app.delete('/person/:id', checkUser('admin'), function(req, res, next){
     let id = ObjectId(req.params.id); 
     async.waterfall([del.bind(null, id)], (err) => {
       if(err)return next(err);
@@ -31,7 +31,7 @@ export function init(app){
     });
   })
 
-  app.post('/people', function(req, res, next){
+  app.post('/people', checkUser('admin'), function(req, res, next){
     let person = req.body.person;
     async.waterfall([create.bind(null, person), loadOne], (err, person) => {
       if(err)return next(err);
@@ -39,7 +39,7 @@ export function init(app){
     });
   });
 
-  app.put('/person', function(req, res, next){
+  app.put('/person', checkUser('admin'), function(req, res, next){
     let newPerson = req.body.person;
     let id = ObjectId(newPerson._id);
     async.waterfall([loadOne.bind(null, id), update.bind(null, newPerson), loadOne], (err, person) => {
@@ -48,7 +48,7 @@ export function init(app){
     });
   });
 
-  app.post('/person/check_email_uniqueness', function(req, res, next){
+  app.post('/person/check_email_uniqueness', checkUser('admin'), function(req, res, next){
     let email = req.body.email && req.body.email.trim();
     Person.findAll({email: email}, {_id: 1}, (err, data) => {
       if(err)return next(err);
@@ -56,7 +56,6 @@ export function init(app){
       res.json({email: email, ok: true});
     });
   });
-
 
 }
 

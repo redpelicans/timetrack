@@ -5,7 +5,7 @@ import http from 'http';
 import async from 'async';
 import {default as logger} from 'morgan';
 import {default as bodyParser} from 'body-parser';
-import {default as cookieParser} from 'cookie-parser';
+//import {default as cookieParser} from 'cookie-parser';
 import findUser from '../middleware/find_user';
 import express from 'express';
 
@@ -46,7 +46,7 @@ export function start(params, resources, cb) {
     app.use(bodyParser.json({limit: '10mb', extended: true}));
 
     // manage cookie
-    app.use(cookieParser());
+    //app.use(cookieParser());
 
     //app.use(express.static(path.join(__dirname, '../../../public')));
 
@@ -57,9 +57,12 @@ export function start(params, resources, cb) {
     app.use(logger('dev'));
 
     require('./login').init(app, resources, params);
+    require('./logout').init(app, resources, params);
 
     // require auth 
     app.use(findUser(params.secretKey));
+
+    require('./user').init(app, resources, params);
     app.use('/api', require('./api').init(app, resources, params));
     
     app.use(errors);

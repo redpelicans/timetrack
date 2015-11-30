@@ -8,14 +8,19 @@ const types = [
   {key: 'contact', value: 'Contact'},
   {key: 'consultant', value: 'Consultant'},
   {key: 'worker', value: 'Worker'},
-]
+];
+
+const roles = [
+  {key: 'admin', value: 'Admin'},
+  {key: 'worker', value: 'Worker'},
+];
 
 const jobType = [
   {key: 'designer', value: 'Designer'},
   {key: 'developer', value: 'Developer'},
   {key: 'manager', value: 'Manager'},
   {key: 'sales', value: 'Sales'},
-]
+];
 
 export default function person(document){
   return new Formo([
@@ -88,6 +93,11 @@ export default function person(document){
       label: "Skills",
       type: "text",
       domainValue: ['skill1', 'skill2']
+    }),
+    new Field('roles', {
+      label: "Roles",
+      type: "text",
+      domainValue: roles
     }),
     new Field('jobTitle', {
       label: "Job Title",

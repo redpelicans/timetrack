@@ -1,13 +1,14 @@
 import _ from 'lodash';
 import React, {Component} from 'react';
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, PersonPreview, AvatarView, LeaveCompany, AddPerson, Edit, Preferred, Delete, TextLabel, MarkdownText} from '../widgets';
+import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, MarkdownText} from '../widgets';
+import {Edit as EditPerson, Preferred as PreferredPerson, Delete as DeletePerson, Preview as PersonPreview} from '../person/widgets';
+import {Edit, Preferred, Delete} from './widgets';
 import {Content} from '../layout';
-import {Delete as DeleteCompany} from './widgets';
-import {companiesActions} from '../../models/companies';
+import {companiesActions, companiesStore} from '../../models/companies';
 import {personsStore, personsActions} from '../../models/persons';
-import {personActions} from '../../models/person';
-import {companyActions, companyStore} from '../../models/company';
-import {navActions} from '../../models/nav';
+import {navStore, navActions} from '../../models/nav';
+import sitemap from '../../routes';
+import authManager from '../../auths';
 
 export default class ViewCompanyApp extends Component {
   state = {};
@@ -17,67 +18,31 @@ export default class ViewCompanyApp extends Component {
       this.setState({ persons: persons.data })
     });
 
-    this.unsubcribeCompany = companyStore.listen( ctx => {
-      const company = ctx.company;
-      console.log("ViewCompanyApp")
-      console.log(ctx)
-      if(!company) return navActions.replace('companies');
-      this.setState({company});
-      personsActions.load({ids: company.personsIds});
+    this.unsubcribeCompanies = companiesStore.listen( companies => {
+      const company = companies.data.get(this.state.company.get('_id'));
+      if(company != this.state.company) this.setState({company});
     });
 
-    companyActions.load();
+    const context = navStore.getContext();
+    const company = context.company;
+    console.log("COMPANY.MOUNT")
+    console.log(company.get('name'))
+    if(!company) return navActions.replace(sitemap.company.list);
+
+    this.setState({company}, () => {
+      companiesActions.load({ids: company.get('_id')});
+    });
+
+    personsActions.load({ids: company.personsIds});
   }
 
   componentWillUnmount(){
-    this.unsubcribeCompany();
+    this.unsubcribeCompanies();
     this.unsubcribePersons();
   }
 
   goBack = () => {
     navActions.goBack();
-  }
-
-  handleEdit= (company) => {
-    companyActions.edit({company});
-  }
-
-  handleDelete = (company) => {
-    let answer = confirm(`Are you sure to delete the company "${company.get('name')}"`);
-    if(answer){
-      companiesActions.delete(company.toJS());
-      this.goBack();
-    }
-  }
-
-  handleTogglePreferredPerson = (person) => {
-    personsActions.togglePreferred(person);
-  }
-
-  handleEditPerson = (person) => {
-    personActions.edit({person});
-  }
-
-  handleViewPerson = (person) => {
-    personActions.view({person});
-  }
-
-  handleDeletePerson = (person) => {
-    const answer = confirm(`Are you sure to delete the contact "${person.get('name')}"`);
-    if(answer){
-      personsActions.delete(person.toJS());
-    }
-  }
-
-  handleAddPerson = (company) => {
-    personActions.create({company});
-  }
-
-  handleLeaveCompany = (company, person) => {
-    const answer = confirm(`Can you confirm you want to fire "${person.get('name')}"`);
-    if(answer){
-      companiesActions.leave(company, person);
-    }
   }
 
   render(){
@@ -90,28 +55,23 @@ export default class ViewCompanyApp extends Component {
             <GoBack goBack={this.goBack}/>
             <AvatarView obj={company}/>
             <Title title={company.get('name')}/>
-            <Preferred obj={company}/>
+            <Preferred active={true} company={company}/>
           </HeaderLeft>
           <HeaderRight>
-            <AddPerson onAdd={this.handleAddPerson.bind(null, company)}/>
-            <Edit onEdit={this.handleEdit.bind(null, company)}/>
-            <DeleteCompany company={company} onDelete={this.handleDelete.bind(null, company)}/>
+            <AddPerson company={company}/>
+            <Edit company={company}/>
+            <Delete company={company}/>
           </HeaderRight>
         </Header>
         <Card 
           company={this.state.company} 
-          persons={this.state.persons} 
-          onViewPerson={this.handleViewPerson}
-          onTogglePreferredPerson={this.handleTogglePreferredPerson}
-          onEditPerson={this.handleEditPerson}
-          onLeaveCompany={this.handleLeaveCompany.bind(null, this.state.company)}
-          onDeletePerson={this.handleDeletePerson}/>
+          persons={this.state.persons}  />
       </Content>
     )
   }
 }
 
-const Card = ({company, persons, onViewPerson, onLeaveCompany, onTogglePreferredPerson, onEditPerson, onDeletePerson}) =>  {
+const Card = ({company, persons}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -145,18 +105,13 @@ const Card = ({company, persons, onViewPerson, onLeaveCompany, onTogglePreferred
         <Persons 
           label="Contacts" 
           persons={persons} 
-          company={company}
-          onView={onViewPerson} 
-          onTogglePreferred={onTogglePreferredPerson}
-          onEdit={onEditPerson}
-          onLeaveCompany={onLeaveCompany}
-          onDelete={onDeletePerson}/>
+          company={company}/>
       </div>
     </div>
   )
 }
 
-const Persons = ({label, company, persons, onView, onLeaveCompany, onTogglePreferred, onEdit, onDelete}) => {
+const Persons = ({label, company, persons}) => {
  const styles={
     container:{
       marginBottom: '50px',
@@ -176,11 +131,11 @@ const Persons = ({label, company, persons, onView, onLeaveCompany, onTogglePrefe
     .map( person => {
       return (
         <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <PersonPreview person={person} onViewPerson={onView}>
-            <Preferred obj={person} onTogglePreferred={onTogglePreferred}/>
-            <LeaveCompany onLeaveCompany={onLeaveCompany.bind(null, person)}/>
-            <Edit onEdit={onEdit.bind(null, person)}/>
-            <Delete onDelete={onDelete.bind(null, person)}/>
+          <PersonPreview person={person}>
+            <PreferredPerson active={true} person={person}/>
+            <LeaveCompany company={company} person={person}/>
+            <EditPerson person={person}/>
+            <DeletePerson person={person}/>
           </PersonPreview>
         </div>
         )
@@ -198,3 +153,42 @@ const Persons = ({label, company, persons, onView, onLeaveCompany, onTogglePrefe
     </fieldset>
   )
 }
+
+
+export const LeaveCompany =({company, person}) => {
+  const handleChange = (e) => {
+    e.preventDefault();
+    const answer = confirm(`Can you confirm you want to fire "${person.get('name')}"`);
+    if(answer){
+      companiesActions.leave(company, person);
+    }
+  }
+
+  if(authManager.company.isAuthorized('leave')){
+    return (
+      <a href="#" onClick={handleChange}>
+        <i className="iconButton fa fa-sign-out m-r"/>
+      </a>
+    )
+  }else{
+    return <i className="iconButton disable fa fa-sign-out m-r"/>
+  }
+}
+
+export const AddPerson =({company}) => {
+  const handleChange = (e) => {
+    e.preventDefault();
+    navActions.push(sitemap.person.new, {company});
+  }
+
+  if(authManager.isAuthorized(sitemap.person.new)){
+    return (
+      <a href="#" onClick={handleChange}>
+        <i className="iconButton fa fa-user-plus m-r"/>
+      </a>
+    )
+  }else{
+    return <i className="iconButton disable fa fa-user-plus m-r"/>
+  }
+}
+

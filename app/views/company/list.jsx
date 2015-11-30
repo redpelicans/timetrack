@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
-import reactMixin from 'react-mixin';
-import Reflux from 'reflux';
+//import reactMixin from 'react-mixin';
 import {Content} from '../layout';
-import {AvatarView, Edit, Preferred} from '../widgets';
-import {AddButton, Sort, FilterPreferred, Filter, Refresh} from '../widgets';
+import {AvatarView, Sort, FilterPreferred, Filter, Refresh} from '../widgets';
 import {Header, HeaderLeft, HeaderRight, Title} from '../widgets';
-import {Delete} from './widgets';
+import {Edit, Preferred, Delete, AddButton} from './widgets';
 import {companiesAppStore, companiesAppActions, sortMenu} from '../../models/companies-app';
 import {companiesActions} from '../../models/companies';
-import {companyActions} from '../../models/company';
+import {navActions} from '../../models/nav';
+import authManager from '../../auths';
+import routes from '../../routes';
 
 export default class ListApp extends Component {
 
@@ -45,25 +45,6 @@ export default class ListApp extends Component {
     companiesAppActions.filter(filter);
   }
 
-  handleAdd = () => {
-    companyActions.create();
-  }
-
-  handleEdit = (company) => {
-    companyActions.edit({company});
-  }
-
-  handleView = (company) => {
-    companyActions.view({company});
-  }
-
-  handleDelete = (company) => {
-    const answer = confirm(`Are you sure to delete the contact "${company.get('name')}"`);
-    if(answer){
-      companiesActions.delete(company.toJS());
-    }
-  }
-
   render(){
     if(!this.state || !this.state.companies) return false;
     const leftIcon = this.state.companies.isLoading ? <i className="fa fa-spinner fa-spin m-r"/> : <i className="fa fa-users m-r"/>;
@@ -86,13 +67,9 @@ export default class ListApp extends Component {
 
         <List 
           isLoading={this.state.companies.isLoading} 
-          companies={companies} 
-          onView={this.handleView} 
-          onEdit={this.handleEdit} 
-          onTogglePreferred={this.handleTogglePreferred} 
-          onDelete={this.handleDelete}/>
+          companies={companies}  />
 
-        <AddButton title='Add a company' onAdd ={this.handleAdd}/>
+        <AddButton title='Add a company'/>
 
       </Content>
     )
@@ -119,12 +96,7 @@ class List extends Component {
     const data = this.props.companies.map(company => {
       return (
         <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <Company
-            company={company} 
-            onView={this.props.onView} 
-            onTogglePreferred={this.props.onTogglePreferred} 
-            onEdit={this.props.onEdit} 
-            onDelete={this.props.onDelete}/>
+          <Preview company={company} />
         </div>
       )
     });
@@ -138,14 +110,14 @@ class List extends Component {
 
 }
 
-class Company extends Component {
+class Preview extends Component {
   shouldComponentUpdate(nextProps, nextState){
     return this.props.company !== nextProps.company;
   }
 
   handleView = (e) => {
-    this.props.onView(this.props.company);
     e.preventDefault();
+    navActions.push(routes.company.view, {company: this.props.company});
   }
 
   render() {
@@ -203,14 +175,23 @@ class Company extends Component {
     const company = this.props.company;
     const avatar = <AvatarView obj={company}/>;
     const isNew = company.get('isNew') ? <span className="label label-success">new</span> : <div/>
+    const avatarView = () => {
+      if(authManager.company.isAuthorized('view')) return  <a href="#" onClick={this.handleView}>{avatar}</a>;
+      else return {avatar}
+    }
+    const companyNameView = () => {
+      if(authManager.company.isAuthorized('view')) return  <a href="#" onClick={this.handleView}>{company.get('name')}</a>;
+      else return <span>{company.get('name')}</span>
+    }
+
     return (
       <div style={styles.container} >
         <div style={styles.containerLeft}>
           <div className="p-r">
-            <a href="#" onClick={this.handleView}>{avatar}</a>
+            {avatarView()}
           </div>
           <div className="p-r">
-            <a href="#" onClick={this.handleView}>{company.get('name')}</a>
+            {companyNameView()}
           </div>
           <div className="p-r">
             {billAmounts(company)}
@@ -220,9 +201,9 @@ class Company extends Component {
           </div>
         </div>
         <div style={styles.containerRight} href="#">
-          <Preferred obj={company} onTogglePreferred={this.props.onTogglePreferred}/>
-          <Edit onEdit={this.props.onEdit.bind(null, company)}/>
-          <Delete company={company} onDelete={this.props.onDelete}/>
+          <Preferred company={company} active={true}/>
+          <Edit company={company}/>
+          <Delete company={company}/>
         </div>
       </div>
     );

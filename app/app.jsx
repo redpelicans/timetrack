@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React, {Component} from 'react';
 import classNames from 'classnames';
-import sitemap from './sitemap';
+import sitemap from './routes';
 import {navActions, navStore} from './models/nav';
 import {loginStore, loginActions} from './models/login';
 import errors from './models/errors';
@@ -29,23 +29,23 @@ export default class App extends Component {
     };
   }
 
-  state = {};
+  state = {user: loginStore.getUser()};
 
   componentWillUnmount(){
     if(this.unsubscribeNav) this.unsubscribeNav();
     if(this.unsubscribeLogin) this.unsubscribeLogin();
   }
 
-  componentDidMount(){
-
+  componentWillMount(){
     this.unsubscribeNav = navStore.listen( state => {
       this.setState({currentTopic: state.topic});
     });
 
     this.unsubscribeLogin = loginStore.listen( state => {
+      console.log("====>   App")
+      console.log(state)
       this.setState({user: state.user});
     });
-
 
     errors.state.onValue(err => {
       this.refs.container.error(
@@ -121,19 +121,23 @@ class AppNav extends Component{
   render(){
     const menu1 = () => {
       if(!loginStore.isLoggedIn())return [];
-      return sitemap.routes.filter(route => route.isMenu).map( e => {
-        return (
-          <AppNavItem key={e.topic} route={e} currentTopic={this.props.currentTopic}/>
-        )
+      return sitemap.routes.filter(route => route.isMenu)
+        .sort( (a,b) => a.isMenu > b.isMenu)
+        .map( e => {
+          return (
+            <AppNavItem key={e.topic} route={e} currentTopic={this.props.currentTopic}/>
+          )
       });
     }
 
     const menu2 = () => {
       if(!loginStore.isLoggedIn())return [];
-      return sitemap.routes.filter(route => route.isMenu).map( e => {
-        return (
-          <AppMobileNavItem collapse={this.collapseMenu} key={e.topic} route={e} currentTopic={this.props.currentTopic}/>
-        )
+      return sitemap.routes.filter(route => route.isMenu)
+        .sort( (a,b) => a.isMenu > b.isMenu)
+        .map( e => {
+          return (
+            <AppMobileNavItem collapse={this.collapseMenu} key={e.topic} route={e} currentTopic={this.props.currentTopic}/>
+          )
       });
     }
 

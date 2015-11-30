@@ -1,8 +1,9 @@
 import errors from '../models/errors';
 import {navActions} from '../models/nav';
+import {loginStore} from '../models/login';
 
 export function parseJSON(res) {
-  return res ? res.json() : {};
+  return res.json();
 }
 
 export function checkStatus(res) {
@@ -13,11 +14,11 @@ export function checkStatus(res) {
     error.res = res
     error.forceMessage = true;
     navActions.gotoLogin();
-    throw error
   } else if(res.status === 403){
     var error = new Error("Unauthorized access")
     error.res = res
     error.forceMessage = true;
+    navActions.gotoUnAuth();
     throw error
   } else {
     var error = new Error(res.statusText)
@@ -32,15 +33,19 @@ export function requestJson(uri, {verb='get', header='Runtime Error', body, mess
   if(!body)
     promise = fetchJson(uri, { 
       method: verb,
-      credentials: 'same-origin',
+      headers:{
+        'X-Token-Access': loginStore.getJwt(),
+      },
+      //credentials: 'same-origin',
     });
   else
     promise = fetchJson(uri, {
       method: verb,
-      credentials: 'same-origin',
+      //credentials: 'same-origin',
       headers:{
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-Token-Access': loginStore.getJwt(),
       },
       body: JSON.stringify(body||{})
     });

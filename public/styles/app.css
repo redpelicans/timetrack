@@ -12,8 +12,8 @@ html {
 }
 
 .splash .message {
-    font-size: 72px;
-    line-height: 72px;
+    font-size: 48px;
+    line-height: 48px;
     text-shadow: rgba(0, 0, 0, 0.5) 0 0 15px;
     text-transform: uppercase;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -22,10 +22,16 @@ html {
 .splash .fa-spinner {
     text-align: center;
     display: inline-block;
-    font-size: 72px;
+    font-size: 24px;
     margin-top: 50px;
 }
 
+.boot-error{
+  margin-top: 2rem;
+  margin-left: auto;
+  margin-right: auto;
+  width: 30%;
+}
 
 a {
   background-color: transparent;

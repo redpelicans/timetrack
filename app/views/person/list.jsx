@@ -2,11 +2,9 @@ import React, {Component} from 'react';
 import reactMixin from 'react-mixin';
 import Reflux from 'reflux';
 import {Content} from '../layout';
-import {AddButton, PersonPreview, Preferred, Delete, Edit, Sort, FilterPreferred, Filter, Refresh} from '../widgets';
-import {Header, HeaderLeft, HeaderRight, Title} from '../widgets';
+import {Sort, FilterPreferred, Filter, Refresh, Header, HeaderLeft, HeaderRight, Title} from '../widgets';
+import {AddButton, Preferred, Preview, Edit, Delete} from './widgets';
 import {personsActions} from '../../models/persons';
-import {personActions} from '../../models/person';
-import {companyActions} from '../../models/company';
 import {personsAppStore,  personsAppActions, sortMenu} from '../../models/persons-app';
 
 export default class ListApp extends Component {
@@ -41,33 +39,6 @@ export default class ListApp extends Component {
     personsAppActions.filter(filter);
   }
 
-  handleAdd = () => {
-    personActions.create();
-  }
-
-  handleTogglePreferred = (person) => {
-    personsActions.togglePreferred(person);
-  }
-
-  handleEdit = (person) => {
-    personActions.edit({person});
-  }
-
-  handleView = (person) => {
-    personActions.view({person});
-  }
-
-  handleDelete = (person) => {
-    const answer = confirm(`Are you sure to delete the contact "${person.get('name')}"`);
-    if(answer){
-      personsActions.delete(person.toJS());
-    }
-  }
-
-  handleViewCompany = (company) => {
-    companyActions.view({company});
-  }
-
   // shouldComponentUpdate(nextProps, nextState){
   //   return this.state.people !== nextState.people || 
   //     this.state.searchFilter != nextState.searchFilter || 
@@ -98,14 +69,9 @@ export default class ListApp extends Component {
 
         <List 
           persons={persons} 
-          companies={companies} 
-          onView={this.handleView} 
-          onViewCompany={this.handleViewCompany} 
-          onEdit={this.handleEdit} 
-          onTogglePreferred={this.handleTogglePreferred} 
-          onDelete={this.handleDelete}/>
+          companies={companies} />
 
-        <AddButton title='Add a Contact' onAdd={this.handleAdd}/>
+        <AddButton title='Add a Contact'/>
       </Content>
     )
   }
@@ -137,15 +103,13 @@ class List extends Component {
     const data = this.props.persons.map(person => {
       return (
         <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <PersonPreview
+          <Preview
             person={person} 
-            company={this.props.companies.get(person.get('companyId'))} 
-            onViewCompany={this.props.onViewCompany} 
-            onViewPerson={this.props.onView}>
-              <Preferred obj={person} onTogglePreferred={this.props.onTogglePreferred}/>
-              <Edit onEdit={this.props.onEdit.bind(null, person)}/>
-              <Delete onDelete={this.props.onDelete.bind(null, person)}/>
-          </PersonPreview>
+            company={this.props.companies.get(person.get('companyId'))} >
+              <Preferred person={person} active={true}/>
+              <Edit person={person}/>
+              <Delete person={person}/>
+          </Preview>
         </div>
       )
     });

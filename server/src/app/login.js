@@ -14,9 +14,9 @@ export function init(app, resources, params){
     if(!id_token) setImmediate(next, new Error("Cannot login without a token!"));
     async.waterfall([checkGoogleUser.bind(null, id_token), loadUser, updateAvatar], (err, user) => {
       if(err)return next(err);
-      // TODO: add secure, httpOnly, maxAge
-      res.cookie('access_token', token(user, params.secretKey), {});
-      res.json({ user: user });
+      const expirationDate = moment().add(1, 'hour').toDate();
+      const jwt = token(user, params.secretKey, expirationDate);
+      res.json({ user: user, token: jwt });
     });
   });
 
@@ -51,11 +51,12 @@ function updateAvatar(user, googleUser, cb){
 }
 
 
-function token(user, secretKey){
+function token(user, secretKey, expirationDate){
   const claims = {
     sub: user._id.toString(),
     iss: 'http://timetrack.repelicans.com',
   };
   const jwt = njwt.create(claims,secretKey);
+  jwt.setExpiration(expirationDate);
   return jwt.compact();
 }

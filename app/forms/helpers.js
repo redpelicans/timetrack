@@ -1,4 +1,4 @@
-import {checkStatus, parseJSON} from '../utils';
+import {requestJson} from '../utils';
 
 export const colors = [ '#d73d32', '#CD4436', '#4285f4', '#67ae3f', '#d61a7f', '#ff4080' ];
 
@@ -15,40 +15,22 @@ export function rndColor() {
 
 export function avatartarUrlValueChecker(url, state){
   if(!url) return new Promise(resolve => resolve({checked: true}));
-  return fetch('/api/check_url', {
-    method: 'post',
-    headers:{
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({url: url})
-  })
-  .then(checkStatus)
-  .then(parseJSON)
-  .then(json => {
-    return { 
-      checked: json.ok, 
-      error: !json.ok && "Wrong URL!" 
-    };
-  });
+  return requestJson('/api/check_url', {verb: 'post', body: {url: url}})
+    .then( res => {
+      return { 
+        checked: res.ok, 
+        error: !res.ok && "Wrong URL!" 
+      };
+    });
 }
 
 export function emailUniqueness(email, person={}){
   if(!email || person.email === email) return new Promise(resolve => resolve({checked: true}));
-  return fetch('/api/person/check_email_uniqueness', {
-    method: 'post',
-    headers:{
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({email: email})
-  })
-  .then(checkStatus)
-  .then(parseJSON)
-  .then(json => {
+  return requestJson('/api/person/check_email_uniqueness', { verb: 'post', body: {email: email}})
+  .then( res => {
     return { 
-      checked: json.ok, 
-      error: !json.ok && "Email already exists!" 
+      checked:  res.ok, 
+      error: !res.ok && "Email already exists!" 
     };
   });
 }

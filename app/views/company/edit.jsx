@@ -6,10 +6,11 @@ import Immutable from 'immutable';
 import {Content} from '../layout';
 import companyForm, {colors, avatarTypes} from '../../forms/company';
 import {companiesActions} from '../../models/companies';
-import {companyActions, companyStore} from '../../models/company';
-import {navActions} from '../../models/nav';
-import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, SelectField} from '../../views/widgets';
+import {navStore, navActions} from '../../models/nav';
+import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../widgets';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title } from '../widgets';
+import {StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, SelectField} from '../fields';
+import sitemap from '../../routes';
 
 @reactMixin.decorate(Lifecycle)
 export class NewCompanyApp extends Component {
@@ -79,6 +80,7 @@ export class NewCompanyApp extends Component {
   }
 }
 
+
 @reactMixin.decorate(Lifecycle)
 export class EditCompanyApp extends Component {
 
@@ -108,32 +110,26 @@ export class EditCompanyApp extends Component {
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
-    this.unsubscribeCompany();
   }
 
   componentWillMount() {
-    this.unsubscribeCompany = companyStore.listen( ctx => {
-      const company = ctx.company;
-      if(!company) return navActions.replace('companies');
-      if(!this.companyDocument){
-        this.companyDocument = company.toJS();
-        this.companyForm = companyForm(this.companyDocument);
+    const context = navStore.getContext();
+    const company = context.company;
+    if(!company) return navActions.replace(sitemap.company.list);
+    this.companyDocument = company.toJS();
+    this.companyForm = companyForm(this.companyDocument);
 
-        this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
-          companiesActions.update(this.companyDocument, this.companyForm.toDocument(state));
-          this.goBack(true);
-        });
-
-        this.unsubscribeState = this.companyForm.onValue( state => {
-          this.setState({
-            canSubmit: state.canSubmit,
-            hasBeenModified: state.hasBeenModified,
-          });
-        });
-      }
+    this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
+      companiesActions.update(this.companyDocument, this.companyForm.toDocument(state));
+      this.goBack(true);
     });
 
-    companyActions.load();
+    this.unsubscribeState = this.companyForm.onValue( state => {
+      this.setState({
+        canSubmit: state.canSubmit,
+        hasBeenModified: state.hasBeenModified,
+      });
+    });
   }
 
   render(){

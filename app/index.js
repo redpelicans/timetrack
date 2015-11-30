@@ -1,13 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import  {Router, Route, Link, IndexRoute, IndexLink, Redirect} from 'react-router';
-import { createHistory, createHashHistory } from 'history';
+import {Router, Route, Link, IndexRoute, IndexLink, Redirect} from 'react-router';
+import {createHistory, createHashHistory} from 'history';
 import App from './app';
-import sitemap from './sitemap';
 import {navActions} from './models/nav';
+import errors from './models/errors';
 import {loginStore, loginActions} from './models/login';
+import authManager from './auths';
+import sitemap from './routes';
+import boot from './boot';
 
-navActions.goBack.listen( ()=> {
+navActions.goBackRoute.listen( ()=> {
   history.goBack();
 })
 
@@ -21,16 +24,17 @@ navActions.pushRoute.listen(nextRoute => {
 
 function onEnter(nextState, replaceState){
   console.log("===> ENTER ROUTE: " + this.path)
+  if(this.isAuthRequired() && !loginStore.isLoggedIn()) return replaceState({nextRouteName: this.fullName}, sitemap.login.path); 
+  if(!authManager.isAuthorized(this)) return replaceState(null, sitemap.unauthorized.path); 
   navActions.enter(this);
-  if(this.authRequired && !loginStore.isLoggedIn()) replaceState({nextRouteName: this.name}, sitemap.login.path); 
 }
 
 function onLeave(location){
   console.log("===> LEAVE ROUTE: " + this.topic)
 }
 
-function getRoutes(routes){
-  return routes 
+function getRoutes(sitemap){
+  return sitemap.routes
     .filter(r => r.path)
     .map(r => {
       return <Route 
@@ -48,13 +52,24 @@ const defaultRoute = sitemap.defaultRoute;
 const routes = (
   <Route path="/" component={App}>
   <IndexRoute component={defaultRoute.component} onEnter={onEnter.bind(defaultRoute)}/>
-    {getRoutes(sitemap.routes)}
+    {getRoutes(sitemap)}
     <Route path="*" component={sitemap.notfound.component} />
   </Route>
 );
 
 const history = createHashHistory();
-ReactDOM.render(<Router history={history}>{routes}</Router>, document.getElementById("formo"));
+
+boot().then( () => {
+  console.log("End of boot process.")
+  console.log("Rendering react App...")
+  ReactDOM.render(<Router history={history}>{routes}</Router>, document.getElementById("formo"));
+})
+// .catch( (err) => {
+//   console.log(err)
+//   const elt = document.getElementById("bootmessage");
+//   elt.className="alert alert-danger boot-error";
+//   elt.innerText = 'Runtime error, check your backend';
+// });
 
 
 

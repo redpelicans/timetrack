@@ -2,19 +2,19 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import reactMixin from 'react-mixin';
 import { Lifecycle } from 'react-router';
-import routes from '../../sitemap';
 import Immutable from 'immutable';
 import classNames from 'classnames';
 import personForm, {colors, avatarTypes} from '../../forms/person';
 import {personsStore,  personsActions} from '../../models/persons';
 import {loginStore} from '../../models/login';
 import {skillsActions, skillsStore} from '../../models/skills';
-import {personStore,  personActions} from '../../models/person';
 import {companiesStore,  companiesActions} from '../../models/companies';
-import {navActions} from '../../models/nav';
+import {navActions, navStore} from '../../models/nav';
 import {Content} from '../layout';
-import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, MultiSelectField, SelectField} from '../widgets';
+import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../widgets';
+import {StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, MultiSelectField, SelectField} from '../fields';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title} from '../widgets';
+import sitemap from '../../routes';
 
 @reactMixin.decorate(Lifecycle)
 export class NewPersonApp extends Component {
@@ -46,7 +46,6 @@ export class NewPersonApp extends Component {
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
     if(this.unsubscribeCompanies) this.unsubscribeCompanies();
-    if(this.unsubscribePerson) this.unsubscribePerson();
     if(this.unsubscribeSkills) this.unsubscribeSkills();
   }
 
@@ -59,27 +58,20 @@ export class NewPersonApp extends Component {
       this.setState({skills: skills.data});
     })
 
-    this.unsubscribePerson = personStore.listen( ctx => {
-      if(!this.personForm){
-        this.personForm =  ctx.company ? personForm({companyId: ctx.company.get('_id')}) : personForm();
-
-        this.unsubscribeSubmit = this.personForm.onSubmit( state => {
-
-          console.log(this.personForm.toDocument(state));
-          personsActions.create(this.personForm.toDocument(state));
-          this.goBack(true);
-        });
-
-        this.unsubscribeState = this.personForm.onValue( state => {
-          this.setState({
-            canSubmit: state.canSubmit,
-            hasBeenModified: state.hasBeenModified,
-          });
-        });
-      }
+    const context = navStore.getContext();
+    this.personForm =  context.company ? personForm({companyId: context.company.get('_id')}) : personForm();
+    this.unsubscribeSubmit = this.personForm.onSubmit( state => {
+      personsActions.create(this.personForm.toDocument(state));
+      this.goBack(true);
     });
 
-    personActions.load();
+    this.unsubscribeState = this.personForm.onValue( state => {
+      this.setState({
+        canSubmit: state.canSubmit,
+        hasBeenModified: state.hasBeenModified,
+      });
+    });
+
     companiesActions.load();
     skillsActions.load();
   }
@@ -151,29 +143,25 @@ export class EditPersonApp extends Component {
       this.setState({skills: skills.data});
     })
 
-    this.unsubscribePerson = personStore.listen( ctx => {
-      const person = ctx.person;
-      if(!person) return navActions.replace('people');
-      if(!this.personDocument){
-        this.personDocument = person.toJS();
-        this.personForm = personForm(this.personDocument);
+    const context = navStore.getContext();
+    const person = context.person;
+    if(!person) return navActions.replace(sitemap.person.list);
+    this.personDocument = person.toJS();
+    this.personForm = personForm(this.personDocument);
 
-        this.unsubscribeSubmit = this.personForm.onSubmit( state => {
-          //console.log(this.personForm.toDocument(state))
-          personsActions.update(this.personDocument, this.personForm.toDocument(state));
-          this.goBack(true);
-        });
-
-        this.unsubscribeState = this.personForm.onValue( state => {
-          this.setState({
-            canSubmit: state.canSubmit,
-            hasBeenModified: state.hasBeenModified,
-          });
-        });
-      }
+    this.unsubscribeSubmit = this.personForm.onSubmit( state => {
+      //console.log(this.personForm.toDocument(state))
+      personsActions.update(this.personDocument, this.personForm.toDocument(state));
+      this.goBack(true);
     });
 
-    personActions.load();
+    this.unsubscribeState = this.personForm.onValue( state => {
+      this.setState({
+        canSubmit: state.canSubmit,
+        hasBeenModified: state.hasBeenModified,
+      });
+    });
+
     companiesActions.load();
     skillsActions.load();
   }
@@ -290,6 +278,9 @@ export default class EditContent extends Component {
                 </div>
                 <div className="col-md-12">
                   <MultiSelectField field={skills} allowCreate={true}/>
+                </div>
+                <div className="col-md-12">
+                  <MultiSelectField field={person.field('roles')}/>
                 </div>
                 <AvatarChooser person={person}/>
                 <div className="col-md-12">

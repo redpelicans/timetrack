@@ -2,15 +2,15 @@ import _ from 'lodash';
 import moment from 'moment';
 import Remarkable from 'remarkable';
 import React, {Component} from 'react';
-import routes from '../../sitemap';
 import classNames from 'classnames';
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, Edit, Preferred, Delete, TextLabel, MarkdownText} from '../widgets';
+import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, MarkdownText} from '../widgets';
+import {Edit, Preferred, Delete} from './widgets';
 import {timeLabels} from '../helpers';
 import {Content } from '../layout';
-import {personsActions} from '../../models/persons';
-import {personStore,  personActions} from '../../models/person';
-import {navActions} from '../../models/nav';
+import {personsStore, personsActions} from '../../models/persons';
+import {navStore, navActions} from '../../models/nav';
 import {companiesStore,  companiesActions} from '../../models/companies';
+import sitemap from '../../routes';
 
 export default class ViewPersonApp extends Component {
   state = {};
@@ -19,39 +19,30 @@ export default class ViewPersonApp extends Component {
 
     this.unsubcribeCompanies = companiesStore.listen( companies => {
       const company = companies.data.get(this.state.person.get('companyId'));
-      this.setState({company: company});
+      this.setState({company});
     });
 
-    this.unsubcribePerson = personStore.listen( ctx => {
-      const person = ctx.person;
-      if(!person) return navActions.replace('people');
-      this.setState({person}, () => {
-        companiesActions.load({ids: [person.get('companyId')]});
-      })
+    this.unsubcribePersons = personsStore.listen( persons => {
+      const person = persons.data.get(this.state.person.get('_id'));
+      if(person != this.state.person) this.setState({person});
     });
 
-    personActions.load();
+    const context = navStore.getContext();
+    const person = context.person;
+    if(!person) return navActions.replace(sitemap.person.list);
+    this.setState({person}, () => {
+      companiesActions.load({ids: [person.get('companyId')]});
+    })
+
   }
 
   componentWillUnmount(){
-    if(this.unsubcribePerson) this.unsubcribePerson();
     if(this.unsubcribeCompanies) this.unsubcribeCompanies();
+    if(this.unsubcribePersons) this.unsubcribePersons();
   }
 
   goBack = () => {
     navActions.goBack();
-  }
-
-  handleEdit= (person) => {
-    personActions.edit({person});
-  }
-
-  handleDelete = (person) => {
-    let answer = confirm(`Are you sure to delete the person "${person.get('name')}"`);
-    if(answer){
-      personsActions.delete(person.toJS());
-      this.goBack();
-    }
   }
 
   render(){
@@ -64,11 +55,11 @@ export default class ViewPersonApp extends Component {
             <GoBack goBack={this.goBack}/>
             <AvatarView obj={person}/>
             <Title title={person.get('name')}/>
-            <Preferred obj={person}/>
+            <Preferred person={person} active={true}/>
           </HeaderLeft>
           <HeaderRight>
-            <Edit onEdit={this.handleEdit.bind(null, person)}/>
-            <Delete obj={person} onDelete={this.handleDelete.bind(null, person)}/>
+            <Edit person={person}/>
+            <Delete person={person}/>
           </HeaderRight>
         </Header>
 

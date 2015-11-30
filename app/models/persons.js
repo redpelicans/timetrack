@@ -3,6 +3,7 @@ import Immutable from 'immutable';
 import Reflux from 'reflux';
 import {requestJson} from '../utils';
 import {companiesActions} from './companies';
+import {loginStore} from './login';
 
 const actions = Reflux.createActions([
   "load", 
@@ -18,9 +19,7 @@ const state = {
   isLoading: false,
 }
 
-
 const store = Reflux.createStore({
-
 
   listenables: [actions],
 
