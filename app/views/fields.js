@@ -4,20 +4,19 @@ import Select from 'react-select';
 import FileInput from 'react-file-input';
 import Remarkable from 'remarkable';
 import {colors} from '../forms/company';
-import {Avatar} from './widgets';
+import {Avatar, TextLabel} from './widgets';
 
 
 class BaseField extends Component{
-  state = {}
+  state = {field: undefined}
 
   componentWillUnmount(){
-    this.unsubscribe();
+    this.props.field.state.offValue( this.subscribeFct );
   }
 
-  componentDidMount(){
-    this.unsubscribe = this.props.field.onValue( v => {
-      this.setState(v);
-    });
+  componentWillMount(){
+    this.subscribeFct =  v => this.setState({field: v});
+    this.props.field.state.onValue( this.subscribeFct );
   }
 
   handleChange = (e) => {
@@ -25,12 +24,16 @@ class BaseField extends Component{
   }
 
   message = () => {
-    if(this.state.error) return this.state.error;
-    if(this.state.isLoading) return 'Loading ...';
+    if(this.state.field && this.state.field.get('error')) return this.state.field.get('error');
+    if(this.state.field && this.state.field.get('isLoading')) return 'Loading ...';
   }
 
   hasError = () => {
-    return this.state.error || this.props.field.isRequired() && this.props.field.isNull(this.state.value);
+    return this.state.field && this.state.field.get('error');
+  }
+
+  shouldComponentUpdate(nextProps, nextState){
+    return this.state.field != nextState.field;
   }
 
   fieldsetClassNames = () => classNames( "form-group", { 'has-error': this.hasError() });
@@ -41,9 +44,9 @@ class BaseField extends Component{
 export class InputField extends BaseField {
 
   render(){
-    if(!this.state)return false;
+    if(!this.state.field)return false;
     const field = this.props.field;
-    const labelUrl = this.props.isUrl ? <a href={this.state.value}><i className="fa fa-external-link p-l"/></a> : "";
+    const labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l"/></a> : "";
 
     return(
       <fieldset className={this.fieldsetClassNames()}>
@@ -51,7 +54,7 @@ export class InputField extends BaseField {
           {field.label}
           {labelUrl}
         </label>
-        <input className={this.inputClassNames()} id={field.key} type={field.htmlType()} value={this.state.value} placeholder={field.label} onChange={this.handleChange}/>
+        <input className={this.inputClassNames()} id={field.key} type={field.htmlType()} value={this.state.field.get('value')} placeholder={field.label} onChange={this.handleChange}/>
         <small className="text-muted control-label">{this.message()}</small>
       </fieldset>
     )
@@ -71,7 +74,7 @@ export class FileField extends BaseField {
   }
 
   render(){
-    if(!this.state)return false;
+    if(!this.state.field)return false;
 
     const field = this.props.field;
 
@@ -105,7 +108,7 @@ export class MarkdownEditField extends BaseField {
   }
 
   render(){
-    if(!this.state)return false;
+    if(!this.state.field)return false;
     let field = this.props.field;
 
     let styles = {
@@ -123,7 +126,7 @@ export class MarkdownEditField extends BaseField {
 
     const reader = () => { 
       const md = new Remarkable();
-      const text = {__html: md.render(this.state.value)};
+      const text = {__html: md.render(this.state.field.get('value'))};
       return <div style={{height: '100%'}} className="form-control" id={field.label} dangerouslySetInnerHTML={text}/>
     }
 
@@ -133,7 +136,7 @@ export class MarkdownEditField extends BaseField {
         className={this.inputClassNames()} 
         id={field.key} 
         type={field.htmlType()} 
-        value={this.state.value} 
+        value={this.state.field.get('value')} 
         placeholder={field.label} 
         onChange={this.handleChange}/>
     }
@@ -165,10 +168,10 @@ export class TextAreaField extends BaseField {
 
   render(){
     // avoid to render without a state
-    if(!this.state)return false;
+    if(!this.state.field)return false;
 
     let field = this.props.field;
-    let labelUrl = this.props.isUrl ? <a href={this.state.value}><i className="fa fa-external-link p-l"/></a> : "";
+    let labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l"/></a> : "";
 
     let styles = {
       textarea: {
@@ -182,7 +185,7 @@ export class TextAreaField extends BaseField {
           {field.label}
           {labelUrl}
         </label>
-        <textarea style={styles.textarea} className={inputClassNames} id={field.key} type={field.htmlType()} value={this.state.value} placeholder={field.label} onChange={this.handleChange}/>
+        <textarea style={styles.textarea} className={inputClassNames} id={field.key} type={field.htmlType()} value={this.state.field.get('value')} placeholder={field.label} onChange={this.handleChange}/>
         <small className="text-muted control-label">{this.message()}</small>
       </fieldset>
     )
@@ -194,25 +197,44 @@ class BaseSelectField extends BaseField{
     this.props.field.setValue( value );
   }
 
+  shouldComponentUpdate(nextProps, nextState){
+    //return this.state.field != nextState.field;
+    return true;
+  }
+
+
+  componentWillMount(){
+    this.subscribeFct =  v => {
+      const state = {field: v};
+      if(v.get('domainValue')){
+        const domainValue = _.map(v.get('domainValue').toJS(), ({key, value}) => {return {label:value, value:key}} );
+        state.domainValue = domainValue;
+      }
+      this.setState(state);
+    };
+
+    this.props.field.state.onValue( this.subscribeFct );
+  }
+
   selectClassNames = () => classNames( 'tm select form-control', { 'form-control-error': this.hasError() });
-  options = () => _.map(this.props.field.domainValue, ({key, value}) => {return {label:value, value:key}} );
 }
+
 
 export class SelectField extends BaseSelectField {
   render(){
-    console.log("render " + this.props.field.label)
+    if(!this.state.field)return false;
     let field = this.props.field;
 
-    if(this.state.disabled){
-      const keyValue = _.find(field.domainValue, x => x.key === this.state.value);
+    if(this.state.field.get('disabled')){
+      const keyValue = _.find(this.state.domainValue, x => x.key === this.state.field.get("value"));
       return <TextLabel label={field.label} value={keyValue && keyValue.value}/>
     }else{
       return(
         <fieldset className={this.fieldsetClassNames()}>
           <label htmlFor={field.key}>{field.label}</label>
           <Select 
-            options={this.options()}  
-            value={this.state.value} 
+            options={this.state.domainValue}  
+            value={this.state.field.get('value')} 
             id={field.key} 
             clearable={false}
             onChange={this.handleChange}/>
@@ -235,6 +257,7 @@ export class SelectColorField extends BaseSelectField {
   }
 
   render(){
+    if(!this.state.field)return false;
     let field = this.props.field;
 
     let options = _.map(this.props.options, color => {
@@ -248,7 +271,7 @@ export class SelectColorField extends BaseSelectField {
           options={options}  
           optionRenderer={this.renderOption}
           valueRenderer={this.renderOption}
-          value={this.state.value} 
+          value={this.state.field.get('value')} 
           id={field.key} 
           clearable={false}
           onChange={this.handleChange}/>
@@ -265,19 +288,20 @@ export class MultiSelectField extends BaseSelectField{
   }
 
   render(){
-    console.log("render " + this.props.field.label)
+    if(!this.state.field) return false;
     let field = this.props.field;
 
-    if(this.state.disabled){
-      const keyValue = _.find(field.domainValue, x => x.key === this.state.value);
+    if(this.state.field.get('disabled')){
+      const keyValue = _.find(this.state.domainValue, x => x.key === this.state.field.get('value'));
       return <TextLabel label={field.label} value={keyValue && keyValue.value}/>
     }else{
+      const value = this.state.field.get('value');
       return(
         <fieldset className={this.fieldsetClassNames()}>
           <label htmlFor={field.key}>{field.label}</label>
           <Select 
-            options={this.options()}  
-            value={this.state.value} 
+            options={this.state.domainValue}  
+            value={value && value.toJS()} 
             id={field.key} 
             clearable={false}
             allowCreate={this.props.allowCreate}

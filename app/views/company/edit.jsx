@@ -50,8 +50,8 @@ export class NewCompanyApp extends Component {
   componentWillMount() {
     this.companyForm = companyForm();
 
-    this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
-      companiesActions.create(this.companyForm.toDocument(state));
+    this.unsubscribeSubmit = this.companyForm.onSubmit( (state, document) => {
+      companiesActions.create(document);
       this.goBack(true);
     });
 

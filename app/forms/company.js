@@ -1,4 +1,4 @@
-import {Formo, Field, MultiField} from 'formo';
+import {Formo, Field, FieldGroup} from 'formo';
 import _ from 'lodash';
 import {colors, rndColor, avatarTypes, avatartarUrlValueChecker} from './helpers';
 
@@ -26,7 +26,7 @@ export default function company(document){
       defaultValue: false,
       type: 'boolean',
     }),
-    new MultiField('avatar', [
+    new FieldGroup('avatar', [
       new Field('type', {
         label: "Avatar Type",
         defaultValue: 'color',
@@ -49,7 +49,7 @@ export default function company(document){
       label: "Website",
       type: "text",
     }),
-    new MultiField('address', [
+    new FieldGroup('address', [
       new Field('street', {
         label: "Street",
         type: "text",

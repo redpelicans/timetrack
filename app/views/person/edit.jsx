@@ -50,18 +50,24 @@ export class NewPersonApp extends Component {
   }
 
   componentWillMount() {
-    this.unsubscribeCompanies = companiesStore.listen( state => {
-      this.setState({companies: state.data});
-    });
-
-    this.unsubscribeSkills = skillsStore.listen( skills => {
-      this.setState({skills: skills.data});
-    })
 
     const context = navStore.getContext();
     this.personForm =  context.company ? personForm({companyId: context.company.get('_id')}) : personForm();
-    this.unsubscribeSubmit = this.personForm.onSubmit( state => {
-      personsActions.create(this.personForm.toDocument(state));
+
+    this.unsubscribeCompanies = companiesStore.listen( companies => {
+      const companyId = this.personForm.field('companyId');
+      companyId.setSchemaValue('domainValue', companiesValues(companies.data));
+      this.forceUpdate();
+    });
+
+    this.unsubscribeSkills = skillsStore.listen( skills => {
+      const skillsField = this.personForm.field('skills');
+      skillsField.setSchemaValue('domainValue', skills.data.toJS() || []);
+      this.forceUpdate();
+    })
+
+    this.unsubscribeSubmit = this.personForm.onSubmit( (state, document) => {
+      personsActions.create(document);
       this.goBack(true);
     });
 
@@ -89,8 +95,6 @@ export class NewPersonApp extends Component {
           submitBtn={submitBtn}
           cancelBtn={cancelBtn}
           goBack={this.goBack}
-          companies={this.state.companies}
-          skills={this.state.skills}
           personForm={this.personForm}/>
       </div>
     )
@@ -135,27 +139,31 @@ export class EditPersonApp extends Component {
 
   componentWillMount() {
 
-    this.unsubscribeCompanies = companiesStore.listen( companies => {
-      this.setState({companies: companies.data});
-    });
-
-    this.unsubscribeSkills = skillsStore.listen( skills => {
-      this.setState({skills: skills.data});
-    })
-
     const context = navStore.getContext();
     const person = context.person;
     if(!person) return navActions.replace(sitemap.person.list);
     this.personDocument = person.toJS();
     this.personForm = personForm(this.personDocument);
 
-    this.unsubscribeSubmit = this.personForm.onSubmit( state => {
-      //console.log(this.personForm.toDocument(state))
-      personsActions.update(this.personDocument, this.personForm.toDocument(state));
+    this.unsubscribeCompanies = companiesStore.listen( companies => {
+      const companyId = this.personForm.field('companyId');
+      companyId.setSchemaValue('domainValue', companiesValues(companies.data));
+      this.forceUpdate();
+    });
+
+    this.unsubscribeSkills = skillsStore.listen( skills => {
+      const skillsField = this.personForm.field('skills');
+      skillsField.setSchemaValue('domainValue', skills.data.toJS() || []);
+      this.forceUpdate();
+    })
+
+    this.unsubscribeSubmit = this.personForm.onSubmit( (state, document) => {
+      personsActions.update(this.personDocument, document);
       this.goBack(true);
     });
 
     this.unsubscribeState = this.personForm.onValue( state => {
+      console.log(state)
       this.setState({
         canSubmit: state.canSubmit,
         hasBeenModified: state.hasBeenModified,
@@ -180,8 +188,6 @@ export class EditPersonApp extends Component {
           cancelBtn={cancelBtn}
           goBack={this.goBack}
           personDocument={this.personDocument} 
-          companies={this.state.companies}
-          skills={this.state.skills}
           personForm={this.personForm}/>
       </div>
     )
@@ -194,16 +200,6 @@ export default class EditContent extends Component {
     // dynamic behavior
     emailRule(this.props.personForm);
     companyRule(this.props.personForm);
-  }
-
-  companiesValues(){
-    if(!this.props.companies) return [];
-    const values = _.chain(this.props.companies.toJS())
-      .map(company => { return {key: company._id, value: company.name} })
-      .sortBy(x => x.value)
-      .value();
-    values.unshift({key: undefined, value: '<No Company>'});
-    return values;
   }
 
   render(){
@@ -222,10 +218,7 @@ export default class EditContent extends Component {
     const fakePerson = Immutable.fromJS(_.pick(this.props.personDocument, 'createdAt', 'updatedAt'));
 
     const companyId = person.field('companyId');
-    companyId.schema.domainValue = this.companiesValues();
-
     const skills = person.field('skills');
-    skills.schema.domainValue = this.props.skills && this.props.skills.toJS() || [];
 
     return (
       <Content>
@@ -339,11 +332,20 @@ function emailRule(person){
 
   type.onValue( state => {
     if(state.value === 'worker'){
-      email.schema.required = true;
+      email.setSchemaValue('required', true);
     }else{
-      email.schema.required = false;
+      email.setSchemaValue('required', false);
     }
-    email.refresh();
   });
 }
+function  companiesValues(companies){
+  if(!companies) return [];
+  const values = _.chain(companies.toJS())
+    .map(company => { return {key: company._id, value: company.name} })
+    .sortBy(x => x.value)
+    .value();
+  values.unshift({key: undefined, value: '<No Company>'});
+  return values;
+}
+
 

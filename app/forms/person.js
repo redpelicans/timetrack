@@ -1,4 +1,4 @@
-import {Formo, Field, MultiField} from 'formo';
+import {Formo, Field, FieldGroup} from 'formo';
 import _ from 'lodash';
 import {colors, rndColor, avatarTypes, avatartarUrlValueChecker, emailUniqueness} from './helpers';
 
@@ -55,7 +55,7 @@ export default function person(document){
       defaultValue: false,
       type: 'boolean',
     }),
-    new MultiField('avatar', [
+    new FieldGroup('avatar', [
       new Field('type', {
         label: "Avatar Type",
         defaultValue: 'color',
@@ -92,11 +92,13 @@ export default function person(document){
     new Field('skills', {
       label: "Skills",
       type: "text",
-      domainValue: ['skill1', 'skill2']
+      checkDomainValue: false,
+      multiValue: true,
     }),
     new Field('roles', {
       label: "Roles",
       type: "text",
+      multiValue: true,
       domainValue: roles
     }),
     new Field('jobTitle', {
