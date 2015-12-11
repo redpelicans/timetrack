@@ -119,8 +119,8 @@ export class EditCompanyApp extends Component {
     this.companyDocument = company.toJS();
     this.companyForm = companyForm(this.companyDocument);
 
-    this.unsubscribeSubmit = this.companyForm.onSubmit( state => {
-      companiesActions.update(this.companyDocument, this.companyForm.toDocument(state));
+    this.unsubscribeSubmit = this.companyForm.onSubmit( (state, document) => {
+      companiesActions.update(this.companyDocument, document);
       this.goBack(true);
     });
 
