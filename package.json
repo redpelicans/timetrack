@@ -7,7 +7,7 @@
     "test": "./node_modules/.bin/mocha --require babel-core/register --reporter spec",
     "start-client": "node devrunner",
     "compile-server": "node ./node_modules/babel/bin/babel server/src --out-dir server/lib",
-    "compile-client": "NODE_ENV=production webpack",
+    "compile-client": "NODE_ENV=production webpack -p --config webpack.config-prod.js",
     "lint": "eslint app"
   },
   "repository": {
