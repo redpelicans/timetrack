@@ -1,4 +1,4 @@
-import {Formo, Field, FieldGroup} from 'formo';
+import {Formo, Field, FieldGroup, MultiField} from 'formo';
 import _ from 'lodash';
 import {colors, rndColor, avatarTypes, avatartarUrlValueChecker, emailUniqueness} from './helpers';
 
@@ -14,6 +14,13 @@ const roles = [
   {key: 'admin', value: 'Admin'},
   {key: 'worker', value: 'Worker'},
 ];
+
+const phoneLabels = [
+  {key: 'mobile', value: 'Mobile'},
+  {key: 'home', value: 'Home'},
+  {key: 'work', value: 'Work'},
+];
+
 
 const jobType = [
   {key: 'designer', value: 'Designer'},
@@ -113,5 +120,16 @@ export default function person(document){
       label: "Note",
       type: "text",
     }),
+    new MultiField('phones', [
+      new Field('label', {
+        label: 'Label',
+        type: 'text',
+        domainValue: phoneLabels
+      }),
+      new Field('number', {
+        label: 'Number',
+        type: 'text',
+      }),
+    ]),
   ], document);
 }

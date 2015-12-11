@@ -115,8 +115,8 @@ function fromJson(json){
     res.skills = _.chain(json.skills).compact().map( skill => uppercamelcase(skill) ).sort().value();
   }
   if(json.phones){
-    let attrs = ['label', 'phone'];
-    res.phones = _.map(json.phones, p => _.pick(p, attrs));
+    let attrs = ['label', 'number'];
+    res.phones = _.chain(json.phones).filter(p => p.number).map(p => _.pick(p, attrs)).value();
   }
   if(json.avatar){
     let attrs = ['src', 'url', 'color', 'type'];

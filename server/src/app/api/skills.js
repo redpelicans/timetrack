@@ -29,7 +29,7 @@ export function init(app){
 
 
 function load(cb){
-  Person.findAll({}, {skills: 1}, (err, persons) => {
+  Person.findAll({isDeleted: {$ne: true}}, {skills: 1}, (err, persons) => {
     if(err)return next(err);
     const hallSkills = {};
     for(let person of persons){

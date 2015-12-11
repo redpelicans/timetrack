@@ -13,6 +13,7 @@ import {navActions, navStore} from '../../models/nav';
 import {Content} from '../layout';
 import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../widgets';
 import {StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, MultiSelectField, SelectField} from '../fields';
+import {PhonesField} from '../phone';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title} from '../widgets';
 import sitemap from '../../routes';
 
@@ -268,6 +269,9 @@ export default class EditContent extends Component {
                 </div>
                 <div className="col-md-12">
                   <SelectField field={companyId}/>
+                </div>
+                <div className="col-md-12">
+                  <PhonesField field={person.field('phones')} />
                 </div>
                 <div className="col-md-12">
                   <MultiSelectField field={skills} allowCreate={true}/>

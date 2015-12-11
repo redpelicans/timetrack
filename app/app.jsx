@@ -42,8 +42,6 @@ export default class App extends Component {
     });
 
     this.unsubscribeLogin = loginStore.listen( state => {
-      console.log("====>   App")
-      console.log(state)
       this.setState({user: state.user});
     });
 
@@ -71,6 +69,10 @@ export default class App extends Component {
     loginActions.logout();
   }
 
+  handleViewPerson = () => {
+    navActions.push(sitemap.person.view, {person: this.state.user});
+  }
+
   render(){
     const styles={
       toast:{
@@ -87,6 +89,7 @@ export default class App extends Component {
           user={this.state.user}
           onGoHome={this.handleGoHome}
           onLogout={this.handleLogout}
+          onViewPerson={this.handleViewPerson}
           currentTopic={this.state.currentTopic}/>
         <div className="m-t-70 container-fluid">
           <div className="row m-t">
@@ -111,6 +114,11 @@ class AppNav extends Component{
   handleLogout = (e) => {
     e.preventDefault();
     this.props.onLogout();
+  }
+
+  handleViewPerson = (e) => {
+    e.preventDefault();
+    this.props.onViewPerson();
   }
 
   handleGoHome = (e) => {
@@ -151,6 +159,7 @@ class AppNav extends Component{
             </button>
             <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="avatarmenu">
               <h6 className="dropdown-header">{this.props.user.get('email')}</h6>
+              <a className="dropdown-item" href="#" onClick={this.handleViewPerson} >View Profil</a>
               <a className="dropdown-item" href="#" onClick={this.handleLogout} >Logout</a>
             </ul>
           </div>

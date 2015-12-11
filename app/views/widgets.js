@@ -79,13 +79,33 @@ export const TextLabel = ({label, value, url, onClick}) => {
     <fieldset className="form-group">
       <label htmlFor={label}> 
         {label} 
-        {labelUrl}
+        {labelUrl()}
       </label>
       <span className="form-control" id={label}>{value}</span>
     </fieldset>
   )
 }
 
+export const Labels = ({label, value}) => {
+  const styles = {
+    label:{
+      color: '#cfd2da',
+      padding: '.3rem',
+    }
+  };
+
+  const labels = _.map(value.toJS(), v => <span key={v} style={styles.label} className="label label-primary m-r">{v}</span>);
+  return(
+    <fieldset className="form-group">
+      <label htmlFor={label}> 
+        {label} 
+      </label>
+      <div className="form-control" id={label}>
+        {labels}
+      </div>
+    </fieldset>
+  )
+}
 export const MarkdownText = ({label, value}) => {
   const md = new Remarkable();
   const text = {__html: md.render(value)};

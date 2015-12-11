@@ -6,7 +6,6 @@ import Remarkable from 'remarkable';
 import {colors} from '../forms/company';
 import {Avatar, TextLabel} from './widgets';
 
-
 class BaseField extends Component{
   state = {field: undefined}
 
@@ -226,8 +225,8 @@ export class SelectField extends BaseSelectField {
     let field = this.props.field;
 
     if(this.state.field.get('disabled')){
-      const keyValue = _.find(this.state.domainValue, x => x.key === this.state.field.get("value"));
-      return <TextLabel label={field.label} value={keyValue && keyValue.value}/>
+      const keyValue = _.find(this.state.domainValue, x => x.value === this.state.field.get("value"));
+      return <TextLabel label={field.label} value={keyValue && keyValue.label}/>
     }else{
       return(
         <fieldset className={this.fieldsetClassNames()}>

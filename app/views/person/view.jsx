@@ -3,7 +3,7 @@ import moment from 'moment';
 import Remarkable from 'remarkable';
 import React, {Component} from 'react';
 import classNames from 'classnames';
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, MarkdownText} from '../widgets';
+import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../widgets';
 import {Edit, Preferred, Delete} from './widgets';
 import {timeLabels} from '../helpers';
 import {Content } from '../layout';
@@ -78,19 +78,26 @@ const Card = ({person, company}) =>  {
     },
   }
 
-  const phones = _.map(person.get('phones') && person.get('phones').toJS() || [], p => {
+  const handleClick = (e) => {
+    e.preventDefault();
+    navActions.push(sitemap.company.view, {company});
+  }
+
+  const phones = () =>  _.map(person.get('phones') && person.get('phones').toJS() || [], p => {
     return (
       <div key={p.phone+p.label} className="col-md-4">
-        <TextLabel label={`Phone: ${p.label}`} value={p.phone}/>
+        <TextLabel label={`Phone: ${p.label}`} value={p.number}/>
       </div>
     )
   });
 
-  const birthdate = person.get('birthdate') ? moment(person.get('birthdate')).format('DD/MM/YY') : "";
-
-  const handleClick = (e) => {
-    e.preventDefault();
-    companyAction.view({company});
+  const birthdate = () => {
+    const date = person.get('birthdate') ? moment(person.get('birthdate')).format('DD/MM/YY') : "";
+    return (
+      <div className="col-md-2">
+        <TextLabel label="Birth Date" value={date}/>
+      </div>
+    )
   }
 
   const companyElement = () => {
@@ -123,6 +130,49 @@ const Card = ({person, company}) =>  {
     )
   }
 
+  const skills = () => {
+    if(!person.get('skills')) return <div/>
+    return (
+      <div className="col-md-12">
+        <Labels label="Skills" value={person.get('skills')}/>
+      </div>
+    )
+  }
+
+  const roles = () => {
+    if(!person.get('roles')) return <div/>
+    return (
+      <div className="col-md-12">
+        <Labels label="Roles" value={person.get('roles')}/>
+      </div>
+    )
+  }
+
+
+  const type = () => {
+    return (
+        <div className="col-md-3">
+          <TextLabel label="Type" value={person.get('type')}/>
+        </div>
+    )
+  }
+
+  const jobType = () => {
+    return (
+      <div className="col-md-3">
+        <TextLabel label="Job Title" value={person.get('jobTitle')}/>
+      </div>
+    )
+  }
+
+  const email = () => {
+    return (
+        <div className="col-md-6">
+          <TextLabel label="Email" value={person.get('email')}/>
+        </div>
+    )
+  }
+
   return (
     <div>
       <div style={styles.container} className="row" >
@@ -135,23 +185,24 @@ const Card = ({person, company}) =>  {
         <div className="col-md-5">
           <TextLabel label="Last Name" value={person.get('lastName')}/>
         </div>
-        <div className="col-md-2">
-          <TextLabel label="Birth Date" value={birthdate}/>
-        </div>
+        {birthdate}
         {companyElement()}
       </div>
-      <div className="row">
-        {phones} 
-      </div>
       <div className="row" >
-        <div className="col-md-6">
-          <TextLabel label="Job Title" value={person.get('jobTitle')}/>
-        </div>
-        <div className="col-md-6">
-          <TextLabel label="Email" value={person.get('email')}/>
-        </div>
-        {jobDescription}
-        {note}
+        {type()}
+        {jobType()}
+        {email()}
+      </div>
+      <div className="row">
+        {phones()} 
+      </div>
+      <div className="row">
+        {skills()} 
+        {roles()} 
+      </div>
+      <div className="row">
+        {jobDescription()}
+        {note()}
       </div>
     </div>
   )

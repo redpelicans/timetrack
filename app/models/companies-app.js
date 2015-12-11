@@ -96,6 +96,7 @@ function sortByCond(a, b, attr, order){
 
 function sortBy(a, b, attr){
   if( a.get(attr) === b.get(attr) ) return attr !== 'name' ? sortByCond(a,b, 'name', 'desc') : 0;
+  if(attr != 'name') return a.get(attr) < b.get(attr) ? 1 : -1;
   return a.get(attr) >= b.get(attr) ? 1 : -1;
 }
 
