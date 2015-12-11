@@ -159,7 +159,7 @@ class AppNav extends Component{
             </button>
             <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="avatarmenu">
               <h6 className="dropdown-header">{this.props.user.get('email')}</h6>
-              <a className="dropdown-item" href="#" onClick={this.handleViewPerson} >View Profil</a>
+              <a className="dropdown-item" href="#" onClick={this.handleViewPerson} >View Profile</a>
               <a className="dropdown-item" href="#" onClick={this.handleLogout} >Logout</a>
             </ul>
           </div>
