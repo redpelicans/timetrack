@@ -2,7 +2,6 @@ import async from 'async'; import debug from 'debug';
 import * as app  from './app';
 import initGithash from './init/githash';
 import initModels from './init/models';
-import uuid from 'uuid';
 
 let logerror = debug('transac:error')
   , loginfo = debug('transac:info');

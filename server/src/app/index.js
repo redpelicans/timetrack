@@ -48,7 +48,8 @@ export function start(params, resources, cb) {
     // manage cookie
     //app.use(cookieParser());
 
-    //app.use(express.static(path.join(__dirname, '../../../public')));
+    app.use(express.static(path.join(__dirname, '../../../public')));
+    app.use('/build', express.static(path.join(__dirname, '../../../build')));
 
     require('./ping').init(app, resources);
     require('./version').init(app, resources);
