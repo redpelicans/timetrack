@@ -27,6 +27,7 @@ const jobType = [
   {key: 'developer', value: 'Developer'},
   {key: 'manager', value: 'Manager'},
   {key: 'sales', value: 'Sales'},
+  {key: 'businessManager', value: 'Business Manager'},
 ];
 
 export default function person(document){

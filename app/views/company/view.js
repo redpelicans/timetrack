@@ -14,26 +14,23 @@ export default class ViewCompanyApp extends Component {
   state = {};
 
   componentWillMount() {
+    let companyId = this.props.location.state && this.props.location.state.companyId;
+
     this.unsubcribePersons = personsStore.listen( persons => {
       this.setState({ persons: persons.data })
     });
 
     this.unsubcribeCompanies = companiesStore.listen( companies => {
-      const company = companies.data.get(this.state.company.get('_id'));
-      if(company != this.state.company) this.setState({company});
+      const company = companies.data.get(companyId);
+      if(company){
+        if(company != this.state.company) this.setState({company});
+        personsActions.load({ids: company.personsIds});
+      }
     });
 
-    const context = navStore.getContext();
-    const company = context.company;
-    console.log("COMPANY.MOUNT")
-    console.log(company.get('name'))
-    if(!company) return navActions.replace(sitemap.company.list);
+    if(companyId) companiesActions.load({ids: [companyId]});
+    else navActions.replace(sitemap.company.list);
 
-    this.setState({company}, () => {
-      companiesActions.load({ids: company.get('_id')});
-    });
-
-    personsActions.load({ids: company.personsIds});
   }
 
   componentWillUnmount(){
@@ -60,7 +57,7 @@ export default class ViewCompanyApp extends Component {
           <HeaderRight>
             <AddPerson company={company}/>
             <Edit company={company}/>
-            <Delete company={company}/>
+            <Delete company={company} postAction={this.goBack}/>
           </HeaderRight>
         </Header>
         <Card 
@@ -178,7 +175,7 @@ export const LeaveCompany =({company, person}) => {
 export const AddPerson =({company}) => {
   const handleChange = (e) => {
     e.preventDefault();
-    navActions.push(sitemap.person.new, {company});
+    navActions.push(sitemap.person.new, {companyId: company.get('_id')});
   }
 
   if(authManager.isAuthorized(sitemap.person.new)){

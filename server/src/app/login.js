@@ -14,7 +14,7 @@ export function init(app, resources, params){
     if(!id_token) setImmediate(next, new Error("Cannot login without a token!"));
     async.waterfall([checkGoogleUser.bind(null, id_token), loadUser, updateAvatar], (err, user) => {
       if(err)return next(err);
-      const expirationDate = moment().add(1, 'hour').toDate();
+      const expirationDate = moment().add(params.sessionDuration || 8 , 'hours').toDate();
       const jwt = token(user, params.secretKey, expirationDate);
       res.json({ user: user, token: jwt });
     });

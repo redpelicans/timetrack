@@ -5,6 +5,7 @@ import errors from './errors';
 import {loginStore} from './login';
 
 const actions = Reflux.createActions([
+  "setContext",
   "enter", 
   "push", 
   "replace",
@@ -18,12 +19,17 @@ const actions = Reflux.createActions([
 
 const state = { 
   topic: undefined,
+  context: undefined,
 };
 
-const history = [];
 
 const store = Reflux.createStore({
   listenables: [actions],
+
+  onSetContext: function(context){
+    state.context = context;
+    this.trigger(state);
+  },
 
   onEnter: function(route){
     state.topic = route.topic;
@@ -41,13 +47,12 @@ const store = Reflux.createStore({
     if(!nameOrRoute) return actions.replaceRoute(routes.defaultRoute);
     const route = _.isString(nameOrRoute) ? routes[nameOrRoute] : nameOrRoute;
     if(!route) errors.alert({header: "Client error", message: `Unknown route name: ${nameOrRoute}`});
-    history.push(context);
-    console.log("history.level " + history.length);
-    actions.pushRoute(route);
+    state.context = context;
+    actions.pushRoute(route, context);
+    this.trigger(state);
   },
 
   onGoBack: function(){
-    history.pop();
     actions.goBackRoute(routes.login);
   },
 
@@ -57,10 +62,6 @@ const store = Reflux.createStore({
 
   onGotoUnAuth(){
     actions.pushRoute(routes.unauthorized);
-  },
-
-  getContext(){
-    return history[history.length-1] || {};
   },
 
 });

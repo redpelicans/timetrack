@@ -5,7 +5,7 @@ import {NotFoundError} from '../helpers';
 export default function errors(err, req, res, next) {
   if (!err) return next();
   if(err instanceof NotFoundError){
-    res.sendStatus(404);
+    res.sendStatus(404).json({message: "Page not Found"});
   }else{
     var message = err.message || err.toString();
     console.log(err.stack);

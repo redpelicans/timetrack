@@ -9,7 +9,7 @@ import {AvatarView} from '../widgets';
 export const Edit = ({company}) => {
   const handleChange = (e) => {
     e.preventDefault();
-    navActions.push(routes.company.edit, {company});
+    navActions.push(routes.company.edit, {companyId: company.get('_id')});
   }
 
   if(authManager.company.isAuthorized('edit')){
@@ -46,11 +46,14 @@ export const Preferred = ({company, active}) => {
   }
 }
 
-export const Delete =({company}) => {
+export const Delete =({company, postAction}) => {
   const handleChange = (e) => {
     e.preventDefault();
     const answer = confirm(`Are you sure to delete the company "${company.get('name')}"`);
-    if(answer) companiesActions.delete(company.toJS());
+    if(answer){
+      companiesActions.delete(company.toJS());
+      if(postAction)postAction();
+    }
   }
 
   if(authManager.company.isAuthorized('delete', {company})){

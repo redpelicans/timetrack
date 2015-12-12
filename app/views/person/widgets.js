@@ -10,7 +10,7 @@ import {AvatarView} from '../widgets';
 export const Edit = ({person}) => {
   const handleChange = (e) => {
     e.preventDefault();
-    navActions.push(routes.person.edit, {person});
+    navActions.push(routes.person.edit, {personId: person.get('_id')});
   }
 
   if(authManager.person.isAuthorized('edit')){
@@ -25,11 +25,14 @@ export const Edit = ({person}) => {
 }
 
 
-export const Delete =({person}) => {
+export const Delete =({person, postAction}) => {
   const handleChange = (e) => {
     e.preventDefault();
     const answer = confirm(`Are you sure to delete the contact "${person.get('name')}"`);
-    if(answer) personsActions.delete(person.toJS());
+    if(answer){
+      personsActions.delete(person.toJS());
+      if(postAction) postAction();
+    }
   }
 
   if(authManager.person.isAuthorized('delete')){
@@ -109,12 +112,12 @@ export class Preview extends Component {
 
   handleViewPerson = (e) => {
     e.preventDefault();
-    navActions.push(routes.person.view, {person: this.props.person});
+    navActions.push(routes.person.view, {personId: this.props.person.get('_id')});
   }
 
   handleViewCompany = (e) => {
     e.preventDefault();
-    navActions.push(routes.company.view, {company: this.props.company});
+    navActions.push(routes.company.view, {companyId: this.props.company.get('_id')});
   }
 
   render() {

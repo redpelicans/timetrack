@@ -16,29 +16,41 @@ export default class ViewPersonApp extends Component {
   state = {};
 
   componentWillMount() {
+    let personId = this.props.location.state.personId;
 
     this.unsubcribeCompanies = companiesStore.listen( companies => {
       const company = companies.data.get(this.state.person.get('companyId'));
       this.setState({company});
     });
 
-    this.unsubcribePersons = personsStore.listen( persons => {
-      const person = persons.data.get(this.state.person.get('_id'));
-      if(person != this.state.person) this.setState({person});
+    this.unsubcribeNav = navStore.listen( state => {
+      const newPersonId = state.context && state.context.personId;
+      if(newPersonId && personId != newPersonId) {
+        personId = newPersonId;
+        personsActions.load({ids: [personId]});
+      }
     });
 
-    const context = navStore.getContext();
-    const person = context.person;
-    if(!person) return navActions.replace(sitemap.person.list);
-    this.setState({person}, () => {
-      companiesActions.load({ids: [person.get('companyId')]});
-    })
+    this.unsubcribePersons = personsStore.listen( persons => {
+      const person = persons.data.get(personId);
+      if(person && person != this.state.person) {
+        this.setState({person}, () => {
+          companiesActions.load({ids: [person.get('companyId')]});
+        })
+      }
+    });
 
+    if(personId){
+      personsActions.load({ids: [personId]});
+    }else{
+      navActions.replace(sitemap.person.list);
+    }
   }
 
   componentWillUnmount(){
     if(this.unsubcribeCompanies) this.unsubcribeCompanies();
     if(this.unsubcribePersons) this.unsubcribePersons();
+    if(this.unsubcribeNav) this.unsubcribeNav();
   }
 
   goBack = () => {
@@ -59,7 +71,7 @@ export default class ViewPersonApp extends Component {
           </HeaderLeft>
           <HeaderRight>
             <Edit person={person}/>
-            <Delete person={person}/>
+            <Delete person={person} postAction={this.goBack}/>
           </HeaderRight>
         </Header>
 
@@ -80,7 +92,7 @@ const Card = ({person, company}) =>  {
 
   const handleClick = (e) => {
     e.preventDefault();
-    navActions.push(sitemap.company.view, {company});
+    navActions.push(sitemap.company.view, {companyId: company.get('_id')});
   }
 
   const phones = () =>  _.map(person.get('phones') && person.get('phones').toJS() || [], p => {
@@ -131,7 +143,7 @@ const Card = ({person, company}) =>  {
   }
 
   const skills = () => {
-    if(!person.get('skills')) return <div/>
+    if(!person.get('skills') || !person.get('skills').size) return <div/>
     return (
       <div className="col-md-12">
         <Labels label="Skills" value={person.get('skills')}/>
@@ -140,7 +152,7 @@ const Card = ({person, company}) =>  {
   }
 
   const roles = () => {
-    if(!person.get('roles')) return <div/>
+    if(!person.get('roles') || !person.get('roles').size) return <div/>
     return (
       <div className="col-md-12">
         <Labels label="Roles" value={person.get('roles')}/>
@@ -160,7 +172,7 @@ const Card = ({person, company}) =>  {
   const jobType = () => {
     return (
       <div className="col-md-3">
-        <TextLabel label="Job Title" value={person.get('jobTitle')}/>
+        <TextLabel label="Job Type" value={person.get('jobType')}/>
       </div>
     )
   }
@@ -179,13 +191,12 @@ const Card = ({person, company}) =>  {
         <div className="col-md-1">
           <TextLabel label="Prefix" value={person.get('prefix')}/>
         </div>
-        <div className="col-md-4">
+        <div className="col-md-5">
           <TextLabel label="First Name" value={person.get('firstName')}/>
         </div>
-        <div className="col-md-5">
+        <div className="col-md-6">
           <TextLabel label="Last Name" value={person.get('lastName')}/>
         </div>
-        {birthdate}
         {companyElement()}
       </div>
       <div className="row" >

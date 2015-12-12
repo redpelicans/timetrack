@@ -5,7 +5,7 @@ import { Lifecycle } from 'react-router';
 import Immutable from 'immutable';
 import {Content} from '../layout';
 import companyForm, {colors, avatarTypes} from '../../forms/company';
-import {companiesActions} from '../../models/companies';
+import {companiesActions, companiesStore} from '../../models/companies';
 import {navStore, navActions} from '../../models/nav';
 import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../widgets';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title } from '../widgets';
@@ -43,8 +43,8 @@ export class NewCompanyApp extends Component {
   }
 
   componentWillUnmount(){
-    this.unsubscribeSubmit();
-    this.unsubscribeState();
+    if(this.unsubscribeSubmit) this.unsubscribeSubmit();
+    if(this.unsubscribeState) this.unsubscribeState();
   }
 
   componentWillMount() {
@@ -110,26 +110,35 @@ export class EditCompanyApp extends Component {
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
+    if(this.unsubscribeCompanies) this.unsubscribeCompanies();
   }
 
   componentWillMount() {
-    const context = navStore.getContext();
-    const company = context.company;
-    if(!company) return navActions.replace(sitemap.company.list);
-    this.companyDocument = company.toJS();
-    this.companyForm = companyForm(this.companyDocument);
+    let companyId = this.props.location.state && this.props.location.state.companyId;
 
-    this.unsubscribeSubmit = this.companyForm.onSubmit( (state, document) => {
-      companiesActions.update(this.companyDocument, document);
-      this.goBack(true);
+    this.unsubscribeCompanies = companiesStore.listen( companies => {
+      const company = companies.data.get(companyId);
+      if(!company) return navActions.replace(sitemap.company.list);
+      if(!this.companyDocument){
+        this.companyDocument = company.toJS();
+        this.companyForm = companyForm(this.companyDocument);
+
+        this.unsubscribeSubmit = this.companyForm.onSubmit( (state, document) => {
+          companiesActions.update(this.companyDocument, document);
+          this.goBack(true);
+        });
+
+        this.unsubscribeState = this.companyForm.onValue( state => {
+          this.setState({
+            canSubmit: state.canSubmit,
+            hasBeenModified: state.hasBeenModified,
+          });
+        });
+      }
     });
 
-    this.unsubscribeState = this.companyForm.onValue( state => {
-      this.setState({
-        canSubmit: state.canSubmit,
-        hasBeenModified: state.hasBeenModified,
-      });
-    });
+   if(companyId) companiesActions.load({ids: [companyId]});
+    else navActions.replace(sitemap.company.list);
   }
 
   render(){

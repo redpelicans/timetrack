@@ -1,6 +1,6 @@
 {
   "name": "timetrack",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "time tracking application",
   "scripts": {
     "testperf": "./node_modules/.bin/mocha --require babel-core/register --reporter spec test-perf/*.js",

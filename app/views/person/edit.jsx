@@ -51,9 +51,8 @@ export class NewPersonApp extends Component {
   }
 
   componentWillMount() {
-
-    const context = navStore.getContext();
-    this.personForm =  context.company ? personForm({companyId: context.company.get('_id')}) : personForm();
+    let companyId = this.props.location.state && this.props.location.state.companyId;
+    this.personForm =  companyId ? personForm({companyId}) : personForm();
 
     this.unsubscribeCompanies = companiesStore.listen( companies => {
       const companyId = this.personForm.field('companyId');
@@ -133,46 +132,53 @@ export class EditPersonApp extends Component {
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
-    if(this.unsubscribePerson) this.unsubscribePerson();
     if(this.unsubscribeCompanies) this.unsubscribeCompanies();
     if(this.unsubscribeSkills) this.unsubscribeSkills();
+    if(this.unsubscribePersons) this.unsubscribePersons();
   }
 
   componentWillMount() {
+    let personId = this.props.location.state && this.props.location.state.personId;
 
-    const context = navStore.getContext();
-    const person = context.person;
-    if(!person) return navActions.replace(sitemap.person.list);
-    this.personDocument = person.toJS();
-    this.personForm = personForm(this.personDocument);
+    this.unsubscribePersons = personsStore.listen( persons => {
+      const person = persons.data.get(personId);
+      if(!person) return navActions.replace(sitemap.person.list);
+      if(!this.personDocument){
+        this.personDocument = person.toJS();
+        this.personForm = personForm(this.personDocument);
 
-    this.unsubscribeCompanies = companiesStore.listen( companies => {
-      const companyId = this.personForm.field('companyId');
-      companyId.setSchemaValue('domainValue', companiesValues(companies.data));
-      this.forceUpdate();
+        this.unsubscribeCompanies = companiesStore.listen( companies => {
+          const companyId = this.personForm.field('companyId');
+          companyId.setSchemaValue('domainValue', companiesValues(companies.data));
+          this.forceUpdate();
+        });
+
+        this.unsubscribeSkills = skillsStore.listen( skills => {
+          const skillsField = this.personForm.field('skills');
+          skillsField.setSchemaValue('domainValue', skills.data.toJS() || []);
+          this.forceUpdate();
+        })
+
+        this.unsubscribeSubmit = this.personForm.onSubmit( (state, document) => {
+          personsActions.update(this.personDocument, document);
+          this.goBack(true);
+        });
+
+        this.unsubscribeState = this.personForm.onValue( state => {
+          this.setState({
+            canSubmit: state.canSubmit,
+            hasBeenModified: state.hasBeenModified,
+          });
+        });
+      }
     });
 
-    this.unsubscribeSkills = skillsStore.listen( skills => {
-      const skillsField = this.personForm.field('skills');
-      skillsField.setSchemaValue('domainValue', skills.data.toJS() || []);
-      this.forceUpdate();
-    })
+    if(personId){
+      personsActions.load({ids: [personId]});
+      companiesActions.load();
+      skillsActions.load();
+    }else return navActions.replace(sitemap.person.list);
 
-    this.unsubscribeSubmit = this.personForm.onSubmit( (state, document) => {
-      personsActions.update(this.personDocument, document);
-      this.goBack(true);
-    });
-
-    this.unsubscribeState = this.personForm.onValue( state => {
-      console.log(state)
-      this.setState({
-        canSubmit: state.canSubmit,
-        hasBeenModified: state.hasBeenModified,
-      });
-    });
-
-    companiesActions.load();
-    skillsActions.load();
   }
 
   render(){

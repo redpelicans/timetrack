@@ -117,7 +117,7 @@ class Preview extends Component {
 
   handleView = (e) => {
     e.preventDefault();
-    navActions.push(routes.company.view, {company: this.props.company});
+    navActions.push(routes.company.view, {companyId: this.props.company.get('_id')});
   }
 
   render() {

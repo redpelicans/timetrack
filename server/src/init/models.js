@@ -32,7 +32,7 @@ function ensureIndexes(cb){
 }
 
 function person_email(cb){
-  Person.collection.ensureIndex({email:1}, {unique: true, background: true}, cb);
+  Person.collection.ensureIndex({email:1}, {unique: true, sparse: true, background: true}, cb);
 }
 
 function person_company_id(cb){

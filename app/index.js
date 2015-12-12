@@ -18,8 +18,8 @@ navActions.replaceRoute.listen(nextRoute => {
   history.replaceState(null, nextRoute.path)
 })
 
-navActions.pushRoute.listen(nextRoute => {
-  history.pushState(null, nextRoute.path)
+navActions.pushRoute.listen( (nextRoute, context) => {
+  history.pushState(context, nextRoute.path)
 })
 
 function onEnter(nextState, replaceState){
@@ -58,6 +58,10 @@ const routes = (
 );
 
 const history = createHashHistory();
+
+history.listen( location => {
+  navActions.setContext(location.state);
+});
 
 boot().then( () => {
   console.log("End of boot process.")

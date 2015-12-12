@@ -106,6 +106,11 @@ export class MarkdownEditField extends BaseField {
     this.setState({mode: mode});
   }
 
+  shouldComponentUpdate(nextProps, nextState){
+    return this.state.field != nextState.field ||
+      this.state.mode != nextState.mode;
+  }
+
   render(){
     if(!this.state.field)return false;
     let field = this.props.field;

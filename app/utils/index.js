@@ -3,7 +3,7 @@ import {navActions} from '../models/nav';
 import {loginStore} from '../models/login';
 
 export function parseJSON(res) {
-  return res.json();
+  return res.json && res.json() || res;
 }
 
 export function checkStatus(res) {
@@ -14,6 +14,7 @@ export function checkStatus(res) {
     error.res = res
     error.forceMessage = true;
     navActions.gotoLogin();
+    throw error
   } else if(res.status === 403){
     var error = new Error("Unauthorized access")
     error.res = res
