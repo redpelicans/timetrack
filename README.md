@@ -34,8 +34,8 @@ Timetrack is in its early stage (version 0.2), its actually a POC, tomorrow a CR
 ## Next Steps 
 
 * Write tests
-* Use Authentification
-* Go live for first version (CRM Lite) 
+* Use Authentification *(DONE)*
+* Go live for first version (CRM Lite)  *(DONE)*
 * write documentation
 * Add features (Missions, Works, Invoices)
 * Enrich CRM Lite version
