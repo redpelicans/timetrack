@@ -345,12 +345,12 @@ export class AvatarViewField extends Component{
   }
 
   getAvatarType(){
-    const defaultAvatar = <div className="m-r"><Avatar name={this.state.name} color={this.state.color}/></div>;
+    const defaultAvatar = <div className="m-r-1"><Avatar name={this.state.name} color={this.state.color}/></div>;
     switch(this.state.type){
       case 'url':
-        return this.state.url ? <div className="m-r"> <Avatar src={this.state.url}/></div> : defaultAvatar;
+        return this.state.url ? <div className="m-r-1"> <Avatar src={this.state.url}/></div> : defaultAvatar;
       case 'src':
-        return this.state.src ? <div className="m-r"><Avatar src={this.state.src}/></div> : defaultAvatar;
+        return this.state.src ? <div className="m-r-1"><Avatar src={this.state.src}/></div> : defaultAvatar;
       default:
         return defaultAvatar;
     }

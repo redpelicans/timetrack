@@ -13,6 +13,8 @@ const ToastMessageFactory = React.createFactory(ReactToastr.ToastMessage.animati
 
 //import injecttapeventplugin from 'react-tap-event-plugin';
 //injecttapeventplugin();
+//
+//
 
 
 export default class App extends Component {
@@ -187,12 +189,12 @@ class AppNav extends Component{
         </div>
         <nav className="navbar navbar-fixed-top navbar-dark bg-inverse tm header black">
           <button className="p-a navbar-toggler hidden-md-up tm mobile button" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
-            <span className="m-r">&#9776;</span>
+            <span className="m-r-1">&#9776;</span>
             <span className="tm mobile header">Timetrack by redpelicans</span>
           </button>
           <div className="collapse navbar-toggleable-sm">
             <a className="navbar-brand tm brand" href="#" onClick={this.handleGoHome}>
-              <i style={styles.logo} className="fa fa-paper-plane m-r"/>
+              <i style={styles.logo} className="fa fa-paper-plane m-r-1"/>
               Timetrack by redpelicans
             </a>
             <ul className="nav navbar-nav tm menu item">
@@ -248,7 +250,7 @@ class AppMobileNavItem extends Component {
     return (
       <li className="nav-item">
         <a className="nav-link" href={href} onClick={this.props.collapse}>
-          <i className={`fa fa-${route.iconName} m-a`} style={styles.icon}/>
+          <i className={`fa fa-${route.iconName} m-a-1`} style={styles.icon}/>
           {route.label}
         </a>
       </li>

@@ -73,8 +73,7 @@ gulp.task('run-client', function (cb) {
     , quiet: true
     , "no-stdin": true
     , env: {
-      'DEBUG': 'timetrack:*',
-      'PORT': '3004'
+      'DEBUG': 'timetrack:*'
     }
   })
   .on('start', function () {
@@ -87,7 +86,8 @@ gulp.task('run-client', function (cb) {
 
 
 // watch (nodemon) changes within /server/lib and reload node
-gulp.task('nodemon', ['build'], function (cb) {
+//gulp.task('nodemon', ['build'], function (cb) {
+gulp.task('run-server', ['build-server'], function (cb) {
   var called = false;
   return nodemon({
       script: path.join(serverPaths.dist, '/main.js')
@@ -106,9 +106,16 @@ gulp.task('nodemon', ['build'], function (cb) {
   //.on('restart', function (files) { console.log('server restarted ...') })
 });
 
-gulp.task('watch',  ['nodemon'], function() { 
+gulp.task('watch',  ['run-client', 'run-server'], function() { 
   gulp.watch(serverPaths.src, ['build-server']).on('change', reportChange);
 });
 
+gulp.task('watch-server',  ['run-server'], function() { 
+  gulp.watch(serverPaths.src, ['build-server']).on('change', reportChange);
+});
+
+
 gulp.task('default', ['watch']);
+
+
 

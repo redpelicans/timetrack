@@ -48,7 +48,7 @@ export default class ListApp extends Component {
 
   render(){
     if(!this.state.persons) return false;
-    const leftIcon = this.state.persons.isLoading ? <i className="fa fa-spinner fa-spin m-r"/> : <i className="fa fa-users m-r"/>;
+    const leftIcon = this.state.persons.isLoading ? <i className="fa fa-spinner fa-spin m-r-1"/> : <i className="fa fa-users m-r-1"/>;
     const persons = this.state.persons.data;
     const companies = this.state.persons.companies;
     return (

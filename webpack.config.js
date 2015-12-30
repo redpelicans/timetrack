@@ -2,11 +2,12 @@ var path = require('path');
 var webpack = require('webpack');
 var params = require('./params.js');
 var port = params.proxy.port || 6806;
+var host = params.proxy.host || '0.0.0.0';
 
 module.exports = {
   devtool: '#eval-source-map',
   entry: [
-    'webpack-dev-server/client?http://rp1.redpelicans.com:'+port,
+    'webpack-dev-server/client?http://' + host + ':' + port,
     'webpack/hot/dev-server',
     path.join(__dirname, 'app', 'index')
   ],

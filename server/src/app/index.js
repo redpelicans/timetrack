@@ -8,6 +8,7 @@ import {default as bodyParser} from 'body-parser';
 //import {default as cookieParser} from 'cookie-parser';
 import findUser from '../middleware/find_user';
 import express from 'express';
+import favicon from 'serve-favicon';
 
 let logerror = debug('timetrack:error')
   , loginfo = debug('timetrack:info');
@@ -25,13 +26,15 @@ export function start(params, resources, cb) {
     // init http depending on param.js
     http: function(cb){
       let port = params.server.port;
-      httpServer.listen(port, function() {
-        loginfo(`HTTP server listening on port: ${port}`);
+      let host = params.server.host || '0.0.0.0';
+      httpServer.listen(port, host, function() {
+        loginfo(`HTTP server listening on: ${params.server.url}`);
         cb();
       });
     }
   }, function(err){
     if(err)return cb(err);
+
 
     // register middleware, order matters
 
@@ -48,6 +51,7 @@ export function start(params, resources, cb) {
     // manage cookie
     //app.use(cookieParser());
 
+    app.use(favicon(__dirname + '../../../../public/images/favicon.ico'));
     app.use(express.static(path.join(__dirname, '../../../public')));
     app.use('/build', express.static(path.join(__dirname, '../../../build')));
 

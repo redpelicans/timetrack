@@ -15,11 +15,11 @@ export const Edit = ({company}) => {
   if(authManager.company.isAuthorized('edit')){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-pencil m-r"/>
+        <i className="iconButton fa fa-pencil m-r-1"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-pencil m-r"/>
+    return <i className="iconButton disable fa fa-pencil m-r-1"/>
   }
 }
 
@@ -29,7 +29,7 @@ export const Preferred = ({company, active}) => {
     companiesActions.togglePreferred(company);
   }
 
-  const classnames = classNames("iconButton star fa fa-star-o m-r", {
+  const classnames = classNames("iconButton star fa fa-star-o m-r-1", {
     preferred: company.get('preferred'),
   });
 
@@ -59,11 +59,11 @@ export const Delete =({company, postAction}) => {
   if(authManager.company.isAuthorized('delete', {company})){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-trash m-r"/>
+        <i className="iconButton fa fa-trash m-r-1"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-trash m-r"/>
+    return <i className="iconButton disable fa fa-trash m-r-1"/>
   }
 }
 

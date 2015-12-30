@@ -16,11 +16,11 @@ export const Edit = ({person}) => {
   if(authManager.person.isAuthorized('edit')){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-pencil m-r"/>
+        <i className="iconButton fa fa-pencil m-r-1"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-pencil m-r"/>
+    return <i className="iconButton disable fa fa-pencil m-r-1"/>
   }
 }
 
@@ -38,11 +38,11 @@ export const Delete =({person, postAction}) => {
   if(authManager.person.isAuthorized('delete')){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-trash m-r"/>
+        <i className="iconButton fa fa-trash m-r-1"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-trash m-r"/>
+    return <i className="iconButton disable fa fa-trash m-r-1"/>
   }
 }
 
@@ -53,7 +53,7 @@ export const Preferred = ({person, active}) => {
     personsActions.togglePreferred(person);
   }
 
-  const classnames = classNames("iconButton star fa fa-star-o m-r", {
+  const classnames = classNames("iconButton star fa fa-star-o m-r-1", {
     preferred: person.get('preferred'),
   });
 
@@ -131,7 +131,7 @@ export class Preview extends Component {
     const companyView = () => {
       const company = this.props.company;
       if(!company) return '';
-      return <div style={styles.company} className="p-r"> <a href="#" onClick={this.handleViewCompany}>{company.get('name')}</a> </div> ;
+      return <div style={styles.company} className="p-r-1"> <a href="#" onClick={this.handleViewCompany}>{company.get('name')}</a> </div> ;
     }
 
     const styles = {
@@ -179,16 +179,16 @@ export class Preview extends Component {
     return (
       <div style={styles.container} >
         <div style={styles.containerLeft}>
-          <div className="p-r">
+          <div className="p-r-1">
             <a href="#" onClick={this.handleViewPerson}>{avatar}</a>
           </div>
           <div style={styles.names}>
-            <div style={styles.name} className="p-r">
+            <div style={styles.name} className="p-r-1">
               {personView()}
             </div>
             {companyView()}
           </div>
-          <div className="p-r">
+          <div className="p-r-1">
             {isNew}
           </div>
         </div>

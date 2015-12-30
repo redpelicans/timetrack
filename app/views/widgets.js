@@ -11,13 +11,13 @@ export const AvatarView = ({obj}) => {
 
   const avatar = obj.get('avatar').toJS();
   //console.log("AvatarView")
-  const defaultAvatar = <div className="m-r"><Avatar name={obj.get('name')} color={avatar.color}/></div>;
+  const defaultAvatar = <div className="m-r-1"><Avatar name={obj.get('name')} color={avatar.color}/></div>;
 
   switch(avatar.type){
     case 'url':
-      return avatar.url ? <div className="m-r"><Avatar src={avatar.url}/></div> : defaultAvatar;
+      return avatar.url ? <div className="m-r-1"><Avatar src={avatar.url}/></div> : defaultAvatar;
     case 'src':
-      return avatar.src ? <div className="m-r"><Avatar src={avatar.src}/></div> : defaultAvatar;
+      return avatar.src ? <div className="m-r-1"><Avatar src={avatar.src}/></div> : defaultAvatar;
     default:
       return defaultAvatar;
   }
@@ -94,7 +94,7 @@ export const Labels = ({label, value}) => {
     }
   };
 
-  const labels = _.map(value.toJS(), v => <span key={v} style={styles.label} className="label label-primary m-r">{v}</span>);
+  const labels = _.map(value.toJS(), v => <span key={v} style={styles.label} className="label label-primary m-r-1">{v}</span>);
   return(
     <fieldset className="form-group">
       <label htmlFor={label}> 
@@ -128,7 +128,7 @@ export const GoBack =({goBack, history}) => {
 
   return (
     <a href="#" onClick={handleChange}>
-      <i className="iconButton fa fa-arrow-left m-r"/>
+      <i className="iconButton fa fa-arrow-left m-r-1"/>
     </a>
   )
 }
@@ -141,7 +141,7 @@ export const Title =({title}) => {
   }
 
   return (
-    <div style={styles.name} className="m-r">
+    <div style={styles.name} className="m-r-1">
       {title}
     </div>
   )
@@ -252,7 +252,7 @@ export const AddBtn = ({onSubmit, canSubmit}) => {
   }
 
   return (
-    <button type="button" className="btn btn-primary m-l" disabled={!canSubmit} onClick={handleChange}>Create</button>
+    <button type="button" className="btn btn-primary m-l-1" disabled={!canSubmit} onClick={handleChange}>Create</button>
   )
 }
 
@@ -263,7 +263,7 @@ export const UpdateBtn = ({onSubmit, canSubmit}) => {
   }
 
   return (
-    <button type="button" className="btn btn-primary m-l" disabled={!canSubmit} onClick={handleChange}>Update</button>
+    <button type="button" className="btn btn-primary m-l-1" disabled={!canSubmit} onClick={handleChange}>Update</button>
   )
 }
 
@@ -274,7 +274,7 @@ export const CancelBtn = ({onCancel}) => {
   }
 
   return (
-    <button type="button" className="btn btn-warning m-l" onClick={handleChange}>Cancel</button>
+    <button type="button" className="btn btn-warning m-l-1" onClick={handleChange}>Cancel</button>
   )
 }
 
@@ -285,7 +285,7 @@ export const ResetBtn = ({obj}) => {
   }
 
   return (
-    <button type="button" className="btn btn-danger m-l"  onClick={handleChange}>Reset</button>
+    <button type="button" className="btn btn-danger m-l-1"  onClick={handleChange}>Reset</button>
   )
 }
 
@@ -301,7 +301,7 @@ export const Refresh =({onClick}) => {
   }
 
   return (
-    <div className="m-l">
+    <div className="m-l-1">
       <a href="#" onClick={handleChange}>
         <i style={style} className="iconButton fa fa-refresh"/>
       </a>
@@ -317,7 +317,7 @@ export const Filter =({filter, onChange}) => {
 
   const icon= <span className="fa fa-search"/>
   return (
-    <div className="m-l">
+    <div className="m-l-1">
       <input className="tm input form-control" type='text' value={filter} placeholder='search ...' onChange={handleChange}/>
     </div>
   )
@@ -335,7 +335,7 @@ export const FilterPreferred =({preferred, onClick}) => {
   }
 
   return (
-    <div className="m-l">
+    <div className="m-l-1">
       <a href="#" onClick={handleChange} > 
         <i style={style} className="iconButton fa fa-star-o"/>
       </a>
@@ -375,7 +375,7 @@ export const Sort =({sortMenu, sortCond, onClick}) => {
   });
 
   return (
-    <div className="dropdown m-l">
+    <div className="dropdown m-l-1">
       <a href="#"  id="sort-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> 
         <i style={styles.button} className="iconButton fa fa-sort" />
       </a>

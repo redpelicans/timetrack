@@ -164,11 +164,11 @@ export const LeaveCompany =({company, person}) => {
   if(authManager.company.isAuthorized('leave')){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-sign-out m-r"/>
+        <i className="iconButton fa fa-sign-out m-r-1"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-sign-out m-r"/>
+    return <i className="iconButton disable fa fa-sign-out m-r-1"/>
   }
 }
 
@@ -181,11 +181,11 @@ export const AddPerson =({company}) => {
   if(authManager.isAuthorized(sitemap.person.new)){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-user-plus m-r"/>
+        <i className="iconButton fa fa-user-plus m-r-1"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-user-plus m-r"/>
+    return <i className="iconButton disable fa fa-user-plus m-r-1"/>
   }
 }
 

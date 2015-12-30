@@ -47,7 +47,7 @@ export default class ListApp extends Component {
 
   render(){
     if(!this.state || !this.state.companies) return false;
-    const leftIcon = this.state.companies.isLoading ? <i className="fa fa-spinner fa-spin m-r"/> : <i className="fa fa-users m-r"/>;
+    const leftIcon = this.state.companies.isLoading ? <i className="fa fa-spinner fa-spin m-r-1"/> : <i className="fa fa-users m-r-1"/>;
     const companies = this.state.companies.data;
     return (
       <Content>
@@ -187,16 +187,16 @@ class Preview extends Component {
     return (
       <div style={styles.container} >
         <div style={styles.containerLeft}>
-          <div className="p-r">
+          <div className="p-r-1">
             {avatarView()}
           </div>
-          <div className="p-r">
+          <div className="p-r-1">
             {companyNameView()}
           </div>
-          <div className="p-r">
+          <div className="p-r-1">
             {billAmounts(company)}
           </div>
-          <div className="p-r">
+          <div className="p-r-1">
             {isNew}
           </div>
         </div>

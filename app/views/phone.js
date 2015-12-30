@@ -93,12 +93,12 @@ export class Phone extends Component{
         <div style={styles.label} className="col-md-4">
           <SelectField field={this.props.field.field('label')}/>
         </div>
-        <div style={styles.number} className="m-l">
+        <div style={styles.number} className="m-l-1">
           <InputField field={this.props.field.field('number')}/>
         </div>
         <div style={styles.delete}>
           <a className="" href="#" onClick={this.props.onDeleteField.bind(null, this.props.field)} >
-            <i className="iconButton danger fa fa-minus-circle m-r"/>
+            <i className="iconButton danger fa fa-minus-circle m-r-1"/>
           </a>
         </div>
       </div>

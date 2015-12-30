@@ -6,10 +6,13 @@ var loginfo = require('debug')('timetrack:info');
 var logerror = require('debug')('timetrack:error');
 var params = require('./params.js');
 
-var proxy = httpProxy.createProxyServer({changeOrigin: true, ws: true}); 
-var app = express();
+var proxy = httpProxy.createProxyServer({
+  changeOrigin: true, 
+  ws: true,
+  target: params.webpack.url
+}); 
 
-var port = params.proxy.port || 6806;
+var app = express();
 
 // switch to server
 app.use(express.static(path.resolve(__dirname, 'public')));
@@ -22,9 +25,14 @@ app.all('/build/*', function (req, res) {
   proxy.web(req, res, {target: params.webpack.url});
 });
 
-app.all('/socket.io*', function (req, res) {
+// app.all('/socket.io*', function (req, res) {
+//   proxy.web(req, res, {target: params.webpack.url});
+// });
+
+app.all('/sockjs-node/*', function (req, res) {
   proxy.web(req, res, {target: params.webpack.url});
 });
+
 
 app.all('*', function (req, res) {
   proxy.web(req, res, {target: params.server.url});
@@ -37,11 +45,11 @@ proxy.on('error', function(err) {
 // http service to proxy websocket requests from webpack
 var server = http.createServer(app);
 
-server.on('upgrade', function (req, socket, head) {
-  proxy.ws(req, socket, head);
-});
+// server.on('upgrade', function (req, socket, head) {
+//   proxy.ws(req, socket, head);
+// });
 
-server.listen(port, function (err) {
+server.listen(params.proxy.port, params.proxy.host || '0.0.0.0', function (err) {
   if(err)return logerror(err);
-  loginfo('dev proxy server is running on port ' + port);
+  loginfo('proxy server listening on: ' + params.proxy.url);
 }); 
