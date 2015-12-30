@@ -66,10 +66,12 @@ export function start(params, resources, cb) {
     require('./logout').init(app, resources, params);
 
     // require auth 
-    app.use(findUser(params.secretKey));
 
-    require('./user').init(app, resources, params);
-    app.use('/api', require('./api').init(app, resources, params));
+    app.get('/user', findUser(params.secretKey), function(req, res, next){
+      res.json(req.user);
+    });
+
+    app.use('/api', findUser(params.secretKey), require('./api').init(app, resources, params));
     
     app.use(errors);
 

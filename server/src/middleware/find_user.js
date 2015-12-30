@@ -4,7 +4,6 @@ import {ObjectId} from '../helpers';
 
 export default function findUser(secretKey){
   return function(req, res, next) {
-    console.log("===> findUser: " + req.path);
     const cookie = req.headers['x-token-access'];
     if(!cookie) return res.status(401).json({message: "Unauthorized access"});
     njwt.verify(cookie, secretKey , (err, token) =>{

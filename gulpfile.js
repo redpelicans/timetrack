@@ -31,7 +31,7 @@ var compilerOptions = {
 //  presets: ['react', 'es2015'],
 };
 
-gulp.task('build-server', function () {
+gulp.task('build-server', ['clean-server'], function () {
   // tanspile from src to dist
   var build =  gulp.src(serverPaths.src)
     .pipe(sourcemaps.init())
@@ -53,15 +53,15 @@ function reportChange(event){
   console.log('File ' + event.path + ' has been ' + event.type );
 }
 
-gulp.task('build', function(callback) {
-  return runSequence(
-    'clean',
-    ['build-server', 'run-client'],
-    callback
-  );
-});
+// gulp.task('build', function(callback) {
+//   return runSequence(
+//     'clean-server',
+//     ['build-server', 'run-client'],
+//     callback
+//   );
+// });
 
-gulp.task('clean', function() {
+gulp.task('clean-server', function() {
  return gulp.src([serverPaths.dist])
     .pipe(vinylPaths(del));
 });
@@ -85,8 +85,6 @@ gulp.task('run-client', function (cb) {
 
 
 
-// watch (nodemon) changes within /server/lib and reload node
-//gulp.task('nodemon', ['build'], function (cb) {
 gulp.task('run-server', ['build-server'], function (cb) {
   var called = false;
   return nodemon({
@@ -106,7 +104,7 @@ gulp.task('run-server', ['build-server'], function (cb) {
   //.on('restart', function (files) { console.log('server restarted ...') })
 });
 
-gulp.task('watch',  ['run-client', 'run-server'], function() { 
+gulp.task('watch',  ['run-server', 'run-client'], function() { 
   gulp.watch(serverPaths.src, ['build-server']).on('change', reportChange);
 });
 
