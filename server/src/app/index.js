@@ -52,6 +52,7 @@ export function start(params, resources, cb) {
     app.use('/build', express.static(path.join(__dirname, '../../../build')));
 
     require('./ping').init(app, resources);
+    require('./health').init(app, resources);
     require('./version').init(app, resources);
 
     // register morgan logger
