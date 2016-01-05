@@ -16,7 +16,7 @@ Beyond librairies or products selected to build timetrack, the target is to find
 * how to reuse React components
 * how to offer good rendering performances
 * how to manage css
-* how to be responsive
+* how to be responsive 
 * which UI toolkit to use with ReactJS
 * how to render natively
 * and so on ....
