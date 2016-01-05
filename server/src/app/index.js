@@ -9,14 +9,19 @@ import {default as bodyParser} from 'body-parser';
 import findUser from '../middleware/find_user';
 import express from 'express';
 import favicon from 'serve-favicon';
+import socketIO from 'socket.io';
+import Reactor from '../lib/reactor';
 
 let logerror = debug('timetrack:error')
   , loginfo = debug('timetrack:info');
 
 export function start(params, resources, cb) {
   let app = express()
-    , httpServer = http.createServer(app);
+    , httpServer = http.createServer(app)
+    , io = socketIO(httpServer)
+    , reactor = Reactor(io, {secretKey: params.secretKey});
 
+  resources.reactor = reactor;
 
   function stop(cb){
     httpServer.close(()=>{httpServer.unref(); cb()});
@@ -24,17 +29,16 @@ export function start(params, resources, cb) {
 
   async.parallel({
     // init http depending on param.js
-    http: function(cb){
+    http(cb){
       let port = params.server.port;
       let host = params.server.host || '0.0.0.0';
       httpServer.listen(port, host, function() {
         loginfo(`HTTP server listening on: ${params.server.url}`);
         cb();
       });
-    }
+    },
   }, function(err){
     if(err)return cb(err);
-
 
     // register middleware, order matters
 

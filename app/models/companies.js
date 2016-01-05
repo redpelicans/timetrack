@@ -8,8 +8,11 @@ const actions = Reflux.createActions([
   "load", 
   "reload", 
   "delete", 
+  "deleteCompleted", 
   "create", 
+  "createCompleted", 
   "update", 
+  "updateCompleted", 
   "leave", 
   "addPerson",
   "removePerson",
@@ -58,10 +61,6 @@ const store = Reflux.createStore({
   },
 
   onRemovePerson(person){
-    // console.log("onRemovePerson")
-    // console.log(person._id);
-    // console.log(person.companyId);
-    // console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
     if(!person.companyId) return;
     state.data = state.data.update( person.companyId, c => {
       const index = c.get('personIds').findIndex(id => id === person._id);
@@ -69,7 +68,6 @@ const store = Reflux.createStore({
       if(index === -1) return c;
       return c.update('personIds', ids => ids.delete(index));
     });
-    //console.log(state.data.getIn([person.companyId, "personIds"]).toJS())
     this.trigger(state);
   },
 
@@ -91,10 +89,17 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson('/api/companies', {verb: 'post', body: {company: company}, message: 'Cannot create company, check your backend server'})
       .then( company => {
-        state.data = state.data.set(company._id, Immutable.fromJS(Maker(company)));
         state.isLoading = false;
+        state.data = state.data.set(company._id, Immutable.fromJS(Maker(company)));
         this.trigger(state);
+        // TODO: doenst work !!!!
+        //actions.createCompleted(company);
       });
+  },
+
+  onCreateCompleted(company){
+    state.data = state.data.set(company._id, Immutable.fromJS(Maker(company)));
+    this.trigger(state);
   },
 
   onUpdate(previous, updates){
@@ -102,12 +107,16 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson('/api/company', {verb: 'put', body: {company: _.assign(previous, updates)}, message: 'Cannot update company, check your backend server'})
       .then( company => {
-        state.data = state.data.set(company._id, Immutable.fromJS(Maker(company)));
         state.isLoading = false;
-        this.trigger(state);
+        actions.updateCompleted(previous, company);
       });
   },
   
+  onUpdateCompleted(previous, company){
+    state.data = state.data.set(company._id, Immutable.fromJS(Maker(company)));
+    this.trigger(state);
+  },
+
   onUpdateRelations(ids){
     const companyIds = _.chain(ids).compact().uniq().value();
     actions.load({ids: companyIds, forceReload: true});
@@ -119,10 +128,14 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson(`/api/company/${id}`, {verb: 'delete', message: 'Cannot delete company, check your backend server'})
       .then( res => {
-        state.data = state.data.delete( id );
         state.isLoading = false;
-        this.trigger(state);
+        actions.deleteCompleted(company);
       });
+  },
+
+  onDeleteCompleted(company){
+    state.data = state.data.delete( company._id );
+    this.trigger(state);
   },
 
   onTogglePreferred(company){

@@ -38,17 +38,10 @@ const store = Reflux.createStore({
   },
 
   init: function(){
-    // this.joinTrailing(companiesActions.loadCompleted, personsActions.loadCompleted, (res1, res2) => {
-    //   console.log("companiesAppStore loaded.")
-    //   const companies = res1[0];
-    //   const persons = res2[0];
-    //   state.companies = companies;
-    //   state.persons = persons;
-    //   state.data = filterAndSort();
-    //   this.trigger(state);
-    // });
-
     companiesStore.listen( companies => {
+      console.log("====+> companiesStore.listen")
+      console.log(Object.keys(companies.data.toJS()).length)
+      console.log(companies.count)
       state.companies = companies.data;
       state.data = filterAndSort();
       state.isLoading = companies.isLoading;
@@ -104,7 +97,6 @@ function filterForPreferred(filter){
   return p => filter ? p.get('preferred') : true;
 }
 
-// TODO: add company
 function filterForSearch(filter=''){
   return  c => {
     const name = c.get('name') || '';
@@ -112,7 +104,6 @@ function filterForSearch(filter=''){
   }
 }
 
-// TODO: add company
 const sortMenu = [
   {key: 'name', label: 'Sort Alphabeticaly'},
   {key: 'billable', label: 'Sort by billable amount'},

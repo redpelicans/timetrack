@@ -13,7 +13,7 @@ const SRV_SRC = 'server/src';
 
 var serverPaths = {
   src: SRV_SRC + '/**/*.js',
-  dist:'server/lib',
+  dist:'server/dist',
   sourceRoot: path.join(__dirname, 'server/src'),
 };
 
@@ -31,7 +31,7 @@ var compilerOptions = {
 //  presets: ['react', 'es2015'],
 };
 
-gulp.task('build-server', ['clean-server'], function () {
+gulp.task('build-server', function () {
   // tanspile from src to dist
   var build =  gulp.src(serverPaths.src)
     .pipe(sourcemaps.init())
@@ -41,7 +41,7 @@ gulp.task('build-server', ['clean-server'], function () {
     .pipe(sourcemaps.write('.', { sourceRoot: serverPaths.sourceRoot}))
     .pipe(gulp.dest(serverPaths.dist));
 
-  // package.json is read by main.js, so we need it at root level: /server/lib
+  // package.json is read by main.js, so we need it at root level: /server/dist
   var copy = gulp.src('package.json')
     .pipe(gulp.dest(serverPaths.dist));
 
@@ -52,14 +52,6 @@ gulp.task('build-server', ['clean-server'], function () {
 function reportChange(event){
   console.log('File ' + event.path + ' has been ' + event.type );
 }
-
-// gulp.task('build', function(callback) {
-//   return runSequence(
-//     'clean-server',
-//     ['build-server', 'run-client'],
-//     callback
-//   );
-// });
 
 gulp.task('clean-server', function() {
  return gulp.src([serverPaths.dist])
@@ -72,6 +64,7 @@ gulp.task('run-client', function (cb) {
       script: './proxy.js'
     , quiet: true
     , "no-stdin": true
+    , watch: [ './proxy.js', './webpack.config.js', './bundle.js']
     , env: {
       'DEBUG': 'timetrack:*'
     }
@@ -85,35 +78,34 @@ gulp.task('run-client', function (cb) {
 
 
 
-gulp.task('run-server', ['build-server'], function (cb) {
-  var called = false;
+gulp.task('run-server', ['build-server'], function () {
   return nodemon({
       script: path.join(serverPaths.dist, '/main.js')
     , ext: 'js json'
     , verbose: true
     , watch: [ serverPaths.dist, './params.js' ]
-    , ignore: ['*.swp',  "*.map" ]
-    , env: {
-      'DEBUG': 'timetrack:*'
-    }
+    , ignore: ['*.swp',  "*.js.map" ]
+    , env: { 'DEBUG': 'timetrack:*' }
   })
-  .on('start', function () {
-    if(!called)cb();
-    called = true;
-  })
-  //.on('restart', function (files) { console.log('server restarted ...') })
+  .on('restart', function (files) { console.log('node server restarted ...') })
 });
 
-gulp.task('watch',  ['run-server', 'run-client'], function() { 
-  gulp.watch(serverPaths.src, ['build-server']).on('change', reportChange);
-});
 
 gulp.task('watch-server',  ['run-server'], function() { 
   gulp.watch(serverPaths.src, ['build-server']).on('change', reportChange);
 });
 
+gulp.task('run', function(callback) {
+  return runSequence(
+    'clean-server',
+    //['watch-server', 'run-client'],
+    'run-client',
+    'watch-server',
+    callback
+  );
+});
 
-gulp.task('default', ['watch']);
+gulp.task('default', ['run']);
 
 
 

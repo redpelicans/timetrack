@@ -9,6 +9,9 @@ import {loginStore, loginActions} from './models/login';
 import authManager from './auths';
 import sitemap from './routes';
 import boot from './boot';
+import {registerSocketIO}from './socketIO';
+
+registerSocketIO();
 
 navActions.goBackRoute.listen( ()=> {
   history.goBack();

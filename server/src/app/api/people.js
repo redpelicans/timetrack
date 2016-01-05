@@ -4,47 +4,58 @@ import _ from 'lodash';
 import {Person} from '../../models';
 import {ObjectId} from '../../helpers';
 import checkUser  from '../../middleware/check_user';
+import checkRights  from '../../middleware/check_rights';
 import uppercamelcase  from 'uppercamelcase';
 
-export function init(app){
+export function init(app, resources){
   app.get('/people', function(req, res, next){
-    //console.log(req.cookies.access_token)
     async.waterfall([loadAll], (err, people) => {
       if(err)return next(err);
       res.json(_.map(people, p => Maker(p)));
     });
   });
 
-  app.post('/people/preferred', checkUser('admin'), function(req, res, next){
+  app.post('/people/preferred', checkRights('person.update'), function(req, res, next){
     let id = ObjectId(req.body.id); 
-    async.waterfall([loadOne.bind(null, id), preferred.bind(null, Boolean(req.body.preferred))], (err, person) => {
+    async.waterfall([loadOne.bind(null, id), preferred.bind(null, Boolean(req.body.preferred))], (err, previous, person) => {
       if(err)return next(err);
-      res.json(Maker(person));
+      const current = Maker(person);
+      res.json(Maker(current));
+      resources.reactor.emit('person.update', {previous, current}, {sessionId: req.sessionId});
     });
   });
 
-  app.delete('/person/:id', checkUser('admin'), function(req, res, next){
+  app.delete('/person/:id', checkRights('person.delete'), function(req, res, next){
     let id = ObjectId(req.params.id); 
-    async.waterfall([del.bind(null, id)], (err) => {
+    async.waterfall([del.bind(null, id), findOne], (err, person) => {
       if(err)return next(err);
       res.json({_id: id, isDeleted: true});
+      resources.reactor.emit('person.delete', Maker(person), {sessionId: req.sessionId});
     });
   })
 
-  app.post('/people', checkUser('admin'), function(req, res, next){
+  app.post('/people', checkRights('person.new'), function(req, res, next){
     let person = req.body.person;
     async.waterfall([create.bind(null, person), loadOne], (err, person) => {
       if(err)return next(err);
-      res.json(Maker(person));
+      const p = Maker(person);
+      res.json(p);
+      resources.reactor.emit('person.new', p, {sessionId: req.sessionId});
     });
   });
 
-  app.put('/person', checkUser('admin'), function(req, res, next){
+  app.put('/person', checkRights('person.update'), function(req, res, next){
     let newPerson = req.body.person;
     let id = ObjectId(newPerson._id);
-    async.waterfall([loadOne.bind(null, id), update.bind(null, newPerson), loadOne], (err, person) => {
-      if(err)return next(err);
-      res.json(Maker(person));
+    async.waterfall([
+      loadOne.bind(null, id), 
+      update.bind(null, newPerson), 
+      (previous, cb) => loadOne(previous._id, (err, person) => cb(err, previous, person)) 
+    ], (err, previous, person) => {
+      if(err) return next(err);
+      const current = Maker(person);
+      res.json(current);
+      resources.reactor.emit('person.update', {previous, current}, {sessionId: req.sessionId});
     });
   });
 
@@ -63,12 +74,16 @@ function loadAll(cb){
   Person.findAll({isDeleted: {$ne: true}}, cb);
 }
 
+function findOne(id, cb){
+  Person.findOne({_id: id}, (err, person) => {
+    if(err)return next(err);
+    if(!person)return cb(new Error(`Unknown person: '${id}'`));
+    cb(null, person);
+  });
+}
+
 function loadOne(id, cb){
-  let query = {
-    _id: id,
-    isDeleted: {$ne: true},
-  };
-  Person.findOne(query, (err, person) => {
+  Person.loadOne(id, (err, person) => {
     if(err)return next(err);
     if(!person)return cb(new Error(`Unknown person: '${id}'`));
     cb(null, person);
@@ -87,15 +102,14 @@ function create(person, cb){
 function update(newPerson, previousPerson, cb){
   let updates = fromJson(newPerson);
   Person.collection.updateOne({_id: previousPerson._id}, {$set: updates}, (err) => {
-    //console.log(updates);
-    return cb(err, previousPerson._id)
+    return cb(err, previousPerson)
   })
 }
 
 
 function del(id, cb){
   Person.collection.updateOne({_id: id}, {$set: {isDeleted: true}}, (err) => {
-    return cb(err)
+    return cb(err, id)
   })
 }
 
@@ -103,7 +117,8 @@ function del(id, cb){
 function preferred(isPreferred, person, cb){
   person.preferred = isPreferred;
   Person.collection.update({_id: person._id}, {$set: {preferred: person.preferred}}, err => {
-    cb(err, person);
+    // TODO: exec loadOne to retreive new updated person instead of updating previous one.
+    cb(err, person, person);
   });
 }
 

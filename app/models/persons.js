@@ -10,8 +10,11 @@ const actions = Reflux.createActions([
   "loadCompleted", 
   "togglePreferred", 
   "delete", 
+  "deleteCompleted", 
   "create", 
+  "createCompleted", 
   "update", 
+  "updateCompleted", 
 ]);
 
 const state = {
@@ -66,12 +69,19 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson('/api/people', {verb: 'post', body: {person: person}, message: 'Cannot create person, check your backend server'})
       .then( person => {
+        state.isLoading = false;
         state.data = state.data.set(person._id,  Immutable.fromJS(Maker(person)));
         companiesActions.addPerson(person);
-        //companiesActions.updateRelations([person.companyId]);
-        state.isLoading = false;
         this.trigger(state);
+        // TODO
+        //actions.createCompleted(person);
       });
+  },
+
+  onCreateCompleted(person){
+    state.data = state.data.set(person._id,  Immutable.fromJS(Maker(person)));
+    companiesActions.addPerson(person);
+    this.trigger(state);
   },
 
   onUpdate(previous, updates){
@@ -80,14 +90,18 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson('/api/person', {verb: 'put', body: {person: next}, message: 'Cannot update person, check your backend server'})
       .then( person => {
-        state.data = state.data.set( person._id, Immutable.fromJS(Maker(person)) );
-        if(previous.companyId !== person.companyId){
-          companiesActions.removePerson(previous);
-          companiesActions.addPerson(person);
-        }
         state.isLoading = false;
-        this.trigger(state);
+        actions.updateCompleted(previous, person);
       });
+  },
+
+  onUpdateCompleted(previous, person){
+    state.data = state.data.set( person._id, Immutable.fromJS(Maker(person)) );
+    if(previous.companyId !== person.companyId){
+      companiesActions.removePerson(previous);
+      companiesActions.addPerson(person);
+    }
+    this.trigger(state);
   },
 
   onDelete(person){
@@ -96,12 +110,15 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson(`/api/person/${id}`, {verb: 'delete', message: 'Cannot delete person, check your backend server'})
       .then( res => {
-        state.data = state.data.delete( id );
-        companiesActions.removePerson(person);
-        //companiesActions.updateRelations([person.companyId]);
         state.isLoading = false;
-        this.trigger(state);
+        actions.deleteCompleted(person);
       });
+  },
+
+  onDeleteCompleted(person){
+    state.data = state.data.delete( person._id );
+    companiesActions.removePerson(person);
+    this.trigger(state);
   },
 
 });

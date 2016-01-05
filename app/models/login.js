@@ -1,13 +1,13 @@
 import Reflux from 'reflux';
+import errors from '../models/errors';
 import Immutable from 'immutable';
 import _ from 'lodash';
 import {requestJson} from '../utils';
 import {navActions} from './nav';
 import routes from '../routes';
 import {personsStore} from './persons';
+import uuid from 'uuid';
 
-
-let appJwt;
 
 const actions = Reflux.createActions([
   "login", 
@@ -17,6 +17,8 @@ const actions = Reflux.createActions([
 
 const state = {
   user: undefined,
+  appJwt: undefined,
+  sessionId: undefined, // used to identify browser between http and ws
 }
 
 
@@ -37,8 +39,8 @@ const store = Reflux.createStore({
   },
 
   onLogin(googleUser, nextRouteName){
-    const token = googleUser.getAuthResponse().id_token;
-    const body = { id_token: token};
+    const id_token = googleUser.getAuthResponse().id_token;
+    const body = { id_token};
     const message = 'Check your user parameters';
     const request = requestJson(`/login`, {verb: 'POST', body: body, header: 'Authentification Error', message: message});
     request.then( res => {
@@ -48,25 +50,20 @@ const store = Reflux.createStore({
   },
 
   onLoggedIn(user, token){
-    console.log("====> onLoggedIn")
     state.user = Immutable.fromJS(user);
-    appJwt = token;
+    state.appJwt = token;
+    state.sessionId = uuid.v4();
     localStorage.setItem('access_token', token);
+    if(state.socket) socketIOLogin(state.socket, this.getJwt(), this.getSessionId());
     this.trigger(state);
   },
 
   onLogout(){
     localStorage.removeItem('access_token');
     state.user = undefined;
+    if(state.socket) state.socket.emit('logout');
     this.trigger(state);
     navActions.push(routes.login);
-
-    //const auth2 = gapi.auth2.getAuthInstance();
-    // auth2.signOut().then(() => {
-    //   this.trigger(state);
-    //   navActions.push(routes.login);
-    //   requestJson(`/logout`);
-    // });
   },
 
   isLoggedIn(){
@@ -90,15 +87,29 @@ const store = Reflux.createStore({
   },
 
   getJwt(){
-    return appJwt;
-  }
+    return state.appJwt;
+  },
+
+  getSessionId(){
+    return state.sessionId;
+  },
+
+  setSocketIO(socket){
+    state.socket = socket;
+    if(this.isLoggedIn()) socketIOLogin(socket, this.getJwt(), this.getSessionId());
+  },
 
 });
-
 
 export {store as loginStore, actions as loginActions};
 
 function hasRoles(roles, requiredRoles){
   return _.intersection(_.flatten([roles]), _.flatten([requiredRoles])).length;
+}
+
+function socketIOLogin(socket, token, sessionId){
+  socket.emit('login', {token, sessionId}, data => {
+    if(data.status !== 'ok') errors.alert({ header: 'Error', message: "Cannot subscribe to pushed events" });
+  });
 }
 

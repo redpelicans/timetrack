@@ -9,7 +9,7 @@ var params = require('./params.js');
 var proxy = httpProxy.createProxyServer({
   changeOrigin: true, 
   ws: true,
-  target: params.webpack.url
+  //target: params.webpack.url
 }); 
 
 var app = express();
@@ -39,15 +39,21 @@ app.all('*', function (req, res) {
 });
 
 proxy.on('error', function(err) {
-  logerror(err);
+  logerror("Proxy Error:");
+  console.error(err);
 });
 
 // http service to proxy websocket requests from webpack
 var server = http.createServer(app);
 
-// server.on('upgrade', function (req, socket, head) {
-//   proxy.ws(req, socket, head);
-// });
+server.on('upgrade', function (req, socket, head) {
+  //console.log(req.url)
+  if(req.url.match(/^\/sockjs/)){
+    proxy.ws(req, socket, head, {target: params.webpack.url});
+  }else if(req.url.match(/^\/socket.io/)){
+    proxy.ws(req, socket, head, {target: params.server.url});
+  }
+});
 
 server.listen(params.proxy.port, params.proxy.host || '0.0.0.0', function (err) {
   if(err)return logerror(err);

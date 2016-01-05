@@ -15,8 +15,8 @@ export function init(app, resources, params){
     async.waterfall([checkGoogleUser.bind(null, id_token), loadUser, updateAvatar], (err, user) => {
       if(err)return next(err);
       const expirationDate = moment().add(params.sessionDuration || 8 , 'hours').toDate();
-      const jwt = token(user, params.secretKey, expirationDate);
-      res.json({ user: user, token: jwt });
+      const token = getToken(user, params.secretKey, expirationDate);
+      res.json({ user, token });
     });
   });
 
@@ -51,7 +51,7 @@ function updateAvatar(user, googleUser, cb){
 }
 
 
-function token(user, secretKey, expirationDate){
+function getToken(user, secretKey, expirationDate){
   const claims = {
     sub: user._id.toString(),
     iss: 'http://timetrack.repelicans.com',

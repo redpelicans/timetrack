@@ -36,6 +36,7 @@ export function requestJson(uri, {verb='get', header='Runtime Error', body, mess
       method: verb,
       headers:{
         'X-Token-Access': loginStore.getJwt(),
+        'X-SessionId': loginStore.getSessionId(),
       },
       //credentials: 'same-origin',
     });
@@ -47,6 +48,7 @@ export function requestJson(uri, {verb='get', header='Runtime Error', body, mess
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'X-Token-Access': loginStore.getJwt(),
+        'X-SessionId': loginStore.getSessionId(),
       },
       body: JSON.stringify(body||{})
     });
