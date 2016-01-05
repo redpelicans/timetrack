@@ -4,7 +4,6 @@ import {Router, Route, Link, IndexRoute, IndexLink, Redirect} from 'react-router
 import {createHistory, createHashHistory} from 'history';
 import App from './app';
 import {navActions} from './models/nav';
-import errors from './models/errors';
 import {loginStore, loginActions} from './models/login';
 import authManager from './auths';
 import sitemap from './routes';

@@ -1,5 +1,5 @@
 import Reflux from 'reflux';
-import errors from '../models/errors';
+import {errorsActions as errors} from '../models/errors';
 import Immutable from 'immutable';
 import _ from 'lodash';
 import {requestJson} from '../utils';

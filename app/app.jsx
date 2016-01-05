@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import sitemap from './routes';
 import {navActions, navStore} from './models/nav';
 import {loginStore, loginActions} from './models/login';
-import errors from './models/errors';
+import {errorsStore as errors} from './models/errors';
 import ReactToastr from 'react-toastr';
 import {AvatarView} from './views/widgets';
 const {ToastContainer} = ReactToastr;
@@ -47,7 +47,7 @@ export default class App extends Component {
       this.setState({user: state.user});
     });
 
-    errors.state.onValue(err => {
+    errors.listen( err => {
       this.refs.container.error(
         err.message, 
         err.header,

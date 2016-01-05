@@ -1,15 +1,19 @@
-import Bacon from 'baconjs';
-import Dispatcher from '../utils/dispatcher';
-import Immutable from 'immutable';
+import Reflux from 'reflux';
+
+const actions = Reflux.createActions([
+  "alert"
+]);
 
 
-const errors = new Bacon.Bus();
 
-const model = {
-  state: errors,
-  alert(err){
-    errors.push(err);
-  }
-}
+const store = Reflux.createStore({
 
-export default model;
+  listenables: [actions],
+
+  onAlert(error){
+    this.trigger(error);
+  },
+});
+
+
+export {store as errorsStore, actions as errorsActions};

@@ -1,4 +1,4 @@
-import errors from '../models/errors';
+import {errorsActions as errors} from '../models/errors';                                                                                                                                  
 import {navActions} from '../models/nav';
 import {loginStore} from '../models/login';
 

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Reflux from 'reflux';
 import routes from '../routes';
-import errors from './errors';
+import {errorsActions as errors} from './errors';
 import {loginStore} from './login';
 
 const actions = Reflux.createActions([

@@ -1,5 +1,5 @@
 import socketIO from 'socket.io-client';
-import errors from './models/errors';
+import {errorsActions as errors} from './models/errors';
 import {personsActions} from './models/persons';
 import {companiesActions} from './models/companies';
 import {loginStore} from './models/login';
