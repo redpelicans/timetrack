@@ -2,6 +2,7 @@ import async from 'async';
 import moment from 'moment';
 import _ from 'lodash';
 import {Person} from '../../models';
+import {Preference} from '../../models';
 import {ObjectId} from '../../helpers';
 import checkUser  from '../../middleware/check_user';
 import checkRights  from '../../middleware/check_rights';
@@ -9,7 +10,10 @@ import uppercamelcase  from 'uppercamelcase';
 
 export function init(app, resources){
   app.get('/people', function(req, res, next){
-    async.waterfall([loadAll], (err, people) => {
+    async.waterfall([
+      loadAll, 
+      loadPreferences.bind(null, req.user)
+    ], (err, people) => {
       if(err)return next(err);
       res.json(_.map(people, p => Maker(p)));
     });
@@ -17,17 +21,26 @@ export function init(app, resources){
 
   app.post('/people/preferred', checkRights('person.update'), function(req, res, next){
     let id = ObjectId(req.body.id); 
-    async.waterfall([loadOne.bind(null, id), preferred.bind(null, Boolean(req.body.preferred))], (err, previous, person) => {
+    const isPreferred = Boolean(req.body.preferred);
+    async.waterfall([
+      loadOne.bind(null, id), 
+      upsertPreference.bind(null, req.user, isPreferred)
+    ], (err, person) => {
       if(err)return next(err);
       const current = Maker(person);
+      current.preferred = isPreferred;
       res.json(Maker(current));
-      resources.reactor.emit('person.update', {previous, current}, {sessionId: req.sessionId});
+      resources.reactor.emit('person.update', {previous: person, current}, {sessionId: req.sessionId});
     });
   });
 
   app.delete('/person/:id', checkRights('person.delete'), function(req, res, next){
     let id = ObjectId(req.params.id); 
-    async.waterfall([del.bind(null, id), findOne], (err, person) => {
+    async.waterfall([
+      del.bind(null, id), 
+      deletePreference.bind(null, req.user), 
+      findOne
+    ], (err, person) => {
       if(err)return next(err);
       res.json({_id: id, isDeleted: true});
       resources.reactor.emit('person.delete', Maker(person), {sessionId: req.sessionId});
@@ -35,25 +48,36 @@ export function init(app, resources){
   })
 
   app.post('/people', checkRights('person.new'), function(req, res, next){
-    let person = req.body.person;
-    async.waterfall([create.bind(null, person), loadOne], (err, person) => {
+    const person = req.body.person;
+    const isPreferred = Boolean(req.body.person.preferred);
+    async.waterfall([
+      create.bind(null, person), 
+      loadOne,
+      upsertPreference.bind(null, req.user, isPreferred)
+    ], (err, person) => {
       if(err)return next(err);
-      const p = Maker(person);
-      res.json(p);
-      resources.reactor.emit('person.new', p, {sessionId: req.sessionId});
+      const current = Maker(person);
+      current.preferred = isPreferred;
+      res.json(current);
+      resources.reactor.emit('person.new', current, {sessionId: req.sessionId});
     });
   });
 
   app.put('/person', checkRights('person.update'), function(req, res, next){
-    let newPerson = req.body.person;
-    let id = ObjectId(newPerson._id);
+    const updates = fromJson(req.body.person);
+    const id = ObjectId(req.body.person._id);
+    const isPreferred = Boolean(req.body.person.preferred);
     async.waterfall([
       loadOne.bind(null, id), 
-      update.bind(null, newPerson), 
-      (previous, cb) => loadOne(previous._id, (err, person) => cb(err, previous, person)) 
+      update.bind(null, updates), 
+      (previous, cb) => loadOne(previous._id, (err, person) => cb(err, previous, person)),
+      (previous, person, cb) => {
+        upsertPreference(req.user, isPreferred, person, err => cb(err, previous, person))
+      },
     ], (err, previous, person) => {
       if(err) return next(err);
       const current = Maker(person);
+      current.preferred = isPreferred;
       res.json(current);
       resources.reactor.emit('person.update', {previous, current}, {sessionId: req.sessionId});
     });
@@ -72,6 +96,17 @@ export function init(app, resources){
 
 function loadAll(cb){
   Person.findAll({isDeleted: {$ne: true}}, cb);
+}
+
+function loadPreferences(user, people, cb){
+  Preference.findAll({personId: user._id, type: 'person'}, (err, preferences) => {
+    if(err) return cb(err);
+    const hpreferences = _.inject(preferences, (res, p) => {res[p.entityId] = true; return res}, {});
+    _.each(people, person => {
+       person.preferred = !!hpreferences[person._id];
+    });
+    cb(null, people);
+  });
 }
 
 function findOne(id, cb){
@@ -94,13 +129,11 @@ function create(person, cb){
   let newPerson = fromJson(person) ;
   newPerson.createdAt = new Date();
   Person.collection.insertOne(newPerson, (err, _) => {
-    //console.log(newPerson);
     return cb(err, newPerson._id)
   })
 }
 
-function update(newPerson, previousPerson, cb){
-  let updates = fromJson(newPerson);
+function update(updates, previousPerson, cb){
   Person.collection.updateOne({_id: previousPerson._id}, {$set: updates}, (err) => {
     return cb(err, previousPerson)
   })
@@ -113,17 +146,28 @@ function del(id, cb){
   })
 }
 
+function deletePreference(user, id, cb){
+  Preference.collection.deleteMany( {personId: user._id, entityId: id}, err => cb(err, id)) 
+}
 
-function preferred(isPreferred, person, cb){
-  person.preferred = isPreferred;
-  Person.collection.update({_id: person._id}, {$set: {preferred: person.preferred}}, err => {
-    // TODO: exec loadOne to retreive new updated person instead of updating previous one.
-    cb(err, person, person);
-  });
+function upsertPreference(user, isPreferred, person, cb){
+  if(isPreferred){
+    Preference.collection.update(
+      {personId: user._id, entityId: person._id}, 
+      {personId: user._id, entityId: person._id, type: 'person'}, 
+      {upsert: true},
+      err => cb(err, person) 
+    );
+  }else{
+    Preference.collection.deleteMany(
+      {personId: user._id, entityId: person._id}, 
+      err => cb(err, person) 
+    );
+  }
 }
 
 function fromJson(json){
-  let attrs = ['prefix', 'firstName', 'lastName', 'type', 'jobType', 'preferred', 'jobDescription', 'department', 'roles', 'email', 'birthdate', 'note'];
+  let attrs = ['prefix', 'firstName', 'lastName', 'type', 'jobType', 'jobDescription', 'department', 'roles', 'email', 'birthdate', 'note'];
   let res = _.pick(json, attrs);
   res.companyId = json.companyId ? ObjectId(json.companyId) : undefined;
   if(json.skills){

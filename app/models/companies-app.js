@@ -39,9 +39,6 @@ const store = Reflux.createStore({
 
   init: function(){
     companiesStore.listen( companies => {
-      console.log("====+> companiesStore.listen")
-      console.log(Object.keys(companies.data.toJS()).length)
-      console.log(companies.count)
       state.companies = companies.data;
       state.data = filterAndSort();
       state.isLoading = companies.isLoading;

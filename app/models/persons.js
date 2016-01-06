@@ -40,6 +40,7 @@ const store = Reflux.createStore({
     state.isLoading = true;
     this.trigger(state);
     requestJson('/api/people', {message: 'Cannot load people, check your backend server'}).then( people => {
+      actions.loadCompleted.sync = true;
       actions.loadCompleted(Immutable.fromJS(_.chain(people).map( p => [p._id, Maker(p)]).object().value()));
     });
   },
@@ -70,11 +71,8 @@ const store = Reflux.createStore({
     requestJson('/api/people', {verb: 'post', body: {person: person}, message: 'Cannot create person, check your backend server'})
       .then( person => {
         state.isLoading = false;
-        state.data = state.data.set(person._id,  Immutable.fromJS(Maker(person)));
-        companiesActions.addPerson(person);
-        this.trigger(state);
-        // TODO
-        //actions.createCompleted(person);
+        actions.createCompleted.sync = true;
+        actions.createCompleted(person);
       });
   },
 
@@ -91,6 +89,7 @@ const store = Reflux.createStore({
     requestJson('/api/person', {verb: 'put', body: {person: next}, message: 'Cannot update person, check your backend server'})
       .then( person => {
         state.isLoading = false;
+        actions.updateCompleted.sync = true;
         actions.updateCompleted(previous, person);
       });
   },
@@ -111,6 +110,7 @@ const store = Reflux.createStore({
     requestJson(`/api/person/${id}`, {verb: 'delete', message: 'Cannot delete person, check your backend server'})
       .then( res => {
         state.isLoading = false;
+        actions.deleteCompleted.sync = true;
         actions.deleteCompleted(person);
       });
   },
