@@ -1,65 +1,92 @@
 import async from 'async';
 import moment from 'moment';
 import _ from 'lodash';
-import {Person, Company} from '../../models';
+import {Person, Company, Preference} from '../../models';
 import {getRandomInt, ObjectId} from '../../helpers';
 import checkUser from '../../middleware/check_user';
 import checkRights from '../../middleware/check_rights';
 
 export function init(app, resources){
+
   app.get('/companies', function(req, res, next){
     const ids = _.map(req.query.ids, id => ObjectId(id));
-    async.waterfall([loadAll.bind(null, ids), computeBill], (err, companies) => {
+    async.waterfall([
+      loadAll.bind(null, ids), 
+      Preference.spread.bind(Preference, 'company', req.user),
+      computeBill
+    ], (err, companies) => {
       if(err) return next(err);
       res.json(_.map(companies, p => Maker(p)));
     });
   });
 
-  app.get('/company/:id', function(req, res, next){
-    let id = ObjectId(req.params.id); 
-    async.waterfall([loadOne.bind(null, id)], (err, company) => {
+  app.post('/companies/preferred', checkRights('company.update'), function(req, res, next){
+    const id = ObjectId(req.body.id); 
+    const isPreferred = Boolean(req.body.preferred);
+    async.waterfall([
+      loadOne.bind(null, id), 
+      Preference.update.bind(Preference, 'company', req.user, isPreferred)
+    ], (err, company) => {
       if(err)return next(err);
-      res.json(Maker(company));
+      const current = Maker(company);
+      current.preferred = isPreferred;
+      res.json(current);
+      resources.reactor.emit('company.update', {previous: company, current}, {sessionId: req.sessionId});
     });
-  })
+  });
+
+
+  // app.get('/company/:id', function(req, res, next){
+  //   let id = ObjectId(req.params.id); 
+  //   async.waterfall([loadOne.bind(null, id)], (err, company) => {
+  //     if(err)return next(err);
+  //     res.json(Maker(company));
+  //   });
+  // })
 
   app.delete('/company/:id', checkRights('company.delete'), function(req, res, next){
     let id = ObjectId(req.params.id); 
-    async.waterfall([del.bind(null, id), findOne], (err, company) => {
+    async.waterfall([
+      del.bind(null, id), 
+      Preference.delete.bind(null, req.user), 
+      findOne
+    ], (err, company) => {
       if(err)return next(err);
       res.json({_id: id, isDeleted: true});
       resources.reactor.emit('company.delete', Maker(company), {sessionId: req.sessionId});
     });
   })
 
-  app.post('/companies/preferred', checkUser('admin'), function(req, res, next){
-    let id = ObjectId(req.body.id); 
-    async.waterfall([loadOne.bind(null, id), preferred.bind(null, Boolean(req.body.preferred))], (err, company) => {
-      if(err)return next(err);
-      res.json(Maker(company));
-    });
-  });
-
   app.post('/companies', checkRights('company.new'), function(req, res, next){
-    let company = req.body.company;
-    async.waterfall([create.bind(null, company), loadOne], (err, company) => {
+    const company = req.body.company;
+    const isPreferred = Boolean(req.body.company.preferred);
+    async.waterfall([
+      create.bind(null, company), 
+      loadOne,
+      Preference.update.bind(Preference, 'company', req.user, isPreferred)
+    ], (err, company) => {
       if(err)return next(err);
-      const c = Maker(company);
-      res.json(c);
-      resources.reactor.emit('company.new', c, {sessionId: req.sessionId});
+      const current = Maker(company);
+      res.json(current);
+      resources.reactor.emit('company.new', current, {sessionId: req.sessionId});
     });
   });
 
   app.put('/company', checkRights('company.update'), function(req, res, next){
-    let newCompany = req.body.company;
-    let id = ObjectId(newCompany._id);
+    const updates = fromJson(req.body.company);
+    const id = ObjectId(req.body.company._id);
+    const isPreferred = Boolean(req.body.company.preferred);
     async.waterfall([
       loadOne.bind(null, id), 
-      update.bind(null, newCompany), 
-      (previous, cb) => loadOne(previous._id, (err, company) => cb(err, previous, company)) 
+      update.bind(null, updates), 
+      (previous, cb) => loadOne(previous._id, (err, company) => cb(err, previous, company)),
+      (previous, company, cb) => {
+        Preference.update('company', req.user, isPreferred, company, err => cb(err, previous, company))
+      },
     ], (err, previous, company) => {
       if(err)return next(err);
       const current = Maker(company);
+      current.preferred = isPreferred;
       res.json(current);
       resources.reactor.emit('company.update', {previous, current}, {sessionId: req.sessionId});
     });
@@ -150,8 +177,7 @@ function create(company, cb){
 }
 
 
-function update(newCompany, previousCompany, cb){
-  let updates = fromJson(newCompany) ;
+function update(updates, previousCompany, cb){
   Company.collection.updateOne({_id: previousCompany._id}, {$set: updates}, (err) => {
     return cb(err, previousCompany)
   })
@@ -169,13 +195,6 @@ function del(id, cb){
   Company.collection.updateOne({_id: id}, {$set: {isDeleted: true}}, (err) => {
     return cb(err, id)
   })
-}
-
-function preferred(isPreferred, company, cb){
-  company.preferred = isPreferred;
-  Company.collection.update({_id: company._id}, {$set: {preferred: company.preferred}}, err => {
-    cb(err, company);
-  });
 }
 
 function Maker(obj){

@@ -40,8 +40,6 @@ const store = Reflux.createStore({
 
     if(!doRequest) return actions.loadCompleted(state.data);
 
-    // const params = _.map(ids, id => `ids[]=${id}`).join('&');
-    // const url = ['/api/companies', params].join('?');
     const url = '/api/companies';
 
     console.log("start loading companies ...")
@@ -49,6 +47,7 @@ const store = Reflux.createStore({
     this.trigger(state);
     requestJson(url, {message: 'Cannot load companies, check your backend server'}).then( companies => {
         console.log("end loading companies ...")
+        actions.loadCompleted.sync = true;
         actions.loadCompleted(Immutable.fromJS(_.chain(companies).map( p => [p._id, Maker(p)]).object().value()));
       });
 
@@ -90,10 +89,8 @@ const store = Reflux.createStore({
     requestJson('/api/companies', {verb: 'post', body: {company: company}, message: 'Cannot create company, check your backend server'})
       .then( company => {
         state.isLoading = false;
-        state.data = state.data.set(company._id, Immutable.fromJS(Maker(company)));
-        this.trigger(state);
-        // TODO: doenst work !!!!
-        //actions.createCompleted(company);
+        actions.createCompleted.sync = true;
+        actions.createCompleted(company);
       });
   },
 
@@ -108,6 +105,7 @@ const store = Reflux.createStore({
     requestJson('/api/company', {verb: 'put', body: {company: _.assign(previous, updates)}, message: 'Cannot update company, check your backend server'})
       .then( company => {
         state.isLoading = false;
+        actions.updateCompleted.sync = true;
         actions.updateCompleted(previous, company);
       });
   },
@@ -129,6 +127,7 @@ const store = Reflux.createStore({
     requestJson(`/api/company/${id}`, {verb: 'delete', message: 'Cannot delete company, check your backend server'})
       .then( res => {
         state.isLoading = false;
+        actions.deleteCompleted.sync = true;
         actions.deleteCompleted(company);
       });
   },

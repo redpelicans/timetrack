@@ -45,7 +45,7 @@ export class InputField extends BaseField {
   render(){
     if(!this.state.field)return false;
     const field = this.props.field;
-    const labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l"/></a> : "";
+    const labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l-1"/></a> : "";
 
     return(
       <fieldset className={this.fieldsetClassNames()}>
@@ -175,7 +175,7 @@ export class TextAreaField extends BaseField {
     if(!this.state.field)return false;
 
     let field = this.props.field;
-    let labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l"/></a> : "";
+    let labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l-1"/></a> : "";
 
     let styles = {
       textarea: {

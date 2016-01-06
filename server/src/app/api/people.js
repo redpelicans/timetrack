@@ -1,8 +1,7 @@
 import async from 'async';
 import moment from 'moment';
 import _ from 'lodash';
-import {Person} from '../../models';
-import {Preference} from '../../models';
+import {Person, Preference} from '../../models';
 import {ObjectId} from '../../helpers';
 import checkUser  from '../../middleware/check_user';
 import checkRights  from '../../middleware/check_rights';
@@ -12,7 +11,7 @@ export function init(app, resources){
   app.get('/people', function(req, res, next){
     async.waterfall([
       loadAll, 
-      loadPreferences.bind(null, req.user)
+      Preference.spread.bind(Preference, 'person', req.user)
     ], (err, people) => {
       if(err)return next(err);
       res.json(_.map(people, p => Maker(p)));
@@ -24,12 +23,12 @@ export function init(app, resources){
     const isPreferred = Boolean(req.body.preferred);
     async.waterfall([
       loadOne.bind(null, id), 
-      upsertPreference.bind(null, req.user, isPreferred)
+      Preference.update.bind(Preference, 'person', req.user, isPreferred)
     ], (err, person) => {
       if(err)return next(err);
       const current = Maker(person);
       current.preferred = isPreferred;
-      res.json(Maker(current));
+      res.json(current);
       resources.reactor.emit('person.update', {previous: person, current}, {sessionId: req.sessionId});
     });
   });
@@ -38,7 +37,7 @@ export function init(app, resources){
     let id = ObjectId(req.params.id); 
     async.waterfall([
       del.bind(null, id), 
-      deletePreference.bind(null, req.user), 
+      Preference.delete.bind(null, req.user), 
       findOne
     ], (err, person) => {
       if(err)return next(err);
@@ -53,7 +52,7 @@ export function init(app, resources){
     async.waterfall([
       create.bind(null, person), 
       loadOne,
-      upsertPreference.bind(null, req.user, isPreferred)
+      Preference.update.bind(Preference, 'person', req.user, isPreferred)
     ], (err, person) => {
       if(err)return next(err);
       const current = Maker(person);
@@ -72,7 +71,7 @@ export function init(app, resources){
       update.bind(null, updates), 
       (previous, cb) => loadOne(previous._id, (err, person) => cb(err, previous, person)),
       (previous, person, cb) => {
-        upsertPreference(req.user, isPreferred, person, err => cb(err, previous, person))
+        Preference.update('person', req.user, isPreferred, person, err => cb(err, previous, person))
       },
     ], (err, previous, person) => {
       if(err) return next(err);
@@ -96,17 +95,6 @@ export function init(app, resources){
 
 function loadAll(cb){
   Person.findAll({isDeleted: {$ne: true}}, cb);
-}
-
-function loadPreferences(user, people, cb){
-  Preference.findAll({personId: user._id, type: 'person'}, (err, preferences) => {
-    if(err) return cb(err);
-    const hpreferences = _.inject(preferences, (res, p) => {res[p.entityId] = true; return res}, {});
-    _.each(people, person => {
-       person.preferred = !!hpreferences[person._id];
-    });
-    cb(null, people);
-  });
 }
 
 function findOne(id, cb){
@@ -144,26 +132,6 @@ function del(id, cb){
   Person.collection.updateOne({_id: id}, {$set: {isDeleted: true}}, (err) => {
     return cb(err, id)
   })
-}
-
-function deletePreference(user, id, cb){
-  Preference.collection.deleteMany( {personId: user._id, entityId: id}, err => cb(err, id)) 
-}
-
-function upsertPreference(user, isPreferred, person, cb){
-  if(isPreferred){
-    Preference.collection.update(
-      {personId: user._id, entityId: person._id}, 
-      {personId: user._id, entityId: person._id, type: 'person'}, 
-      {upsert: true},
-      err => cb(err, person) 
-    );
-  }else{
-    Preference.collection.deleteMany(
-      {personId: user._id, entityId: person._id}, 
-      err => cb(err, person) 
-    );
-  }
 }
 
 function fromJson(json){

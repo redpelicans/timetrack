@@ -71,8 +71,8 @@ export class Avatar extends Component {
 export const TextLabel = ({label, value, url, onClick}) => {
   const labelUrl = () => {
     if(!url && !onClick) return "";
-    if(onClick) return <a href="#" onClick={onClick}><i className="fa fa-external-link p-l"/></a>;
-    if(url) return <a href={url}><i className="fa fa-external-link p-l"/></a>;
+    if(onClick) return <a href="#" onClick={onClick}><i className="fa fa-external-link p-l-1"/></a>;
+    if(url) return <a href={url}><i className="fa fa-external-link p-l-1"/></a>;
   }
 
   return(
@@ -351,7 +351,7 @@ export const Sort =({sortMenu, sortCond, onClick}) => {
 
   function getSortIcon(sortCond, item){
     if(item.key === sortCond.by){
-      const classnames = sortCond.order === "desc" ? "fa fa-sort-desc p-l" : "fa fa-sort-asc p-l";
+      const classnames = sortCond.order === "desc" ? "fa fa-sort-desc p-l-1" : "fa fa-sort-asc p-l-1";
       return <i className={classnames}/>
     }
   }

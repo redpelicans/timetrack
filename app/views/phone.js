@@ -55,7 +55,7 @@ export class PhonesField extends Component{
         <label htmlFor={field.key}> 
           <span>Phones</span> 
           <a href="#" onClick={this.handleAdd} >
-            <i style={styles.add} className="iconButton fa fa-plus m-a"/>
+            <i style={styles.add} className="iconButton fa fa-plus m-a-1"/>
           </a>
         </label>
         <div className="row">
