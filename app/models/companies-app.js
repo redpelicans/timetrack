@@ -101,6 +101,25 @@ function filterForSearch(filter=''){
   }
 }
 
+function filterForSearch(filter=''){
+  function filterByName(key, name){
+    return name.indexOf(key) !== -1;
+  }
+
+  function filterByTag(key, tags){
+    const tag = key.slice(1);
+    if(!tag) return true;
+    return tags.indexOf(tag) !== -1;
+  }
+
+  const keys = _.chain(filter.split(' ')).compact().map(key => key.toLowerCase()).value();
+  return  p => {
+    const name = p.get('name').toLowerCase();
+    const tags = _.chain(p.get('tags') && p.get('tags').toJS() || []).map(tag => tag.toLowerCase()).value().join(' ');
+    return _.all(keys, key => key.startsWith('#') ? filterByTag(key, tags) : filterByName(key, name));
+  }
+}
+
 const sortMenu = [
   {key: 'name', label: 'Sort Alphabeticaly'},
   {key: 'billable', label: 'Sort by billable amount'},

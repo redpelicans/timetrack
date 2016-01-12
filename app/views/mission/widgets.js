@@ -2,19 +2,19 @@ import React, {Component} from 'react';
 import classNames from 'classnames';
 import routes from '../../routes';
 import {navActions} from '../../models/nav';
-import {personsActions} from '../../models/persons';
-import {personsAppActions} from '../../models/persons-app';
+import {missionsActions} from '../../models/missions';
+import {missionsAppActions} from '../../models/missions-app';
 import authManager from '../../auths';
 import {AvatarView, NewLabel, UpdatedLabel} from '../widgets';
 
 
-export const Edit = ({person}) => {
+export const Edit = ({mission}) => {
   const handleChange = (e) => {
     e.preventDefault();
-    navActions.push(routes.person.edit, {personId: person.get('_id')});
+    navActions.push(routes.mission.edit, {missionId: mission.get('_id')});
   }
 
-  if(authManager.person.isAuthorized('edit')){
+  if(authManager.mission.isAuthorized('edit')){
     return (
       <a href="#" onClick={handleChange}>
         <i className="iconButton fa fa-pencil m-r-1"/>
@@ -26,17 +26,17 @@ export const Edit = ({person}) => {
 }
 
 
-export const Delete =({person, postAction}) => {
+export const Delete =({mission, postAction}) => {
   const handleChange = (e) => {
     e.preventDefault();
-    const answer = confirm(`Are you sure to delete the contact "${person.get('name')}"`);
+    const answer = confirm(`Are you sure to delete the mission "${mission.get('name')}"`);
     if(answer){
-      personsActions.delete(person.toJS());
+      missionsActions.delete(mission.toJS());
       if(postAction) postAction();
     }
   }
 
-  if(authManager.person.isAuthorized('delete')){
+  if(authManager.mission.isAuthorized('delete')){
     return (
       <a href="#" onClick={handleChange}>
         <i className="iconButton fa fa-trash m-r-1"/>
@@ -48,30 +48,6 @@ export const Delete =({person, postAction}) => {
 }
 
 
-export const Preferred = ({person, active}) => {
-  const handleChange = (e) => {
-    e.preventDefault();
-    personsActions.togglePreferred(person);
-  }
-
-  const classnames = classNames("iconButton star fa fa-star-o m-r-1", {
-    preferred: person.get('preferred'),
-  });
-
-  if(active && authManager.person.isAuthorized('togglePreferred')){
-    return (
-      <a href="#" onClick={handleChange}>
-        <i className={classnames}/>
-      </a>
-    )
-  }else{
-    return (
-      <i className={classnames}/>
-    )
-  }
-}
-
-
 export class AddButton extends Component {
   componentDidMount(){
     $('#addObject').tooltip({animation: true});
@@ -79,7 +55,7 @@ export class AddButton extends Component {
 
   handleClick = () => {
     $('#addObject').tooltip('hide');
-    navActions.push(routes.person.new);
+    navActions.push(routes.mission.new);
   }
 
   render(){
@@ -93,7 +69,7 @@ export class AddButton extends Component {
         zIndex: '900',
     }
 
-    if(!authManager.person.isAuthorized('add')){
+    if(!authManager.mission.isAuthorized('add')){
       return <div/>
     } else {
       return (
@@ -108,12 +84,12 @@ export class AddButton extends Component {
 
 export class Preview extends Component {
   shouldComponentUpdate(nextProps, nextState){
-    return this.props.person !== nextProps.person || this.props.company !== nextProps.company;
+    return this.props.mission !== nextProps.mission || this.props.company !== nextProps.company;
   }
 
-  handleViewPerson = (e) => {
+  handleViewMission = (e) => {
     e.preventDefault();
-    navActions.push(routes.person.view, {personId: this.props.person.get('_id')});
+    navActions.push(routes.mission.view, {missionId: this.props.mission.get('_id')});
   }
 
   handleViewCompany = (e) => {
@@ -122,12 +98,7 @@ export class Preview extends Component {
   }
 
   render() {
-    console.log("render Person")
-    function phone(person){
-      if(!person.phones || !person.phones.length) return '';
-      const {label, phone} = person.phones[0];
-      return `tel. ${label}: ${phone}`;
-    }
+    console.log("render Mission")
     
     const companyView = () => {
       const company = this.props.company;
@@ -169,50 +140,22 @@ export class Preview extends Component {
         bottom: '0',
         right: '0.1rem',
       },
-      tags:{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-      },
-      label:{
-        color: '#cfd2da',
-        padding: '.3rem',
-      }
     };
 
-    const person = this.props.person;
-    const avatar = <AvatarView obj={person}/>;
+    const mission = this.props.mission;
+    const company = this.props.company;
+    const avatar = <AvatarView obj={company}/>;
     const isNew = () =>{
-      if(person.get('isNew')) return <NewLabel/> 
-      if(person.get('isUpdated')) return <UpdatedLabel/> 
+      if(mission.get('isNew')) return <NewLabel/> 
+      if(mission.get('isUpdated')) return <UpdatedLabel/> 
       return <div/>
     }
 
-    const tags = () => {
-      const onClick = (tag, e) => {
-        e.preventDefault();
-        const filter = `#${tag} `;
-        personsAppActions.filter(filter);
-        navActions.push(routes.person.list, {filter});
-      }
-
-      if(!person.get('tags') || !person.get('tags').size) return <div/>;
-
-      return _.map(person.get('tags').toJS(), v => {
-        return (
-          <span key={v} style={styles.label} className="label label-primary m-r-1">
-            <a href="#" onClick={onClick.bind(null, v)}>{v}</a>
-          </span>
-        )
-      })
-    }
-
-    const personView = () => {
-     if(authManager.person.isAuthorized('view')){
-      return <a href="#" onClick={this.handleViewPerson}>{person.get('name')}</a>;
+    const missionView = () => {
+     if(authManager.mission.isAuthorized('view')){
+      return <a href="#" onClick={this.handleViewMission}>{mission.get('name')}</a>;
      }else{
-      return <span>{person.get('name')}</span>;
+      return <span>{mission.get('name')}</span>;
      }
     }
     
@@ -220,19 +163,16 @@ export class Preview extends Component {
       <div style={styles.container} >
         <div style={styles.containerLeft}>
           <div className="p-r-1">
-            <a href="#" onClick={this.handleViewPerson}>{avatar}</a>
+            <a href="#" onClick={this.handleViewMission}>{avatar}</a>
           </div>
           <div style={styles.isnew}>
             {isNew()}
           </div>
           <div style={styles.names}>
             <div style={styles.name} className="p-r-1">
-              {personView()}
+              {missionView()}
             </div>
             {companyView()}
-          </div>
-          <div className="p-r-1" style={styles.tags}>
-            {tags()}
           </div>
         </div>
         <div style={styles.containerRight} href="#">

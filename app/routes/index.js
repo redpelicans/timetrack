@@ -4,11 +4,13 @@ import UnAuthorized from '../views/unauthorized';
 import LoginApp from '../views/login';
 import personRoutes from './person';
 import companyRoutes from './company';
+import missionRoutes from './mission';
 import authManager from '../auths';
 
 const routes = RouteManager([
   personRoutes,
   companyRoutes,
+  missionRoutes,
   Route({
     name: 'notfound',
     path: '/notfound',

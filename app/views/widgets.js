@@ -1,13 +1,12 @@
 import React, {Component} from 'react';
 import classNames from 'classnames';
-import Select from 'react-select';
 import FileInput from 'react-file-input';
 import Remarkable from 'remarkable';
 import {colors} from '../forms/company';
 
 
 export const AvatarView = ({obj}) => {
-  if(!obj || !obj.get('avatar')) return <Avatar name={"?"}/>;
+  if(!obj || !obj.get('avatar')) return <div className="m-r-1"><Avatar name={"?"}/></div>;
 
   const avatar = obj.get('avatar').toJS();
   //console.log("AvatarView")
@@ -68,6 +67,18 @@ export class Avatar extends Component {
 
 }
 
+export const NewLabel = () => {
+  return (
+    <span className="label label-success">new</span>
+  )
+}
+
+export const UpdatedLabel = () => {
+  return (
+    <span className="label label-info">updated</span>
+  )
+}
+
 export const TextLabel = ({label, value, url, onClick}) => {
   const labelUrl = () => {
     if(!url && !onClick) return "";
@@ -86,7 +97,7 @@ export const TextLabel = ({label, value, url, onClick}) => {
   )
 }
 
-export const Labels = ({label, value}) => {
+export const Labels = ({label, value, onClick}) => {
   const styles = {
     label:{
       color: '#cfd2da',
@@ -94,7 +105,24 @@ export const Labels = ({label, value}) => {
     }
   };
 
-  const labels = _.map(value.toJS(), v => <span key={v} style={styles.label} className="label label-primary m-r-1">{v}</span>);
+  const handleClick = (label, e) => {
+    onClick(label);
+    e.preventDefault();
+  }
+
+  let labels;
+  if(!onClick){
+   labels = _.map(value.toJS(), v => <span key={v} style={styles.label} className="label label-primary m-r-1">{v}</span>);
+  }else{
+   labels = _.map(value.toJS(), v => {
+    return (
+      <span key={v} style={styles.label} className="label label-primary m-r-1">
+        <a href="#" onClick={handleClick.bind(null, v)}>{v}</a>
+      </span>
+    )
+   })
+  }
+
   return(
     <fieldset className="form-group">
       <label htmlFor={label}> 
@@ -106,6 +134,7 @@ export const Labels = ({label, value}) => {
     </fieldset>
   )
 }
+
 export const MarkdownText = ({label, value}) => {
   const md = new Remarkable();
   const text = {__html: md.render(value)};
@@ -309,16 +338,40 @@ export const Refresh =({onClick}) => {
   )
 }
 
-export const Filter =({filter, onChange}) => {
+export const Filter =({filter, onChange, onReset}) => {
   const handleChange = (e) => {
     onChange(e.target.value);
     e.preventDefault();
   }
 
-  const icon= <span className="fa fa-search"/>
+  const handleClick = (e) => {
+    onReset();
+    e.preventDefault();
+  }
+
+  const styles={
+    container:{
+      position: 'relative',
+    },
+    icon:{
+      position: 'absolute',
+      padding: '10px',
+      right: '0px',
+      top: '-1px',
+      fontSize: '1.2rem',
+      zIndex: 10,
+      color: 'grey',
+    }
+  }
+
+  const icon= <span className="fa fa-search"/>;
+
   return (
-    <div className="m-l-1">
+    <div className="m-l-1" style={styles.container}>
       <input className="tm input form-control" type='text' value={filter} placeholder='search ...' onChange={handleChange}/>
+      <a href="#">
+        <i className="fa fa-ban" style={styles.icon} onClick={handleClick}/>
+      </a>
     </div>
   )
 }

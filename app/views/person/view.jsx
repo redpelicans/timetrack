@@ -1,11 +1,8 @@
 import _ from 'lodash';
 import moment from 'moment';
-import Remarkable from 'remarkable';
 import React, {Component} from 'react';
-import classNames from 'classnames';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../widgets';
 import {Edit, Preferred, Delete} from './widgets';
-import {timeLabels} from '../helpers';
 import {Content } from '../layout';
 import {personsStore, personsActions} from '../../models/persons';
 import {navStore, navActions} from '../../models/nav';
@@ -151,6 +148,19 @@ const Card = ({person, company}) =>  {
     )
   }
 
+  const tags = () => {
+    const onClick = (tag) => {
+      navActions.push(sitemap.person.list, {filter: `#${tag} `});
+    }
+
+    if(!person.get('tags') || !person.get('tags').size) return <div/>
+    return (
+      <div className="col-md-12">
+        <Labels label="Tags" value={person.get('tags')} onClick={onClick}/>
+      </div>
+    )
+  }
+
   const roles = () => {
     if(!person.get('roles') || !person.get('roles').size) return <div/>
     return (
@@ -159,7 +169,6 @@ const Card = ({person, company}) =>  {
       </div>
     )
   }
-
 
   const type = () => {
     return (
@@ -210,6 +219,9 @@ const Card = ({person, company}) =>  {
       <div className="row">
         {skills()} 
         {roles()} 
+      </div>
+      <div className="row">
+        {tags()}
       </div>
       <div className="row">
         {jobDescription()}

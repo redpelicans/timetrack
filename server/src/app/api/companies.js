@@ -5,6 +5,7 @@ import {Person, Company, Preference} from '../../models';
 import {getRandomInt, ObjectId} from '../../helpers';
 import checkUser from '../../middleware/check_user';
 import checkRights from '../../middleware/check_rights';
+import uppercamelcase  from 'uppercamelcase';
 
 export function init(app, resources){
 
@@ -30,6 +31,7 @@ export function init(app, resources){
       if(err)return next(err);
       const current = Maker(company);
       current.preferred = isPreferred;
+      current.updatedAt = new Date(); 
       res.json(current);
       resources.reactor.emit('company.update', {previous: company, current}, {sessionId: req.sessionId});
     });
@@ -104,6 +106,14 @@ function fromJson(json){
     let attrs = ['src', 'url', 'color', 'type'];
     res.avatar = _.pick(json.avatar, attrs);
   }
+  if(json.tags){
+    const tags = _.inject(json.tags, (res, tag) => { 
+      const t = uppercamelcase(tag);
+      res[t] = t; return res
+    }, {});
+    res.tags = _.chain(tags).values().compact().sort().value();
+  }
+
   res.updatedAt = new Date(); 
   res.type = res.type.toLowerCase();
   return res;
@@ -198,6 +208,7 @@ function del(id, cb){
 }
 
 function Maker(obj){
-  obj.isNew = moment.duration(moment() - obj.createdAt).asDays() < 1;
+  obj.isNew = moment.duration( moment() - (obj.createdAt || new Date(1967, 9, 1)) ).asDays() < 1;
+  obj.isUpdated = moment.duration(moment() - (obj.updatedAt || new Date(1967, 9, 1)) ).asHours() < 1;
   return obj;
 }

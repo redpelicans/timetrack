@@ -17,4 +17,8 @@ export default AuthManager([
     name: 'leave',
     roles: ['admin'],
   }),
+  Auth({
+    name: 'add',
+    roles: ['admin'],
+  }),
 ], {name: 'company'});

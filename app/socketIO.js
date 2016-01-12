@@ -2,6 +2,7 @@ import socketIO from 'socket.io-client';
 import {errorsActions as errors} from './models/errors';
 import {personsActions} from './models/persons';
 import {companiesActions} from './models/companies';
+import {missionsActions} from './models/missions';
 import {loginStore} from './models/login';
 import _ from 'lodash';
 
@@ -41,6 +42,11 @@ export function registerSocketIO(){
     register('company.new', companiesActions.createCompleted);
     register('company.delete', companiesActions.deleteCompleted);
     register('company.update', updateCompany);
+
+    register('mission.new', missionsActions.createCompleted);
+    register('mission.delete', missionsActions.deleteCompleted);
+    register('mission.update', updateMission);
+
   });
 }
 
@@ -58,4 +64,9 @@ function updatePerson(data){
 
 function updateCompany(data){
   companiesActions.updateCompleted(data.previous, data.current);
+}
+
+
+function updateMission(data){
+  missionsActions.updateCompleted(data.previous, data.current);
 }

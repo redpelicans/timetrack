@@ -28,6 +28,10 @@ function ensureIndexes(cb){
     person_email,
     person_company_id,
     person_skills,
+    company_country,
+    company_city,
+    company_tags,
+    person_tags
   ], cb);
 }
 
@@ -41,4 +45,21 @@ function person_company_id(cb){
 
 function person_skills(cb){
   Person.collection.ensureIndex({skills:1}, {background: true}, cb);
+}
+
+function company_city(cb){
+  Company.collection.ensureIndex({'address.city': 1}, {background: true}, cb);
+}
+
+function company_country(cb){
+  Company.collection.ensureIndex({'address.country': 1}, {background: true}, cb);
+}
+
+
+function company_tags(cb){
+  Company.collection.ensureIndex({'tags': 1}, {background: true}, cb);
+}
+
+function person_tags(cb){
+  Person.collection.ensureIndex({'tags': 1}, {background: true}, cb);
 }

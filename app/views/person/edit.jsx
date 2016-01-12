@@ -3,7 +3,6 @@ import React, {Component} from 'react';
 import reactMixin from 'react-mixin';
 import { Lifecycle } from 'react-router';
 import Immutable from 'immutable';
-import classNames from 'classnames';
 import personForm, {colors, avatarTypes} from '../../forms/person';
 import {personsStore,  personsActions} from '../../models/persons';
 import {loginStore} from '../../models/login';
@@ -12,7 +11,7 @@ import {companiesStore,  companiesActions} from '../../models/companies';
 import {navActions, navStore} from '../../models/nav';
 import {Content} from '../layout';
 import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../widgets';
-import {StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, MultiSelectField, SelectField} from '../fields';
+import {TagsField, StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, MultiSelectField, DropdownField} from '../fields';
 import {PhonesField} from '../phone';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title} from '../widgets';
 import sitemap from '../../routes';
@@ -56,7 +55,7 @@ export class NewPersonApp extends Component {
 
     this.unsubscribeCompanies = companiesStore.listen( companies => {
       const companyId = this.personForm.field('companyId');
-      companyId.setSchemaValue('domainValue', companiesValues(companies.data));
+      companyId.setSchemaValue('domainValue', companiesDomain(companies.data));
       this.forceUpdate();
     });
 
@@ -149,7 +148,7 @@ export class EditPersonApp extends Component {
 
         this.unsubscribeCompanies = companiesStore.listen( companies => {
           const companyId = this.personForm.field('companyId');
-          companyId.setSchemaValue('domainValue', companiesValues(companies.data));
+          companyId.setSchemaValue('domainValue', companiesDomain(companies.data));
           this.forceUpdate();
         });
 
@@ -203,10 +202,15 @@ export class EditPersonApp extends Component {
 
 export default class EditContent extends Component {
 
+  state = {};
+
   componentWillMount(){
     // dynamic behavior
     emailRule(this.props.personForm);
     companyRule(this.props.personForm);
+
+    const type = this.props.personForm.field('type');
+    type.onValue( state => this.setState({isWorker: state.value === 'worker'}))
   }
 
   render(){
@@ -225,7 +229,24 @@ export default class EditContent extends Component {
     const fakePerson = Immutable.fromJS(_.pick(this.props.personDocument, 'createdAt', 'updatedAt'));
 
     const companyId = person.field('companyId');
-    const skills = person.field('skills');
+
+    const skills = () => {
+      if(!this.state.isWorker) return <div/>
+      return (
+        <div className="col-md-12">
+          <MultiSelectField field={person.field('skills')} allowCreate={true}/>
+        </div>
+      )
+    }
+
+    const roles = () => {
+      if(!this.state.isWorker) return <div/>
+      return (
+        <div className="col-md-12">
+          <MultiSelectField field={person.field('roles')}/>
+        </div>
+      )
+    }
 
     return (
       <Content>
@@ -251,7 +272,7 @@ export default class EditContent extends Component {
             <Form>
               <div className="row">
                 <div className="col-md-3">
-                  <SelectField field={person.field('prefix')}/>
+                  <DropdownField field={person.field('prefix')}/>
                 </div>
                 <div className="col-md-4">
                   <InputField field={person.field('firstName')}/>
@@ -265,26 +286,25 @@ export default class EditContent extends Component {
               </div>
               <div className="row">
                 <div className="col-md-3">
-                  <SelectField field={person.field('type')}/>
+                  <DropdownField field={person.field('type')}/>
                 </div>
                 <div className="col-md-6">
                   <InputField field={person.field('email')}/>
                 </div>
                 <div className="col-md-3">
-                  <SelectField field={person.field('jobType')}/>
+                  <DropdownField field={person.field('jobType')}/>
                 </div>
                 <div className="col-md-12">
-                  <SelectField field={companyId}/>
+                  <DropdownField field={companyId}/>
                 </div>
                 <div className="col-md-12">
                   <PhonesField field={person.field('phones')} />
                 </div>
                 <div className="col-md-12">
-                  <MultiSelectField field={skills} allowCreate={true}/>
+                  <TagsField field={person.field('tags')}/>
                 </div>
-                <div className="col-md-12">
-                  <MultiSelectField field={person.field('roles')}/>
-                </div>
+                {skills()}
+                {roles()}
                 <AvatarChooser person={person}/>
                 <div className="col-md-12">
                   <MarkdownEditField field={person.field('jobDescription')}/>
@@ -348,7 +368,8 @@ function emailRule(person){
     }
   });
 }
-function  companiesValues(companies){
+
+function  companiesDomain(companies){
   if(!companies) return [];
   const values = _.chain(companies.toJS())
     .map(company => { return {key: company._id, value: company.name} })
@@ -357,5 +378,6 @@ function  companiesValues(companies){
   values.unshift({key: undefined, value: '<No Company>'});
   return values;
 }
+
 
 

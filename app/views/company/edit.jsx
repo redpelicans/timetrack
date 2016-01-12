@@ -9,7 +9,7 @@ import {companiesActions, companiesStore} from '../../models/companies';
 import {navStore, navActions} from '../../models/nav';
 import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../widgets';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title } from '../widgets';
-import {StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, SelectField} from '../fields';
+import {CityField, CountryField, TagsField, ComboboxField, StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, DropdownField} from '../fields';
 import sitemap from '../../routes';
 
 @reactMixin.decorate(Lifecycle)
@@ -204,10 +204,10 @@ export default class EditContent extends Component {
                   <StarField field={this.props.companyForm.field('preferred')}/>
                 </div>
                 <div className="col-md-2">
-                  <SelectField field={this.props.companyForm.field('type')}/>
+                  <DropdownField field={this.props.companyForm.field('type')}/>
                 </div>
                 <div className="col-md-12">
-                <AvatarChooserField field={this.props.companyForm.field('avatar')}/>
+                  <AvatarChooserField field={this.props.companyForm.field('avatar')}/>
                 </div>
                 <div className="col-md-12">
                   <InputField field={this.props.companyForm.field('website')} isUrl={true}/>
@@ -219,10 +219,13 @@ export default class EditContent extends Component {
                   <InputField field={this.props.companyForm.field('address/zipcode')}/>
                 </div>
                 <div className="col-md-4">
-                  <InputField field={this.props.companyForm.field('address/city')}/>
+                  <CityField field={this.props.companyForm.field('address/city')}/>
                 </div>
                 <div className="col-md-4">
-                  <InputField field={this.props.companyForm.field('address/country')}/>
+                  <CountryField field={this.props.companyForm.field('address/country')}/>
+                </div>
+                <div className="col-md-12">
+                  <TagsField field={this.props.companyForm.field('tags')}/>
                 </div>
                 <div className="col-md-12">
                   <MarkdownEditField field={this.props.companyForm.field('note')}/>

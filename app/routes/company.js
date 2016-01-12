@@ -1,4 +1,4 @@
-import CompanyListApp from '../views/company/list';
+import ListCompanyApp from '../views/company/list';
 import {NewCompanyApp, EditCompanyApp} from '../views/company/edit';
 import ViewCompanyApp from '../views/company/view';
 import {Route, RouteManager} from 'kontrolo';
@@ -10,7 +10,7 @@ const routes = RouteManager([
     defaultRoute: true,
     topic:'companies',
     label: 'Companies', 
-    component: CompanyListApp,
+    component: ListCompanyApp,
     isMenu: 1,
     iconName: 'building',
     authRequired: true

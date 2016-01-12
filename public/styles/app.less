@@ -1,5 +1,12 @@
+@text-color: #cfd2da;
+@font-family: "Roboto";
+@preferred-star-color: #00BCD4;
+@form-background-color: #434857;
+@form-border-top: 1px solid #434857;
+
+
 html {
-  font-family: "Roboto";
+  font-family: @font-family;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
 }
@@ -35,8 +42,9 @@ html {
 
 a {
   background-color: transparent;
-  color: #cfd2da;
+  color: @text-color;
 }
+
 a:active,
 a:hover {
   outline: 0;
@@ -50,11 +58,11 @@ a:hover {
 }
 
 .iconButton.star.preferred {
-  color: #00BCD4;
+  color: @preferred-star-color;
 }
 
 .iconButton.star.preferred:hover {
-  color: #00BCD4;
+  color: @preferred-star-color;
 }
 
 .iconButton.disable {
@@ -70,7 +78,6 @@ a:hover {
   color: rgba(128, 128, 128, 0.21);
 }
 
-
 img {
   border: 0;
 }
@@ -79,16 +86,16 @@ body {
   font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
-  color: #cfd2da;
+  color: @text-color;
   background-color: #252830;
 }
 
 hr {
-  border-top: 1px solid #434857
+  border-top: @form-border-top;
 }
 
 .nav-link {
-  color: #cfd2da !important;
+  color: @text-color !important;
 }
 
 .nav-link:hover {
@@ -138,14 +145,13 @@ hr {
 }
 
 .tm.brand {
-  color: #cfd2da;
+  color: @text-color;
 }
 
 .tm.mobile.header{
   font-size: 1.5rem;
-  font-family: Roboto;
+  font-family: @font-family;
   outline: none !important;
-
 }
 
 .tm.menu.item{
@@ -156,16 +162,71 @@ hr {
   font-size: 1.5rem;
 }
 
-.Select > .Select-control{
+.form{
   border: none;
-  background-color: #434857;
+  background-color: @form-background-color;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 
-.rm-widget{
+.form-hover{
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(255, 255, 255, 0.6);
+  border: 1px solid #999999;
+  background-color: @form-background-color;
+}
+
+.form-focus{
+  border: 1px solid #999999;
+  border-color: #fff;
+  background-color: #fff;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.rw-input{
+  color: @text-color;
+}
+
+.rw-state-focus > .rw-input{
+  color: @form-background-color;
+}
+
+.rw-popup .rw-widget{
+  &:hover{
+    background-color: @text-color;
+  }
+}
+
+.rw-btn{
+  color: @text-color;
+}
+
+.rw-dropdownlist{
+  &:hover{
+  .form-hover;
+  }
+  &:focus{
+    .form-focus;
+  }
+  &:active{
+    .form-focus;
+  }
+}
+
+.rw-dropdownlist .rw-widget{
+  background-color: #fff;
+}
+
+.rw-state-focus > .rw-btn{
+  color: @form-background-color;
+}
+
+.rw-widget{
+  .form;
+}
+
+.Select > .Select-control{
   border: none;
-  background-color: #434857;
+  background-color: @form-background-color;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
@@ -187,16 +248,16 @@ hr {
 }
 
 .has-value > .Select-control > .Select-placeholder{
-  color: #cfd2da;
+  color: @text-color;
 }
 
 .file-custom,
 .form-control{
-  color: #cfd2da;
+  color: @text-color;
   padding-left: 15px;
   padding-right: 15px;
-  background-color: #434857;
-  border: 1px solid #434857;
+  background-color: @form-background-color;
+  border: @form-border-top;
   font-size: .9rem;
   border-radius: 4px;
   height: 35px;
@@ -205,12 +266,12 @@ hr {
 }
 
 .file-custom:before{
-  color: #cfd2da;
+  color: @text-color;
   padding-left: 15px;
   padding-right: 15px;
   top: -.01rem;
   background-color: #38393C;
-  border: 1px solid #434857;
+  border: @form-border-top;
   border-radius: 0 .25rem .25rem 0;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
@@ -257,15 +318,15 @@ button:hover {
 }
 
 .tm.list-item{
-  border: 1px solid #434857;
-  color: #cfd2da;
+  border: @form-border-top;
+  color: @text-color;
   margin-bottom: -1px;
 }
 
 .tm.list-item:hover{
   text-decoration: none;
-  color: #cfd2da;
-  background-color: #434857;
+  color: @text-color;
+  background-color: @form-background-color;
 }
 
 .dropdown-item {
@@ -278,7 +339,7 @@ button:hover {
 }
 
 .dropdown-menu {
-  background-color: #434857;
+  background-color: @form-background-color;
   border-radius: 4px;
   border-color: #999999;
   box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(255, 255, 255, 0.6);
@@ -286,7 +347,7 @@ button:hover {
 }
 
 .Select.is-disabled > .Select-control {
-  background-color: #434857;
+  background-color: @form-background-color;
 
 }
 
@@ -295,5 +356,5 @@ button:hover {
 }
 
 .Select-input{
-  color: #cfd2da;
+  color: @text-color;
 }

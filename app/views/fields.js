@@ -3,10 +3,14 @@ import classNames from 'classnames';
 import Select from 'react-select';
 import FileInput from 'react-file-input';
 import Remarkable from 'remarkable';
+import Combobox from 'react-widgets/lib/Combobox';
+import DropdownList from 'react-widgets/lib/DropdownList';
+import Multiselect from 'react-widgets/lib/Multiselect';
+import DateTimePicker from 'react-widgets/lib/DateTimePicker';
 import {colors} from '../forms/company';
 import {Avatar, TextLabel} from './widgets';
 
-class BaseField extends Component{
+export class BaseField extends Component{
   state = {field: undefined}
 
   componentWillUnmount(){
@@ -168,8 +172,6 @@ export class MarkdownEditField extends BaseField {
 }
 
 export class TextAreaField extends BaseField {
-
-
   render(){
     // avoid to render without a state
     if(!this.state.field)return false;
@@ -196,7 +198,7 @@ export class TextAreaField extends BaseField {
   }
 }
 
-class BaseSelectField extends BaseField{
+export class BaseSelectField extends BaseField{
   handleChange = (value) => {
     this.props.field.setValue( value );
   }
@@ -205,7 +207,6 @@ class BaseSelectField extends BaseField{
     //return this.state.field != nextState.field;
     return true;
   }
-
 
   componentWillMount(){
     this.subscribeFct =  v => {
@@ -216,11 +217,139 @@ class BaseSelectField extends BaseField{
       }
       this.setState(state);
     };
-
     this.props.field.state.onValue( this.subscribeFct );
   }
 
   selectClassNames = () => classNames( 'tm select form-control', { 'form-control-error': this.hasError() });
+}
+
+export class DropdownField extends BaseSelectField{
+  handleChange = (value) => {
+    this.props.field.setValue( value.key );
+  }
+
+  componentWillMount(){
+    this.subscribeFct =  v => {
+      const state = {field: v};
+      if(v.get('domainValue')) state.domainValue = v.get('domainValue').toJS();
+      this.setState(state);
+    };
+    this.props.field.state.onValue( this.subscribeFct );
+  }
+
+  render(){
+    if(!this.state.field) return false;
+    let field = this.props.field;
+
+    if(this.state.field.get('disabled')){
+      const keyValue = _.find(this.state.domainValue, x => x.key === this.state.field.get("value"));
+      return <TextLabel label={field.label} value={keyValue && keyValue.value}/>
+    }else{
+      return(
+        <fieldset className={this.fieldsetClassNames()}>
+          <label htmlFor={field.key}>{field.label}</label>
+          <DropdownList 
+            placeholder={field.label}
+            valueField={'key'}
+            textField={'value'}
+            data={this.state.domainValue}  
+            defaultValue={this.state.field.get('value')} 
+            id={field.key} 
+            caseSensitive={false}
+            onChange={this.handleChange}/>
+          <small className="text-muted control-label">{this.message()}</small>
+        </fieldset>
+      )
+    }
+  }
+}
+
+export class MultiSelectField2 extends BaseSelectField{
+  handleChange = (values) => {
+    this.props.field.setValue( _.map(values, v => v.key) );
+  }
+
+  componentWillMount(){
+    this.subscribeFct =  v => {
+      const state = {field: v};
+      if(v.get('domainValue')) state.domainValue = v.get('domainValue').toJS();
+      this.setState(state);
+    };
+    this.props.field.state.onValue( this.subscribeFct );
+  }
+
+  render(){
+    if(!this.state.field) return false;
+    let field = this.props.field;
+
+    if(this.state.field.get('disabled')){
+      const keyValue = _.find(this.state.domainValue, x => x.value === this.state.field.get("value"));
+      return <TextLabel label={field.label} value={keyValue && keyValue.label}/>
+    }else{
+      const props = {
+        placeholder: field.label,
+        valueField: 'key',
+        textField: 'value',
+        data: this.state.domainValue,  
+        value: this.state.field.get('value') && this.state.field.get('value').toJS() || [], 
+        id: field.key, 
+        caseSensitive: false,
+        onChange: this.handleChange
+      };
+
+      const multiselect = React.createElement( Multiselect, props );
+      return(
+        <fieldset className={this.fieldsetClassNames()}>
+          <label htmlFor={field.key}>{field.label}</label>
+          {multiselect}
+          <small className="text-muted control-label">{this.message()}</small>
+        </fieldset>
+      )
+    }
+  }
+}
+
+export class ComboboxField extends BaseSelectField{
+  handleChange = (value) => {
+    const data = _.isString(value) ? value : value.key;
+    this.props.field.setValue( data );
+  }
+
+  componentWillMount(){
+    this.subscribeFct =  v => {
+      const state = {field: v};
+      if(v.get('domainValue')) state.domainValue = v.get('domainValue').toJS();
+      this.setState(state);
+    };
+
+    this.props.field.state.onValue( this.subscribeFct );
+  }
+
+  render(){
+    if(!this.state.field) return false;
+    let field = this.props.field;
+    if(this.state.field.get('disabled')){
+      const keyValue = _.find(this.state.domainValue, x => x.value === this.state.field.get("value"));
+      return <TextLabel label={field.label} value={keyValue && keyValue.label}/>
+    }else{
+      return(
+        <fieldset className={this.fieldsetClassNames()}>
+          <label htmlFor={field.key}>{field.label}</label>
+          <Combobox 
+            placeholder={field.label}
+            valueField={'key'}
+            textField={'value'}
+            suggest={true}
+            data={this.state.domainValue}  
+            defaultValue={this.state.field.get('value')} 
+            id={field.key} 
+            caseSensitive={false}
+            onChange={this.handleChange}/>
+          <small className="text-muted control-label">{this.message()}</small>
+        </fieldset>
+      )
+    }
+  }
 }
 
 
@@ -249,15 +378,19 @@ export class SelectField extends BaseSelectField {
   }
 }
 
+const ColorItem = ({item}) => {
+  const style = {
+    backgroundColor: item.value,
+    width: '100%',
+    height: '2rem',
+  }
+  return <div style={style}/>;
+}
+
 export class SelectColorField extends BaseSelectField {
 
-  renderOption(option){
-    let style = {
-      backgroundColor: option.value,
-      width: '100%',
-      height: '1.1rem',
-    }
-    return <div style={style}/>;
+  handleChange = (value) => {
+    this.props.field.setValue( value.key );
   }
 
   render(){
@@ -271,13 +404,14 @@ export class SelectColorField extends BaseSelectField {
     return(
       <fieldset className={this.fieldsetClassNames()}>
         <label htmlFor={field.key}>{field.label}</label>
-        <Select 
-          options={options}  
-          optionRenderer={this.renderOption}
-          valueRenderer={this.renderOption}
+        <DropdownList 
+          valueField='key'
+          textField='value'
+          data={options}  
+          valueComponent={ColorItem}
+          itemComponent={ColorItem}
           value={this.state.field.get('value')} 
           id={field.key} 
-          clearable={false}
           onChange={this.handleChange}/>
         <small className="text-muted control-label">{this.message()}</small>
       </fieldset>
@@ -399,7 +533,7 @@ export class AvatarChooserField extends Component{
     return (
       <div className="row">
         <div className="col-md-3">
-          <SelectField field={this.props.field.field('type')}/>
+          <DropdownField field={this.props.field.field('type')}/>
         </div>
         <div className="col-md-9">
           {this.getField()}
@@ -451,4 +585,76 @@ export class StarField extends Component{
 }
 
 
+export class DateField extends BaseField{
+  handleChange = (date) => {
+    this.props.field.setValue( date );
+  }
 
+  shouldComponentUpdate(nextProps, nextState){
+    return this.state.field != nextState.field 
+      || this.props.maxDate != nextProps.maxDate
+      || this.props.minDate != nextProps.minDate;
+  }
+
+  render(){
+    if(!this.state.field)return false;
+    const field = this.props.field;
+    const labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l-1"/></a> : "";
+    const props = {
+      value: this.state.field.get('value'),
+      onChange: this.handleChange,
+      time: false,
+    };
+    if(this.props.minDate) props.min = this.props.minDate;
+    if(this.props.maxDate) props.max = this.props.maxDate;
+    const Picker = React.createElement(DateTimePicker, props);
+
+    return(
+      <fieldset className={this.fieldsetClassNames()}>
+        <label htmlFor={field.key}>
+          {field.label}
+          {labelUrl}
+        </label>
+        {Picker}
+        <small className="text-muted control-label">{this.message()}</small>
+      </fieldset>
+    )
+  }
+}
+
+export class PeriodField extends Component{
+  state = {};
+
+  componentWillUnmount(){
+    this.unsubscribe1();
+    this.unsubscribe2();
+  }
+
+  componentWillMount(){
+    this.unsubscribe1 = this.props.startDate.onValue( state => {
+      this.setState({startDate: state.value})
+    });
+    this.unsubscribe2 = this.props.endDate.onValue( state => {
+      this.setState({endDate: state.value})
+    });
+  }
+
+  render(){
+    return (
+      <div className="row">
+        <div className="col-md-6">
+          <DateField field={this.props.startDate} maxDate={this.state.endDate}/>
+        </div>
+        <div className="col-md-6">
+          <DateField field={this.props.endDate} minDate={this.state.startDate}/>
+        </div>
+      </div>
+    )
+  }
+}
+
+
+
+export CountryField from './fields/countries';
+export TagsField from './fields/tags';
+export CityField from './fields/city';

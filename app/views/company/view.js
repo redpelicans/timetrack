@@ -1,11 +1,13 @@
 import _ from 'lodash';
 import React, {Component} from 'react';
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, MarkdownText} from '../widgets';
+import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../widgets';
 import {Edit as EditPerson, Preferred as PreferredPerson, Delete as DeletePerson, Preview as PersonPreview} from '../person/widgets';
+import {Edit as EditMission, Preview as MissionPreview} from '../mission/widgets';
 import {Edit, Preferred, Delete} from './widgets';
 import {Content} from '../layout';
 import {companiesActions, companiesStore} from '../../models/companies';
 import {personsStore, personsActions} from '../../models/persons';
+import {missionsStore, missionsActions} from '../../models/missions';
 import {navStore, navActions} from '../../models/nav';
 import sitemap from '../../routes';
 import authManager from '../../auths';
@@ -24,7 +26,16 @@ export default class ViewCompanyApp extends Component {
       const company = companies.data.get(companyId);
       if(company){
         if(company != this.state.company) this.setState({company});
+
+        this.unsubcribeMissions = missionsStore.listen( state => {
+          const missions = state.data.filter(mission => mission.get('clientId') === companyId);
+          this.setState({ missions })
+        });
+
         personsActions.load({ids: company.personsIds});
+        missionsActions.load();
+      }else{
+        navActions.replace(sitemap.company.list);
       }
     });
 
@@ -36,6 +47,7 @@ export default class ViewCompanyApp extends Component {
   componentWillUnmount(){
     this.unsubcribeCompanies();
     this.unsubcribePersons();
+    if(this.unsubcribeMissions) this.unsubcribeMissions();
   }
 
   goBack = () => {
@@ -62,17 +74,31 @@ export default class ViewCompanyApp extends Component {
         </Header>
         <Card 
           company={this.state.company} 
+          missions={this.state.missions} 
           persons={this.state.persons}  />
       </Content>
     )
   }
 }
 
-const Card = ({company, persons}) =>  {
+const Card = ({company, persons, missions}) =>  {
+  const onClick = (tag) => {
+    navActions.push(sitemap.company.list, {filter: `#${tag} `});
+  }
+
   const styles={
     container:{
       marginTop: '3rem',
     },
+  }
+
+  const tags = () => {
+    if(!company.get('tags') || !company.get('tags').size) return <div/>
+    return (
+      <div className="col-md-12">
+        <Labels label="Tags" value={company.get('tags')} onClick={onClick}/>
+      </div>
+    )
   }
 
   return (
@@ -95,6 +121,7 @@ const Card = ({company, persons}) =>  {
       <div className="col-md-3">
         <TextLabel label="Country" value={company.getIn(['address', 'country'])}/>
       </div>
+      {tags()}
       <div className="col-md-12">
         <MarkdownText label="Note" value={company.get('note')}/>
       </div>
@@ -104,9 +131,52 @@ const Card = ({company, persons}) =>  {
           persons={persons} 
           company={company}/>
       </div>
+      <div className="col-md-12">
+        <Missions label="Missions" missions={missions}/>
+      </div>
     </div>
   )
 }
+
+const Missions = ({label, missions}) => {
+
+  if(!missions || !missions.size) return <div/>;
+
+  const styles={
+    container:{
+      marginBottom: '50px',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    },
+    item:{
+      height: '80px',
+    }
+  };
+
+  const data = _.chain(missions.toJS())
+    .sortBy( mission => mission.startDate )
+    .map( mission => {
+      return (
+        <div key={mission._id} className="col-md-6 tm list-item" style={styles.item}> 
+          <MissionPreview mission={mission}>
+            <EditMission mission={mission}/>
+          </MissionPreview>
+        </div>
+        )
+      })
+    .value();
+
+
+  return (
+    <fieldset className="form-group">
+      <label> {label} </label>
+      <div className="row" style={styles.container}>
+        {data}
+      </div>
+    </fieldset>
+  )
+}
+
 
 const Persons = ({label, company, persons}) => {
  const styles={

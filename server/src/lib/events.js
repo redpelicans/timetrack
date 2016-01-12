@@ -6,6 +6,9 @@ const events = {
   'company.new': { roles: ['admin'] },
   'company.delete': { roles: ['admin'] },
   'company.update': { roles: ['admin'] },
+
+  'mission.view': { roles: [] },
+  'mission.new': { roles: ['admin'] },
 }
 
 export default events;

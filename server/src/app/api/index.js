@@ -9,6 +9,9 @@ export function init(mainApp, resources, params) {
   require('./workblocks').init(app, resources);
   require('./check_url').init(app, resources);
   require('./skills').init(app, resources);
+  require('./cities').init(app, resources);
+  require('./countries').init(app, resources);
+  require('./tags').init(app, resources);
 
   return app;
 }

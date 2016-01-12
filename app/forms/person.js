@@ -103,6 +103,12 @@ export default function person(document){
       checkDomainValue: false,
       multiValue: true,
     }),
+    new Field('tags', {
+      label: "Tags",
+      type: "text",
+      checkDomainValue: false,
+      multiValue: true,
+    }),
     new Field('roles', {
       label: "Roles",
       type: "text",

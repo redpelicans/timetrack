@@ -13,4 +13,5 @@ export default AuthManager([
     name: 'add',
     roles: ['admin'],
   }),
-], {name: 'person'});
+
+], {name: 'mission'});

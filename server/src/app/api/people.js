@@ -28,6 +28,7 @@ export function init(app, resources){
       if(err)return next(err);
       const current = Maker(person);
       current.preferred = isPreferred;
+      current.updatedAt = new Date(); 
       res.json(current);
       resources.reactor.emit('person.update', {previous: person, current}, {sessionId: req.sessionId});
     });
@@ -138,7 +139,8 @@ function fromJson(json){
   let attrs = ['prefix', 'firstName', 'lastName', 'type', 'jobType', 'jobDescription', 'department', 'roles', 'email', 'birthdate', 'note'];
   let res = _.pick(json, attrs);
   res.companyId = json.companyId ? ObjectId(json.companyId) : undefined;
-  if(json.skills){
+  if(res.type !== 'worker') res.roles = undefined;
+  if(res.type === 'worker' && json.skills){
     res.skills = _.chain(json.skills).compact().map( skill => uppercamelcase(skill) ).sort().value();
   }
   if(json.phones){
@@ -149,12 +151,21 @@ function fromJson(json){
     let attrs = ['src', 'url', 'color', 'type'];
     res.avatar = _.pick(json.avatar, attrs);
   }
+  if(json.tags){
+    const tags = _.inject(json.tags, (res, tag) => { 
+      const t = uppercamelcase(tag);
+      res[t] = t; return res
+    }, {});
+    res.tags = _.chain(tags).values().compact().sort().value();
+  }
   res.updatedAt = new Date(); 
   return res;
 }
 
 function Maker(person){
-  person.name = [person.firstName, person.lastName].join(' ');
-  person.isNew = moment.duration(moment() - person.createdAt).asDays() < 1;
+  //person.name = [person.firstName, person.lastName].join(' ');
+  person.name = person.fullName();
+  person.isNew = moment.duration( moment() - (person.createdAt || new Date(1967, 9, 1)) ).asDays() < 1;
+  person.isUpdated = moment.duration(moment() - (person.updatedAt || new Date(1967, 9, 1)) ).asHours() < 1;
   return person;
 }

@@ -1,4 +1,4 @@
-import PersonListApp from '../views/person/list';
+import ListPersonApp from '../views/person/list';
 import {NewPersonApp, EditPersonApp} from '../views/person/edit';
 import ViewPersonApp from '../views/person/view';
 import {Route, RouteManager} from 'kontrolo';
@@ -9,7 +9,7 @@ const routes = RouteManager([
     path: '/people',
     topic:'people',
     label: 'People', 
-    component: PersonListApp,
+    component: ListPersonApp,
     isMenu: 2,
     iconName: 'users',
     authRequired: true

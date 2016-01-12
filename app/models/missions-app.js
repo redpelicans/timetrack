@@ -1,7 +1,8 @@
 import moment from 'moment';
-import _ from 'lodash';
 import Immutable from 'immutable';
 import Reflux from 'reflux';
+import {requestJson} from '../utils';
+import {missionsActions, missionsStore} from './missions';
 import {companiesActions, companiesStore} from './companies';
 import {personsActions, personsStore} from './persons';
 
@@ -14,9 +15,10 @@ const actions = Reflux.createActions([
 ]);
 
 const state = {
-  data: Immutable.List(),
+  missions: Immutable.Map(),
   persons: Immutable.Map(),
   companies: Immutable.Map(),
+  data: Immutable.List(),
   isLoading: false,
   filter: undefined,
   filterPreferred: false,
@@ -30,21 +32,7 @@ const store = Reflux.createStore({
 
   listenables: [actions],
 
-  getInitialState: function(){
-    return state;
-  },
-
   init: function(){
-    // this.joinTrailing(companiesActions.loadCompleted, personsActions.loadCompleted, (res1, res2) => {
-    //   console.log("personListAppStore loaded.")
-    //   const companies = res1[0];
-    //   const persons = res2[0];
-    //   state.companies = companies;
-    //   state.persons = persons;
-    //   state.data = filterAndSort();
-    //   this.trigger(state);
-    // });
-
     companiesStore.listen( companies => {
       state.companies = companies.data;
       state.data = filterAndSort();
@@ -54,17 +42,23 @@ const store = Reflux.createStore({
     personsStore.listen( persons => {
       state.persons = persons.data;
       state.data = filterAndSort();
-      state.isLoading = persons.isLoading;
+      this.trigger(state);
+    });
+
+   missionsStore.listen( missions => {
+      state.missions = missions.data;
+      state.data = filterAndSort();
+      state.isLoading = missions.isLoading;
       this.trigger(state);
     });
   },
 
   onLoad: function({forceReload=false, ids} = {}){
-    state.persons = Immutable.Map();
-    state.companies = Immutable.Map();
+    state.missions = Immutable.Map();
     this.trigger(state);
-    personsActions.load({forceReload: forceReload, ids: ids});
+    missionsActions.load({forceReload: forceReload, ids: ids});
     companiesActions.load({forceReload: forceReload});
+    personsActions.load({forceReload: forceReload});
   },
 
   onFilterPreferred(filter){
@@ -86,14 +80,14 @@ const store = Reflux.createStore({
     this.trigger(state);
   },
 
-})
+});
 
 function filterAndSort(){
-  const {persons, filter, filterPreferred, sort} = state;
-  return persons
+  const {missions, filter, filterPreferred, sort} = state;
+  return missions
     .toSetSeq()
     .filter(filterForSearch(filter))
-    .filter(filterForPreferred(filterPreferred))
+    //.filter(filterForPreferred(filterPreferred))
     .sort( (a,b) => sortByCond(a, b, sort.by, sort.order));
 }
 
@@ -112,22 +106,10 @@ function filterForPreferred(filter){
 }
 
 function filterForSearch(filter=''){
-  function filterByName(key, name){
-    return name.indexOf(key) !== -1;
-  }
-
-  function filterByTag(key, tags){
-    const tag = key.slice(1);
-    if(!tag) return true;
-    return tags.indexOf(tag) !== -1;
-  }
-
-  const keys = _.chain(filter.split(' ')).compact().map(key => key.toLowerCase()).value();
   return  p => {
-    const company = state.companies.get(p.get('companyId'));
-    const name = [p.get('name').toLowerCase(), company && company.get('name').toLowerCase()].join( ' ') ;
-    const tags = _.chain(p.get('tags') && p.get('tags').toJS() || []).map(tag => tag.toLowerCase()).value().join(' ');
-    return _.all(keys, key => key.startsWith('#') ? filterByTag(key, tags) : filterByName(key, name));
+    const company = state.companies.get(p.get('clientId'));
+    const name = [p.get('name'), company && company.get('name')].join( ' ') ;
+    return name.toLowerCase().indexOf(filter) !== -1;
   }
 }
 
@@ -137,4 +119,4 @@ const sortMenu = [
   {key: 'updatedAt', label: 'Sort by updated date'},
 ];
 
-export {sortMenu, store as personsAppStore, actions as personsAppActions};
+export {sortMenu, store as missionsAppStore, actions as missionsAppActions};

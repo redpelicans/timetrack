@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import classNames from 'classnames';
-import {InputField, SelectField} from './fields';
+import {InputField, DropdownField} from './fields';
 
 import Select from 'react-select';
 
@@ -91,7 +91,7 @@ export class Phone extends Component{
     return (
       <div style={styles.container} className="row">
         <div style={styles.label} className="col-md-4">
-          <SelectField field={this.props.field.field('label')}/>
+          <DropdownField field={this.props.field.field('label')}/>
         </div>
         <div style={styles.number} className="m-l-1">
           <InputField field={this.props.field.field('number')}/>

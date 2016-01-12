@@ -67,6 +67,12 @@ export default function company(document){
         type: "text",
       }),
     ]),
+    new Field('tags', {
+      label: "Tags",
+      type: "text",
+      checkDomainValue: false,
+      multiValue: true,
+    }),
     new Field('note', {
       label: "Note",
       type: "text",

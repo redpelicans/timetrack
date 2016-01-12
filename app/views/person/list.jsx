@@ -1,17 +1,18 @@
 import React, {Component} from 'react';
-import reactMixin from 'react-mixin';
-import Reflux from 'reflux';
 import {Content} from '../layout';
 import {Sort, FilterPreferred, Filter, Refresh, Header, HeaderLeft, HeaderRight, Title} from '../widgets';
 import {AddButton, Preferred, Preview, Edit, Delete} from './widgets';
 import {personsActions} from '../../models/persons';
 import {personsAppStore,  personsAppActions, sortMenu} from '../../models/persons-app';
 
-export default class ListApp extends Component {
+export default class PersonListApp extends Component {
 
   state = {};
 
   componentWillMount() {
+    const filter = this.props.location.state && this.props.location.state.filter;
+    if(filter) personsAppActions.filter(filter);
+
     this.unsubscribe = personsAppStore.listen( state => {
       this.setState({persons: state});
     });
@@ -39,6 +40,11 @@ export default class ListApp extends Component {
     personsAppActions.filter(filter);
   }
 
+  handleResetFilter = (filter) => {
+    personsAppActions.filter("");
+  }
+
+
   // shouldComponentUpdate(nextProps, nextState){
   //   return this.state.people !== nextState.people || 
   //     this.state.searchFilter != nextState.searchFilter || 
@@ -60,7 +66,7 @@ export default class ListApp extends Component {
             <Title title='People'/>
           </HeaderLeft>
           <HeaderRight>
-            <Filter filter={this.state.persons.filter} onChange={this.handleSearchFilter}/>
+            <Filter filter={this.state.persons.filter} onReset={this.handleResetFilter} onChange={this.handleSearchFilter}/>
             <Sort sortMenu={sortMenu} sortCond={this.state.persons.sort} onClick={this.handleSort}/>
             <FilterPreferred preferred={this.state.persons.filterPreferred} onClick={this.handlePreferred}/>
             <Refresh onClick={this.handleRefresh}/>

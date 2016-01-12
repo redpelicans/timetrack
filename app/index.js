@@ -9,6 +9,14 @@ import authManager from './auths';
 import sitemap from './routes';
 import boot from './boot';
 import {registerSocketIO}from './socketIO';
+import moment from 'moment';
+import momentLocalizer from 'react-widgets/lib/localizers/moment';
+momentLocalizer(moment);
+
+
+
+import 'react-widgets/lib/less/react-widgets.less';
+import '../public/styles/app.less';
 
 registerSocketIO();
 

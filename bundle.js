@@ -15,7 +15,7 @@ module.exports = function() {
     inline: true,
     hot: true,
     quiet: false,
-    noInfo: true,
+    noInfo: false,
     stats: {colors: true},
   };
 
