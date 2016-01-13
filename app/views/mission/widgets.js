@@ -137,7 +137,10 @@ export class AddButton extends Component {
 
 export class Preview extends Component {
   shouldComponentUpdate(nextProps, nextState){
-    return this.props.mission !== nextProps.mission || this.props.company !== nextProps.company;
+    return this.props.mission !== nextProps.mission 
+    || this.props.manager !== nextProps.manager
+    //|| this.props.workers !== nextProps.workers // TODO: find a way to avoid refresh each time 
+    || this.props.company !== nextProps.company;
   }
 
   handleViewMission = (e) => {
@@ -193,11 +196,24 @@ export class Preview extends Component {
         bottom: '0',
         right: '0.1rem',
       },
+      workers:{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+      },
+      worker:{
+        color: '#cfd2da',
+        padding: '.3rem',
+      }
+
     };
 
     const mission = this.props.mission;
     const company = this.props.company;
+    const workers = this.props.workers;
     const avatar = <AvatarView obj={company}/>;
+
     const isNew = () =>{
       if(mission.get('isNew')) return <NewLabel/> 
       if(mission.get('isUpdated')) return <UpdatedLabel/> 
@@ -210,6 +226,37 @@ export class Preview extends Component {
      }else{
       return <span>{mission.get('name')}</span>;
      }
+    }
+
+    const workersView = () => {
+      const onClick = (worker, e) => {
+        e.preventDefault();
+        navActions.push(routes.person.view, {personId: worker.get('_id')});
+      }
+
+      if(!workers) return <div/>;
+
+      return workers.map(worker => {
+        return (
+          <a key={worker.get('_id')} href="#" onClick={onClick.bind(null, worker)}>
+            <AvatarView  obj={worker} size={24} label={`Worker ${worker.get('name')}`}/>
+          </a>
+        )
+      }).toSetSeq();
+    }
+
+    const manager = () => {
+     if(!this.props.manager)return;
+      const onClick = (person, e) => {
+        e.preventDefault();
+        navActions.push(routes.person.view, {personId: person.get('_id')});
+      }
+
+     return (
+       <a href="#" onClick={onClick.bind(null, this.props.manager)}>
+         <AvatarView size={24} label={`Managed by ${this.props.manager.get('name')}`} obj={this.props.manager}/>
+       </a>
+     )
     }
     
     return (
@@ -226,6 +273,12 @@ export class Preview extends Component {
               {missionView()}
             </div>
             {companyView()}
+          </div>
+          <div className="p-r-1">
+            {manager()}
+          </div>
+          <div className="p-r-1" style={styles.workers}>
+            {workersView()}
           </div>
         </div>
         <div style={styles.containerRight} href="#">

@@ -33,7 +33,7 @@ export default class ViewPersonApp extends Component {
     this.unsubcribePersons = personsStore.listen( persons => {
       const person = persons.data.get(personId);
       if(person){
-       if(person != this.state.person)this.setState({person});
+       if(person != this.state.person)this.setState({person, persons: persons.data});
 
         this.unsubcribeMissions = missionsStore.listen( state => {
           const missions = state.data.filter(mission =>{
@@ -89,13 +89,14 @@ export default class ViewPersonApp extends Component {
           person={this.state.person} 
           missions={this.state.missions} 
           company={this.state.company} 
+          persons={this.state.persons} 
           companies={this.state.companies}/>
       </Content>
     )
   }
 }
 
-const Card = ({person, company, companies, missions}) =>  {
+const Card = ({person, company, companies, persons, missions}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -247,6 +248,7 @@ const Card = ({person, company, companies, missions}) =>  {
           <Missions 
             label="Missions" 
             companies={companies}
+            persons={persons}
             missions={missions}/>
         </div>
       </div>
@@ -255,7 +257,7 @@ const Card = ({person, company, companies, missions}) =>  {
   )
 }
 
-const Missions = ({label, missions, companies}) => {
+const Missions = ({label, missions, companies, persons}) => {
 
   if(!missions || !missions.size) return <div/>;
 
@@ -272,9 +274,14 @@ const Missions = ({label, missions, companies}) => {
 
   const data = missions.sort( (a,b) => b.get('startDate') > a.get('startDate') ).map(mission =>{
     const company = companies.get(mission.get('clientId'));
+    const workers = persons ? persons.filter(person => mission.get('workerIds').indexOf(person.get('_id')) !== -1) : null;
     return (
       <div key={mission.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-        <MissionPreview mission={mission} company={company}>
+        <MissionPreview 
+          mission={mission} 
+          manager={persons.get(mission.get('managerId'))}
+          workers={workers}
+          company={company}>
           <EditMission mission={mission}/>
           <ClosedMission mission={mission}/>
         </MissionPreview>

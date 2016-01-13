@@ -159,9 +159,14 @@ const Missions = ({label, missions, company, persons}) => {
   };
 
   const data = missions.sort( (a,b) => b.get('startDate') > a.get('startDate') ).map(mission =>{
+      const workers = persons.filter(person => mission.get('workerIds').indexOf(person.get('_id')) !== -1);
       return (
         <div key={mission.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <MissionPreview mission={mission} company={company}>
+          <MissionPreview 
+            mission={mission} 
+            manager={persons.get(mission.get('managerId'))}
+            workers={workers}
+            company={company}>
             <EditMission mission={mission}/>
             <ClosedMission mission={mission}/>
           </MissionPreview>

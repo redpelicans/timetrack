@@ -77,8 +77,8 @@ class List extends Component {
 
   shouldComponentUpdate(nextProps, nextState){
     return this.props.missions !== nextProps.missions 
-      || this.props.companies !== nextProps.companies;
-      //|| this.props.persons !== nextProps.persons;
+      || this.props.companies !== nextProps.companies
+      || this.props.persons !== nextProps.persons;
   }
 
   render(){
@@ -97,10 +97,12 @@ class List extends Component {
     }
 
     const data = this.props.missions.map(mission => {
+      const workers = this.props.persons.filter(person => mission.get('workerIds').indexOf(person.get('_id')) !== -1);
       return (
         <div key={mission.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
           <Preview
             mission={mission} 
+            workers={workers}
             company={this.props.companies.get(mission.get('clientId'))}
             manager={this.props.persons.get(mission.get('managerId'))} >
               <Closed mission={mission}/>

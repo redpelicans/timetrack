@@ -5,18 +5,18 @@ import Remarkable from 'remarkable';
 import {colors} from '../forms/company';
 
 
-export const AvatarView = ({obj}) => {
-  if(!obj || !obj.get('avatar')) return <div className="m-r-1"><Avatar name={"?"}/></div>;
+export const AvatarView = ({obj, size, label}) => {
+  if(!obj || !obj.get('avatar')) return <div className="m-r-1"><Avatar size={size} name={"?"}/></div>;
 
   const avatar = obj.get('avatar').toJS();
-  //console.log("AvatarView")
-  const defaultAvatar = <div className="m-r-1"><Avatar name={obj.get('name')} color={avatar.color}/></div>;
+  const tooltip = label || obj.get('name');
+  const defaultAvatar = <div className="m-r-1"><Avatar size={size} label={tooltip} name={obj.get('name')} color={avatar.color}/></div>;
 
   switch(avatar.type){
     case 'url':
-      return avatar.url ? <div className="m-r-1"><Avatar src={avatar.url}/></div> : defaultAvatar;
+      return avatar.url ? <div className="m-r-1"><Avatar size={size} label={tooltip} src={avatar.url}/></div> : defaultAvatar;
     case 'src':
-      return avatar.src ? <div className="m-r-1"><Avatar src={avatar.src}/></div> : defaultAvatar;
+      return avatar.src ? <div className="m-r-1"><Avatar size={size} label={tooltip} src={avatar.src}/></div> : defaultAvatar;
     default:
       return defaultAvatar;
   }
@@ -34,34 +34,40 @@ export class Avatar extends Component {
     return _.map(parts, part => part.substr(0,1).toUpperCase()).join('');
   }
 
+  componentDidMount(){
+    $('[data-toggle="tooltip"]').tooltip();
+  }
+
   render(){
-    let imageStyle =  {
-      width: this.props.size || '36px',
-      height: this.props.size || '36px',
+    const size = this.props.size || 36;
+    const styleSize = `${size}px`;
+    const imageStyle =  {
+      width: styleSize || '36px',
+      height: styleSize || '36px',
       borderRadius: '50%'
     };
 
-    let initialsStyle = {
+    const initialsStyle = {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       background: this.props.color || this.rndColor(),
-      width: this.props.size || '36px',
-      height: this.props.size || '36px',
+      width: styleSize || '36px',
+      height: styleSize || '36px',
       color: '#FFF',
       textTransform: 'uppercase',
       borderRadius: '50%',
-      fontSize: '1rem',
+      fontSize: `${size/36}rem`,
     }
 
     if(this.props.src){
       return (
-        <div>
+        <div data-toggle="tooltip" data-placement="top" title={this.props.label}>
           <img src={this.props.src} style={imageStyle}/>
         </div>
       )
     }else{
-      return <div style={initialsStyle}>{this.getInitials(this.props.name)}</div>
+      return <div data-toggle="tooltip" data-placement="top" title={this.props.label} style={initialsStyle}>{this.getInitials(this.props.name)}</div>
     }
   }
 
