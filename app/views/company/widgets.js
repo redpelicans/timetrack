@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import classNames from 'classnames';
 import authManager from '../../auths';
 import {companiesActions} from '../../models/companies';
+import {companiesAppActions} from '../../models/companies-app';
 import routes from '../../routes';
 import {navActions} from '../../models/nav';
 import {AvatarView} from '../widgets';

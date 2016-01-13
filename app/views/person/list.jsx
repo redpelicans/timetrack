@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import {Content} from '../layout';
-import {Sort, FilterPreferred, Filter, Refresh, Header, HeaderLeft, HeaderRight, Title} from '../widgets';
+import {Sort, FilterPreferred, Filter, Refresh, Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../widgets';
 import {AddButton, Preferred, Preview, Edit, Delete} from './widgets';
 import {personsActions} from '../../models/persons';
 import {personsAppStore,  personsAppActions, sortMenu} from '../../models/persons-app';
+import routes from '../../routes';
 
 export default class PersonListApp extends Component {
 
@@ -54,7 +55,6 @@ export default class PersonListApp extends Component {
 
   render(){
     if(!this.state.persons) return false;
-    const leftIcon = this.state.persons.isLoading ? <i className="fa fa-spinner fa-spin m-r-1"/> : <i className="fa fa-users m-r-1"/>;
     const persons = this.state.persons.data;
     const companies = this.state.persons.companies;
     return (
@@ -62,7 +62,7 @@ export default class PersonListApp extends Component {
 
         <Header>
           <HeaderLeft>
-            {leftIcon}
+            <TitleIcon isLoading={this.state.persons.isLoading} icon={routes.person.list.iconName}/>
             <Title title='People'/>
           </HeaderLeft>
           <HeaderRight>

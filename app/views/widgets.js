@@ -439,5 +439,6 @@ export const Sort =({sortMenu, sortCond, onClick}) => {
   )
 }
 
-
-
+export const TitleIcon =({isLoading, icon}) => {
+  return isLoading ? <i className="fa fa-spinner fa-spin m-r-1"/> : <i className={`fa fa-${icon} m-r-1`}/>;
+}

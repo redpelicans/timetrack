@@ -3,8 +3,10 @@ import moment from 'moment';
 import React, {Component} from 'react';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../widgets';
 import {Edit, Preferred, Delete} from './widgets';
+import {Edit as EditMission, Preview as MissionPreview, Closed as ClosedMission} from '../mission/widgets';
 import {Content } from '../layout';
 import {personsStore, personsActions} from '../../models/persons';
+import {missionsStore, missionsActions} from '../../models/missions';
 import {navStore, navActions} from '../../models/nav';
 import {companiesStore,  companiesActions} from '../../models/companies';
 import sitemap from '../../routes';
@@ -17,7 +19,7 @@ export default class ViewPersonApp extends Component {
 
     this.unsubcribeCompanies = companiesStore.listen( companies => {
       const company = companies.data.get(this.state.person.get('companyId'));
-      this.setState({company});
+      this.setState({company, companies: companies.data});
     });
 
     this.unsubcribeNav = navStore.listen( state => {
@@ -30,10 +32,20 @@ export default class ViewPersonApp extends Component {
 
     this.unsubcribePersons = personsStore.listen( persons => {
       const person = persons.data.get(personId);
-      if(person && person != this.state.person) {
-        this.setState({person}, () => {
-          companiesActions.load({ids: [person.get('companyId')]});
-        })
+      if(person){
+       if(person != this.state.person)this.setState({person});
+
+        this.unsubcribeMissions = missionsStore.listen( state => {
+          const missions = state.data.filter(mission =>{
+            return mission.get('managerId') === personId || mission.get('workerIds').toJS().indexOf(personId) !== -1;
+          });
+          this.setState({ missions })
+        });
+
+        companiesActions.load({ids: [person.get('companyId')]});
+        missionsActions.load();
+      }else{
+        navActions.replace(sitemap.person.list);
       }
     });
 
@@ -48,6 +60,7 @@ export default class ViewPersonApp extends Component {
     if(this.unsubcribeCompanies) this.unsubcribeCompanies();
     if(this.unsubcribePersons) this.unsubcribePersons();
     if(this.unsubcribeNav) this.unsubcribeNav();
+    if(this.unsubcribeMissions) this.unsubcribeMissions();
   }
 
   goBack = () => {
@@ -74,13 +87,15 @@ export default class ViewPersonApp extends Component {
 
         <Card 
           person={this.state.person} 
-          company={this.state.company}/>
+          missions={this.state.missions} 
+          company={this.state.company} 
+          companies={this.state.companies}/>
       </Content>
     )
   }
 }
 
-const Card = ({person, company}) =>  {
+const Card = ({person, company, companies, missions}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -227,7 +242,54 @@ const Card = ({person, company}) =>  {
         {jobDescription()}
         {note()}
       </div>
+      <div className="row">
+        <div className="col-md-12">
+          <Missions 
+            label="Missions" 
+            companies={companies}
+            missions={missions}/>
+        </div>
+      </div>
+
     </div>
   )
 }
+
+const Missions = ({label, missions, companies}) => {
+
+  if(!missions || !missions.size) return <div/>;
+
+  const styles={
+    container:{
+      marginBottom: '50px',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    },
+    item:{
+      height: '80px',
+    }
+  };
+
+  const data = missions.sort( (a,b) => b.get('startDate') > a.get('startDate') ).map(mission =>{
+    const company = companies.get(mission.get('clientId'));
+    return (
+      <div key={mission.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
+        <MissionPreview mission={mission} company={company}>
+          <EditMission mission={mission}/>
+          <ClosedMission mission={mission}/>
+        </MissionPreview>
+      </div>
+      )
+    }).toSetSeq();
+
+  return (
+    <fieldset className="form-group">
+      <label> {label} </label>
+      <div className="row" style={styles.container}>
+        {data}
+      </div>
+    </fieldset>
+  )
+}
+
 

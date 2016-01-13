@@ -7,7 +7,8 @@ import {missionsAppStore,  missionsAppActions, sortMenu} from '../../models/miss
 import {personsStore,  personsActions} from '../../models/persons';
 import {companiesStore,  companiesActions} from '../../models/companies';
 import {AddButton, Preview, Closed, Edit, Delete} from './widgets';
-import {Sort, Filter, Refresh, Header, HeaderLeft, HeaderRight, Title} from '../widgets';
+import {Sort, Filter, Refresh, Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../widgets';
+import routes from '../../routes';
 
 export default class ListMissionApp extends Component {
   state = {
@@ -44,15 +45,14 @@ export default class ListMissionApp extends Component {
 
   render(){
     if(!this.state.missions) return false;
-    const leftIcon = this.state.missions.isLoading ? <i className="fa fa-spinner fa-spin m-r-1"/> : <i className="fa fa-shopping-cart m-r-1"/>;
-    const missions = this.state.missions.data;
     const companies = this.state.missions.companies;
     const persons = this.state.missions.persons;
+    const missions = this.state.missions.data;
     return (
       <Content>
         <Header>
           <HeaderLeft>
-            {leftIcon}
+            <TitleIcon isLoading={this.state.missions.isLoading} icon={routes.mission.list.iconName}/>
             <Title title='Missions'/>
           </HeaderLeft>
           <HeaderRight>

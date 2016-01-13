@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Content} from '../layout';
 import {AvatarView, Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../widgets';
-import {Header, HeaderLeft, HeaderRight, Title} from '../widgets';
+import {Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../widgets';
 import {Edit, Preferred, Delete, AddButton, Preview} from './widgets';
 import {companiesAppStore, companiesAppActions, sortMenu} from '../../models/companies-app';
 import {companiesActions} from '../../models/companies';
@@ -53,14 +53,13 @@ export default class ListApp extends Component {
 
   render(){
     if(!this.state || !this.state.companies) return false;
-    const leftIcon = this.state.companies.isLoading ? <i className="fa fa-spinner fa-spin m-r-1"/> : <i className="fa fa-users m-r-1"/>;
     const companies = this.state.companies.data;
     return (
       <Content>
 
         <Header>
           <HeaderLeft>
-            {leftIcon}
+            <TitleIcon isLoading={this.state.companies.isLoading} icon={routes.company.list.iconName}/>
             <Title title='Companies'/>
           </HeaderLeft>
           <HeaderRight>
