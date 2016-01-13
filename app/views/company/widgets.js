@@ -5,7 +5,7 @@ import {companiesActions} from '../../models/companies';
 import {companiesAppActions} from '../../models/companies-app';
 import routes from '../../routes';
 import {navActions} from '../../models/nav';
-import {AvatarView} from '../widgets';
+import {AvatarView, NewLabel, UpdatedLabel} from '../widgets';
 
 export const Edit = ({company}) => {
   const handleChange = (e) => {

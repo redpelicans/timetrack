@@ -123,6 +123,7 @@ function create(person, cb){
 }
 
 function update(updates, previousPerson, cb){
+  updates.updatedAt = new Date(); 
   Person.collection.updateOne({_id: previousPerson._id}, {$set: updates}, (err) => {
     return cb(err, previousPerson)
   })
@@ -130,7 +131,7 @@ function update(updates, previousPerson, cb){
 
 
 function del(id, cb){
-  Person.collection.updateOne({_id: id}, {$set: {isDeleted: true}}, (err) => {
+  Person.collection.updateOne({_id: id}, {$set: {updatedAt: new Date(), isDeleted: true}}, (err) => {
     return cb(err, id)
   })
 }
@@ -158,14 +159,14 @@ function fromJson(json){
     }, {});
     res.tags = _.chain(tags).values().compact().sort().value();
   }
-  res.updatedAt = new Date(); 
+  //res.updatedAt = new Date(); 
   return res;
 }
 
 function Maker(person){
-  //person.name = [person.firstName, person.lastName].join(' ');
   person.name = person.fullName();
-  person.isNew = moment.duration( moment() - (person.createdAt || new Date(1967, 9, 1)) ).asDays() < 1;
-  person.isUpdated = moment.duration(moment() - (person.updatedAt || new Date(1967, 9, 1)) ).asHours() < 1;
+  person.createdAt = person.createdAt || new Date(1967, 9, 1);
+  if( !person.updatedAt &&  moment.duration( moment() - person.createdAt ).asHours() < 2 ) person.isNew = true;
+  else if( person.updatedAt && moment.duration(moment() - person.updatedAt).asHours() < 1) person.isUpdated = true;
   return person;
 }

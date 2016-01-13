@@ -196,6 +196,11 @@ export class Preview extends Component {
         bottom: '0',
         right: '0.1rem',
       },
+      manager:{
+        position: 'absolute',
+        bottom: '3px',
+        left: '3rem',
+      },
       workers:{
         display: 'flex',
         justifyContent: 'center',
@@ -215,8 +220,8 @@ export class Preview extends Component {
     const avatar = <AvatarView obj={company}/>;
 
     const isNew = () =>{
-      if(mission.get('isNew')) return <NewLabel/> 
       if(mission.get('isUpdated')) return <UpdatedLabel/> 
+      if(mission.get('isNew')) return <NewLabel/> 
       return <div/>
     }
 
@@ -268,14 +273,14 @@ export class Preview extends Component {
           <div style={styles.isnew}>
             {isNew()}
           </div>
+          <div style={styles.manager}>
+            {manager()}
+          </div>
           <div style={styles.names}>
             <div style={styles.name} className="p-r-1">
               {missionView()}
             </div>
             {companyView()}
-          </div>
-          <div className="p-r-1">
-            {manager()}
           </div>
           <div className="p-r-1" style={styles.workers}>
             {workersView()}

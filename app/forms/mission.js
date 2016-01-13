@@ -1,6 +1,17 @@
 import {Formo, Field, FieldGroup} from 'formo';
 import _ from 'lodash';
 
+const units = [
+  {key: 'day', value: 'Day'},
+  {key: 'hour', value: 'Hour'},
+];
+
+const allowWeekendsDomain = [
+  {key: true, value: 'Allow'},
+  {key: false, value: 'Do not Allow'},
+];
+
+
 export default function company(document){
   return new Formo([
     new Field('clientId', {
@@ -38,6 +49,18 @@ export default function company(document){
     new Field('note', {
       label: "Note",
       type: "text",
+    }),
+    new Field('timesheetUnit', {
+      label: "Timesheet Unit",
+      type: "text",
+      defaultValue: 'day',
+      domainValue: units,
+    }),
+    new Field('allowWeekends', {
+      label: "Allow Weekends",
+      defaultValue: false,
+      type: "boolean",
+      domainValue: allowWeekendsDomain,
     }),
   ], document);
 }

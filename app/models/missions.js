@@ -107,10 +107,11 @@ const store = Reflux.createStore({
 });
 
 function Maker(obj){
-  obj.createdAt = moment(obj.createdAt || new Date(1967, 9, 1));
-  obj.updatedAt = moment(obj.updatedAt || new Date(1967, 9, 1));
+  if(obj.createdAt) obj.createdAt = moment(obj.createdAt || new Date(1967, 9, 1));
+  if(obj.updatedAt) obj.updatedAt = moment(obj.updatedAt || new Date(1967, 9, 1));
   if(obj.startDate)obj.startDate = moment(obj.startDate).toDate();
   if(obj.endDate)obj.endDate = moment(obj.endDate).toDate();
+  console.log(obj)
   return obj;
 }
 

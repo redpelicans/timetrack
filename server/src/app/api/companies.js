@@ -37,15 +37,6 @@ export function init(app, resources){
     });
   });
 
-
-  // app.get('/company/:id', function(req, res, next){
-  //   let id = ObjectId(req.params.id); 
-  //   async.waterfall([loadOne.bind(null, id)], (err, company) => {
-  //     if(err)return next(err);
-  //     res.json(Maker(company));
-  //   });
-  // })
-
   app.delete('/company/:id', checkRights('company.delete'), function(req, res, next){
     let id = ObjectId(req.params.id); 
     async.waterfall([
@@ -114,7 +105,7 @@ function fromJson(json){
     res.tags = _.chain(tags).values().compact().sort().value();
   }
 
-  res.updatedAt = new Date(); 
+  //res.updatedAt = new Date(); 
   res.type = res.type.toLowerCase();
   return res;
 }
@@ -188,6 +179,7 @@ function create(company, cb){
 
 
 function update(updates, previousCompany, cb){
+  updates.updatedAt = new Date(); 
   Company.collection.updateOne({_id: previousCompany._id}, {$set: updates}, (err) => {
     return cb(err, previousCompany)
   })
@@ -202,13 +194,14 @@ function findOne(id, cb){
 }
 
 function del(id, cb){
-  Company.collection.updateOne({_id: id}, {$set: {isDeleted: true}}, (err) => {
+  Company.collection.updateOne({_id: id}, {$set: {updatedAt: new Date(), isDeleted: true}}, (err) => {
     return cb(err, id)
   })
 }
 
 function Maker(obj){
-  obj.isNew = moment.duration( moment() - (obj.createdAt || new Date(1967, 9, 1)) ).asDays() < 1;
-  obj.isUpdated = moment.duration(moment() - (obj.updatedAt || new Date(1967, 9, 1)) ).asHours() < 1;
+  obj.createdAt = obj.createdAt || new Date(1967, 9, 1);
+  if( !obj.updatedAt &&  moment.duration( moment() - obj.createdAt ).asHours() < 2 ) obj.isNew = true;
+  else if( obj.updatedAt && moment.duration(moment() - obj.updatedAt).asHours() < 1) obj.isUpdated = true;
   return obj;
 }

@@ -85,20 +85,25 @@ function create(mission, cb){
 }
 
 function update(updates, previousMission, cb){
+  updates.updatedAt = new Date();
   Mission.collection.updateOne({_id: previousMission._id}, {$set: updates}, (err) => {
     return cb(err, previousMission)
   })
 }
 
 function del(id, cb){
-  Mission.collection.updateOne({_id: id}, {$set: {isDeleted: true}}, (err) => {
+  const updates = {
+    isDeleted: true,
+    updatedAt: new Date()
+  };
+  Mission.collection.updateOne({_id: id}, {$set: updates}, (err) => {
     return cb(err, id)
   })
 }
 
 function fromJson(json){
-  console.log(json);
-  let attrs = ['name', 'note', 'status'];
+  //console.log(json);
+  let attrs = ['name', 'note', 'status', 'timesheetUnit', 'allowWeekends'];
   let res = _.pick(json, attrs);
   if(res.status !== 'closed')res.status='open';
   if(json.startDate)res.startDate = moment(json.startDate).toDate();
@@ -108,13 +113,14 @@ function fromJson(json){
   if(json.workerIds){
     res.workerIds = _.chain(json.workerIds).compact().map( ObjectId ).value();
   }
-  res.updatedAt = new Date(); 
+  //res.updatedAt = new Date(); 
   return res;
 }
 
 function Maker(mission){
-  mission.isNew = moment.duration( moment() - (mission.createdAt || new Date(1967, 9, 1)) ).asDays() < 1;
-  mission.isUpdated = moment.duration(moment() - (mission.updatedAt || new Date(1967, 9, 1)) ).asHours() < 1;
+  mission.createdAt = mission.createdAt || new Date(1967, 9, 1);
+  if( !mission.updatedAt &&  moment.duration( moment() - mission.createdAt ).asHours() < 2 ) mission.isNew = true;
+  else if( mission.updatedAt && moment.duration(moment() - mission.updatedAt).asHours() < 1) mission.isUpdated = true;
   mission.isClosed = mission.status === 'closed';
   return mission;
 }

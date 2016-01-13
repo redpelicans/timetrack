@@ -214,11 +214,15 @@ export default class EditContent extends Component {
 
   state = {};
 
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
   componentWillMount() {
     const clientIdField = this.props.missionForm.field('clientId');
-    clientIdField.onValue( state => {
-    const client = this.props.clients.get(state.value);
-    this.setState({client});
+    this.unsubscribe = clientIdField.onValue( state => {
+      const client = this.props.clients.get(state.value);
+      this.setState({client});
     });
   }
 
@@ -258,7 +262,6 @@ export default class EditContent extends Component {
           <div className="col-md-12">
             <Form>
               <div className="row">
-
                 <div className="col-md-6">
                   <DropdownField field={this.props.missionForm.field('clientId')}/>
                 </div>
@@ -266,25 +269,32 @@ export default class EditContent extends Component {
                 <div className="col-md-6">
                   <DropdownField field={this.props.missionForm.field('managerId')}/>
                 </div>
-
-                <div className="col-md-8">
+              </div>
+              <div className="row">
+                <div className="col-md-4">
                   <InputField field={this.props.missionForm.field('name')}/>
                 </div>
-
                 <div className="col-md-4">
                   <PeriodField 
                     startDate={this.props.missionForm.field('startDate')}
                     endDate={this.props.missionForm.field('endDate')} />
                 </div>
-
+                <div className="col-md-2">
+                  <DropdownField field={this.props.missionForm.field('timesheetUnit')}/>
+                </div>
+                <div className="col-md-2">
+                  <DropdownField field={this.props.missionForm.field('allowWeekends')}/>
+                </div>
+              </div>
+              <div className="row">
                 <div className="col-md-12">
                   <MultiSelectField2 field={this.props.missionForm.field('workerIds')}/>
                 </div>
-
+              </div>
+              <div className="row">
                 <div className="col-md-12">
                   <MarkdownEditField field={this.props.missionForm.field('note')}/>
                 </div>
-
               </div>
             </Form>
           </div>
