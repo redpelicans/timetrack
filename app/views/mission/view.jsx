@@ -5,7 +5,7 @@ import {Content } from '../layout';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../widgets';
 import {Edit as EditPerson, Preview as PersonPreview} from '../person/widgets';
 import {Edit as EditCompany, Preview as CompanyPreview} from '../company/widgets';
-import {Edit, Delete} from './widgets';
+import {Edit, Delete, OpenClose} from './widgets';
 import {missionsStore, missionsActions} from '../../models/missions';
 import {personsStore, personsActions} from '../../models/persons';
 import {companiesActions, companiesStore} from '../../models/companies';
@@ -67,6 +67,7 @@ export default class ViewMissionApp extends Component {
           </HeaderLeft>
           <HeaderRight>
             <Edit mission={mission}/>
+            <OpenClose mission={mission}/>
             <Delete mission={mission} postAction={this.goBack}/>
           </HeaderRight>
         </Header>
@@ -132,7 +133,7 @@ const Date = ({label, date}) => {
     <fieldset className="form-group">
       <label> {label} </label>
       <DateTimePicker
-        value={date}
+        defaultValue={date}
         time={false}
         readOnly={true}
         />

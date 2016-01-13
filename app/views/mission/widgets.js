@@ -7,6 +7,11 @@ import {missionsAppActions} from '../../models/missions-app';
 import authManager from '../../auths';
 import {AvatarView, NewLabel, UpdatedLabel} from '../widgets';
 
+export const Closed = ({mission}) => {
+  if(mission.get('isClosed')) return <i className="iconButton fa fa-lock m-r-1"/>;
+  else return <div/>
+}
+
 
 export const Edit = ({mission}) => {
   const handleChange = (e) => {
@@ -14,7 +19,9 @@ export const Edit = ({mission}) => {
     navActions.push(routes.mission.edit, {missionId: mission.get('_id')});
   }
 
-  if(authManager.mission.isAuthorized('edit')){
+  if(mission.get('isClosed')) return <div/>;
+
+  if(authManager.mission.isAuthorized('edit', {mission})){
     return (
       <a href="#" onClick={handleChange}>
         <i className="iconButton fa fa-pencil m-r-1"/>
@@ -25,6 +32,51 @@ export const Edit = ({mission}) => {
   }
 }
 
+export const Close =({mission, postAction}) => {
+  const handleChange = (e) => {
+    e.preventDefault();
+    const answer = confirm(`Are you sure to close the mission "${mission.get('name')}"`);
+    if(answer){
+      missionsActions.close(mission.toJS());
+      if(postAction) postAction();
+    }
+  }
+
+  if(authManager.mission.isAuthorized('close', {mission})){
+    return (
+      <a href="#" onClick={handleChange}>
+        <i className="iconButton fa fa-lock m-r-1"/>
+      </a>
+    )
+  }else{
+    return <i className="iconButton disable fa fa-lock m-r-1"/>
+  }
+}
+
+export const OpenClose =({mission, postAction}) => {
+  return mission.get('isClosed') ? <Open mission={mission} postAction={postAction}/> : <Close mission={mission} postAction={postAction}/>;
+}
+
+export const Open =({mission, postAction}) => {
+  const handleChange = (e) => {
+    e.preventDefault();
+    const answer = confirm(`Are you sure to re-open the mission "${mission.get('name')}"`);
+    if(answer){
+      missionsActions.open(mission.toJS());
+      if(postAction) postAction();
+    }
+  }
+
+  if(authManager.mission.isAuthorized('open', {mission})){
+    return (
+      <a href="#" onClick={handleChange}>
+        <i className="iconButton fa fa-unlock m-r-1"/>
+      </a>
+    )
+  }else{
+    return <i className="iconButton disable fa fa-unlock m-r-1"/>
+  }
+}
 
 export const Delete =({mission, postAction}) => {
   const handleChange = (e) => {
@@ -36,7 +88,9 @@ export const Delete =({mission, postAction}) => {
     }
   }
 
-  if(authManager.mission.isAuthorized('delete')){
+  if(mission.get('isClosed')) return <div/>;
+
+  if(authManager.mission.isAuthorized('delete', {mission})){
     return (
       <a href="#" onClick={handleChange}>
         <i className="iconButton fa fa-trash m-r-1"/>
@@ -80,7 +134,6 @@ export class AddButton extends Component {
     }
   }
 }
-
 
 export class Preview extends Component {
   shouldComponentUpdate(nextProps, nextState){

@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../widgets';
 import {Edit as EditPerson, Preferred as PreferredPerson, Delete as DeletePerson, Preview as PersonPreview} from '../person/widgets';
-import {Edit as EditMission, Preview as MissionPreview} from '../mission/widgets';
+import {Edit as EditMission, Preview as MissionPreview, Closed as ClosedMission} from '../mission/widgets';
 import {Edit, Preferred, Delete} from './widgets';
 import {Content} from '../layout';
 import {companiesActions, companiesStore} from '../../models/companies';
@@ -67,6 +67,7 @@ export default class ViewCompanyApp extends Component {
             <Preferred active={true} company={company}/>
           </HeaderLeft>
           <HeaderRight>
+            <AddMission company={company}/>
             <AddPerson company={company}/>
             <Edit company={company}/>
             <Delete company={company} postAction={this.goBack}/>
@@ -132,13 +133,17 @@ const Card = ({company, persons, missions}) =>  {
           company={company}/>
       </div>
       <div className="col-md-12">
-        <Missions label="Missions" missions={missions}/>
+        <Missions 
+          label="Missions" 
+          persons={persons} 
+          company={company}
+          missions={missions}/>
       </div>
     </div>
   )
 }
 
-const Missions = ({label, missions}) => {
+const Missions = ({label, missions, company, persons}) => {
 
   if(!missions || !missions.size) return <div/>;
 
@@ -153,19 +158,16 @@ const Missions = ({label, missions}) => {
     }
   };
 
-  const data = _.chain(missions.toJS())
-    .sortBy( mission => mission.startDate )
-    .map( mission => {
+  const data = missions.sort( (a,b) => b.get('startDate') > a.get('startDate') ).map(mission =>{
       return (
-        <div key={mission._id} className="col-md-6 tm list-item" style={styles.item}> 
-          <MissionPreview mission={mission}>
+        <div key={mission.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
+          <MissionPreview mission={mission} company={company}>
             <EditMission mission={mission}/>
+            <ClosedMission mission={mission}/>
           </MissionPreview>
         </div>
         )
-      })
-    .value();
-
+      }).toSetSeq();
 
   return (
     <fieldset className="form-group">
@@ -259,3 +261,19 @@ export const AddPerson =({company}) => {
   }
 }
 
+export const AddMission =({company}) => {
+  const handleChange = (e) => {
+    e.preventDefault();
+    navActions.push(sitemap.mission.new, {clientId: company.get('_id')});
+  }
+
+  if(authManager.isAuthorized(sitemap.mission.new)){
+    return (
+      <a href="#" onClick={handleChange}>
+        <i className="iconButton fa fa-cart-plus m-r-1"/>
+      </a>
+    )
+  }else{
+    return <i className="iconButton disable fa fa-cart-plus m-r-1"/>
+  }
+}

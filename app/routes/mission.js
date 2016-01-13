@@ -11,7 +11,7 @@ const routes = RouteManager([
     label: 'Missions', 
     component: ListMissionApp,
     isMenu: 3,
-    iconName: 'briefcase',
+    iconName: 'shopping-cart',
     authRequired: true
   }),
   Route({
@@ -27,6 +27,10 @@ const routes = RouteManager([
     topic:'missions',
     component: EditMissionApp,
     authRoles: ['admin'],
+    authMethod: function(user, {mission}={}){
+      if(!mission) return true;
+      return mission.get('status') !== 'closed';
+    }
   }),
   Route({
     name: 'view',

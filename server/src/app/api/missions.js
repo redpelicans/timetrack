@@ -24,7 +24,7 @@ export function init(app, resources) {
       if(err)return next(err);
       const current = Maker(mission);
       res.json(current);
-      resources.reactor.emit('mission.view', current, {sessionId: req.sessionId});
+      resources.reactor.emit('mission.new', current, {sessionId: req.sessionId});
     });
   });
 
@@ -39,7 +39,7 @@ export function init(app, resources) {
       if(err)return next(err);
       const current = Maker(mission);
       res.json(current);
-      resources.reactor.emit('mission.view', {previous, current}, {sessionId: req.sessionId});
+      resources.reactor.emit('mission.update', {previous, current}, {sessionId: req.sessionId});
     });
   });
 
@@ -51,7 +51,7 @@ export function init(app, resources) {
     ], (err, mission) => {
       if(err)return next(err);
       res.json({_id: id, isDeleted: true});
-      resources.reactor.emit('mission.view', Maker(mission), {sessionId: req.sessionId});
+      resources.reactor.emit('mission.delete', Maker(mission), {sessionId: req.sessionId});
     });
   })
 }
@@ -98,8 +98,9 @@ function del(id, cb){
 
 function fromJson(json){
   console.log(json);
-  let attrs = ['name', 'note'];
+  let attrs = ['name', 'note', 'status'];
   let res = _.pick(json, attrs);
+  if(res.status !== 'closed')res.status='open';
   if(json.startDate)res.startDate = moment(json.startDate).toDate();
   if(json.endDate)res.endDate = moment(json.endDate).toDate();
   res.clientId = json.clientId ? ObjectId(json.clientId) : undefined;
@@ -114,5 +115,6 @@ function fromJson(json){
 function Maker(mission){
   mission.isNew = moment.duration( moment() - (mission.createdAt || new Date(1967, 9, 1)) ).asDays() < 1;
   mission.isUpdated = moment.duration(moment() - (mission.updatedAt || new Date(1967, 9, 1)) ).asHours() < 1;
+  mission.isClosed = mission.status === 'closed';
   return mission;
 }

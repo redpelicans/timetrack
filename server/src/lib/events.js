@@ -9,6 +9,8 @@ const events = {
 
   'mission.view': { roles: [] },
   'mission.new': { roles: ['admin'] },
+  'mission.delete': { roles: ['admin'] },
+  'mission.update': { roles: ['admin'] },
 }
 
 export default events;

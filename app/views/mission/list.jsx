@@ -6,7 +6,7 @@ import {missionsActions} from '../../models/missions';
 import {missionsAppStore,  missionsAppActions, sortMenu} from '../../models/missions-app';
 import {personsStore,  personsActions} from '../../models/persons';
 import {companiesStore,  companiesActions} from '../../models/companies';
-import {AddButton, Preview, Edit, Delete} from './widgets';
+import {AddButton, Preview, Closed, Edit, Delete} from './widgets';
 import {Sort, Filter, Refresh, Header, HeaderLeft, HeaderRight, Title} from '../widgets';
 
 export default class ListMissionApp extends Component {
@@ -44,7 +44,7 @@ export default class ListMissionApp extends Component {
 
   render(){
     if(!this.state.missions) return false;
-    const leftIcon = this.state.missions.isLoading ? <i className="fa fa-spinner fa-spin m-r-1"/> : <i className="fa fa-users m-r-1"/>;
+    const leftIcon = this.state.missions.isLoading ? <i className="fa fa-spinner fa-spin m-r-1"/> : <i className="fa fa-shopping-cart m-r-1"/>;
     const missions = this.state.missions.data;
     const companies = this.state.missions.companies;
     const persons = this.state.missions.persons;
@@ -103,6 +103,7 @@ class List extends Component {
             mission={mission} 
             company={this.props.companies.get(mission.get('clientId'))}
             manager={this.props.persons.get(mission.get('managerId'))} >
+              <Closed mission={mission}/>
               <Edit mission={mission}/>
               <Delete mission={mission}/>
           </Preview>

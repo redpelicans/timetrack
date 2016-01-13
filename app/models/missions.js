@@ -12,6 +12,8 @@ const actions = Reflux.createActions([
   "deleteCompleted", 
   "update", 
   "updateCompleted", 
+  "close",
+  "open",
 ]);
 
 const state = {
@@ -64,7 +66,7 @@ const store = Reflux.createStore({
   onUpdate(previous, updates){
     state.isLoading = true;
     this.trigger(state);
-    requestJson('/api/mission', {verb: 'put', body: {mission: _.assign(previous, updates)}, message: 'Cannot update mission, check your backend server'})
+    requestJson('/api/mission', {verb: 'put', body: {mission: _.assign({}, previous, updates)}, message: 'Cannot update mission, check your backend server'})
       .then( mission => {
         state.isLoading = false;
         actions.updateCompleted.sync = true;
@@ -77,6 +79,13 @@ const store = Reflux.createStore({
     this.trigger(state);
   },
 
+  onClose(mission){
+    actions.update(mission, {status: 'closed'});
+  },
+
+  onOpen(mission){
+    actions.update(mission, {status: 'open'});
+  },
 
   onDelete(mission){
     const id = mission._id;
