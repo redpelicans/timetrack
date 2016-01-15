@@ -263,7 +263,7 @@ const Missions = ({label, missions, companies, persons}) => {
 
   const styles={
     container:{
-      marginBottom: '50px',
+      //marginBottom: '50px',
       marginLeft: 'auto',
       marginRight: 'auto',
     },

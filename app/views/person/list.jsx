@@ -97,7 +97,7 @@ class List extends Component {
     const styles={
       container:{
         marginTop: '50px',
-        marginBottom: '50px',
+        //marginBottom: '50px',
         marginLeft: 'auto',
         marginRight: 'auto',
       },

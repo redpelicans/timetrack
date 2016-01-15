@@ -1,7 +1,7 @@
 import async from 'async';
 import moment from 'moment';
 import _ from 'lodash';
-import {Person, Company, Preference} from '../../models';
+import {Person, Company, Preference, Note} from '../../models';
 import {getRandomInt, ObjectId} from '../../helpers';
 import checkUser from '../../middleware/check_user';
 import checkRights from '../../middleware/check_rights';
@@ -53,10 +53,12 @@ export function init(app, resources){
   app.post('/companies', checkRights('company.new'), function(req, res, next){
     const company = req.body.company;
     const isPreferred = Boolean(req.body.company.preferred);
+    const noteContent = req.body.company.note;
     async.waterfall([
       create.bind(null, company), 
       loadOne,
-      Preference.update.bind(Preference, 'company', req.user, isPreferred)
+      Preference.update.bind(Preference, 'company', req.user, isPreferred),
+      Note.create.bind(Note, noteContent, req.user),
     ], (err, company) => {
       if(err)return next(err);
       const current = Maker(company);
@@ -87,16 +89,18 @@ export function init(app, resources){
 }
 
 function fromJson(json){
-  let attrs = ['name', 'type', 'preferred', 'website', 'note'];
+  let attrs = ['name', 'type', 'preferred', 'website'];
   let res = _.pick(json, attrs);
   if(json.address){
     let attrs = ['street', 'zipcode', 'city', 'country'];
     res.address = _.pick(json.address, attrs);
   }
+
   if(json.avatar){
     let attrs = ['src', 'url', 'color', 'type'];
     res.avatar = _.pick(json.avatar, attrs);
   }
+
   if(json.tags){
     const tags = _.inject(json.tags, (res, tag) => { 
       const t = uppercamelcase(tag);

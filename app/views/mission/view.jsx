@@ -144,7 +144,7 @@ const Date = ({label, date}) => {
 const Client = ({label, client}) => {
  const styles={
     container:{
-      marginBottom: '50px',
+      //marginBottom: '50px',
       marginLeft: 'auto',
       marginRight: 'auto',
     },
@@ -170,7 +170,7 @@ const Client = ({label, client}) => {
 const Manager = ({label, manager}) => {
  const styles={
     container:{
-      marginBottom: '50px',
+      //marginBottom: '50px',
       marginLeft: 'auto',
       marginRight: 'auto',
     },
@@ -197,7 +197,7 @@ const Manager = ({label, manager}) => {
 const Workers = ({label, workers, mission}) => {
  const styles={
     container:{
-      marginBottom: '50px',
+      //marginBottom: '50px',
       marginLeft: 'auto',
       marginRight: 'auto',
     },

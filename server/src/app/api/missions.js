@@ -1,7 +1,7 @@
 import async from 'async';
 import moment from 'moment';
 import _ from 'lodash';
-import {Mission} from '../../models';
+import {Mission, Note} from '../../models';
 import {ObjectId} from '../../helpers';
 import checkRights  from '../../middleware/check_rights';
 

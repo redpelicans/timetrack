@@ -120,10 +120,16 @@ export class MarkdownEditField extends BaseField {
     let field = this.props.field;
 
     let styles = {
-      textarea: {
-        minHeight: '200px',
+      reader:{
+        height: '100%',
+        minHeight: '150px',
+      },
+      writer: {
+        height: '100%',
+        minHeight: '150px',
       },
       radio:{
+        paddingTop: '5px',
         float: 'right',
       },
       button:{
@@ -133,15 +139,25 @@ export class MarkdownEditField extends BaseField {
     }
 
     const reader = () => { 
+      const classes = classNames( ' form-control', { 
+        'form-control-focus': this.props.focused,
+      });
       const md = new Remarkable();
       const text = {__html: md.render(this.state.field.get('value'))};
-      return <div style={{height: '100%'}} className="form-control" id={field.label} dangerouslySetInnerHTML={text}/>
+
+      return <div style={styles.reader} className={classes} id={field.label} dangerouslySetInnerHTML={text}/>
     }
 
+
     const writer = () => {
+      const classes = classNames( 'tm input form-control', { 
+        'form-control-error': this.hasError(),
+        'form-control-focus': this.props.focused,
+      });
+
       return <textarea 
-        style={styles.textarea} 
-        className={this.inputClassNames()} 
+        style={styles.writer} 
+        className={classes} 
         id={field.key} 
         type={field.htmlType()} 
         value={this.state.field.get('value')} 
@@ -156,6 +172,7 @@ export class MarkdownEditField extends BaseField {
         <label htmlFor={field.key}>
           {field.label}
         </label>
+        {widget}
         <div style={styles.radio} className="btn-group" data-toggle="buttons">
           <label style={styles.button} className="btn btn-secondary active" onClick={this.handleClick.bind(null, 'write')}>
             <input type="radio" name="options" id="option1" autoComplete="off"/> Edit
@@ -164,7 +181,6 @@ export class MarkdownEditField extends BaseField {
             <input type="radio" name="options" id="option2" autoComplete="off"/> View
           </label>
         </div>
-        {widget}
         <small className="text-muted control-label">{this.message()}</small>
       </fieldset>
     )

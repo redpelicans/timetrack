@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../widgets';
 import {Edit as EditPerson, Preferred as PreferredPerson, Delete as DeletePerson, Preview as PersonPreview} from '../person/widgets';
+import Notes from '../notes';
 import {Edit as EditMission, Preview as MissionPreview, Closed as ClosedMission} from '../mission/widgets';
 import {Edit, Preferred, Delete} from './widgets';
 import {Content} from '../layout';
@@ -83,64 +84,64 @@ export default class ViewCompanyApp extends Component {
 }
 
 const Card = ({company, persons, missions}) =>  {
-  const onClick = (tag) => {
-    navActions.push(sitemap.company.list, {filter: `#${tag} `});
-  }
+const onClick = (tag) => {
+  navActions.push(sitemap.company.list, {filter: `#${tag} `});
+}
 
-  const styles={
-    container:{
-      marginTop: '3rem',
-    },
-  }
+const styles={
+  container:{
+    marginTop: '3rem',
+  },
+}
 
-  const tags = () => {
-    if(!company.get('tags') || !company.get('tags').size) return <div/>
-    return (
-      <div className="col-md-12">
-        <Labels label="Tags" value={company.get('tags')} onClick={onClick}/>
-      </div>
-    )
-  }
-
+const tags = () => {
+  if(!company.get('tags') || !company.get('tags').size) return <div/>
   return (
-    <div style={styles.container} className="row" >
-      <div className="col-md-4 ">
-        <TextLabel label="Type" value={company.get('type')}/>
-      </div>
-      <div className="col-md-8 ">
-        <TextLabel url={company.get('website')} label="website" value={company.get('website')}/>
-      </div>
-      <div className="col-md-5">
-        <TextLabel label="Street" value={company.getIn(['address', 'street'])}/>
-      </div>
-      <div className="col-md-2">
-        <TextLabel label="Zip Code" value={company.getIn(['address', 'zipcode'])}/>
-      </div>
-      <div className="col-md-2">
-        <TextLabel label="City" value={company.getIn(['address', 'city'])}/>
-      </div>
-      <div className="col-md-3">
-        <TextLabel label="Country" value={company.getIn(['address', 'country'])}/>
-      </div>
-      {tags()}
-      <div className="col-md-12">
-        <MarkdownText label="Note" value={company.get('note')}/>
-      </div>
-      <div className="col-md-12">
-        <Persons 
-          label="Contacts" 
-          persons={persons} 
-          company={company}/>
-      </div>
-      <div className="col-md-12">
-        <Missions 
-          label="Missions" 
-          persons={persons} 
-          company={company}
-          missions={missions}/>
-      </div>
+    <div className="col-md-12">
+      <Labels label="Tags" value={company.get('tags')} onClick={onClick}/>
     </div>
   )
+}
+
+return (
+  <div style={styles.container} className="row" >
+    <div className="col-md-4 ">
+      <TextLabel label="Type" value={company.get('type')}/>
+    </div>
+    <div className="col-md-8 ">
+      <TextLabel url={company.get('website')} label="website" value={company.get('website')}/>
+    </div>
+    <div className="col-md-5">
+      <TextLabel label="Street" value={company.getIn(['address', 'street'])}/>
+    </div>
+    <div className="col-md-2">
+      <TextLabel label="Zip Code" value={company.getIn(['address', 'zipcode'])}/>
+    </div>
+    <div className="col-md-2">
+      <TextLabel label="City" value={company.getIn(['address', 'city'])}/>
+    </div>
+    <div className="col-md-3">
+      <TextLabel label="Country" value={company.getIn(['address', 'country'])}/>
+    </div>
+    {tags()}
+    <div className="col-md-12">
+      <Persons 
+        label="Contacts" 
+        persons={persons} 
+        company={company}/>
+    </div>
+    <div className="col-md-12">
+      <Missions 
+        label="Missions" 
+        persons={persons} 
+        company={company}
+        missions={missions}/>
+    </div>
+    <div className="col-md-12">
+      <Notes entity={company}/>
+    </div>
+  </div>
+)
 }
 
 const Missions = ({label, missions, company, persons}) => {
@@ -149,7 +150,7 @@ const Missions = ({label, missions, company, persons}) => {
 
   const styles={
     container:{
-      marginBottom: '50px',
+      //marginBottom: '50px',
       marginLeft: 'auto',
       marginRight: 'auto',
     },
@@ -188,7 +189,7 @@ const Missions = ({label, missions, company, persons}) => {
 const Persons = ({label, company, persons}) => {
  const styles={
     container:{
-      marginBottom: '50px',
+      //marginBottom: '50px',
       marginLeft: 'auto',
       marginRight: 'auto',
     },

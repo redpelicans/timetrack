@@ -3,6 +3,7 @@ import {errorsActions as errors} from './models/errors';
 import {personsActions} from './models/persons';
 import {companiesActions} from './models/companies';
 import {missionsActions} from './models/missions';
+import {notesActions} from './models/notes';
 import {loginStore} from './models/login';
 import _ from 'lodash';
 
@@ -47,6 +48,10 @@ export function registerSocketIO(){
     register('mission.delete', missionsActions.deleteCompleted);
     register('mission.update', updateMission);
 
+    register('note.new', notesActions.createCompleted);
+    register('note.delete', notesActions.deleteCompleted);
+    register('note.update', updateNote);
+
   });
 }
 
@@ -66,6 +71,9 @@ function updateCompany(data){
   companiesActions.updateCompleted(data.previous, data.current);
 }
 
+function updateNote(data){
+  notesActions.updateCompleted(data.previous, data.current);
+}
 
 function updateMission(data){
   missionsActions.updateCompleted(data.previous, data.current);

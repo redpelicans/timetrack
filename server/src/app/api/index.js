@@ -12,6 +12,7 @@ export function init(mainApp, resources, params) {
   require('./cities').init(app, resources);
   require('./countries').init(app, resources);
   require('./tags').init(app, resources);
+  require('./notes').init(app, resources);
 
   return app;
 }

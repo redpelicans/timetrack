@@ -1,7 +1,7 @@
 import async from 'async';
 import moment from 'moment';
 import _ from 'lodash';
-import {Person, Preference} from '../../models';
+import {Person, Preference, Note} from '../../models';
 import {ObjectId} from '../../helpers';
 import checkUser  from '../../middleware/check_user';
 import checkRights  from '../../middleware/check_rights';
@@ -11,7 +11,7 @@ export function init(app, resources){
   app.get('/people', function(req, res, next){
     async.waterfall([
       loadAll, 
-      Preference.spread.bind(Preference, 'person', req.user)
+      Preference.spread.bind(Preference, 'person', req.user),
     ], (err, people) => {
       if(err)return next(err);
       res.json(_.map(people, p => Maker(p)));
