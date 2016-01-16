@@ -10,6 +10,7 @@ import {missionsStore, missionsActions} from '../../models/missions';
 import {navStore, navActions} from '../../models/nav';
 import {companiesStore,  companiesActions} from '../../models/companies';
 import sitemap from '../../routes';
+import Notes from '../notes';
 
 export default class ViewPersonApp extends Component {
   state = {};
@@ -146,14 +147,6 @@ const Card = ({person, company, companies, persons, missions}) =>  {
     )
   }
 
-  const note = () => {
-    if(!person.get('note')) return <div/>
-    return (
-      <div className="col-md-12">
-        <MarkdownText label="Note" value={person.get('note')}/>
-      </div>
-    )
-  }
 
   const skills = () => {
     if(!person.get('skills') || !person.get('skills').size) return <div/>
@@ -241,7 +234,6 @@ const Card = ({person, company, companies, persons, missions}) =>  {
       </div>
       <div className="row">
         {jobDescription()}
-        {note()}
       </div>
       <div className="row">
         <div className="col-md-12">
@@ -250,6 +242,11 @@ const Card = ({person, company, companies, persons, missions}) =>  {
             companies={companies}
             persons={persons}
             missions={missions}/>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-md-12">
+          <Notes entity={person}/>
         </div>
       </div>
 

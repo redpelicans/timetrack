@@ -178,7 +178,13 @@ export class Preview extends Component {
       label:{
         color: '#cfd2da',
         padding: '.3rem',
-      }
+      },
+      preferred:{
+        position: 'absolute',
+        bottom: '3px',
+        left: '3rem',
+      },
+
     };
 
     const person = this.props.person;
@@ -224,6 +230,9 @@ export class Preview extends Component {
           </div>
           <div style={styles.isnew}>
             {isNew()}
+          </div>
+           <div style={styles.preferred}>
+            <Preferred person={person} active={true}/>
           </div>
           <div style={styles.names}>
             <div style={styles.name} className="p-r-1">

@@ -11,6 +11,7 @@ import express from 'express';
 import favicon from 'serve-favicon';
 import socketIO from 'socket.io';
 import Reactor from '../lib/reactor';
+import events from '../events';
 
 let logerror = debug('timetrack:error')
   , loginfo = debug('timetrack:info');
@@ -19,7 +20,7 @@ export function start(params, resources, cb) {
   let app = express()
     , httpServer = http.createServer(app)
     , io = socketIO(httpServer)
-    , reactor = Reactor(io, {secretKey: params.secretKey});
+    , reactor = Reactor(io, events, {secretKey: params.secretKey});
 
   resources.reactor = reactor;
 

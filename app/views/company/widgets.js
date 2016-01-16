@@ -173,7 +173,12 @@ export class Preview extends Component {
       label:{
         color: '#cfd2da',
         padding: '.3rem',
-      }
+      },
+      preferred:{
+        position: 'absolute',
+        bottom: '3px',
+        left: '3rem',
+      },
     };
 
     const company = this.props.company;
@@ -219,6 +224,9 @@ export class Preview extends Component {
           <div className="p-r-1">
             {avatarView()}
           </div>
+           <div style={styles.preferred}>
+            <Preferred company={company} active={true}/>
+          </div>
           <div style={styles.isnew}>
             {isNew()}
           </div>
@@ -233,7 +241,6 @@ export class Preview extends Component {
           </div>
         </div>
         <div style={styles.containerRight} href="#">
-          <Preferred company={company} active={true}/>
           <Edit company={company}/>
           <Delete company={company}/>
         </div>

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import events from '../lib/events';
+import events from '../events';
 
 
 export default function checkRights(event) {

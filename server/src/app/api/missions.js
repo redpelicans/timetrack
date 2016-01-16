@@ -17,14 +17,17 @@ export function init(app, resources) {
 
   app.post('/missions', checkRights('mission.new'), function(req, res, next){
     const mission = req.body.mission;
+    const noteContent = req.body.mission.note;
     async.waterfall([
       create.bind(null, mission), 
       loadOne,
-    ], (err, mission) => {
+      Note.create.bind(Note, noteContent, req.user),
+    ], (err, mission, note) => {
       if(err)return next(err);
       const current = Maker(mission);
       res.json(current);
       resources.reactor.emit('mission.new', current, {sessionId: req.sessionId});
+      if(note)resources.reactor.emit('note.new', note);
     });
   });
 
@@ -47,11 +50,13 @@ export function init(app, resources) {
     let id = ObjectId(req.params.id); 
     async.waterfall([
       del.bind(null, id), 
+      Note.deleteForOneEntity,  // TODO: should emit note.delete
       findOne
     ], (err, mission) => {
       if(err)return next(err);
       res.json({_id: id, isDeleted: true});
       resources.reactor.emit('mission.delete', Maker(mission), {sessionId: req.sessionId});
+      resources.reactor.emit('notes.entity.delete', Maker(mission));
     });
   })
 }

@@ -1,3 +1,4 @@
+import moment from 'moment';
 import React, {Component} from 'react';
 import reactMixin from 'react-mixin';
 import { Lifecycle } from 'react-router';
@@ -7,6 +8,7 @@ import routes from '../routes';
 import {notesActions, notesStore} from '../models/notes';
 import {personsActions, personsStore} from '../models/persons';
 import {navActions} from '../models/nav';
+import {loginStore} from '../models/login';
 import noteForm from '../forms/note';
 import {AvatarView, MarkdownText, UpdateBtn, CancelBtn} from './widgets';
 import {MarkdownEditField} from './fields';
@@ -61,7 +63,7 @@ export default class Notes extends Component{
     }
 
     const label = this.props.label || 'Notes';
-    const notes = this.state.notes.map(note => {
+    const notes = this.state.notes.sort( (a,b) => a.get('createdAt') < b.get('createdAt')).map(note => {
       return (
         <Note 
           key={note.get('_id')} 
@@ -76,7 +78,7 @@ export default class Notes extends Component{
       return (
         <div>
           <a href="#" onClick={this.handleAddNote} >
-            <i style={styles.add} className="iconButton fa fa-plus m-a-1"/>
+            <i style={styles.add} className="iconButton fa fa-plus m-l-1"/>
           </a>
         </div>
       )
@@ -93,6 +95,7 @@ export default class Notes extends Component{
       return (
         <div style={styles.addNotePanel}>
           <EditNote 
+            author={loginStore.getUser()}
             onSubmit={handleSubmit}
             onCancel={handleCancel}/>
         </div>
@@ -145,6 +148,7 @@ class Note extends Component{
         <EditNote 
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+          author={persons && persons.get(note.get('authorId'))}
           note={note}/>
       )
     }
@@ -226,26 +230,66 @@ class EditNote extends Component{
     this.props.onCancel();
   }
 
+  handleViewAuthor = (author, e) => {
+    e.preventDefault();
+    navActions.push(routes.person.view, {personId: author.get('_id')});
+  }
 
   render(){
     const styles={
       container:{
         height: '100%',
       },
-      buttons: {
+      header:{
+        display: 'flex',
+        justifyContent: 'space-between',
+      },
+      left:{
+        display: 'flex',
+        alignItems: 'center',
+      },
+      right:{
         display: 'flex',
         justifyContent: 'flex-end',
-      }
+        alignItems: 'center',
+      },
+    }
+
+    const avatar = (person) => {
+      if(!person)return <div/>
+      return (
+        <div>
+          <a href="#" onClick={this.handleViewAuthor.bind(null, person)}>
+            <AvatarView obj={person} size={24} label={`Wrote by ${person.get('name')}`}/>
+          </a>
+        </div>
+      )
+    }
+
+    const time = () =>{
+      const createdAt = this.props.note ? this.props.note.get('createdAt') : moment();
+      return (
+        <div style={styles.time} >
+          {createdAt.format("dddd, MMMM Do YYYY")}
+        </div>
+      )
     }
 
     let submitBtn = <UpdateBtn onSubmit={this.handleSubmit} canSubmit={this.state.canSubmit && this.state.hasBeenModified}/>;
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>;
 
+
     return (
       <div className="form-control" style={styles.container} >
-        <div style={styles.buttons}>
-          {submitBtn}
-          {cancelBtn}
+        <div style={styles.header}>
+          <div style={styles.left}>
+            {avatar(this.props.author)}
+            {time()}
+          </div>
+          <div style={styles.right}>
+            {submitBtn}
+            {cancelBtn}
+          </div>
         </div>
         <MarkdownEditField focused={true} field={this.noteForm.field('content')}/>
       </div>

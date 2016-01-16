@@ -112,7 +112,6 @@ class List extends Component {
           <Preview
             person={person} 
             company={this.props.companies.get(person.get('companyId'))} >
-              <Preferred person={person} active={true}/>
               <Edit person={person}/>
               <Delete person={person}/>
           </Preview>

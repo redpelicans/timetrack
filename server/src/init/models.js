@@ -1,7 +1,7 @@
 import mongobless from 'mongobless';
 import async from 'async';
 // load models
-import {Person, Company} from '../models';
+import {Note, Person, Company} from '../models';
 
 const _ = require('lodash')
     , debug = require('debug')('timetrack:models');
@@ -31,7 +31,8 @@ function ensureIndexes(cb){
     company_country,
     company_city,
     company_tags,
-    person_tags
+    person_tags,
+    note_entityId,
   ], cb);
 }
 
@@ -41,6 +42,10 @@ function person_email(cb){
 
 function person_company_id(cb){
   Person.collection.ensureIndex({company_id:1}, {background: true}, cb);
+}
+
+function note_entityId(cb){
+  Note.collection.ensureIndex({entityId:1}, {background: true}, cb);
 }
 
 function person_skills(cb){

@@ -42,11 +42,13 @@ export function init(app, resources){
     async.waterfall([
       del.bind(null, id), 
       Preference.delete.bind(null, req.user), 
+      Note.deleteForOneEntity, 
       findOne
     ], (err, company) => {
       if(err)return next(err);
       res.json({_id: id, isDeleted: true});
       resources.reactor.emit('company.delete', Maker(company), {sessionId: req.sessionId});
+      resources.reactor.emit('notes.entity.delete', Maker(company));
     });
   })
 
@@ -59,11 +61,12 @@ export function init(app, resources){
       loadOne,
       Preference.update.bind(Preference, 'company', req.user, isPreferred),
       Note.create.bind(Note, noteContent, req.user),
-    ], (err, company) => {
+    ], (err, company, note) => {
       if(err)return next(err);
       const current = Maker(company);
       res.json(current);
       resources.reactor.emit('company.new', current, {sessionId: req.sessionId});
+      if(note)resources.reactor.emit('note.new', note);
     });
   });
 

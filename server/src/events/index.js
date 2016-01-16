@@ -1,3 +1,5 @@
+import note from './note';
+
 const events = {
   'person.new': { roles: ['admin'] },
   'person.delete': { roles: ['admin'] },
@@ -12,10 +14,7 @@ const events = {
   'mission.delete': { roles: ['admin'] },
   'mission.update': { roles: ['admin'] },
 
-  'node.view': { roles: [] },
-  'note.update': { roles: ['admin'] },
-  'note.new': { roles: ['admin'] },
-  'note.delete': { roles: ['admin'] },
+  ...note,
 }
 
 export default events;

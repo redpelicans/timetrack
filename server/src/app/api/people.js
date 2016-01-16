@@ -39,27 +39,32 @@ export function init(app, resources){
     async.waterfall([
       del.bind(null, id), 
       Preference.delete.bind(null, req.user), 
+      Note.deleteForOneEntity,  // TODO: should emit note.delete
       findOne
     ], (err, person) => {
       if(err)return next(err);
       res.json({_id: id, isDeleted: true});
       resources.reactor.emit('person.delete', Maker(person), {sessionId: req.sessionId});
+      resources.reactor.emit('notes.entity.delete', Maker(person));
     });
   })
 
   app.post('/people', checkRights('person.new'), function(req, res, next){
     const person = req.body.person;
     const isPreferred = Boolean(req.body.person.preferred);
+    const noteContent = req.body.person.note;
     async.waterfall([
       create.bind(null, person), 
       loadOne,
-      Preference.update.bind(Preference, 'person', req.user, isPreferred)
-    ], (err, person) => {
+      Preference.update.bind(Preference, 'person', req.user, isPreferred),
+      Note.create.bind(Note, noteContent, req.user),
+    ], (err, person, note) => {
       if(err)return next(err);
       const current = Maker(person);
       current.preferred = isPreferred;
       res.json(current);
       resources.reactor.emit('person.new', current, {sessionId: req.sessionId});
+      if(note)resources.reactor.emit('note.new', note);
     });
   });
 

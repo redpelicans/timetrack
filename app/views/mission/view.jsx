@@ -12,6 +12,7 @@ import {companiesActions, companiesStore} from '../../models/companies';
 import {navStore, navActions} from '../../models/nav';
 import DateTimePicker from 'react-widgets/lib/DateTimePicker';
 import sitemap from '../../routes';
+import Notes from '../notes';
 
 export default class ViewMissionApp extends Component {
   state = {};
@@ -89,16 +90,6 @@ const Card = ({mission, client, manager, workers}) =>  {
     },
   }
 
-  const note = () => {
-    const data = mission.get('note');
-    if(!data) return <div/>;
-    return (
-      <div className="col-md-12">
-        <MarkdownText label="Note" value={mission.get('note')}/>
-      </div>
-    )
-  }
-
   return (
     <div style={styles.container} className="row" >
 
@@ -117,12 +108,14 @@ const Card = ({mission, client, manager, workers}) =>  {
       <div className="col-md-6 ">
         <Manager label="Manager" manager={manager}/>
       </div>
-      {note()}
       <div className="col-md-12">
         <Workers 
           label="Workers" 
           workers={workers} 
           mission={mission}/>
+      </div>
+      <div className="col-md-12">
+        <Notes entity={mission}/>
       </div>
     </div>
   )

@@ -34,6 +34,10 @@ export class Avatar extends Component {
     return _.map(parts, part => part.substr(0,1).toUpperCase()).join('');
   }
 
+  componentWillUnmount(){
+    $('[data-toggle="tooltip"]').tooltip('dispose');
+  }
+
   componentDidMount(){
     $('[data-toggle="tooltip"]').tooltip();
   }

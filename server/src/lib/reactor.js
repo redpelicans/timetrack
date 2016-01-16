@@ -3,7 +3,6 @@ import {Person} from '../models';
 import debug from 'debug';
 import _ from 'lodash';
 import async from 'async';
-import events from './events';
 
 const logerror = debug('timetrack:error')
   , loginfo = debug('timetrack:info');
@@ -102,14 +101,15 @@ class Server{
     return function(data, params){
       server.subscriptions.getAuthorizedRegistrations(conf.roles, (err, registrations) => {
         if(err) console.error(err);
-        server.emit(event, data, registrations, params);
+        if(!conf.callback) return server.emit(event, data, registrations, params);
+        conf.callback(event, registrations, server.emit.bind(server), data, params);
       });
     }
   }
 
-  emit(event, data, registrations, params){
+  emit(event, data, registrations, {sessionId} = {}){
     _.each(registrations, registration => {
-      if(params.sessionId !== registration.sessionId){
+      if(!sessionId || sessionId !== registration.sessionId){
         console.log("emit '" + event + "' to " + registration.user.fullName());
         registration.socket.emit(event, data)
       }
@@ -123,7 +123,7 @@ class Server{
   }
 }
 
-export default function Reactor(io, options){
+export default function Reactor(io, events, options){
   const register = new Register(options);
   const server = new Server(io, register);
   const dispatcher = new Dispatcher();

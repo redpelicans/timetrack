@@ -11,17 +11,17 @@ export default class Note {
   }
 
   static create(content, user, entity, cb){
-    if(!content)return setImmediate(cb, null, entity);
+    if(!content)return setImmediate(cb, null, entity, null);
     const note = {
       entityId: entity._id,
       createdAt: new Date(),
       authorId: user._id,
       content: content,
     };
-    Note.collection.insertOne(note, err => cb(err, entity));
+    Note.collection.insertOne(note, err => cb(err, entity, note));
   }
 
-  static delete(id, cb){
-    Note.collection.deleteMany( {entityId: id}, err => cb(err, id)) 
+  static deleteForOneEntity(id, cb){
+    Note.collection.updateMany({entityId: id}, {$set: {updatedAt: new Date(), isDeleted: true}}, err => cb(err, id))
   }
 };
