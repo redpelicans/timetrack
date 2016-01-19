@@ -214,6 +214,8 @@ export default class EditContent extends Component {
 
   state = {};
 
+  editMode = !!this.props.missionDocument;
+
   componentWillUnmount() {
     this.unsubscribe();
   }
@@ -237,6 +239,16 @@ export default class EditContent extends Component {
         display: 'block',
         float: 'right',
       }
+    }
+    const note = () => {
+      if(this.editMode)return;
+      return (
+        <div className="row">
+          <div className="col-md-12">
+            <MarkdownEditField field={this.props.missionForm.field('note')}/>
+          </div>
+        </div>
+      )
     }
 
     return (
@@ -291,11 +303,7 @@ export default class EditContent extends Component {
                   <MultiSelectField2 field={this.props.missionForm.field('workerIds')}/>
                 </div>
               </div>
-              <div className="row">
-                <div className="col-md-12">
-                  <MarkdownEditField field={this.props.missionForm.field('note')}/>
-                </div>
-              </div>
+              {note()}
             </Form>
           </div>
         </div>

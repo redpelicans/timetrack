@@ -9,6 +9,7 @@ const actions = Reflux.createActions([
   "load", 
   "loadCompleted", 
   "togglePreferred", 
+  "updateTags", 
   "delete", 
   "deleteCompleted", 
   "create", 
@@ -60,6 +61,20 @@ const store = Reflux.createStore({
 
     request.then( res => {
       state.data = state.data.update(res._id, p =>  p.set('preferred', body.preferred) );
+      state.isLoading = false;
+      this.trigger(state);
+    });
+  },
+
+  onUpdateTags(person, tags){
+    let body = { entityId: person.get('_id') , tags, type: 'person'};
+    const message = 'Cannot update tags, check your backend server';
+    let request = requestJson(`/api/tags`, {verb: 'post', body: body, message: message});
+    state.isLoading = true;
+    this.trigger(state);
+
+    request.then( person => {
+      state.data = state.data.update(person._id, p =>  p.set('tags', person.tags) );
       state.isLoading = false;
       this.trigger(state);
     });

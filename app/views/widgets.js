@@ -295,36 +295,51 @@ export const AddBtn = ({onSubmit, canSubmit}) => {
   )
 }
 
-export const UpdateBtn = ({onSubmit, canSubmit}) => {
+export const UpdateBtn = ({onSubmit, canSubmit, label, size}) => {
   const handleChange = (e) => {
     onSubmit();
     e.preventDefault();
   }
 
+  const classnames = classNames("btn btn-primary m-l-1", {
+    'btn-sm': size === 'small',
+    'btn-lg': size === 'large',
+  });
+
   return (
-    <button type="button" className="btn btn-primary m-l-1" disabled={!canSubmit} onClick={handleChange}>Update</button>
+    <button type="button" className={classnames} disabled={!canSubmit} onClick={handleChange}>{label || 'Update'}</button>
   )
 }
 
-export const CancelBtn = ({onCancel}) => {
+export const CancelBtn = ({onCancel, label, size}) => {
   const handleChange = (e) => {
     onCancel();
     e.preventDefault();
   }
 
+  const classnames = classNames("btn btn-warning m-l-1", {
+    'btn-sm': size === 'small',
+    'btn-lg': size === 'large',
+  });
+
   return (
-    <button type="button" className="btn btn-warning m-l-1" onClick={handleChange}>Cancel</button>
+    <button type="button" className={classnames} onClick={handleChange}>{label || 'Cancel'}</button>
   )
 }
 
-export const ResetBtn = ({obj}) => {
+export const ResetBtn = ({obj, label, size}) => {
   const handleChange = (e) => {
     obj.reset();
     e.preventDefault();
   }
 
+  const classnames = classNames("btn btn-danger m-l-1", {
+    'btn-sm': size === 'small',
+    'btn-lg': size === 'large',
+  });
+
   return (
-    <button type="button" className="btn btn-danger m-l-1"  onClick={handleChange}>Reset</button>
+    <button type="button" className={classnames} onClick={handleChange}>{label || 'Reset'}</button>
   )
 }
 

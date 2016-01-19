@@ -107,8 +107,12 @@ export class AddButton extends Component {
 
 
 export class Preview extends Component {
+  state = {showActions: false}
+
   shouldComponentUpdate(nextProps, nextState){
-    return this.props.person !== nextProps.person || this.props.company !== nextProps.company;
+    return this.props.person !== nextProps.person || 
+      this.props.company !== nextProps.company ||
+      this.state.showActions !== nextState.showActions;
   }
 
   handleViewPerson = (e) => {
@@ -119,6 +123,14 @@ export class Preview extends Component {
   handleViewCompany = (e) => {
     e.preventDefault();
     navActions.push(routes.company.view, {companyId: this.props.company.get('_id')});
+  }
+
+  handleMouseEnter = (e) => {
+    this.setState({showActions: true})
+  }
+
+  handleMouseLeave = (e) => {
+    this.setState({showActions: false})
   }
 
   render() {
@@ -221,9 +233,18 @@ export class Preview extends Component {
       return <span>{person.get('name')}</span>;
      }
     }
+
+    const actions = () => {
+      if(!this.state.showActions) return <div/>;
+      return(
+        <div style={styles.containerRight} href="#">
+          {this.props.children}
+        </div>
+      )
+    }
     
     return (
-      <div style={styles.container} >
+      <div style={styles.container} onMouseOver={this.handleMouseEnter} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
         <div style={styles.containerLeft}>
           <div className="p-r-1">
             <a href="#" onClick={this.handleViewPerson}>{avatar}</a>
@@ -244,9 +265,7 @@ export class Preview extends Component {
             {tags()}
           </div>
         </div>
-        <div style={styles.containerRight} href="#">
-          {this.props.children}
-        </div>
+        {actions()}
       </div>
     );
   }

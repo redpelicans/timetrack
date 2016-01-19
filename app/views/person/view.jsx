@@ -58,10 +58,10 @@ export default class ViewPersonApp extends Component {
   }
 
   componentWillUnmount(){
+    if(this.unsubcribeMissions) this.unsubcribeMissions();
     if(this.unsubcribeCompanies) this.unsubcribeCompanies();
     if(this.unsubcribePersons) this.unsubcribePersons();
     if(this.unsubcribeNav) this.unsubcribeNav();
-    if(this.unsubcribeMissions) this.unsubcribeMissions();
   }
 
   goBack = () => {

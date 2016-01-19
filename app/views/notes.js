@@ -275,8 +275,15 @@ class EditNote extends Component{
       )
     }
 
-    let submitBtn = <UpdateBtn onSubmit={this.handleSubmit} canSubmit={this.state.canSubmit && this.state.hasBeenModified}/>;
-    let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>;
+    let submitBtn = <UpdateBtn 
+      onSubmit={this.handleSubmit} 
+      canSubmit={this.state.canSubmit && this.state.hasBeenModified} 
+      label={this.props.note ? 'Update' : 'Create'}
+      size={"small"}/>;
+
+    let cancelBtn = <CancelBtn 
+      onCancel={this.handleCancel} 
+      size={'small'}/>;
 
 
     return (

@@ -204,7 +204,10 @@ export default class EditContent extends Component {
 
   state = {};
 
+  editMode = !!this.props.personDocument
+
   componentWillMount(){
+    //this.editMode = !!this.props.personDocument;
     // dynamic behavior
     emailRule(this.props.personForm);
     companyRule(this.props.personForm);
@@ -244,6 +247,24 @@ export default class EditContent extends Component {
       return (
         <div className="col-md-12">
           <MultiSelectField field={person.field('roles')}/>
+        </div>
+      )
+    }
+
+    const note = () => {
+      if(this.editMode)return <div/>;
+      return (
+        <div className="col-md-12">
+          <MarkdownEditField field={person.field('note')}/>
+        </div>
+      )
+    }
+
+    const tags = () => {
+      if(this.editMode)return <div/>;
+      return (
+        <div className="col-md-12">
+          <TagsField field={person.field('tags')}/>
         </div>
       )
     }
@@ -300,18 +321,14 @@ export default class EditContent extends Component {
                 <div className="col-md-12">
                   <PhonesField field={person.field('phones')} />
                 </div>
-                <div className="col-md-12">
-                  <TagsField field={person.field('tags')}/>
-                </div>
+                {tags()}
                 {skills()}
                 {roles()}
                 <AvatarChooser person={person}/>
                 <div className="col-md-12">
                   <MarkdownEditField field={person.field('jobDescription')}/>
                 </div>
-                <div className="col-md-12">
-                  <MarkdownEditField field={person.field('note')}/>
-                </div>
+                {note()}
               </div>
             </Form>
           </div>

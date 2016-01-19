@@ -112,23 +112,49 @@ function filterForPreferred(filter){
 }
 
 function filterForSearch(filter=''){
-  function filterByName(key, name){
+
+  if(!filter) return p => p;
+
+  function filterByName(p, key){
+    const company = state.companies.get(p.get('companyId'));
+    const name = [p.get('name').toLowerCase(), company && company.get('name').toLowerCase()].join( ' ') ;
     return name.indexOf(key) !== -1;
   }
 
-  function filterByTag(key, tags){
+  function filterByTag(p, key){
+    const tags = _.chain(p.get('tags') && p.get('tags').toJS() || []).map(tag => tag.toLowerCase()).value().join(' ');
     const tag = key.slice(1);
     if(!tag) return true;
     return tags.indexOf(tag) !== -1;
   }
 
-  const keys = _.chain(filter.split(' ')).compact().map(key => key.toLowerCase()).value();
-  return  p => {
-    const company = state.companies.get(p.get('companyId'));
-    const name = [p.get('name').toLowerCase(), company && company.get('name').toLowerCase()].join( ' ') ;
-    const tags = _.chain(p.get('tags') && p.get('tags').toJS() || []).map(tag => tag.toLowerCase()).value().join(' ');
-    return _.all(keys, key => key.startsWith('#') ? filterByTag(key, tags) : filterByName(key, name));
+  function filterByRole(p, key){
+    const roles = _.chain(p.get('roles') && p.get('roles').toJS() || []).map(role => role.toLowerCase()).value().join(' ');
+    const role = key.slice(1);
+    if(!role) return true;
+    return roles.indexOf(role) !== -1;
   }
+
+  function filterBySkills(p, key){
+    const skills = _.chain(p.get('skills') && p.get('skills').toJS() || []).map(skill => skill.toLowerCase()).value().join(' ');
+    const skill = key.slice(1);
+    if(!skill) return true;
+    return skills.indexOf(skill) !== -1;
+  }
+
+  function filterMode(p){
+    return function(key){
+      return ({
+        '#': filterByTag,
+        '!': filterByRole,
+        '+': filterBySkills,
+      }[key[0]] || filterByName)(p, key);
+    }
+  }
+
+  const keys = _.chain(filter.split(' ')).compact().map(key => key.toLowerCase()).value();
+
+  return  p => _.all(keys, filterMode(p));
 }
 
 const sortMenu = [

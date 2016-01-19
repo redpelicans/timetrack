@@ -207,7 +207,6 @@ const Persons = ({label, company, persons}) => {
       return (
         <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
           <PersonPreview person={person}>
-            <PreferredPerson active={true} person={person}/>
             <LeaveCompany company={company} person={person}/>
             <EditPerson person={person}/>
             <DeletePerson person={person}/>

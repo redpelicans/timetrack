@@ -43,10 +43,9 @@ export class PhonesField extends Component{
     }
     const field = this.props.field;
     const phones = _.map(field.getFields(), field => {
-      console.log(field.path)
       return (
-        <div className="col-md-4">
-          <Phone key={field.path} field={field} onDeleteField={this.handleDelete} />
+        <div key={field.path} className="col-md-4">
+          <Phone field={field} onDeleteField={this.handleDelete} />
         </div>
       )
     })

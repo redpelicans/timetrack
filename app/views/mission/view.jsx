@@ -52,7 +52,8 @@ export default class ViewMissionApp extends Component {
   }
 
   render(){
-    if( !this.state.mission || !this.state.persons || !this.state.companies) return false;
+    //if( !this.state.mission || !this.state.persons || !this.state.companies) return false;
+    if( !this.state.mission) return false;
     const mission = this.state.mission;
     const client = this.state.companies.get(mission.get("clientId"));
     const manager = this.state.persons.get(mission.get("managerId"));
@@ -146,6 +147,7 @@ const Client = ({label, client}) => {
     }
   };
 
+  if(!client)return <div/>;
   return (
     <fieldset className="form-group">
       <label> {label} </label>
@@ -172,6 +174,7 @@ const Manager = ({label, manager}) => {
     }
   };
 
+  if(!manager)return <div/>;
   return (
     <fieldset className="form-group">
       <label> {label} </label>

@@ -161,6 +161,8 @@ export class EditCompanyApp extends Component {
 
 export default class EditContent extends Component {
 
+  editMode = !!this.props.companyDocument;
+
   render(){
     if(!this.props.companyForm) return false;
 
@@ -173,6 +175,25 @@ export default class EditContent extends Component {
         float: 'right',
       }
     }
+
+    const note = () => {
+      if(this.editMode)return <div/>;
+      return (
+        <div className="col-md-12">
+          <MarkdownEditField field={this.props.companyForm.field('note')}/>
+        </div>
+      )
+    }
+
+    const tags = () => {
+      if(this.editMode)return <div/>;
+      return (
+        <div className="col-md-12">
+          <TagsField field={this.props.companyForm.field('tags')}/>
+        </div>
+      )
+    }
+
 
     return (
       <Content>
@@ -224,12 +245,8 @@ export default class EditContent extends Component {
                 <div className="col-md-4">
                   <CountryField field={this.props.companyForm.field('address/country')}/>
                 </div>
-                <div className="col-md-12">
-                  <TagsField field={this.props.companyForm.field('tags')}/>
-                </div>
-                <div className="col-md-12">
-                  <MarkdownEditField field={this.props.companyForm.field('note')}/>
-                </div>
+                {tags()}
+                {note()}
               </div>
             </Form>
           </div>
