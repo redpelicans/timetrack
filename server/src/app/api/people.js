@@ -68,6 +68,21 @@ export function init(app, resources){
     });
   });
 
+  app.post('/people/tags', checkRights('person.update'), function(req, res, next){
+    const tags = req.body.tags;
+    const id = ObjectId(req.body._id);
+    async.waterfall([
+      loadOne.bind(null, id),
+      updateTags.bind(null, tags),
+      (previous, cb) => loadOne(previous._id, (err, person) => cb(err, previous, person)),
+    ], (err, previous, person) => {
+      if(err)return next(err);
+      const current = Maker(person);
+      res.json(current);
+      resources.reactor.emit('person.update', {previous, current}, {sessionId: req.sessionId});
+    });
+  })
+
   app.put('/person', checkRights('person.update'), function(req, res, next){
     const updates = fromJson(req.body.person);
     const id = ObjectId(req.body.person._id);
@@ -134,6 +149,9 @@ function update(updates, previousPerson, cb){
   })
 }
 
+function updateTags(tags, person, cb){
+  Person.collection.updateOne({_id: person._id}, {$set: {tags}}, (err) => cb(err, person) );
+}
 
 function del(id, cb){
   Person.collection.updateOne({_id: id}, {$set: {updatedAt: new Date(), isDeleted: true}}, (err) => {

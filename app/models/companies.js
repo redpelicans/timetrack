@@ -13,6 +13,7 @@ const actions = Reflux.createActions([
   "createCompleted", 
   "update", 
   "updateCompleted", 
+  "updateTags",
   "leave", 
   "addPerson",
   "removePerson",
@@ -97,6 +98,17 @@ const store = Reflux.createStore({
   onCreateCompleted(company){
     state.data = state.data.set(company._id, Immutable.fromJS(Maker(company)));
     this.trigger(state);
+  },
+
+  onUpdateTags(company, tags){
+    let body = { _id: company.get('_id') , tags};
+    const message = 'Cannot update tags, check your backend server';
+    let request = requestJson(`/api/companies/tags`, {verb: 'post', body: body, message: message});
+
+    request.then( company => {
+      state.data = state.data.update(company._id, p =>  p.set('tags', Immutable.fromJS(company.tags)) );
+      this.trigger(state);
+    });
   },
 
   onUpdate(previous, updates){

@@ -161,11 +161,10 @@ export class EditCompanyApp extends Component {
 
 export default class EditContent extends Component {
 
-  editMode = !!this.props.companyDocument;
 
   render(){
     if(!this.props.companyForm) return false;
-
+    const editMode = !!this.props.companyDocument;
     const fake = Immutable.fromJS(_.pick(this.props.companyDocument, 'createdAt', 'updatedAt'));
     const styles = {
       time: {
@@ -177,7 +176,7 @@ export default class EditContent extends Component {
     }
 
     const note = () => {
-      if(this.editMode)return <div/>;
+      if(editMode)return <div/>;
       return (
         <div className="col-md-12">
           <MarkdownEditField field={this.props.companyForm.field('note')}/>
@@ -186,7 +185,7 @@ export default class EditContent extends Component {
     }
 
     const tags = () => {
-      if(this.editMode)return <div/>;
+      if(editMode)return <div/>;
       return (
         <div className="col-md-12">
           <TagsField field={this.props.companyForm.field('tags')}/>

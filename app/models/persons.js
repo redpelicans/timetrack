@@ -67,15 +67,12 @@ const store = Reflux.createStore({
   },
 
   onUpdateTags(person, tags){
-    let body = { entityId: person.get('_id') , tags, type: 'person'};
+    let body = { _id: person.get('_id') , tags};
     const message = 'Cannot update tags, check your backend server';
-    let request = requestJson(`/api/tags`, {verb: 'post', body: body, message: message});
-    state.isLoading = true;
-    this.trigger(state);
+    let request = requestJson(`/api/people/tags`, {verb: 'post', body: body, message: message});
 
     request.then( person => {
-      state.data = state.data.update(person._id, p =>  p.set('tags', person.tags) );
-      state.isLoading = false;
+      state.data = state.data.update(person._id, p =>  p.set('tags', Immutable.fromJS(person.tags)) );
       this.trigger(state);
     });
   },

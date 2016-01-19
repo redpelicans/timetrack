@@ -2,6 +2,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import React, {Component} from 'react';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../widgets';
+import {TagsField} from '../fields';
 import {Edit, Preferred, Delete} from './widgets';
 import {Edit as EditMission, Preview as MissionPreview, Closed as ClosedMission} from '../mission/widgets';
 import {Content } from '../layout';
@@ -11,6 +12,7 @@ import {navStore, navActions} from '../../models/nav';
 import {companiesStore,  companiesActions} from '../../models/companies';
 import sitemap from '../../routes';
 import Notes from '../notes';
+import tagsForm from '../../forms/tags';
 
 export default class ViewPersonApp extends Component {
   state = {};
@@ -18,12 +20,12 @@ export default class ViewPersonApp extends Component {
   componentWillMount() {
     let personId = this.props.location.state.personId;
 
-    this.unsubcribeCompanies = companiesStore.listen( companies => {
+    this.unsubscribeCompanies = companiesStore.listen( companies => {
       const company = companies.data.get(this.state.person.get('companyId'));
       this.setState({company, companies: companies.data});
     });
 
-    this.unsubcribeNav = navStore.listen( state => {
+    this.unsubscribeNav = navStore.listen( state => {
       const newPersonId = state.context && state.context.personId;
       if(newPersonId && personId != newPersonId) {
         personId = newPersonId;
@@ -31,12 +33,25 @@ export default class ViewPersonApp extends Component {
       }
     });
 
-    this.unsubcribePersons = personsStore.listen( persons => {
+    this.unsubscribePersons = personsStore.listen( persons => {
       const person = persons.data.get(personId);
       if(person){
-       if(person != this.state.person)this.setState({person, persons: persons.data});
+        if(!this.tagsField){
+          this.tagsField = tagsForm({tags: person.get('tags')}).field('tags');
+          this.unsubscribeTags = this.tagsField.onValue( state => {
+            if(state.hasBeenModified) personsActions.updateTags(person, state.value)
+          });
+        }
 
-        this.unsubcribeMissions = missionsStore.listen( state => {
+        if(person != this.state.person){
+          // if(this.state.person && !_.isEqual(person.get('tags').toJS(), this.state.person.get('tags').toJS())){
+          //   console.log("TAGS ARE DIFFERENT")
+          // }
+          this.setState({person, persons: persons.data});
+        }
+
+        if(this.unsubscribeMissions)this.unsubscribeMissions();
+        this.unsubscribeMissions = missionsStore.listen( state => {
           const missions = state.data.filter(mission =>{
             return mission.get('managerId') === personId || mission.get('workerIds').toJS().indexOf(personId) !== -1;
           });
@@ -58,10 +73,11 @@ export default class ViewPersonApp extends Component {
   }
 
   componentWillUnmount(){
-    if(this.unsubcribeMissions) this.unsubcribeMissions();
-    if(this.unsubcribeCompanies) this.unsubcribeCompanies();
-    if(this.unsubcribePersons) this.unsubcribePersons();
-    if(this.unsubcribeNav) this.unsubcribeNav();
+    if(this.unsubscribeMissions) this.unsubscribeMissions();
+    if(this.unsubscribeCompanies) this.unsubscribeCompanies();
+    if(this.unsubscribePersons) this.unsubscribePersons();
+    if(this.unsubscribeTags) this.unsubscribeTags();
+    if(this.unsubscribeNav) this.unsubscribeNav();
   }
 
   goBack = () => {
@@ -91,13 +107,14 @@ export default class ViewPersonApp extends Component {
           missions={this.state.missions} 
           company={this.state.company} 
           persons={this.state.persons} 
+          tags={this.tagsField} 
           companies={this.state.companies}/>
       </Content>
     )
   }
 }
 
-const Card = ({person, company, companies, persons, missions}) =>  {
+const Card = ({person, company, companies, persons, missions, tags}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -108,6 +125,10 @@ const Card = ({person, company, companies, persons, missions}) =>  {
     e.preventDefault();
     navActions.push(sitemap.company.view, {companyId: company.get('_id')});
   }
+
+  // const handleClickTag = (tag) => {
+  //   navActions.push(sitemap.person.list, {filter: `#${tag} `});
+  // }
 
   const phones = () =>  _.map(person.get('phones') && person.get('phones').toJS() || [], p => {
     return (
@@ -157,15 +178,10 @@ const Card = ({person, company, companies, persons, missions}) =>  {
     )
   }
 
-  const tags = () => {
-    const onClick = (tag) => {
-      navActions.push(sitemap.person.list, {filter: `#${tag} `});
-    }
-
-    if(!person.get('tags') || !person.get('tags').size) return <div/>
+  const editTags = () => {
     return (
       <div className="col-md-12">
-        <Labels label="Tags" value={person.get('tags')} onClick={onClick}/>
+        <TagsField field={tags}/>
       </div>
     )
   }
@@ -230,9 +246,6 @@ const Card = ({person, company, companies, persons, missions}) =>  {
         {roles()} 
       </div>
       <div className="row">
-        {tags()}
-      </div>
-      <div className="row">
         {jobDescription()}
       </div>
       <div className="row">
@@ -243,6 +256,9 @@ const Card = ({person, company, companies, persons, missions}) =>  {
             persons={persons}
             missions={missions}/>
         </div>
+      </div>
+      <div className="row">
+        {editTags()}
       </div>
       <div className="row">
         <div className="col-md-12">

@@ -5,15 +5,31 @@ import {tagsStore, tagsActions} from '../../models/tags';
 import _ from 'lodash';
 
 
-// const TagItem = ({item}) => {
-//   return(
-//     <span>
-//       <strong>
-//         <div className="m-r-1">{item.value}</div>
-//       </strong>
-//     </span>
-//   )
-// }
+const TagItem = ({item}) => {
+  const styles={
+    label:{
+      backgroundColor: '#0275d8',
+      marginRight: '1rem',
+    }
+  }
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    onClick(item.value);
+  }
+
+  // if(onClick){
+  //   return (
+  //     <a href="#" onClick={handleClick}>
+  //       <span style={styles.label}>{item.value}</span>
+  //     </a>
+  //   )
+  // }else{
+  //   return <span style={styles.label}>{item.value}</span>;
+  // }
+  
+  return <span style={styles.label}>{item.value}</span>;
+}
 
 export default class TagField extends BaseSelectField{
   state = {}
@@ -40,6 +56,7 @@ export default class TagField extends BaseSelectField{
     this.subscribeFct =  v => {
       this.setState({field: v});
     };
+
     this.props.field.state.onValue( this.subscribeFct );
 
     this.unsubscribeTags = tagsStore.listen( tags => {
@@ -64,6 +81,7 @@ export default class TagField extends BaseSelectField{
         data: this.state.domainValue,  
         value: this.state.field.get('value') && this.state.field.get('value').toJS() || [], 
         id: field.key, 
+        tagComponent: TagItem,
         caseSensitive: false,
         onChange: this.handleChange,
         onCreate: this.onCreate

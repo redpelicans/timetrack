@@ -1,8 +1,10 @@
 import async from 'async';
 import _ from 'lodash';
 import {Person, Company} from '../../models';
+import {ObjectId} from '../../helpers';
+import checkRights  from '../../middleware/check_rights';
 
-export function init(app){
+export function init(app, resources){
   app.get('/tags', function(req, res, next){
     async.parallel({companies, persons}, (err, data) => {
       if(err)return next(err);
@@ -17,32 +19,6 @@ export function init(app){
     })
   });
 
-  // TODO: check correct rights depending on entity
-  app.post('/tags', checkRights('person.new'), function(req, res, next){
-    const {type, entityId, tags} = req.body;
-    const klass =  {Person: 'person', Company: 'company'}[type];
-    if(!klass)return next(new Error(`Unknown type: ${type} to update tags`));
-    async.waterfall([
-      loadEntity.bind(null, entityId, klass),
-      updateTags.bind(null, tags, klass),
-      loadEntity.bind(null, entityId, klass),
-    ], (err, entity){
-      if(err)return next(err);
-      res.json(entity);
-    });
-  })
-}
-
-function loadEntity(id, klass){
-  klass.loadOne(id, (err, entity) => {
-    if(err)return cb(err);
-    if(!entity)cb(new Error("Unknown entity"));
-    cb(null, entity);
-  });
-}
-
-function updateTags(tags, klass, entity, cb){
-  klass.collection.updateOne({_id: entity._id}, {$set: {tags}}, (err) => cb(err) );
 }
 
 function companies(cb){

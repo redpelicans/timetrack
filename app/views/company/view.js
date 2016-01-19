@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React, {Component} from 'react';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../widgets';
 import {Edit as EditPerson, Preferred as PreferredPerson, Delete as DeletePerson, Preview as PersonPreview} from '../person/widgets';
+import {TagsField} from '../fields';
 import Notes from '../notes';
 import {Edit as EditMission, Preview as MissionPreview, Closed as ClosedMission} from '../mission/widgets';
 import {Edit, Preferred, Delete} from './widgets';
@@ -12,6 +13,7 @@ import {missionsStore, missionsActions} from '../../models/missions';
 import {navStore, navActions} from '../../models/nav';
 import sitemap from '../../routes';
 import authManager from '../../auths';
+import tagsForm from '../../forms/tags';
 
 export default class ViewCompanyApp extends Component {
   state = {};
@@ -19,16 +21,24 @@ export default class ViewCompanyApp extends Component {
   componentWillMount() {
     let companyId = this.props.location.state && this.props.location.state.companyId;
 
-    this.unsubcribePersons = personsStore.listen( persons => {
+    this.unsubscribePersons = personsStore.listen( persons => {
       this.setState({ persons: persons.data })
     });
 
-    this.unsubcribeCompanies = companiesStore.listen( companies => {
+    this.unsubscribeCompanies = companiesStore.listen( companies => {
       const company = companies.data.get(companyId);
       if(company){
+        if(!this.tagsField){
+          this.tagsField = tagsForm({tags: company.get('tags')}).field('tags');
+          this.unsubscribeTags = this.tagsField.onValue( state => {
+            if(state.hasBeenModified) companiesActions.updateTags(company, state.value)
+          });
+        }
+
         if(company != this.state.company) this.setState({company});
 
-        this.unsubcribeMissions = missionsStore.listen( state => {
+        if(this.unsubscribeMissions)this.unsubscribeMissions();
+        this.unsubscribeMissions = missionsStore.listen( state => {
           const missions = state.data.filter(mission => mission.get('clientId') === companyId);
           this.setState({ missions })
         });
@@ -46,9 +56,10 @@ export default class ViewCompanyApp extends Component {
   }
 
   componentWillUnmount(){
-    this.unsubcribeCompanies();
-    this.unsubcribePersons();
-    if(this.unsubcribeMissions) this.unsubcribeMissions();
+    this.unsubscribeCompanies();
+    this.unsubscribePersons();
+    if(this.unsubscribeTags) this.unsubscribeTags();
+    if(this.unsubscribeMissions) this.unsubscribeMissions();
   }
 
   goBack = () => {
@@ -77,71 +88,71 @@ export default class ViewCompanyApp extends Component {
         <Card 
           company={this.state.company} 
           missions={this.state.missions} 
+          tags={this.tagsField} 
           persons={this.state.persons}  />
       </Content>
     )
   }
 }
 
-const Card = ({company, persons, missions}) =>  {
-const onClick = (tag) => {
-  navActions.push(sitemap.company.list, {filter: `#${tag} `});
-}
+const Card = ({company, persons, missions, tags}) =>  {
+  const onClick = (tag) => {
+    navActions.push(sitemap.company.list, {filter: `#${tag} `});
+  }
 
-const styles={
-  container:{
-    marginTop: '3rem',
-  },
-}
+  const styles={
+    container:{
+      marginTop: '3rem',
+    },
+  }
 
-const tags = () => {
-  if(!company.get('tags') || !company.get('tags').size) return <div/>
+  const editTags = () => {
+    return (
+      <div className="col-md-12">
+        <TagsField field={tags}/>
+      </div>
+    )
+  }
+
   return (
-    <div className="col-md-12">
-      <Labels label="Tags" value={company.get('tags')} onClick={onClick}/>
+    <div style={styles.container} className="row" >
+      <div className="col-md-4 ">
+        <TextLabel label="Type" value={company.get('type')}/>
+      </div>
+      <div className="col-md-8 ">
+        <TextLabel url={company.get('website')} label="website" value={company.get('website')}/>
+      </div>
+      <div className="col-md-5">
+        <TextLabel label="Street" value={company.getIn(['address', 'street'])}/>
+      </div>
+      <div className="col-md-2">
+        <TextLabel label="Zip Code" value={company.getIn(['address', 'zipcode'])}/>
+      </div>
+      <div className="col-md-2">
+        <TextLabel label="City" value={company.getIn(['address', 'city'])}/>
+      </div>
+      <div className="col-md-3">
+        <TextLabel label="Country" value={company.getIn(['address', 'country'])}/>
+      </div>
+      <div className="col-md-12">
+        <Persons 
+          label="Contacts" 
+          persons={persons} 
+          company={company}/>
+      </div>
+      <div className="col-md-12">
+        <Missions 
+          label="Missions" 
+          persons={persons} 
+          company={company}
+          missions={missions}/>
+      </div>
+        {editTags()}
+      <div className="col-md-12">
+        <Notes entity={company}/>
+      </div>
     </div>
   )
-}
-
-return (
-  <div style={styles.container} className="row" >
-    <div className="col-md-4 ">
-      <TextLabel label="Type" value={company.get('type')}/>
-    </div>
-    <div className="col-md-8 ">
-      <TextLabel url={company.get('website')} label="website" value={company.get('website')}/>
-    </div>
-    <div className="col-md-5">
-      <TextLabel label="Street" value={company.getIn(['address', 'street'])}/>
-    </div>
-    <div className="col-md-2">
-      <TextLabel label="Zip Code" value={company.getIn(['address', 'zipcode'])}/>
-    </div>
-    <div className="col-md-2">
-      <TextLabel label="City" value={company.getIn(['address', 'city'])}/>
-    </div>
-    <div className="col-md-3">
-      <TextLabel label="Country" value={company.getIn(['address', 'country'])}/>
-    </div>
-    {tags()}
-    <div className="col-md-12">
-      <Persons 
-        label="Contacts" 
-        persons={persons} 
-        company={company}/>
-    </div>
-    <div className="col-md-12">
-      <Missions 
-        label="Missions" 
-        persons={persons} 
-        company={company}
-        missions={missions}/>
-    </div>
-    <div className="col-md-12">
-      <Notes entity={company}/>
-    </div>
-  </div>
-)
 }
 
 const Missions = ({label, missions, company, persons}) => {

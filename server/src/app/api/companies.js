@@ -89,6 +89,23 @@ export function init(app, resources){
       resources.reactor.emit('company.update', {previous, current}, {sessionId: req.sessionId});
     });
   });
+
+  app.post('/companies/tags', checkRights('company.update'), function(req, res, next){
+    const tags = req.body.tags;
+    const id = ObjectId(req.body._id);
+    async.waterfall([
+      loadOne.bind(null, id),
+      updateTags.bind(null, tags),
+      (previous, cb) => loadOne(previous._id, (err, company) => cb(err, previous, company)),
+    ], (err, previous, company) => {
+      if(err)return next(err);
+      const current = Maker(company);
+      res.json(current);
+      resources.reactor.emit('company.update', {previous, current}, {sessionId: req.sessionId});
+    });
+  })
+
+
 }
 
 function fromJson(json){
@@ -190,6 +207,10 @@ function update(updates, previousCompany, cb){
   Company.collection.updateOne({_id: previousCompany._id}, {$set: updates}, (err) => {
     return cb(err, previousCompany)
   })
+}
+
+function updateTags(tags, company, cb){
+  Company.collection.updateOne({_id: company._id}, {$set: {tags}}, (err) => cb(err, company) );
 }
 
 function findOne(id, cb){
