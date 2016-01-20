@@ -45,7 +45,6 @@ Timetrack is in its early stage (version 0.2), its actually a POC, tomorrow a CR
 * Offer disconnected CRUD functionalities
 * continuous deployment
 
-
 ## Setup
 
     $ npm install -g babel gulp
