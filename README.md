@@ -1,9 +1,9 @@
 # timetrack [![Build Status](https://travis-ci.org/redpelicans/timetrack.svg)](https://travis-ci.org/redpelicans/timetrack)
 
-## Context 
+## Context
 
 Timetrack will be the main tool for [redpelicans](http://www.redpelicans.com) to manage our consultants, clients, and produce invoices but it's also a training plateform for our junior consultants to learn how to craft a web application made of ReactJS, a flux implementation (Reflux here), FRP (Kefir), NodeJS, MongoDB and Docker.
-
+ 
 Beyond librairies or products selected to build timetrack, the target is to find and teach good practices for web application design: 
  
 * how to design stable, optimized http requests between front and server
@@ -20,6 +20,7 @@ Beyond librairies or products selected to build timetrack, the target is to find
 * which UI toolkit to use with ReactJS
 * how to render natively
 * and so on ....
+
 
 It's an open source project, so you are welcome to collaborate, produce code or blogs and challenge us ...
 
@@ -43,7 +44,6 @@ Timetrack is in its early stage (version 0.2), its actually a POC, tomorrow a CR
 * Be native
 * Offer disconnected CRUD functionalities
 * continuous deployment
-
 
 ## Setup
 
