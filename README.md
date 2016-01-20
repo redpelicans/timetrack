@@ -21,6 +21,7 @@ Beyond librairies or products selected to build timetrack, the target is to find
 * how to render natively
 * and so on ....
 
+
 It's an open source project, so you are welcome to collaborate, produce code or blogs and challenge us ...
 
 Timetrack is in its early stage (version 0.2), its actually a POC, tomorrow a CRM Lite, after tomorrow a training plate form and after after tomorrow the basement for redpelicans information system and may be one day a market place to match Javascrip client's requirements with redpelicans offer.
