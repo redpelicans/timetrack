@@ -4,7 +4,7 @@
 
 Timetrack will be the main tool for [redpelicans](http://www.redpelicans.com) to manage our consultants, clients, and produce invoices but it's also a training plateform for our junior consultants to learn how to craft a web application made of ReactJS, a flux implementation (Reflux here), FRP (Kefir), NodeJS, MongoDB and Docker.
  
-Beyond librairies or products selected to build timetrack, the target is to find and teach good practices for web application design: 
+Beyond librairies or products selected to build timetrack, the target is to find and teach good practices for web application design:
  
 * how to design stable, optimized http requests between front and server
 * how to draw a clear separation of concern between front and server
