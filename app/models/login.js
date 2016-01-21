@@ -33,6 +33,8 @@ const store = Reflux.createStore({
         if(person && person != state.user){
           state.user = person;
           this.trigger(state);
+          const roles = person.get('roles').toJS();
+          if(!(hasRoles(roles, 'access') || hasRoles(roles, 'admin'))) return actions.logout();
         }
       }
     });
@@ -83,7 +85,7 @@ const store = Reflux.createStore({
     if(!this.isLoggedIn()) return false;
 
     const roles = state.user.get('roles').toJS();
-    return hasRoles(roles, 'admin') || hasRoles(roles, route.authRoles);
+    return hasRoles(roles, 'admin') || hasRoles(roles, 'access') && hasRoles(roles, route.authRoles);
   },
 
   getJwt(){

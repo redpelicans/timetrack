@@ -10,12 +10,11 @@ function entityDelete(event, registrations, emitter, entity, params){
 }
 
 const conf = {
-  'note.view': { roles: [] },
-  'note.update': { roles: ['admin'] },
-  'note.new': { roles: ['admin'] },
-  'note.delete': { roles: ['admin'] },
+  'note.update': { rights: [''] },
+  'note.new': { rights: ['admin'] },
+  'note.delete': { rights: ['admin'] },
   'notes.entity.delete': { 
-    roles: ['admin'],
+    rights: ['admin'],
     callback: entityDelete,
   },
 }

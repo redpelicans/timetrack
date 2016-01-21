@@ -12,7 +12,7 @@ const types = [
 
 const roles = [
   {key: 'admin', value: 'Admin'},
-  {key: 'worker', value: 'Worker'},
+  {key: 'access', value: 'Access'},
 ];
 
 const phoneLabels = [

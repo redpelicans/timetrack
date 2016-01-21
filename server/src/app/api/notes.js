@@ -14,9 +14,11 @@ export function init(app, resources){
     })
   });
 
-  app.post('/notes', checkRights('note.new'), function(req, res, next){
+  // TODO: should check right depending on entity
+  app.post('/notes', function(req, res, next){
     const note = req.body.note;
     async.waterfall([
+      loadEntity.bind(null, entityId),
       create.bind(null, note, req.user), 
       loadOne,
     ], (err, note) => {
@@ -28,7 +30,8 @@ export function init(app, resources){
   });
 
 
-  app.put('/note', checkRights('note.update'), function(req, res, next){
+  // TODO: should check right depending on entity
+  app.put('/note', function(req, res, next){
     const updates = fromJson(req.body.note);
     updates.authorId = req.user._id;
     const id = ObjectId(req.body.note._id);
@@ -44,7 +47,7 @@ export function init(app, resources){
     });
   });
 
-  app.delete('/note/:id', checkRights('note.delete'), function(req, res, next){
+  app.delete('/note/:id', function(req, res, next){
     let id = ObjectId(req.params.id); 
     async.waterfall([
       del.bind(null, id), 
