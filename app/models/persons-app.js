@@ -117,7 +117,11 @@ function filterForSearch(filter=''){
 
   function filterByName(p, key){
     const company = state.companies.get(p.get('companyId'));
-    const name = [p.get('name').toLowerCase(), company && company.get('name').toLowerCase()].join( ' ') ;
+    const name = [
+      p.get('name').toLowerCase(), 
+      company && company.get('name').toLowerCase(), 
+      p.get('email'),
+    ].join( ' ') ;
     return name.indexOf(key) !== -1;
   }
 

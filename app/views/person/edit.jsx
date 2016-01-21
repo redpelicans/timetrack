@@ -243,7 +243,7 @@ export default class EditContent extends Component {
     }
 
     const roles = () => {
-      if(!this.state.isWorker) return <div/>
+      //if(!this.state.isWorker) return <div/>
       return (
         <div className="col-md-12">
           <MultiSelectField field={person.field('roles')}/>

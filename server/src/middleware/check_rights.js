@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import events from '../events';
+import rights from '../rights';
 
 
 export default function checkRights(event) {
-  const requestedRoles = events[event] && events[event].roles || [];
+  const requestedRoles = rights[event] && rights[event].roles || [];
   return function(req, res, next) {
     var user = req.user;
     if (!user){ return res.sendStatus(401).json({message: "Unknown User"}) }

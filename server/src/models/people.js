@@ -28,6 +28,10 @@ export default class Person {
     });
   }
 
+  hasSomeRoles(roles){
+    return !_.chain(roles).intersection(this.roles || []).isEmpty().value();
+  }
+
   hasAllRoles(roles){
     return _.chain(roles).difference(this.roles || []).isEmpty().value();
   }

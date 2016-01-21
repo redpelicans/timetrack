@@ -19,6 +19,7 @@ export default class ViewMissionApp extends Component {
 
   componentWillMount() {
     let missionId = this.props.location.state && this.props.location.state.missionId;
+    if(!missionId) navActions.replace(sitemap.mission.list);
 
     this.unsubcribePersons = personsStore.listen( persons => {
       this.setState({ persons: persons.data })

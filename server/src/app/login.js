@@ -39,6 +39,7 @@ function loadUser(googleUser, cb){
   Person.findOne({isDeleted: {$ne: true}, email: googleUser.email}, (err, user) => {
     if(err)return cb(err);
     if(!user) return cb(new Error("Unknwon email: " + googleUser.email));
+    if(!user.hasSomeRoles(['admin', 'access'])) return cb(new Error("Unauthorized email: " + googleUser.email));
     cb(null, user, googleUser);
   });
 }

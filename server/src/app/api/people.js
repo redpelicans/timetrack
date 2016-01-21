@@ -105,7 +105,7 @@ export function init(app, resources){
 
   app.post('/person/check_email_uniqueness', checkUser('admin'), function(req, res, next){
     let email = req.body.email && req.body.email.trim();
-    Person.findAll({email: email}, {_id: 1}, (err, data) => {
+    Person.findAll({email: email, isDeleted: {$ne: true}}, {_id: 1}, (err, data) => {
       if(err)return next(err);
       if(data.length) return res.json({email: email, ok: false});
       res.json({email: email, ok: true});

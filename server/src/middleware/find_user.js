@@ -12,6 +12,7 @@ export default function findUser(secretKey){
         return res.status(401).json({message: "Unauthorized access"});
       }
       if(!user) return res.status(401).json({message: "Unknown user"});
+      if(!user.hasSomeRoles(['admin', 'access']))  return res.status(401).json({message: "Unauthorized access"});
       req.user = user;
       //console.log(`==> user: ${user.email}`);
       next();

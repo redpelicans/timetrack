@@ -20,6 +20,7 @@ export default class ViewCompanyApp extends Component {
 
   componentWillMount() {
     let companyId = this.props.location.state && this.props.location.state.companyId;
+    if(!companyId) navActions.replace(sitemap.company.list);
 
     this.unsubscribePersons = personsStore.listen( persons => {
       this.setState({ persons: persons.data })

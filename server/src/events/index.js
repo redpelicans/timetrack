@@ -1,18 +1,17 @@
 import note from './note';
 
 const events = {
-  'person.new': { roles: ['admin'] },
-  'person.delete': { roles: ['admin'] },
-  'person.update': { roles: ['admin'] },
+  'person.new': { right: 'person.view' },
+  'person.delete': { right: 'person.view' },
+  'person.update': { right: 'person.view' },
 
-  'company.new': { roles: ['admin'] },
-  'company.delete': { roles: ['admin'] },
-  'company.update': { roles: ['admin'] },
+  'company.new': { right: 'company.view' },
+  'company.delete': { right: 'company.view' },
+  'company.update': { right: 'company.view' },
 
-  'mission.view': { roles: [] },
-  'mission.new': { roles: ['admin'] },
-  'mission.delete': { roles: ['admin'] },
-  'mission.update': { roles: ['admin'] },
+  'mission.new': { right: 'mission.view' },
+  'mission.delete': { right: 'mission.view' },
+  'mission.update': { right: 'mission.view' },
 
   ...note,
 }

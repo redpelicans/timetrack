@@ -18,7 +18,8 @@ export default class ViewPersonApp extends Component {
   state = {};
 
   componentWillMount() {
-    let personId = this.props.location.state.personId;
+    let personId = this.props.location.state && this.props.location.state.personId;
+    if(!personId) navActions.replace(sitemap.person.list);
 
     this.unsubscribeCompanies = companiesStore.listen( companies => {
       const company = companies.data.get(this.state.person.get('companyId'));
@@ -132,7 +133,7 @@ const Card = ({person, company, companies, persons, missions, tags}) =>  {
 
   const phones = () =>  _.map(person.get('phones') && person.get('phones').toJS() || [], p => {
     return (
-      <div key={p.phone+p.label} className="col-md-4">
+      <div key={p.label+p.number} className="col-md-4">
         <TextLabel label={`Phone: ${p.label}`} value={p.number}/>
       </div>
     )

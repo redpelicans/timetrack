@@ -1,5 +1,6 @@
 import {EventEmitter} from 'events';
 import {Person} from '../models';
+import rights from '../rights';
 import debug from 'debug';
 import _ from 'lodash';
 import async from 'async';
@@ -34,7 +35,7 @@ class Register {
     delete this.connections[socket.id];
   }
 
-  getAuthorizedRegistrations(roles, cb){
+  getAuthorizedRegistrations(right, cb){
     async.map(
       _.values(this.connections), 
       (registration, cb) => {
@@ -46,7 +47,7 @@ class Register {
       },
       (err, registrations) => {
         if(err) return cb(err);
-        cb(null, _.chain(registrations).compact().filter(r => r.user.hasAllRoles(roles)).value());
+        cb(null, _.chain(registrations).compact().filter(r => r.user.hasAllRoles(rights[right])).value());
       }
     );
   }
@@ -99,7 +100,7 @@ class Server{
   broadcast(event, conf){
     const server = this;
     return function(data, params){
-      server.subscriptions.getAuthorizedRegistrations(conf.roles, (err, registrations) => {
+      server.subscriptions.getAuthorizedRegistrations(conf.right, (err, registrations) => {
         if(err) console.error(err);
         if(!conf.callback) return server.emit(event, data, registrations, params);
         conf.callback(event, registrations, server.emit.bind(server), data, params);

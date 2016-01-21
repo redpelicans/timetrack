@@ -1,6 +1,6 @@
 import {errorsActions as errors} from '../models/errors';                                                                                                                                  
 import {navActions} from '../models/nav';
-import {loginStore} from '../models/login';
+import {loginActions, loginStore} from '../models/login';
 
 export function parseJSON(res) {
   return res.json && res.json() || res;
@@ -9,17 +9,17 @@ export function parseJSON(res) {
 export function checkStatus(res) {
   if (res.status >= 200 && res.status < 300) {
     return res
-  } else if(res.status === 401){
+  } else if(res.status === 403){
     var error = new Error("Insufficient privilege, you cannot access this page")
     error.res = res
     error.forceMessage = true;
     navActions.gotoLogin();
     throw error
-  } else if(res.status === 403){
+  } else if(res.status === 401){
     var error = new Error("Unauthorized access")
     error.res = res
     error.forceMessage = true;
-    navActions.gotoUnAuth();
+    loginActions.logout();
     throw error
   } else {
     var error = new Error(res.statusText)
