@@ -52,6 +52,7 @@ const store = Reflux.createStore({
   },
 
   onLoggedIn(user, token){
+    user.name = [user.firstName, user.lastName].join(' ');
     state.user = Immutable.fromJS(user);
     state.appJwt = token;
     state.sessionId = uuid.v4();

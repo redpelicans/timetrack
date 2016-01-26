@@ -7,7 +7,7 @@ var host = params.proxy.host || '0.0.0.0';
 module.exports = {
   devtool: '#eval-source-map',
   entry: [
-    'webpack-dev-server/client?http://' + host + ':' + port,
+    'webpack-dev-server/client?http://' + host + ':' + 5004,
     'webpack/hot/dev-server',
     path.join(__dirname, 'app', 'index')
   ],

@@ -8,7 +8,6 @@ import {loginStore, loginActions} from './models/login';
 import authManager from './auths';
 import sitemap from './routes';
 import boot from './boot';
-import {registerSocketIO}from './socketIO';
 import moment from 'moment';
 import momentLocalizer from 'react-widgets/lib/localizers/moment';
 momentLocalizer(moment);
@@ -17,8 +16,6 @@ momentLocalizer(moment);
 
 import 'react-widgets/lib/less/react-widgets.less';
 import '../public/styles/app.less';
-
-registerSocketIO();
 
 navActions.goBackRoute.listen( ()=> {
   history.goBack();
@@ -78,12 +75,6 @@ boot().then( () => {
   console.log("Rendering react App...")
   ReactDOM.render(<Router history={history}>{routes}</Router>, document.getElementById("formo"));
 })
-// .catch( (err) => {
-//   console.log(err)
-//   const elt = document.getElementById("bootmessage");
-//   elt.className="alert alert-danger boot-error";
-//   elt.innerText = 'Runtime error, check your backend';
-// });
 
 
 

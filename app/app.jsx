@@ -72,8 +72,7 @@ export default class App extends Component {
   }
 
   handleViewPerson = () => {
-    //navActions.push(sitemap.person.view, {person: this.state.user});
-    navActions.push(sitemap.person.view, {personId: this.state.user.get('_id')});
+    //navActions.push(sitemap.person.view, {personId: this.state.user.get('_id')});
   }
 
   render(){
