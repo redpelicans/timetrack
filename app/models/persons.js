@@ -3,7 +3,7 @@ import Immutable from 'immutable';
 import Reflux from 'reflux';
 import {requestJson} from '../utils';
 import {companiesActions} from './companies';
-import {loginStore} from './login';
+import {loginActions, loginStore} from './login';
 
 const actions = Reflux.createActions([
   "load", 
@@ -130,6 +130,7 @@ const store = Reflux.createStore({
   onDeleteCompleted(person){
     state.data = state.data.delete( person._id );
     companiesActions.removePerson(person);
+    //loginActions.removeUser(person);
     this.trigger(state);
   },
 

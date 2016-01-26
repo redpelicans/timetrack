@@ -13,6 +13,7 @@ const actions = Reflux.createActions([
   "login", 
   "loggedIn", 
   "logout", 
+  "removeUser",
 ]);
 
 const state = {
@@ -49,6 +50,13 @@ const store = Reflux.createStore({
       actions.loggedIn(res.user, res.token);
       navActions.replace(nextRouteName);
     });
+  },
+
+  onRemoveUser(person){
+    // TODO: do not work because we will never receive event !!
+    if(state.user && person._id === state.user.get('_id')){
+      actions.logout();
+    }
   },
 
   onLoggedIn(user, token){
