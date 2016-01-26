@@ -47,7 +47,7 @@ class Register {
       },
       (err, registrations) => {
         if(err) return cb(err);
-        cb(null, _.chain(registrations).compact().filter(r => r.user.hasAllRoles(rights[right])).value());
+        cb(null, _.chain(registrations).compact().filter(r => r.user && r.user.hasAllRoles(rights[right])).value());
       }
     );
   }
