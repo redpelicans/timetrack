@@ -1,11 +1,10 @@
 import {Route, RouteManager} from 'kontrolo';
-import NotFound from '../views/not-found';
-import UnAuthorized from '../views/unauthorized';
-import LoginApp from '../views/login';
+import NotFound from '../containers/notfound';
+import LoginApp from '../containers/login';
+import UnAuthorized from '../components/unauthorized';
 import personRoutes from './person';
 import companyRoutes from './company';
 import missionRoutes from './mission';
-import authManager from '../auths';
 
 const routes = RouteManager([
   personRoutes,
@@ -26,6 +25,7 @@ const routes = RouteManager([
     path: '/login',
     component: LoginApp,
   }),
-], {auth: authManager});
+]);
 
+export const TOTO=1;
 export default routes;

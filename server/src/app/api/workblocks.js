@@ -33,7 +33,7 @@ export function init(app) {
 }
 
 function fromJSON(data, attrs) {
-  let workblock = _.inject(attrs, (memo, attr) => {
+  let workblock = _.reduce(attrs, (memo, attr) => {
     if (_.has(data, attr)) memo[attr] = data[attr];
     return memo;
   }, {});

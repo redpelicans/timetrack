@@ -1,4 +1,4 @@
-import ListCompanyApp from '../views/company/list';
+import ListCompanyApp from '../containers/company/list';
 import {NewCompanyApp, EditCompanyApp} from '../views/company/edit';
 import ViewCompanyApp from '../views/company/view';
 import {Route, RouteManager} from 'kontrolo';

@@ -1,80 +1,81 @@
 import socketIO from 'socket.io-client';
-import {errorsActions as errors} from './models/errors';
-import {personsActions} from './models/persons';
-import {companiesActions} from './models/companies';
-import {missionsActions} from './models/missions';
-import {notesActions} from './models/notes';
-import {loginStore} from './models/login';
-import _ from 'lodash';
+import {personsActions} from './actions/persons';
+import {companiesActions} from './actions/companies';
+import {missionsActions} from './actions/missions';
+import {notesActions} from './actions/notes';
+import {socketIOActions} from './actions/socketIO';
+import {alert} from './actions/errors';
 
-var socket
-  , commError = false;
+let socket;
+let commError = false;
 
-function ping(delay){
-  let ack = false;
-  let data = {
-    message: 'ping',
-    token: loginStore.getJwt(),
-    sessionId: loginStore.getSessionId(),
-  };
+export function registerSocketIO(store){
+  function ping(delay){
+    let ack = false;
+    const state = store.getState();
+    const token = state.login && state.login.appJwt;
+    const sessionId = state.login && state.login.sessionId;
+    const data = { message: 'ping', token, sessionId };
 
-  socket.emit('ping', data, () => {
-    ack = true;
-    commError = false;
-  });
-  setTimeout( () => {
-    if(ack)return ping(1000);
-    if(commError) return ping(1000);
-    commError = true;
-    errors.alert({ header: 'Server Communication Error', message: 'Cannot ping server' });
-  }, delay);
-}
+    socket.emit('ping', data, () => {
+      ack = true;
+      commError = false;
+    });
 
-export function registerSocketIO(){
+    setTimeout( () => {
+      if(ack)return ping(1000);
+      if(commError) return ping(1000);
+      commError = true;
+      store.dispatch(alert({ header: 'Server Communication Error', message: 'Cannot ping server' }));
+    }, delay);
+  }
+
   socket = socketIO.connect();
   socket.on('connect', () => {
+   
     ping(5000);
-    login();
+    store.dispatch(socketIOActions.connect(socket));
 
-    register('person.new', personsActions.createCompleted);
-    register('person.delete', personsActions.deleteCompleted);
+    registerAction('person.new', personsActions.createCompleted);
+    registerAction('person.delete', personsActions.deleteCompleted);
     register('person.update', updatePerson);
 
-    register('company.new', companiesActions.createCompleted);
-    register('company.delete', companiesActions.deleteCompleted);
+    registerAction('company.new', companiesActions.createCompleted);
+    registerAction('company.delete', companiesActions.deleteCompleted);
     register('company.update', updateCompany);
 
-    register('mission.new', missionsActions.createCompleted);
-    register('mission.delete', missionsActions.deleteCompleted);
+    registerAction('mission.new', missionsActions.createCompleted);
+    registerAction('mission.delete', missionsActions.deleteCompleted);
     register('mission.update', updateMission);
 
-    register('note.new', notesActions.createCompleted);
-    register('note.delete', notesActions.deleteCompleted);
+    registerAction('note.new', notesActions.createCompleted);
+    registerAction('note.delete', notesActions.deleteCompleted);
     register('note.update', updateNote);
-
   });
-}
 
-function register(name, fct){
-  socket.on(name, fct);
-}
+  function registerAction(name, action){
+    socket.on(name, data => store.dispatch(action(data)) );
+  }
 
-function login(){
-  loginStore.setSocketIO(socket);
-}
+  function register(name, fct){
+    socket.on(name, fct);
+  }
 
-function updatePerson(data){
-  personsActions.updateCompleted(data.previous, data.current);
-}
+  function updatePerson(data){
+    store.dispatch(personsActions.updateCompleted(data.previous, data.current));
+  }
 
-function updateCompany(data){
-  companiesActions.updateCompleted(data.previous, data.current);
-}
+  function updateCompany(data){
+    //store.dispatch(companiesActions.updateCompleted(data.previous, data.current));
+    store.dispatch(companiesActions.updateCompleted(data.current));
+  }
 
-function updateNote(data){
-  notesActions.updateCompleted(data.previous, data.current);
-}
+  function updateNote(data){
+    store.dispatch(notesActions.updateCompleted(data.previous, data.current));
+  }
 
-function updateMission(data){
-  missionsActions.updateCompleted(data.previous, data.current);
+  function updateMission(data){
+    store.dispatch(missionsActions.updateCompleted(data.previous, data.current));
+  }
+
 }

@@ -176,7 +176,7 @@ function fromJson(json){
     res.avatar = _.pick(json.avatar, attrs);
   }
   if(json.tags){
-    const tags = _.inject(json.tags, (res, tag) => { 
+    const tags = _.reduce(json.tags, (res, tag) => { 
       const t = uppercamelcase(tag);
       res[t] = t; return res
     }, {});

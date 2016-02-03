@@ -5,7 +5,7 @@ var port = params.proxy.port || 6806;
 var host = params.proxy.host || '0.0.0.0';
 
 module.exports = {
-  devtool: '#eval-source-map',
+  devtool: 'cheap-module-eval-source-map',
   entry: [
     'webpack-dev-server/client?http://' + host + ':' + port,
     'webpack/hot/dev-server',
@@ -18,8 +18,9 @@ module.exports = {
   },
   plugins: [
     new webpack.ProvidePlugin({ 'fetch': 'imports?this=>global!exports?global.fetch!whatwg-fetch' }),
+    new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    //new webpack.NoErrorsPlugin()
+    new webpack.NoErrorsPlugin()
   ],
   resolve: {
     extensions: ['', '.js', '.jsx']

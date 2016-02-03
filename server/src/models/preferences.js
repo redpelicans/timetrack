@@ -7,7 +7,7 @@ export default class Preference {
   static spread(type, user, entities, cb){
     Preference.findAll({personId: user._id, type}, (err, preferences) => {
       if(err) return cb(err);
-      const hpreferences = _.inject(preferences, (res, p) => {res[p.entityId] = true; return res}, {});
+      const hpreferences = _.reduce(preferences, (res, p) => {res[p.entityId] = true; return res}, {});
       _.each(entities, entity => {
          entity.preferred = !!hpreferences[entity._id];
       });

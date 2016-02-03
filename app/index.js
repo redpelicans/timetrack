@@ -1,50 +1,40 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import {Router, Route, Link, IndexRoute, IndexLink, Redirect} from 'react-router';
-import {createHistory, createHashHistory} from 'history';
-import App from './app';
-import {navActions} from './models/nav';
-import {loginStore, loginActions} from './models/login';
-import authManager from './auths';
-import sitemap from './routes';
+import {render} from 'react-dom';
+import {Route, IndexRoute, browserHistory as history } from 'react-router';
+import Root from './containers/root';
+import App from './containers/app';
+import {loggedIn} from './actions/login';
+import {sitemapActions} from './actions/sitemap';
+import registerAuthManager from './auths';
+import routesManager from './routes';
 import boot from './boot';
 import {registerSocketIO}from './socketIO';
 import moment from 'moment';
 import momentLocalizer from 'react-widgets/lib/localizers/moment';
 momentLocalizer(moment);
+import configureStore from './store/configureStore';
 
-
+const store = configureStore();
+registerSocketIO(store);
+const authManager = registerAuthManager(store);
 
 import 'react-widgets/lib/less/react-widgets.less';
 import '../public/styles/app.less';
 
-registerSocketIO();
-
-navActions.goBackRoute.listen( ()=> {
-  history.goBack();
-})
-
-navActions.replaceRoute.listen(nextRoute => {
-  history.replaceState(null, nextRoute.path)
-})
-
-navActions.pushRoute.listen( (nextRoute, context) => {
-  history.pushState(context, nextRoute.path)
-})
-
-function onEnter(nextState, replaceState){
+function onEnter(nextState, replace){
   console.log("===> ENTER ROUTE: " + this.path)
-  if(this.isAuthRequired() && !loginStore.isLoggedIn()) return replaceState({nextRouteName: this.fullName}, sitemap.login.path); 
-  if(!authManager.isAuthorized(this)) return replaceState(null, sitemap.unauthorized.path); 
-  navActions.enter(this);
+  const state = store.getState();
+  if(this.isAuthRequired() && !state.login.user) return replace(routesManager.login.path, null, {nextRouteName: this.fullName}); 
+  if(!authManager.isAuthorized(this)) return replace(routesManager.unauthorized.path); 
+  store.dispatch(sitemapActions.enter(this));
 }
 
 function onLeave(location){
   console.log("===> LEAVE ROUTE: " + this.topic)
 }
 
-function getRoutes(sitemap){
-  return sitemap.routes
+function getRoutes(routes){
+  return routes
     .filter(r => r.path)
     .map(r => {
       return <Route 
@@ -57,26 +47,21 @@ function getRoutes(sitemap){
     });
 }
 
-const defaultRoute = sitemap.defaultRoute;
+const defaultRoute = routesManager.defaultRoute;
 
 const routes = (
   <Route path="/" component={App}>
   <IndexRoute component={defaultRoute.component} onEnter={onEnter.bind(defaultRoute)}/>
-    {getRoutes(sitemap)}
-    <Route path="*" component={sitemap.notfound.component} />
+    {getRoutes(routesManager.routes)}
+    <Route path="*" component={routesManager.notfound.component} />
   </Route>
 );
 
-const history = createHashHistory();
-
-history.listen( location => {
-  navActions.setContext(location.state);
-});
-
-boot().then( () => {
+boot().then( ({user, jwt}={}) => {
   console.log("End of boot process.")
   console.log("Rendering react App...")
-  ReactDOM.render(<Router history={history}>{routes}</Router>, document.getElementById("formo"));
+  if(user) store.dispatch(loggedIn(user, jwt));
+  render(<Root store={store} routes={routes} history={history} authManager={authManager}/>, document.getElementById("timetrack"));
 })
 // .catch( (err) => {
 //   console.log(err)

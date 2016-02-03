@@ -60,7 +60,16 @@ class Dispatcher extends EventEmitter{
 }
 
 function ping(socket, data, cb){
-  cb('pong') 
+  const subscription = this.subscriptions.get(socket);
+  if(subscription){
+    return cb('pong') 
+  }else{
+    this.subscriptions.add(socket, data.token, data.sessionId, (err, subscription) => {
+      if(err) return cb({status: 'error', error: err});
+      loginfo(`User ${subscription.user.fullName()} connected from socket.io.`);
+      cb('pong') 
+    });
+  }
 }
 
 function login(socket, data, cb){

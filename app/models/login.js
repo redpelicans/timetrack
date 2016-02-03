@@ -8,7 +8,6 @@ import routes from '../routes';
 import {personsStore} from './persons';
 import uuid from 'uuid';
 
-
 const actions = Reflux.createActions([
   "login", 
   "loggedIn", 
@@ -20,7 +19,6 @@ const state = {
   appJwt: undefined,
   sessionId: undefined, // used to identify browser between http and ws
 }
-
 
 const store = Reflux.createStore({
 

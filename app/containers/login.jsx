@@ -1,9 +1,18 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
-import {loginStore,  loginActions} from '../models/login';
-import {Content} from './layout';
+import {Content} from '../views/layout';
+import { connect } from 'react-redux';
+import { loginRequest } from '../actions/login';
+import { replaceRoute } from '../actions/routes';
+import routes from '../routes';
 
 export default class LoginApp extends Component {
+
+  componentWillMount(){
+    if(this.props.user){
+      this.props.dispatch(replaceRoute(routes.defaultRoute));
+    }
+  }
 
   componentDidMount(){
     gapi.load('auth2', () => { 
@@ -20,9 +29,10 @@ export default class LoginApp extends Component {
       } 
 
       const onSuccess = (user) => {
+        const {dispatch, login} = this.props;
         console.log('Signed in as ' + user.getBasicProfile().getEmail());
         const nextRouteName = this.props.location.state && this.props.location.state.nextRouteName;
-        loginActions.login(user, nextRouteName);
+        dispatch(loginRequest(user, nextRouteName));
       } 
 
       auth2.attachClickHandler('signin-button', {}, onSuccess, onFailure);
@@ -48,5 +58,17 @@ export default class LoginApp extends Component {
       </Content>
     )
   }
-
 }
+
+LoginApp.propTypes = {
+  dispatch: PropTypes.func.isRequired,
+  user: PropTypes.object,
+}
+
+function mapStateToProps(state) {
+  return {
+    user: state.login.user
+  }
+}
+export default connect(mapStateToProps)(LoginApp);
+

@@ -57,7 +57,7 @@ export function start(params, resources, cb) {
     //app.use(cookieParser());
 
     app.use(favicon(__dirname + '../../../../public/images/favicon.ico'));
-    app.use(express.static(path.join(__dirname, '../../../public')));
+    app.use(express.static(path.join(__dirname, '../../../../public')));
     app.use('/build', express.static(path.join(__dirname, '../../../build')));
 
     require('./ping').init(app, resources);
@@ -77,7 +77,11 @@ export function start(params, resources, cb) {
     });
 
     app.use('/api', findUser(params.secretKey), require('./api').init(app, resources, params));
-    
+
+    app.use(function(req, res, next){ 
+      res.sendFile(path.join(__dirname + '../../../../public/index.html')) 
+    }); 
+
     app.use(errors);
 
     cb(null, {stop: stop});

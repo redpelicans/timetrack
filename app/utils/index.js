@@ -1,6 +1,7 @@
-import {errorsActions as errors} from '../models/errors';                                                                                                                                  
-import {navActions} from '../models/nav';
-import {loginActions, loginStore} from '../models/login';
+import {alert} from '../actions/errors';
+import {startLoading, stopLoading} from '../actions/loading';
+import {gotoLogin} from '../actions/routes';
+import {logout} from '../actions/login';
 
 export function parseJSON(res) {
   return res.json && res.json() || res;
@@ -12,14 +13,10 @@ export function checkStatus(res) {
   } else if(res.status === 403){
     var error = new Error("Insufficient privilege, you cannot access this page")
     error.res = res
-    error.forceMessage = true;
-    navActions.gotoLogin();
     throw error
   } else if(res.status === 401){
     var error = new Error("Unauthorized access")
     error.res = res
-    error.forceMessage = true;
-    loginActions.logout();
     throw error
   } else {
     var error = new Error(res.statusText)
@@ -28,17 +25,19 @@ export function checkStatus(res) {
   }
 }
 
-export function requestJson(uri, {verb='get', header='Runtime Error', body, message='Check your backend server'} = {}){
+export function requestJson(uri, dispatch, getState, {verb='get', header='Runtime Error', body, message='Check your backend server'} = {}){
   let  promise;
+  const {login: {appJwt, sessionId}} = getState();
+
+  dispatch(startLoading());
 
   if(!body)
     promise = fetchJson(uri, { 
       method: verb,
       headers:{
-        'X-Token-Access': loginStore.getJwt(),
-        'X-SessionId': loginStore.getSessionId(),
+        'X-Token-Access': appJwt,
+        'X-SessionId': sessionId,
       },
-      //credentials: 'same-origin',
     });
   else
     promise = fetchJson(uri, {
@@ -47,18 +46,29 @@ export function requestJson(uri, {verb='get', header='Runtime Error', body, mess
       headers:{
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'X-Token-Access': loginStore.getJwt(),
-        'X-SessionId': loginStore.getSessionId(),
+        'X-Token-Access': appJwt,
+        'X-SessionId': sessionId,
       },
       body: JSON.stringify(body||{})
     });
 
-   promise.catch( err => {
+   promise
+    .then(res => {
+      dispatch(stopLoading());
+      return res;
+    })
+    .catch( err => {
+      dispatch(stopLoading());
       console.error(err.toString());
-      if(err.forceMessage){
-        errors.alert({ header: err.message });
-      }else{
-        errors.alert({ header: header, message: message });
+      switch(err.res.status){
+        case 401:
+          dispatch(alert({ header: err.message, message}));
+          dispatch(logout()); 
+        case 403:
+          dispatch(alert({ header: err.message, message}));
+          dispatch(gotoLogin()); 
+        default:
+          dispatch(alert({ header, message }));
       }
    });
 

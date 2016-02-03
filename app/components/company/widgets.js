@@ -1,16 +1,15 @@
 import React, {Component} from 'react';
 import classNames from 'classnames';
 import {authable} from '../../components/authmanager';
-import {companiesActions} from '../../models/companies';
-import {companiesAppActions} from '../../models/companies-app';
 import routes from '../../routes';
-import {navActions} from '../../models/nav';
 import {AvatarView, NewLabel, UpdatedLabel} from '../widgets';
+import {pushRoute} from '../../actions/routes';
+import {companiesActions} from '../../actions/companies';
 
-export const Edit = authable(({company}, {authManager}) => {
+export const Edit = authable(({company}, {authManager, dispatch}) => {
   const handleChange = (e) => {
     e.preventDefault();
-    navActions.push(routes.company.edit, {companyId: company.get('_id')});
+    dispatch(pushRoute(routes.company.edit, {companyId: company.get('_id')}));
   }
 
   if(authManager.company.isAuthorized('edit')){
@@ -24,10 +23,11 @@ export const Edit = authable(({company}, {authManager}) => {
   }
 })
 
-export const Preferred = authable(({company, active}, {authManager}) => {
+export const Preferred = authable(({company, active}, {authManager, dispatch}) => {
+
   const handleChange = (e) => {
     e.preventDefault();
-    companiesActions.togglePreferred(company);
+    dispatch(companiesActions.togglePreferred(company));
   }
 
   const classnames = classNames("iconButton star fa fa-star-o m-r-1", {
@@ -47,12 +47,12 @@ export const Preferred = authable(({company, active}, {authManager}) => {
   }
 })
 
-export const Delete = authable(({company, postAction}, {authManager}) => {
+export const Delete = authable(({company, postAction}, {authManager, dispatch}) => {
   const handleChange = (e) => {
     e.preventDefault();
     const answer = confirm(`Are you sure to delete the company "${company.get('name')}"`);
     if(answer){
-      companiesActions.delete(company.toJS());
+      dispatch(companiesActions.delete(company.toJS()));
       if(postAction)postAction();
     }
   }
@@ -76,7 +76,7 @@ export class AddButton extends Component {
 
   handleClick = () => {
     $('#addObject').tooltip('hide');
-    navActions.push(routes.company.new);
+    this.context.dispatch(pushRoute(routes.company.new));
   }
 
   render(){
@@ -113,7 +113,7 @@ export class Preview extends Component {
 
   handleView = (e) => {
     e.preventDefault();
-    navActions.push(routes.company.view, {companyId: this.props.company.get('_id')});
+    this.context.dispatch(pushRoute(routes.company.view,  {companyId: this.props.company.get('_id')}));
   }
 
   handleMouseEnter = (e) => {
@@ -207,8 +207,8 @@ export class Preview extends Component {
       const onClick = (tag, e) => {
         e.preventDefault();
         const filter = `#${tag} `;
-        companiesAppActions.filter(filter);
-        navActions.push(routes.company.list, {filter});
+        this.context.dispatch(companiesActions.filter(filter));
+        this.context.dispatch(pushRoute(routes.company.list, {filter}));
       }
 
       if(!company.get('tags') || !company.get('tags').size) return <div/>;
