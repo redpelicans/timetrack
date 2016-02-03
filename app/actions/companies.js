@@ -11,6 +11,7 @@ export const FILTER_COMPANIES = 'FILTER_COMPANIES';
 export const COMPANY_UPDATED = 'COMPANY_UPDATED';
 export const COMPANY_DELETED = 'COMPANY_DELETED';
 export const COMPANY_CREATED = 'COMPANY_CREATED';
+export const COMPANY_TOGGLE_PREFERRED_COMPLETED = 'COMPANY_TOGGLE_PREFERRED_COMPLETED';
 
 export function createCompleted(){
 }
@@ -39,7 +40,15 @@ export function updateCompleted(company){
 function companiesLoaded(companies){
   return {
     type: COMPANIES_LOADED,
-    companies: companies
+    companies: Immutable.fromJS(_.reduce(companies, (res, p) => { res[p._id] = Maker(p); return res}, {})),
+  }
+}
+
+function togglePreferredCompleted(id, preferred){
+  return {
+    type: COMPANY_TOGGLE_PREFERRED_COMPLETED,
+    id,
+    preferred
   }
 }
 
@@ -65,7 +74,7 @@ export function togglePreferred(company){
 
     request.then( res => {
       const state = getState();
-      dispatch(companiesLoaded(state.companies.data.update(res._id, p =>  p.set('preferred', body.preferred))))
+      dispatch(togglePreferredCompleted(res._id, body.preferred));
     });
   }
 }
@@ -87,7 +96,7 @@ export function loadCompanies({forceReload=false, ids=[]} = {}){
     dispatch({type: LOAD_COMPANIES});
     requestJson(url, dispatch, getState, {message: 'Cannot load companies, check your backend server'})
       .then( companies => {
-        dispatch(companiesLoaded(Immutable.fromJS(_.reduce(companies, (res, p) => { res[p._id] = Maker(p); return res}, {}))));
+        dispatch(companiesLoaded(companies));
       });
   }
 }

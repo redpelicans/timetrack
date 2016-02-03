@@ -7,7 +7,8 @@ import {
   LOAD_COMPANIES, 
   FILTER_COMPANIES, 
   SORT_COMPANIES, 
-  TOGGLE_PREFERRED_FILTER
+  TOGGLE_PREFERRED_FILTER,
+  COMPANY_TOGGLE_PREFERRED_COMPLETED,
 } from '../actions/companies';
 
 const initialState = {
@@ -22,6 +23,11 @@ const initialState = {
 
 export default function companiesReducer(state = initialState, action) {
   switch(action.type){
+    case COMPANY_TOGGLE_PREFERRED_COMPLETED:
+      return {
+        ...state,
+        data: state.data.update(action.id, p =>  p.set('preferred', action.preferred)),
+      }
     case COMPANY_DELETED:
       return {
         ...state,
