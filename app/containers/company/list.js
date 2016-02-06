@@ -113,15 +113,4 @@ List.propTypes = {
   companies: PropTypes.object.isRequired,
 }
 
-
-// function mapStateToProps(state) {
-//   return {
-//     companies: state.companies.data,
-//     filter: state.companies.filter,
-//     filterPreferred: state.companies.filterPreferred,
-//     sortCond: state.companies.sortCond,
-//     isLoading: !!state.pendingRequests,
-//   }
-// }
-
 export default connect(visibleCompaniesSelector)(CompanyList);

@@ -12,6 +12,7 @@ export const COMPANY_UPDATED = 'COMPANY_UPDATED';
 export const COMPANY_DELETED = 'COMPANY_DELETED';
 export const COMPANY_CREATED = 'COMPANY_CREATED';
 export const COMPANY_TOGGLE_PREFERRED_COMPLETED = 'COMPANY_TOGGLE_PREFERRED_COMPLETED';
+export const UPDATE_TAGS_COMPLETED = 'UPDATE_TAGS_COMPLETED';
 
 export function createCompleted(){
 }
@@ -127,7 +128,26 @@ export function createCompany(company){
   }
 }
 
+function updateTagsCompleted(company){
+  return {
+    type: UPDATE_TAGS_COMPLETED,
+    id: company._id,
+    tags: Immutable.fromJS(company.tags),
+  }
+}
+
+export function updateTags(company, tags){
+  return (dispatch, getState) => {
+    let body = { _id: company.get('_id') , tags};
+    const message = 'Cannot update tags, check your backend server';
+    let request = requestJson(`/api/companies/tags`,dispatch, getState, {verb: 'post', body: body, message: message});
+
+    request.then( company => dispatch(updateTagsCompleted(company)));
+  }
+}
+
 export const companiesActions = {
+  updateTags,
   createCompleted,
   updateCompleted,
   deleteCompleted,

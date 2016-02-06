@@ -1,16 +1,15 @@
 import Immutable from 'immutable';
 import {
-  COMPANY_CREATED, 
-  COMPANY_DELETED, 
-  COMPANY_UPDATED, 
-  COMPANIES_LOADED, 
-  LOAD_COMPANIES, 
-  FILTER_COMPANIES, 
-  SORT_COMPANIES, 
+  PERSON_CREATED, 
+  PERSON_DELETED, 
+  PERSON_UPDATED, 
+  PERSONS_LOADED, 
+  LOAD_PERSONS, 
+  FILTER_PERSONS, 
+  SORT_PERSONS, 
   TOGGLE_PREFERRED_FILTER,
-  COMPANY_TOGGLE_PREFERRED_COMPLETED,
-  UPDATE_TAGS_COMPLETED,
-} from '../actions/companies';
+  PERSON_TOGGLE_PREFERRED_COMPLETED,
+} from '../actions/persons';
 
 const initialState = {
   data: Immutable.Map(),
@@ -22,35 +21,30 @@ const initialState = {
   },
 };
 
-export default function companiesReducer(state = initialState, action) {
+export default function personsReducer(state = initialState, action) {
   switch(action.type){
-    case UPDATE_TAGS_COMPLETED:
-      return {
-        ...state,
-        data: state.data.update(action.id, p =>  p.set('tags', action.tags )),
-      }
-    case COMPANY_TOGGLE_PREFERRED_COMPLETED:
+    case PERSON_TOGGLE_PREFERRED_COMPLETED:
       return {
         ...state,
         data: state.data.update(action.id, p =>  p.set('preferred', action.preferred)),
       }
-    case COMPANY_DELETED:
+    case PERSON_DELETED:
       return {
         ...state,
         data: state.data.delete( action.id ),
       }
-    case COMPANY_UPDATED:
-    case COMPANY_CREATED:
+    case PERSON_UPDATED:
+    case PERSON_CREATED:
       return {
         ...state,
-        data: state.data.set(action.company.get('_id'), action.company),
+        data: state.data.set(action.person.get('_id'), action.person),
       }
-    case FILTER_COMPANIES:
+    case FILTER_PERSONS:
       return {
         ...state,
         filter: action.filter
       }
-    case SORT_COMPANIES:
+    case SORT_PERSONS:
       const sortCond = {
         by: action.by,
         order: state.sortCond.by === action.by ? {asc: 'desc', desc: 'asc'}[state.sortCond.order] : state.sortCond.order,
@@ -64,10 +58,10 @@ export default function companiesReducer(state = initialState, action) {
         ...state,
         filterPreferred: !state.filterPreferred
       }
-    case COMPANIES_LOADED:
+    case PERSONS_LOADED:
       return {
         ...state,
-        data: action.companies
+        data: action.persons
       }
     default: 
       return state;

@@ -5,7 +5,14 @@ import error from './errors'
 import socketIO from './socketIO'
 import sitemap from './sitemap'
 import companies from './companies'
+import persons from './persons'
+import missions from './missions'
 import pendingRequests from './loading'
+import cities from './cities'
+import countries from './countries'
+import tags from './tags'
+import notes from './notes'
+import skills from './skills'
 
 const rootReducer = combineReducers({
     routing
@@ -14,6 +21,13 @@ const rootReducer = combineReducers({
   , error 
   , sitemap
   , companies
+  , persons
+  , missions
+  , cities
+  , countries
+  , tags
+  , notes
+  , skills
   , pendingRequests
 })
 

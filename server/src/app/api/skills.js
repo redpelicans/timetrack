@@ -20,7 +20,7 @@ export function init(app){
   app.get('/skills', function(req, res, next){
     async.waterfall([load], (err, skills) => {
       if(err)return next(err);
-      const hbaseSkills = _.chain(baseSkills).map( skill => [skill, skill] ).object().value();
+      const hbaseSkills = _.reduce(baseSkills, (res, skill) => {res[skill] = skill; return res}, {});
       const allSkills = _.merge(hbaseSkills, skills);
       res.json(_.values(allSkills).sort());
     })

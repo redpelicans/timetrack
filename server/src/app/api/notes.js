@@ -18,7 +18,6 @@ export function init(app, resources){
   app.post('/notes', function(req, res, next){
     const note = req.body.note;
     async.waterfall([
-      loadEntity.bind(null, entityId),
       create.bind(null, note, req.user), 
       loadOne,
     ], (err, note) => {

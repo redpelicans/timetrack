@@ -11,7 +11,7 @@ export function init(app){
   app.get('/countries', function(req, res, next){
     async.waterfall([load], (err, countries) => {
       if(err)return next(err);
-      const hbasecountries = _.chain(base).map( country => [country, country] ).object().value();
+      const hbasecountries = _.reduce(base, (res, country) => {res[country] = country; return res}, {});
       const allcountries = _.merge(hbasecountries, countries);
       res.json(_.values(allcountries).sort());
     })

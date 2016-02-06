@@ -1,75 +1,53 @@
 import _ from 'lodash';
-import React, {Component} from 'react';
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../widgets';
-import {Edit as EditPerson, Preferred as PreferredPerson, Delete as DeletePerson, Preview as PersonPreview} from '../person/widgets';
-import {TagsField} from '../fields';
-import Notes from '../notes';
-import {Edit as EditMission, Preview as MissionPreview, Closed as ClosedMission} from '../mission/widgets';
-import {Edit, Preferred, Delete} from './widgets';
-import {Content} from '../layout';
-import {companiesActions, companiesStore} from '../../models/companies';
-import {personsStore, personsActions} from '../../models/persons';
-import {missionsStore, missionsActions} from '../../models/missions';
-import {navStore, navActions} from '../../models/nav';
-import sitemap from '../../routes';
-import authManager from '../../auths';
+import React, {Component, PropTypes} from 'react';
+import { routeActions } from 'react-router-redux'
+import { connect } from 'react-redux';
+import {viewCompanySelector} from '../../selectors/companies';
+import {authable} from '../../components/authmanager';
+import {companiesActions} from '../../actions/companies';
+import {personsActions} from '../../actions/persons';
+import {missionsActions} from '../../actions/missions';
+import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../../components/widgets';
+import {Edit as EditPerson, Delete as DeletePerson, Preview as PersonPreview} from '../../components/person/widgets';
+import TagsField from '../../containers/tags';
+import Notes from '../../containers/notes';
+import {Edit as EditMission, Preview as MissionPreview, Closed as ClosedMission} from '../../components/mission/widgets';
+import {Edit, Preferred, Delete} from '../../components/company/widgets';
+import {Content} from '../../components/layout';
 import tagsForm from '../../forms/tags';
+import sitemap from '../../routes';
 
-export default class ViewCompanyApp extends Component {
+class CompanyView extends Component {
   state = {};
 
   componentWillMount() {
-    let companyId = this.props.location.state && this.props.location.state.companyId;
-    if(!companyId) navActions.replace(sitemap.company.list);
+    const {dispatch, company} = this.props;
+    if(!company) dispatch(routeActions.replace(sitemap.company.list));
 
-    this.unsubscribePersons = personsStore.listen( persons => {
-      this.setState({ persons: persons.data })
+    this.tagsField = tagsForm({tags: company.get('tags')}).field('tags');
+    this.unsubscribeTagsField = this.tagsField.onValue( state => {
+      if(state.hasBeenModified) dispatch(companiesActions.updateTags(company, state.value));
     });
 
-    this.unsubscribeCompanies = companiesStore.listen( companies => {
-      const company = companies.data.get(companyId);
-      if(company){
-        if(!this.tagsField){
-          this.tagsField = tagsForm({tags: company.get('tags')}).field('tags');
-          this.unsubscribeTags = this.tagsField.onValue( state => {
-            if(state.hasBeenModified) companiesActions.updateTags(company, state.value)
-          });
-        }
-
-        if(company != this.state.company) this.setState({company});
-
-        if(this.unsubscribeMissions)this.unsubscribeMissions();
-        this.unsubscribeMissions = missionsStore.listen( state => {
-          const missions = state.data.filter(mission => mission.get('clientId') === companyId);
-          this.setState({ missions })
-        });
-
-        personsActions.load({ids: company.personsIds});
-        missionsActions.load();
-      }else{
-        navActions.replace(sitemap.company.list);
-      }
-    });
-
-    if(companyId) companiesActions.load({ids: [companyId]});
-    else navActions.replace(sitemap.company.list);
-
+    dispatch(personsActions.load());
+    dispatch(missionsActions.load());
   }
 
   componentWillUnmount(){
-    this.unsubscribeCompanies();
-    this.unsubscribePersons();
-    if(this.unsubscribeTags) this.unsubscribeTags();
-    if(this.unsubscribeMissions) this.unsubscribeMissions();
+    if(this.unsubscribeTagsField) this.unsubscribeTagsField();
   }
 
   goBack = () => {
-    navActions.goBack();
+    this.props.dispatch(routeActions.goBack());
   }
 
+  // handleClickTag = (tag) => {
+  //   this.props.dispatch(routeActions.push(sitemap.company.list, {filter: `#${tag} `}));
+  // }
+
   render(){
-    if( !this.state.company || !this.state.persons) return false;
-    const company = this.state.company;
+    const {company, persons, missions} = this.props;
+    if( !company || !persons) return false;
     return (
       <Content>
         <Header obj={company}>
@@ -79,6 +57,7 @@ export default class ViewCompanyApp extends Component {
             <Title title={company.get('name')}/>
             <Preferred active={true} company={company}/>
           </HeaderLeft>
+
           <HeaderRight>
             <AddMission company={company}/>
             <AddPerson company={company}/>
@@ -87,20 +66,23 @@ export default class ViewCompanyApp extends Component {
           </HeaderRight>
         </Header>
         <Card 
-          company={this.state.company} 
-          missions={this.state.missions} 
-          tags={this.tagsField} 
-          persons={this.state.persons}  />
+          company={company} 
+          missions={missions} 
+          tagsField={this.tagsField} 
+          persons={persons}/>
       </Content>
     )
   }
 }
 
-const Card = ({company, persons, missions, tags}) =>  {
-  const onClick = (tag) => {
-    navActions.push(sitemap.company.list, {filter: `#${tag} `});
-  }
+CompanyView.propTypes = {
+  company: PropTypes.object,
+  persons: PropTypes.object,
+  missions: PropTypes.object,
+  dispatch: PropTypes.func.isRequired,
+}
 
+const Card = ({company, persons, missions, tagsField}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -110,7 +92,7 @@ const Card = ({company, persons, missions, tags}) =>  {
   const editTags = () => {
     return (
       <div className="col-md-12">
-        <TagsField field={tags}/>
+        <TagsField field={tagsField}/>
       </div>
     )
   }
@@ -150,16 +132,21 @@ const Card = ({company, persons, missions, tags}) =>  {
       </div>
         {editTags()}
       <div className="col-md-12">
-        <Notes entity={company}/>
+      <Notes entity={company}/>
       </div>
     </div>
   )
 }
 
+Card.PropTypes = {
+  company: PropTypes.object.isRequired,
+  persons: PropTypes.object.isRequired,
+  missions: PropTypes.object.isRequired,
+  tagsField: PropTypes.object.isRequired,
+}
+
 const Missions = ({label, missions, company, persons}) => {
-
   if(!missions || !missions.size) return <div/>;
-
   const styles={
     container:{
       //marginBottom: '50px',
@@ -195,6 +182,13 @@ const Missions = ({label, missions, company, persons}) => {
       </div>
     </fieldset>
   )
+}
+
+Missions.propTypes = {
+  label: PropTypes.string.isRequired,
+  company: PropTypes.object.isRequired,
+  persons: PropTypes.object.isRequired,
+  missions: PropTypes.object.isRequired,
 }
 
 
@@ -240,13 +234,18 @@ const Persons = ({label, company, persons}) => {
   )
 }
 
+Persons.propTypes = {
+  label: PropTypes.string.isRequired,
+  company: PropTypes.object.isRequired,
+  persons: PropTypes.object.isRequired,
+}
 
-export const LeaveCompany =({company, person}) => {
+export const LeaveCompany = authable(({company, person}, {authManager, dispatch}) => {
   const handleChange = (e) => {
     e.preventDefault();
     const answer = confirm(`Can you confirm you want to fire "${person.get('name')}"`);
     if(answer){
-      companiesActions.leave(company, person);
+      dispatch(companiesActions.leave(company, person));
     }
   }
 
@@ -259,12 +258,17 @@ export const LeaveCompany =({company, person}) => {
   }else{
     return <i className="iconButton disable fa fa-sign-out m-r-1"/>
   }
+})
+
+LeaveCompany.propTypes = {
+  company: PropTypes.object.isRequired,
+  person: PropTypes.object.isRequired,
 }
 
-export const AddPerson =({company}) => {
+export const AddPerson =authable(({company}, {authManager, dispatch}) => {
   const handleChange = (e) => {
     e.preventDefault();
-    navActions.push(sitemap.person.new, {companyId: company.get('_id')});
+    dispatch(routeActions.push(sitemap.person.new, {companyId: company.get('_id')}));
   }
 
   if(authManager.isAuthorized(sitemap.person.new)){
@@ -276,12 +280,16 @@ export const AddPerson =({company}) => {
   }else{
     return <i className="iconButton disable fa fa-user-plus m-r-1"/>
   }
+})
+
+AddPerson.propTypes = {
+  company: PropTypes.object.isRequired,
 }
 
-export const AddMission =({company}) => {
+export const AddMission =authable(({company}, {authManager, dispatch}) => {
   const handleChange = (e) => {
     e.preventDefault();
-    navActions.push(sitemap.mission.new, {clientId: company.get('_id')});
+    dispatch(routeActions.push(sitemap.mission.new, {clientId: company.get('_id')}));
   }
 
   if(authManager.isAuthorized(sitemap.mission.new)){
@@ -293,4 +301,10 @@ export const AddMission =({company}) => {
   }else{
     return <i className="iconButton disable fa fa-cart-plus m-r-1"/>
   }
+})
+
+AddMission.propTypes = {
+  company: PropTypes.object.isRequired,
 }
+
+export default connect(viewCompanySelector)(CompanyView);

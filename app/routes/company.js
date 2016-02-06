@@ -1,6 +1,6 @@
 import ListCompanyApp from '../containers/company/list';
-import {NewCompanyApp, EditCompanyApp} from '../views/company/edit';
-import ViewCompanyApp from '../views/company/view';
+import ViewCompanyApp from '../containers/company/view';
+import {NewCompanyApp, EditCompanyApp} from '../containers/company/edit';
 import {Route, RouteManager} from 'kontrolo';
 
 const routes = RouteManager([

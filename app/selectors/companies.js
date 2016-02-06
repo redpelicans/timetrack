@@ -1,14 +1,42 @@
 import {createSelector} from 'reselect';
 
-function filterCompanies(companies, filter, sortCond, filterPreferred){
-  return companies.toSetSeq();
-}
-
 const companies = state => state.companies.data;
+const missions = state => state.missions.data;
+const persons = state => state.persons.data;
 const filterSelector = state => state.companies.filter;
 const sortCondSelector = state => state.companies.sortCond;
 const preferredSelector = state => state.companies.filterPreferred;
 const pendingRequests = state => state.pendingRequests;
+const companyId = state => state.routing.location.state && state.routing.location.state.companyId;
+
+export const editCompanySelector = createSelector(
+  companyId,
+  companies,
+  (companyId, companies) => {
+    return {
+      company: companies.get(companyId),
+    }
+  }
+)
+
+export const viewCompanySelector = createSelector(
+  companyId,
+  companies,
+  persons,
+  missions,
+  (companyId, companies, persons, missions) => {
+    return {
+      company: companies.get(companyId),
+      persons,
+      missions,
+      companies
+    }
+  }
+)
+
+function filterCompanies(companies, filter, sortCond, filterPreferred){
+  return companies.toSetSeq();
+}
 
 export const visibleCompaniesSelector = createSelector(
   companies,
@@ -75,5 +103,3 @@ function filterForSearch(filter=''){
     return _.every(keys, key => key.startsWith('#') ? filterByTag(key, tags) : filterByName(key, name));
   }
 }
-
-

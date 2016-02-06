@@ -34,11 +34,17 @@ export function gotoUnAuth(){
   }
 }
 
+export function goBack(){
+  return dispatch => {
+    dispatch(router.goBack());
+  }
+}
 
 export const routeActions = {
     replace: replaceRoute
   , push: pushRoute
   , gotoUnAuth
   , gotoLogin
+  , goBack
 }
 
