@@ -158,18 +158,23 @@ export const MarkdownText = ({label, value}) => {
   )
 }
 
-export const GoBack =({goBack, history}) => {
+export const GoBack =({goBack, history, isLoading}) => {
   const handleChange = (e) => {
     if(goBack) goBack();
     else history.goBack();
     e.preventDefault();
   }
 
-  return (
-    <a href="#" onClick={handleChange}>
-      <i className="iconButton fa fa-arrow-left m-r-1"/>
-    </a>
-  )
+  if (isLoading) {
+      return (<i className="fa fa-spinner fa-spin m-r-1"/>)
+  }
+  else {
+    return (
+      <a href="#" onClick={handleChange}>
+        <i className="iconButton fa fa-arrow-left m-r-1"/>
+      </a>
+    )
+  }
 }
 
 export const Title =({title}) => {

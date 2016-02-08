@@ -24,9 +24,11 @@ export const viewCompanySelector = createSelector(
   companies,
   persons,
   missions,
-  (companyId, companies, persons, missions) => {
+  pendingRequests,
+  (companyId, companies, persons, missions, pendingRequests) => {
     return {
       company: companies.get(companyId),
+      isLoading: !!pendingRequests,
       persons,
       missions,
       companies

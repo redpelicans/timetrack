@@ -1,5 +1,4 @@
 import React, {Component, PropTypes} from 'react';
-import { routeActions } from 'react-router-redux'
 import { connect } from 'react-redux';
 import {visibleCompaniesSelector} from '../../selectors/companies';
 import {companiesActions} from '../../actions/companies';
