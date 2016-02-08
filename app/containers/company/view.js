@@ -46,13 +46,13 @@ class CompanyView extends Component {
   // }
 
   render(){
-    const {company, persons, missions} = this.props;
+    const {company, persons, missions, isLoading} = this.props;
     if( !company || !persons) return false;
     return (
       <Content>
         <Header obj={company}>
           <HeaderLeft>
-            <GoBack goBack={this.goBack}/>
+            <GoBack goBack={this.goBack} isLoading={isLoading}/>
             <AvatarView obj={company}/>
             <Title title={company.get('name')}/>
             <Preferred active={true} company={company}/>
