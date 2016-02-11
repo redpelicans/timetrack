@@ -25,7 +25,10 @@ export function start(params, resources, cb) {
   resources.reactor = reactor;
 
   function stop(cb){
-    httpServer.close(()=>{httpServer.unref(); cb()});
+    httpServer.close(()=>{
+      loginfo(`HTTP server stopped.`);
+      httpServer.unref(); cb()
+    });
   }
 
   async.parallel({
