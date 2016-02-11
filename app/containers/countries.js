@@ -21,9 +21,9 @@ export default class Country extends ComboboxField{
 
 }
 
-Country.PropTypes = {
+Country.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  countries: PropTypes.object.isRequired,
+  countries: PropTypes.arrayOf(PropTypes.object).isRequired,
 }
 
 export default connect(countriesSelector)(Country);
