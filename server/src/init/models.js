@@ -8,14 +8,14 @@ const _ = require('lodash')
 
 export default function init(params) {
   return function(cb) {
-    mongobless.connect(_.extend({verbose: false}, params), (err) => {
+    mongobless.connect(_.extend({verbose: false}, params), (err, db) => {
       if(err){
         console.log(err);
         return cb(err);
       }
       ensureIndexes( err => {
         debug('Timetrack models are ready to help you ...');
-        cb(err, mongobless);
+        cb(err, db);
       });
     });
   }

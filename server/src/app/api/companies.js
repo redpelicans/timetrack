@@ -130,7 +130,7 @@ function fromJson(json){
   }
 
   //res.updatedAt = new Date(); 
-  res.type = res.type.toLowerCase();
+  if(res.type) res.type = res.type.toLowerCase();
   return res;
 }
 

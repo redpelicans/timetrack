@@ -112,7 +112,7 @@ export function deleteCompany(company){
 
 export function updateCompany(previous, updates){
   return (dispatch, getState) => {
-    requestJson('/api/company', dispatch, getState, {verb: 'put', body: {company: _.assign({}, previous, updates)}, message: 'Cannot update company, check your backend server'})
+    requestJson('/api/company', dispatch, getState, {verb: 'put', body: {company: {...previous, ...updates}}, message: 'Cannot update company, check your backend server'})
       .then( company => {
         dispatch(updateCompleted(company));
       });
