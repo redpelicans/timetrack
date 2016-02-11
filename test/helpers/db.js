@@ -29,7 +29,6 @@ export function drop(cb){
   });
 }
 
-
 export function load(data, cb){
   var names = Object.keys(data.collections);
   async.each(names, function(name, cb) {

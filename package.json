@@ -87,6 +87,7 @@
     "serve-favicon": "^2.3.0",
     "socket.io": "^1.3.7",
     "socket.io-client": "^1.3.7",
+    "universal-fetch": "0.0.1",
     "uppercamelcase": "^1.1.0",
     "uuid": "^2.0.1",
     "whatwg-fetch": "^0.9.0"
