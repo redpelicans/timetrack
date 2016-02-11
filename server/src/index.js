@@ -22,7 +22,7 @@ export function create(params){
       resources.githash = init.githash;
       app.start(params, resources, (err, server) => {
         if(err) reject(err);
-        resolve(server);
+        resolve({server, resources});
       });
     });
   });

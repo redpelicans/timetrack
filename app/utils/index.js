@@ -28,11 +28,12 @@ export function checkStatus(res) {
 export function requestJson(uri, dispatch, getState, {verb='get', header='Runtime Error', body, message='Check your backend server'} = {}){
   let  promise;
   const {login: {appJwt, sessionId}} = getState();
+  const absoluteUri = window.location ? window.location.origin + uri : uri;
 
   dispatch(startLoading());
 
   if(!body)
-    promise = fetchJson(uri, { 
+    promise = fetchJson(absoluteUri, { 
       method: verb,
       headers:{
         'X-Token-Access': appJwt,
@@ -40,7 +41,7 @@ export function requestJson(uri, dispatch, getState, {verb='get', header='Runtim
       },
     });
   else
-    promise = fetchJson(uri, {
+    promise = fetchJson(absoluteUri, {
       method: verb,
       //credentials: 'same-origin',
       headers:{
