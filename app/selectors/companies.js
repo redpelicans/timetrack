@@ -24,11 +24,13 @@ export const viewCompanySelector = createSelector(
   companies,
   persons,
   missions,
-  (companyId, companies, persons, missions) => {
+  pendingRequests,
+  (companyId, companies, persons, missions, pendingRequests) => {
     return {
       company: companies.get(companyId),
+      isLoading: !!pendingRequests,
       persons,
-      missions,
+      missions: missions.filter(mission => mission.get("clientId") === companyId),
       companies
     }
   }
