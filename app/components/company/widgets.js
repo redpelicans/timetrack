@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
 import {authable} from '../../components/authmanager';
 import routes from '../../routes';
@@ -22,6 +22,10 @@ export const Edit = authable(({company}, {authManager, dispatch}) => {
     return <i className="iconButton disable fa fa-pencil m-r-1"/>
   }
 })
+
+Edit.propTypes = {
+  company: PropTypes.object.isRequired
+}
 
 export const Preferred = authable(({company, active}, {authManager, dispatch}) => {
 
@@ -47,6 +51,11 @@ export const Preferred = authable(({company, active}, {authManager, dispatch}) =
   }
 })
 
+Preferred.propTypes = {
+  company: PropTypes.object.isRequired,
+  active: PropTypes.bool
+}
+
 export const Delete = authable(({company, postAction}, {authManager, dispatch}) => {
   const handleChange = (e) => {
     e.preventDefault();
@@ -67,6 +76,11 @@ export const Delete = authable(({company, postAction}, {authManager, dispatch}) 
     return <i className="iconButton disable fa fa-trash m-r-1"/>
   }
 })
+
+Delete.propTypes = {
+  company: PropTypes.object.isRequired,
+  postAction: PropTypes.func
+}
 
 @authable
 export class AddButton extends Component {
@@ -90,16 +104,22 @@ export class AddButton extends Component {
         zIndex: '900',
     }
 
+    const {title} = this.props
+
     if(!this.context.authManager.company.isAuthorized('add')){
       return <div/>
     } else {
       return (
-        <button id="addObject" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title={this.props.title} style={style}  onClick={this.handleClick}>
+        <button id="addObject" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title={title} style={style}  onClick={this.handleClick}>
           <i className="fa fa-plus"/>
         </button>
       )
     }
   }
+}
+
+AddButton.propTypes = {
+  title: PropTypes.string
 }
 
 @authable
@@ -269,3 +289,6 @@ export class Preview extends Component {
   }
 }
 
+Preview.propTypes = {
+  company: PropTypes.object.isRequired
+}
