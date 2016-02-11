@@ -17,8 +17,8 @@ export default class Root extends Component {
 }
 
 Root.propTypes = {
-  store: PropTypes.object.isRequired,
-  routes: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
-  authManager: PropTypes.object.isRequired,
+  store:        PropTypes.object.isRequired,
+  routes:       PropTypes.object.isRequired,
+  history:      PropTypes.object.isRequired,
+  authManager:  PropTypes.object.isRequired,
 }

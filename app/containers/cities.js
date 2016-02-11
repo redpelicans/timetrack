@@ -22,7 +22,7 @@ export default class City extends ComboboxField{
 
 City.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  cities: PropTypes.arrayOf(PropTypes.object).isRequired,
+  cities:   PropTypes.arrayOf(PropTypes.object).isRequired,
 }
 
 export default connect(citiesSelector)(City);

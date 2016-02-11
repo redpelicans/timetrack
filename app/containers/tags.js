@@ -94,8 +94,8 @@ class TagField extends BaseSelectField{
 }
 
 TagField.propTypes = {
-  tags: PropTypes.array,
-  field: PropTypes.object.isRequired,
+  tags:     PropTypes.array,
+  field:    PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
 }
 

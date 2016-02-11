@@ -88,10 +88,10 @@ class App extends Component {
 }
 
 App.propTypes = {
-  user: PropTypes.object,
+  user:         PropTypes.object,
   errorMessage: PropTypes.object,
   currentTopic: PropTypes.string,
-  dispatch: PropTypes.func.isRequired,
+  dispatch:     PropTypes.func.isRequired,
 }
 
 const AppNav = ({user, onGoHome, onLogout, onViewPerson, currentTopic, gotoRoute}) =>{
@@ -193,12 +193,12 @@ const AppNav = ({user, onGoHome, onLogout, onViewPerson, currentTopic, gotoRoute
 }
 
 AppNav.propTypes = {
-  user: PropTypes.object,
+  user:         PropTypes.object,
   currentTopic: PropTypes.string,
-  onGoHome: PropTypes.func.isRequired,
-  onLogout: PropTypes.func.isRequired,
+  onGoHome:     PropTypes.func.isRequired,
+  onLogout:     PropTypes.func.isRequired,
   onViewPerson: PropTypes.func.isRequired,
-  gotoRoute: PropTypes.func.isRequired,
+  gotoRoute:    PropTypes.func.isRequired,
 }
 
 const AppNavItem = ({gotoRoute, route, currentTopic}) => {
@@ -221,8 +221,8 @@ const AppNavItem = ({gotoRoute, route, currentTopic}) => {
 }
 
 AppNavItem.propTypes = {
-  route: PropTypes.object.isRequired,
-  gotoRoute: PropTypes.func.isRequired,
+  route:        PropTypes.object.isRequired,
+  gotoRoute:    PropTypes.func.isRequired,
   currentTopic: PropTypes.string,
 }
 
@@ -249,10 +249,10 @@ const AppMobileNavItem = ({gotoRoute, route, currentTopic, collapse}) =>  {
 }
 
 AppMobileNavItem.propTypes = {
-  route: PropTypes.object.isRequired,
+  route:        PropTypes.object.isRequired,
   currentTopic: PropTypes.string,
-  collapse: PropTypes.func.isRequired,
-  gotoRoute: PropTypes.func.isRequired,
+  collapse:     PropTypes.func.isRequired,
+  gotoRoute:    PropTypes.func.isRequired,
 }
 
 function mapStateToProps(state) {
