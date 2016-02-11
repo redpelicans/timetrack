@@ -8,7 +8,7 @@ export function connect(database = 'tests', cb){
   let opt = process.env['NODE_ENV'] === 'travis' ? {host: 'localhost', port: 27017, database: database} : _.extend({}, require('../../params').db, {database: database});
   mongobless.connect(opt, function(err, db) {
     if(err) return cb(err);
-    //console.log('Mintello models are ready to help you ...');
+    //console.log('Timetrack models are ready to help you ...');
     DB = db;
     cb(err, mongobless);
   });

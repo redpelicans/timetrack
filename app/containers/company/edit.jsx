@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import React, {Component, PropTypes} from 'react';
 import { connect } from 'react-redux';
-import reactMixin from 'react-mixin';
 import Immutable from 'immutable';
 import companyForm, {colors, avatarTypes} from '../../forms/company';
 import {Content} from '../../components/layout';
