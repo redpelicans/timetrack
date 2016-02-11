@@ -96,12 +96,13 @@ class Notes extends Component{
   }
 }
 
-Notes.PropTypes = {
-  entity: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
-  //label: PropTypes.string,
-  persons: PropTypes.object,
-  notes: PropTypes.object,
+Notes.propTypes = {
+  dispatch:   PropTypes.func.isRequired,
+  entity:     PropTypes.object.isRequired,
+  user:       PropTypes.object,
+  label:      PropTypes.string,
+  persons:    PropTypes.object,
+  notes:      PropTypes.object,
 }
 
 
@@ -184,10 +185,10 @@ class Note extends Component{
   }
 }
 
-Note.PropTypes = {
-  note: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
-  persons: PropTypes.object,
+Note.propTypes = {
+  note:     PropTypes.object.isRequired,
+  entity:   PropTypes.object.isRequired,
+  persons:  PropTypes.object,
 }
 
 
@@ -304,11 +305,11 @@ class EditNote extends Component{
   }
 }
 
-Note.PropTypes = {
+Note.propTypes = {
   note: PropTypes.object,
-  author: PropTypes.object.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
+  author: PropTypes.object,
+  onCancel: PropTypes.func,
+  onSubmit: PropTypes.func,
 }
 
 
@@ -477,14 +478,14 @@ class ViewNote extends Component{
   }
 }
 
-ViewNote.EditNote = {
+ViewNote.propTypes = {
   mode: PropTypes.string.isRequired,
   note: PropTypes.object.isRequired,
   persons: PropTypes.object.isRequired,
   entity: PropTypes.object.isRequired,
   onEdit: PropTypes.func,
   onCancel: PropTypes.func,
-  onDelete: PropTypes.func.isRequired,
+  onDelete: PropTypes.func,
 }
 
 export default connect(notesSelector)(Notes);
