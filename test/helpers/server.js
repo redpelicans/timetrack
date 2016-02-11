@@ -7,7 +7,6 @@ import { createStore, applyMiddleware, compose } from 'redux'
 import thunk from 'redux-thunk'
 import rootReducer from '../../app/reducers'
 import {ObjectId} from 'mongobless'
-import {Person} from '../../server/dist/models'
 
 const database = 'test'
 const db = process.env['NODE_ENV'] === 'travis' ? {host: 'localhost', port: 27017, database} : _.extend({}, require('../../params').db, {database})
@@ -34,30 +33,41 @@ require('universal-fetch')
 global.window = { location: { origin: params.server.url } }
 
 export function start(cb){
-  async.waterfall([startServer.bind(null, params), loadUser, createLocalStore], cb)
+  async.waterfall([startServer.bind(null, {params}), loadUser, createDBLoader], cb)
 }
 
 function stop(server, cb){
   server.stop(cb)
 }
 
-function startServer(params, cb){
+function startServer({params}, cb){
   server.create(params)
     .then( value => {
-      cb(null, {stop: stop.bind(null, value.server)}, params, value.resources) 
+      const server = {
+        stop: stop.bind(null, value.server), 
+        getStore: createLocalStore.bind(null, params),
+      }
+      cb(null, {server, params, resources: value.resources}) 
     })
     .catch( err => cb(err) )
 }
 
-function loadUser(server, params, resources, cb){
-  Person.collection.insertOne( params.user, err => cb(err, server, params, resources) )
+function loadUser(data, cb){
+  dropAndLoadUser(data.resources.db, data.params, err => cb(err, data));
 }
 
-function createLocalStore(server, params, resources, cb){
+function createDBLoader(data, cb){
+  const db = { 
+    drop: dropAndLoadUser.bind(null, data.resources.db, data.params),
+    load: load.bind(null, data.resources.db),
+  };
+  setImmediate(cb, null, {...data, db})
+}
+
+function createLocalStore(params){
   const sessionId = 1
   const appJwt = getToken(params.user._id, params.secretKey, params.duration)
-  const store = createStore( rootReducer, {login: {appJwt, sessionId}}, compose(applyMiddleware(thunk)))
-  setImmediate(cb, null, server, store)
+  return createStore( rootReducer, {login: {appJwt, sessionId}}, compose(applyMiddleware(thunk)))
 }
 
 function getToken(id, secretKey, expirationDate){
@@ -69,4 +79,25 @@ function getToken(id, secretKey, expirationDate){
   jwt.setExpiration(expirationDate)
   return jwt.compact()
 }
+
+function load(db, data, cb){
+  var names = Object.keys(data.collections);
+  async.each(names, function(name, cb) {
+    db.collection(name).insert(data.collections[name], cb)
+  }, cb)
+}
+
+function dropAndLoadUser(db, params, cb){
+  db.collections(function(err, collections) {
+    async.each(collections, function(collection, cb) {
+      if (collection.collectionName.indexOf('system') === 0) {
+        return cb();
+      }
+      collection.remove(cb);
+    }, (err) => {
+      db.collection('people').insertOne( params.user, cb)
+    });
+  });
+}
+
 

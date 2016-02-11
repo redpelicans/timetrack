@@ -4,7 +4,7 @@
   "description": "time tracking application",
   "scripts": {
     "testperf": "./node_modules/.bin/mocha --require babel-core/register --reporter spec test-perf/*.js",
-    "test": "DEBUG=timetrack:* ./node_modules/.bin/mocha --require babel-core/register --reporter spec",
+    "test": "DEBUG=Xtimetrack:* ./node_modules/.bin/mocha --require babel-core/register --reporter spec",
     "start-client": "node devrunner",
     "compile-server": "node ./node_modules/babel/bin/babel server/src --out-dir server/dist",
     "compile-client": "NODE_ENV=production webpack -p --config webpack.config-prod.js",
@@ -124,7 +124,7 @@
     "regenerator": "^0.8.36",
     "regenerator-loader": "^2.0.0",
     "run-sequence": "^1.1.0",
-    "should": "^7.1.0",
+    "should": "^8.2.0",
     "style-loader": "^0.12.3",
     "url-loader": "^0.5.7",
     "vinyl-paths": "^1.0.0",

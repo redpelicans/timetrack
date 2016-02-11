@@ -59,8 +59,8 @@ export function requestJson(uri, dispatch, getState, {verb='get', header='Runtim
       return res;
     })
     .catch( err => {
-      dispatch(stopLoading());
       console.error(err.toString());
+      dispatch(stopLoading());
       switch(err.res.status){
         case 401:
           dispatch(alert({ header: err.message, message}));
