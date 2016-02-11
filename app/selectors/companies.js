@@ -30,7 +30,7 @@ export const viewCompanySelector = createSelector(
       company: companies.get(companyId),
       isLoading: !!pendingRequests,
       persons,
-      missions,
+      missions: missions.filter(mission => mission.get("clientId") === companyId),
       companies
     }
   }
