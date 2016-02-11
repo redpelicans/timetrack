@@ -60,7 +60,7 @@ export const Close = authable(({mission, postAction}, {authManager, dispatch}) =
 })
 
 Close.propTypes = {
-  mission: PropTypes.object.isRequired,
+  mission:    PropTypes.object.isRequired,
   postAction: PropTypes.func
 }
 
@@ -69,7 +69,7 @@ export const OpenClose = ({mission, postAction}) => {
 }
 
 OpenClose.propTypes = {
-  mission: PropTypes.object.isRequired,
+  mission:    PropTypes.object.isRequired,
   postAction: PropTypes.func
 }
 
@@ -95,7 +95,7 @@ export const Open = authable(({mission, postAction}, {authManager, dispatch}) =>
 })
 
 Open.propTypes = {
-  mission: PropTypes.object.isRequired,
+  mission:    PropTypes.object.isRequired,
   postAction: PropTypes.func
 }
 
@@ -123,7 +123,7 @@ export const Delete = authable(({mission, postAction}, {authManager, dispatch}) 
 })
 
 Delete.propTypes = {
-  mission: PropTypes.object.isRequired,
+  mission:    PropTypes.object.isRequired,
   postAction: PropTypes.func
 }
 
@@ -347,10 +347,10 @@ export class Preview extends Component {
 }
 
 Preview.propTypes = {
-  mission: PropTypes.object.isRequired,
-  company: PropTypes.object.isRequired,
-  workers: PropTypes.object.isRequired,
-  manager: PropTypes.object,
+  mission:  PropTypes.object.isRequired,
+  company:  PropTypes.object.isRequired,
+  workers:  PropTypes.object.isRequired,
+  manager:  PropTypes.object,
   children: PropTypes.node
 }
 

@@ -52,8 +52,8 @@ export const Preferred = authable(({company, active}, {authManager, dispatch}) =
 })
 
 Preferred.propTypes = {
-  company: PropTypes.object.isRequired,
-  active: PropTypes.bool
+  company:  PropTypes.object.isRequired,
+  active:   PropTypes.bool
 }
 
 export const Delete = authable(({company, postAction}, {authManager, dispatch}) => {
@@ -78,7 +78,7 @@ export const Delete = authable(({company, postAction}, {authManager, dispatch}) 
 })
 
 Delete.propTypes = {
-  company: PropTypes.object.isRequired,
+  company:    PropTypes.object.isRequired,
   postAction: PropTypes.func
 }
 
