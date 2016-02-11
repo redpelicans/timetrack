@@ -1,4 +1,4 @@
-import ListPersonApp from '../views/person/list';
+import ListPersonApp from '../containers/person/list';
 import {NewPersonApp, EditPersonApp} from '../views/person/edit';
 import ViewPersonApp from '../views/person/view';
 import {Route, RouteManager} from 'kontrolo';
