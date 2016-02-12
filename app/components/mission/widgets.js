@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
 import routes from '../../routes';
 import {authable} from '../../components/authmanager';
@@ -11,6 +11,9 @@ export const Closed = ({mission}) => {
   else return <div/>
 }
 
+Closed.propTypes = {
+  mission: PropTypes.object.isRequired
+}
 
 export const Edit = authable(({mission}, {authManager, dispatch}) => {
   const handleChange = (e) => {
@@ -30,6 +33,10 @@ export const Edit = authable(({mission}, {authManager, dispatch}) => {
     return <i className="iconButton disable fa fa-pencil m-r-1"/>
   }
 })
+
+Edit.propTypes = {
+  mission: PropTypes.object.isRequired
+}
 
 export const Close = authable(({mission, postAction}, {authManager, dispatch}) => {
   const handleChange = (e) => {
@@ -52,8 +59,18 @@ export const Close = authable(({mission, postAction}, {authManager, dispatch}) =
   }
 })
 
+Close.propTypes = {
+  mission:    PropTypes.object.isRequired,
+  postAction: PropTypes.func
+}
+
 export const OpenClose = ({mission, postAction}) => {
   return mission.get('isClosed') ? <Open mission={mission} postAction={postAction}/> : <Close mission={mission} postAction={postAction}/>;
+}
+
+OpenClose.propTypes = {
+  mission:    PropTypes.object.isRequired,
+  postAction: PropTypes.func
 }
 
 export const Open = authable(({mission, postAction}, {authManager, dispatch}) => {
@@ -76,6 +93,11 @@ export const Open = authable(({mission, postAction}, {authManager, dispatch}) =>
     return <i className="iconButton disable fa fa-unlock m-r-1"/>
   }
 })
+
+Open.propTypes = {
+  mission:    PropTypes.object.isRequired,
+  postAction: PropTypes.func
+}
 
 export const Delete = authable(({mission, postAction}, {authManager, dispatch}) => {
   const handleChange = (e) => {
@@ -100,6 +122,11 @@ export const Delete = authable(({mission, postAction}, {authManager, dispatch}) 
   }
 })
 
+Delete.propTypes = {
+  mission:    PropTypes.object.isRequired,
+  postAction: PropTypes.func
+}
+
 @authable
 export class AddButton extends Component {
   componentDidMount(){
@@ -123,16 +150,22 @@ export class AddButton extends Component {
         zIndex: '900',
     }
 
+    const {title} = this.props
+
     if(!authManager.mission.isAuthorized('add')){
       return <div/>
     } else {
       return (
-        <button id="addObject" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title={this.props.title} style={style}  onClick={this.handleClick}>
+        <button id="addObject" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title={title} style={style}  onClick={this.handleClick}>
           <i className="fa fa-plus"/>
         </button>
       )
     }
   }
+}
+
+AddButton.propTypes = {
+  title: PropTypes.string
 }
 
 @authable
@@ -313,4 +346,11 @@ export class Preview extends Component {
   }
 }
 
+Preview.propTypes = {
+  mission:  PropTypes.object.isRequired,
+  company:  PropTypes.object.isRequired,
+  workers:  PropTypes.object.isRequired,
+  manager:  PropTypes.object,
+  children: PropTypes.node
+}
 

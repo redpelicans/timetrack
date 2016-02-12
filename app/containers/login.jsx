@@ -62,7 +62,7 @@ export default class LoginApp extends Component {
 
 LoginApp.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  user: PropTypes.object,
+  user:     PropTypes.object,
 }
 
 function mapStateToProps(state) {

@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
 import FileInput from 'react-file-input';
 import Remarkable from 'remarkable';
@@ -20,6 +20,12 @@ export const AvatarView = ({obj, size, label}) => {
     default:
       return defaultAvatar;
   }
+}
+
+AvatarView.propTypes = {
+  obj:    PropTypes.object,
+  size:   PropTypes.number,
+  label:  PropTypes.string
 }
 
 export class Avatar extends Component {
@@ -77,6 +83,13 @@ export class Avatar extends Component {
 
 }
 
+Avatar.propTypes = {
+  size:   PropTypes.number,
+  color:  PropTypes.string,
+  src:    PropTypes.string,
+  label:  PropTypes.string
+}
+
 export const NewLabel = () => {
   return (
     <span className="label label-success">new</span>
@@ -105,6 +118,13 @@ export const TextLabel = ({label, value, url, onClick}) => {
       <span className="form-control" id={label}>{value}</span>
     </fieldset>
   )
+}
+
+TextLabel.proptypes = {
+  label:    PropTypes.string, 
+  value:    PropTypes.string,
+  url:      PropTypes.string,
+  onClick:  PropTypes.func
 }
 
 export const Labels = ({label, value, onClick}) => {
@@ -145,6 +165,12 @@ export const Labels = ({label, value, onClick}) => {
   )
 }
 
+Labels.propTypes = {
+  label:    PropTypes.string,
+  value:    PropTypes.string, 
+  onClick:  PropTypes.func
+}
+
 export const MarkdownText = ({label, value}) => {
   const md = new Remarkable();
   const text = {__html: md.render(value)};
@@ -158,7 +184,12 @@ export const MarkdownText = ({label, value}) => {
   )
 }
 
-export const GoBack =({goBack, history, isLoading}) => {
+MarkdownText.propTypes = {
+  label: PropTypes.string,
+  value: PropTypes.string
+}
+
+export const GoBack = ({history, goBack, isLoading}) => {
   const handleChange = (e) => {
     if(goBack) goBack();
     else history.goBack();
@@ -177,6 +208,12 @@ export const GoBack =({goBack, history, isLoading}) => {
   }
 }
 
+GoBack.propTypes = {
+  history:    PropTypes.object,
+  goBack:     PropTypes.func,
+  isLoading:  PropTypes.bool
+}
+
 export const Title =({title}) => {
   const styles={
     name:{
@@ -189,6 +226,10 @@ export const Title =({title}) => {
       {title}
     </div>
   )
+}
+
+Title.propTypes = {
+  title: PropTypes.string
 }
 
 export const HeaderLeft = ({children}) => {
@@ -208,6 +249,10 @@ export const HeaderLeft = ({children}) => {
   )
 }
 
+HeaderLeft.propTypes = {
+  children: PropTypes.node
+}
+
 export const HeaderRight = ({children}) => {
   const styles={
     right:{
@@ -223,6 +268,10 @@ export const HeaderRight = ({children}) => {
       {children}
     </div>
   )
+}
+
+HeaderRight.propTypes = {
+  children: PropTypes.node
 }
 
 export const Header = ({obj, children}) => {
@@ -280,6 +329,10 @@ export const Header = ({obj, children}) => {
   )
 }
 
+Header.propTypes = {
+  obj:      PropTypes.object,
+  children: PropTypes.node
+}
 
 export const Form = ({children}) => {
   return(
@@ -287,6 +340,10 @@ export const Form = ({children}) => {
       {children}
     </form>
   )
+}
+
+Form.propTypes = {
+  children: PropTypes.node
 }
 
 export const AddBtn = ({onSubmit, canSubmit}) => {
@@ -298,6 +355,11 @@ export const AddBtn = ({onSubmit, canSubmit}) => {
   return (
     <button type="button" className="btn btn-primary m-l-1" disabled={!canSubmit} onClick={handleChange}>Create</button>
   )
+}
+
+AddBtn.propTypes = {
+  onSubmit:   PropTypes.func.isRequired,
+  canSubmit:  PropTypes.bool
 }
 
 export const UpdateBtn = ({onSubmit, canSubmit, label, size}) => {
@@ -316,6 +378,13 @@ export const UpdateBtn = ({onSubmit, canSubmit, label, size}) => {
   )
 }
 
+UpdateBtn.propTypes = {
+  onSubmit:   PropTypes.func.isRequired,
+  canSubmit:  PropTypes.bool,
+  label:      PropTypes.string,
+  size:       PropTypes.string
+}
+
 export const CancelBtn = ({onCancel, label, size}) => {
   const handleChange = (e) => {
     onCancel();
@@ -330,6 +399,12 @@ export const CancelBtn = ({onCancel, label, size}) => {
   return (
     <button type="button" className={classnames} onClick={handleChange}>{label || 'Cancel'}</button>
   )
+}
+
+CancelBtn.propTypes = {
+  onCancel:   PropTypes.func.isRequired,
+  label:      PropTypes.string,
+  size:       PropTypes.string
 }
 
 export const ResetBtn = ({obj, label, size}) => {
@@ -348,6 +423,11 @@ export const ResetBtn = ({obj, label, size}) => {
   )
 }
 
+ResetBtn.propTypes = {
+  obj:    PropTypes.object.isRequired,
+  label:  PropTypes.string, 
+  size:   PropTypes.string
+}
 
 export const Refresh =({onClick}) => {
   const handleChange = (e) => {
@@ -368,7 +448,11 @@ export const Refresh =({onClick}) => {
   )
 }
 
-export const Filter =({filter, onChange, onReset}) => {
+Refresh.propTypes = {
+  onClick: PropTypes.func.isRequired
+}
+
+export const Filter = ({filter, onChange, onReset}) => {
   const handleChange = (e) => {
     onChange(e.target.value);
     e.preventDefault();
@@ -406,7 +490,13 @@ export const Filter =({filter, onChange, onReset}) => {
   )
 }
 
-export const FilterPreferred =({preferred, onClick}) => {
+Filter.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  onReset:  PropTypes.func.isRequired,
+  filter: PropTypes.string
+}
+
+export const FilterPreferred = ({preferred, onClick}) => {
   const handleChange = (e) => {
     onClick();
     e.preventDefault();
@@ -426,7 +516,12 @@ export const FilterPreferred =({preferred, onClick}) => {
   )
 }
 
-export const Sort =({sortMenu, sortCond, onClick}) => {
+FilterPreferred.propTypes = {
+  preferred:  PropTypes.bool,
+  onClick:    PropTypes.func.isRequired
+}
+
+export const Sort = ({sortMenu, sortCond, onClick}) => {
   const handleClick = (mode, e) => {
     onClick(mode);
     e.preventDefault();
@@ -469,6 +564,18 @@ export const Sort =({sortMenu, sortCond, onClick}) => {
   )
 }
 
-export const TitleIcon =({isLoading, icon}) => {
+Sort.propTypes = {
+  sortMenu: PropTypes.arrayOf(PropTypes.object).isRequired,
+  sortCond: PropTypes.object.isRequired,
+  onClick:  PropTypes.func.isRequired
+}
+
+export const TitleIcon =({icon, isLoading}) => {
   return isLoading ? <i className="fa fa-spinner fa-spin m-r-1"/> : <i className={`fa fa-${icon} m-r-1`}/>;
 }
+
+TitleIcon.propTypes = {
+  icon:       PropTypes.string.isRequired,
+  isLoading:  PropTypes.bool
+}
+

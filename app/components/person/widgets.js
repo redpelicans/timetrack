@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
 import routes from '../../routes';
 import {AvatarView, NewLabel, UpdatedLabel} from '../widgets';
@@ -24,6 +24,9 @@ export const Edit = authable(({person}, {authManager, dispatch}) => {
   }
 })
 
+Edit.propTypes = {
+  person: PropTypes.object.isRequired
+}
 
 export const Delete = authable(({person, postAction}, {authManager, dispatch}) => {
   const handleChange = (e) => {
@@ -46,6 +49,10 @@ export const Delete = authable(({person, postAction}, {authManager, dispatch}) =
   }
 })
 
+Delete.propTypes = {
+  person:     PropTypes.object.isRequired,
+  postAction: PropTypes.func
+}
 
 export const Preferred = authable(({person, active}, {authManager, dispatch}) => {
   const handleChange = (e) => {
@@ -70,6 +77,10 @@ export const Preferred = authable(({person, active}, {authManager, dispatch}) =>
   }
 })
 
+Preferred.propTypes = {
+  person: PropTypes.object.isRequired,
+  active: PropTypes.bool
+}
 
 @authable
 export class AddButton extends Component {
@@ -94,16 +105,22 @@ export class AddButton extends Component {
         zIndex: '900',
     }
 
+    const {title} = this.props
+
     if(!authManager.person.isAuthorized('add')){
       return <div/>
     } else {
       return (
-        <button id="addObject" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title={this.props.title} style={style}  onClick={this.handleClick}>
+        <button id="addObject" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title={title} style={style}  onClick={this.handleClick}>
           <i className="fa fa-plus"/>
         </button>
       )
     }
   }
+}
+
+AddButton.propTypes = {
+  title: PropTypes.string
 }
 
 @authable
@@ -273,4 +290,9 @@ export class Preview extends Component {
   }
 }
 
+Preview.propTypes = {
+  person:   PropTypes.object.isRequired,
+  company:  PropTypes.object,
+  children: PropTypes.node
+}
 

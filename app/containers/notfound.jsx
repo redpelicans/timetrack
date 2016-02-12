@@ -29,7 +29,7 @@ const NotFound = ({user, dispatch}) => {
 
 NotFound.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  user: PropTypes.object,
+  user:     PropTypes.object,
 }
 
 function mapStateToProps(state) {

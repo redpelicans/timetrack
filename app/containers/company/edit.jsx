@@ -88,7 +88,7 @@ NewCompany.contextTypes = {
   router: React.PropTypes.object.isRequired,
 }
 
-NewCompany.PropTypes = {
+NewCompany.propTypes = {
   dispatch: PropTypes.func.isRequired,
 }
 
@@ -174,10 +174,9 @@ EditCompany.contextTypes = {
   router: React.PropTypes.object.isRequired,
 }
 
-EditCompany.PropTypes = {
+EditCompany.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  companyId: PropTypes.string.isRequired,
-  company: PropTypes.object.isRequired,
+  company: PropTypes.object,
 }
 
 export default class EditContent extends Component {
@@ -274,10 +273,10 @@ export default class EditContent extends Component {
   }
 }
 
-EditContent.PropTypes = {
+EditContent.propTypes = {
   title: PropTypes.string.isRequired,
-  submitBtn: PropTypes.func.isRequired,
-  cancelBtn: PropTypes.func.isRequired,
+  submitBtn: PropTypes.element.isRequired,
+  cancelBtn: PropTypes.element.isRequired,
   goBack: PropTypes.func.isRequired,
   companyForm: PropTypes.object.isRequired,
   companyDocument: PropTypes.object,

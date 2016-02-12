@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
 import Select from 'react-select';
 import FileInput from 'react-file-input';
@@ -43,6 +43,9 @@ export class BaseField extends Component{
   inputClassNames = () => classNames( 'tm input form-control', { 'form-control-error': this.hasError() });
 }
 
+BaseField.propTypes = {
+  field: PropTypes.object.isRequired
+}
 
 export class InputField extends BaseField {
 
@@ -62,6 +65,11 @@ export class InputField extends BaseField {
       </fieldset>
     )
   }
+}
+
+InputField.propTypes = {
+  field: PropTypes.object.isRequired,
+  isUrl: PropTypes.bool
 }
 
 export class FileField extends BaseField {
@@ -100,6 +108,12 @@ export class FileField extends BaseField {
       </fieldset>
     )
   }
+}
+
+FileField.propTypes = {
+  field:            PropTypes.object.isRequired,
+  onFilenameChange: PropTypes.func.isRequired,
+  filename:         PropTypes.string
 }
 
 export class MarkdownEditField extends BaseField {
@@ -187,6 +201,11 @@ export class MarkdownEditField extends BaseField {
   }
 }
 
+MarkdownEditField.propTypes = {
+  field:    PropTypes.object.isRequired,
+  focused:  PropTypes.bool
+}
+
 export class TextAreaField extends BaseField {
   render(){
     // avoid to render without a state
@@ -214,6 +233,11 @@ export class TextAreaField extends BaseField {
   }
 }
 
+TextAreaField.propTypes = {
+  field: PropTypes.object.isRequired,
+  isUrl: PropTypes.bool
+}
+
 export class BaseSelectField extends BaseField{
   handleChange = (value) => {
     this.props.field.setValue( value );
@@ -237,6 +261,10 @@ export class BaseSelectField extends BaseField{
   }
 
   selectClassNames = () => classNames( 'tm select form-control', { 'form-control-error': this.hasError() });
+}
+
+BaseSelectField.propTypes = {
+  field: PropTypes.object.isRequired
 }
 
 export class DropdownField extends BaseSelectField{
@@ -278,6 +306,10 @@ export class DropdownField extends BaseSelectField{
       )
     }
   }
+}
+
+DropdownField.propTypes = {
+  field: PropTypes.object.isRequired
 }
 
 export class MultiSelectField2 extends BaseSelectField{
@@ -325,6 +357,10 @@ export class MultiSelectField2 extends BaseSelectField{
   }
 }
 
+MultiSelectField2.propTypes = {
+  field: PropTypes.object.isRequired
+}
+
 export class ComboboxField extends BaseSelectField{
   handleChange = (value) => {
     const data = _.isString(value) ? value : value.key;
@@ -368,6 +404,9 @@ export class ComboboxField extends BaseSelectField{
   }
 }
 
+ComboboxField.propTypes = {
+  field: PropTypes.object.isRequired
+}
 
 export class SelectField extends BaseSelectField {
   render(){
@@ -394,6 +433,10 @@ export class SelectField extends BaseSelectField {
   }
 }
 
+SelectField.propTypes = {
+  field: PropTypes.object.isRequired
+}
+
 const ColorItem = ({item}) => {
   const style = {
     backgroundColor: item.value,
@@ -401,6 +444,10 @@ const ColorItem = ({item}) => {
     height: '2rem',
   }
   return <div style={style}/>;
+}
+
+ColorItem.propTypes = {
+  item: PropTypes.object.isRequired
 }
 
 export class SelectColorField extends BaseSelectField {
@@ -435,6 +482,11 @@ export class SelectColorField extends BaseSelectField {
   }
 }
 
+SelectColorField.propTypes = {
+  field:    PropTypes.object.isRequired,
+  options:  PropTypes.arrayOf(PropTypes.string).isRequired
+}
+
 export class MultiSelectField extends BaseSelectField{
 
   handleChange = (value) => {
@@ -466,9 +518,12 @@ export class MultiSelectField extends BaseSelectField{
       )
     }
   }
-
 }
 
+MultiSelectField.propTypes = {
+  field:        PropTypes.object.isRequired,
+  allowCreate:  PropTypes.bool
+}
 
 export class AvatarViewField extends Component{
   state = {name: 'Red Pelicans'}
@@ -509,6 +564,11 @@ export class AvatarViewField extends Component{
   render(){
     return this.getAvatarType();
   }
+}
+
+AvatarViewField.propTypes = {
+  obj:  PropTypes.object.isRequired,
+  type: PropTypes.string
 }
 
 export class AvatarChooserField extends Component{
@@ -559,6 +619,9 @@ export class AvatarChooserField extends Component{
   }
 }
 
+AvatarChooserField.propTypes = {
+  field: PropTypes.object.isRequired
+}
 
 export class StarField extends Component{
   state = undefined;
@@ -600,6 +663,9 @@ export class StarField extends Component{
   }
 }
 
+StarField.propTypes = {
+  field: PropTypes.object.isRequired
+}
 
 export class DateField extends BaseField{
   handleChange = (date) => {
@@ -638,6 +704,13 @@ export class DateField extends BaseField{
   }
 }
 
+DateField.propTypes = {
+  field:    PropTypes.object.isRequired,
+  minDate:  PropTypes.object,
+  maxDate:  PropTypes.object,
+  isUrl:    PropTypes.bool
+}
+
 export class PeriodField extends Component{
   state = {};
 
@@ -667,4 +740,9 @@ export class PeriodField extends Component{
       </div>
     )
   }
+}
+
+PeriodField.propTypes = {
+  startDate:  PropTypes.object,
+  endDate:    PropTypes.object
 }

@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 
 
 export class Content extends Component {
@@ -9,4 +9,8 @@ export class Content extends Component {
       </div>
     )
   }
+}
+
+Content.propTypes = {
+  children: PropTypes.node
 }
