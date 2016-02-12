@@ -1,21 +1,117 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux'
 import {Content} from '../../components/layout';
-import {Sort, FilterPreferred, Filter, Refresh, Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/person/widgets';
-import {AddButton, Preferred, Preview, Edit, Delete} from '../../components/widgets';
+import {Sort, FilterPreferred, Filter, Refresh, Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
+import {AddButton, Preferred, Preview, Edit, Delete} from '../../components/person/widgets';
 import {personsActions} from '../../actions/persons';
 import {visiblePersonsSelector} from '../../selectors/persons.js'
 import routes from '../../routes';
 
-class PersonListApp extends Component {
+const sortMenu = [
+  {key: 'name', label: 'Sort Alphabeticaly'},
+  {key: 'createdAt', label: 'Sort by creation date'},
+  {key: 'updatedAt', label: 'Sort by updated date'},
+];
+
+class PersonList extends Component {
+
+  componentWillMount() {
+    this.props.dispatch(personsActions.load())
+  }
+
+  handleRefresh = () => {
+    this.props.dispatch(personsActions.load({forceReload: true}))
+  }
+
+  handlePreferred = () => {
+    const {filterPreferred, dispatch, persons} = this.props
+    dispatch(personsActions.togglePreferredFilter())
+  }
+
+  handleSort = (mode) => {
+    this.props.dispatch(personsActions.sort(mode))
+  }
+
+  handleSearchFilter = (filter) => {
+    this.props.dispatch(personsActions.filter(filter))
+  }
+
+  handleResetFilter = (filter) => {
+    this.props.dispatch(personsActions.filter(""))
+  }
 
   render(){
+    const {persons, companies, filter, filterPreferred, sortCond, isLoading} = this.props
     return (
-      <h1>Hello World</h1>
+      <Content>
+        <Header>
+          <HeaderLeft>
+            <TitleIcon isLoading={isLoading} icon={routes.person.list.iconName}/>
+            <Title title='People'/>
+          </HeaderLeft>
+          <HeaderRight>
+            <Filter filter={filter} onReset={this.handleResetFilter} onChange={this.handleSearchFilter}/>
+            <Sort sortMenu={sortMenu} sortCond={sortCond} onClick={this.handleSort}/>
+            <FilterPreferred preferred={filterPreferred} onClick={this.handlePreferred}/>
+            <Refresh onClick={this.handleRefresh}/>
+          </HeaderRight>
+        </Header>
+        <List persons={persons} companies={companies} />
+        <AddButton title='Add a Contact'/>
+      </Content>
     )
   }
 
 }
 
+PersonList.propTypes = {
+  persons:          PropTypes.object.isRequired,
+  companies:        PropTypes.object.isRequired,
+  filter:           PropTypes.string,
+  filterPreferred:  PropTypes.bool,
+  sortCond:         PropTypes.object.isRequired,
+  isLoading:        PropTypes.bool,
+  dispatch:         PropTypes.func.isRequired,
+}
 
-export default connect(visiblePersonsSelector)(PersonListApp);
+const List = ({persons, companies}) => {
+  if(!persons || !companies) return false;
+
+  const styles={
+    container:{
+      marginTop: '50px',
+      //marginBottom: '50px',
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    },
+    item:{
+      height: '80px',
+    }
+  }
+
+  const data = persons.map(person => {
+    return (
+      <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
+        <Preview
+          person={person} 
+          company={companies.get(person.get('companyId'))} >
+            <Edit person={person}/>
+            <Delete person={person}/>
+        </Preview>
+      </div>
+    )
+  });
+
+  return (
+    <div className="row" style={styles.container}>
+      {data}
+    </div>
+  )
+}
+
+List.propTypes = {
+  persons:    PropTypes.object.isRequired,
+  companies:  PropTypes.object.isRequired
+}
+
+export default connect(visiblePersonsSelector)(PersonList);
