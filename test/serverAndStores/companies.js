@@ -1,98 +1,108 @@
 //assertion library
 import  should from "should"
 import  _ from "lodash"
-import * as server from '../helpers/server'
-import {companiesActions} from '../../app/actions/companies'
+import Immutable from 'immutable'
+import {createServer, configureStore} from '../helpers/server'
+import {companiesActions, COMPANIES_LOADED, COMPANY_CREATED, COMPANY_DELETED, COMPANY_UPDATED} from '../../app/actions/companies'
+import companiesReducer from '../../app/reducers/companies'
+import rootReducer from '../../app/reducers'
 import {data} from './data/companies'
+import {Company} from '../../server/src/models'
 
-let STORE, SERVER, DB
 
 describe('server and redux tests for companies', () => {
+  let server, db
   // call once foreach  describe()
-  before(cb => server.start( (err, {server, db}) => {
+  before(cb => createServer( (err, data) => {
     if(err)return cb(err)
-    SERVER = server
-    DB = db
+    server = data.server
+    db = data.db
     cb()
   }))
 
   // call foreach  it()
-  beforeEach(done =>  {
-    DB.drop( () => {
-      STORE = SERVER.getStore()
-      done()
-    }) 
-  })
+  beforeEach(done => db.drop( done ) )
 
   // call once after each  describe()
-  after( done => SERVER.stop(done) )
+  after( done => server.stop(done) )
 
   it('Check load companies', function(done){
-    STORE.subscribe( () => {
-      const state = STORE.getState()
-      if(state.companies.data.size){
+    const initialState = {}
+    const store = configureStore( rootReducer, initialState, COMPANIES_LOADED, getState => {
+      try{
+        const state = getState()
         const source = _.map(data['collections']['companies'], company => company.name)
         const target = state.companies.data.toSetSeq().map(company => company.get('name')).toJS()
         should(source).be.eql(target)
         done()
-      }
+      }catch(e){ done(e) }
     })
-    DB.load(data, () => STORE.dispatch(companiesActions.load()))
+
+    db.load(data, () => store.dispatch(companiesActions.load()))
   })
 
   it('Check create company', (done) => {
     const newCompany = data['collections']['companies'][0]
-    STORE.subscribe( () => {
-      const state = STORE.getState()
-      if(state.companies.data.size){
+    const initialState = {}
+    const store = configureStore( rootReducer, initialState, COMPANY_CREATED, getState => {
+      try{
+        const state = getState()
         const company = state.companies.data.toSetSeq().toJS()[0]
         should(newCompany.name).be.eql(company.name)
         done()
-      }
+      }catch(e){ done(e) }
     })
-    STORE.dispatch(companiesActions.create(newCompany))
+
+    store.dispatch(companiesActions.create(newCompany))
   })
 
   it('Check update company', (done) => {
     const newName = 'toto'
-    const unsubscribe1 = STORE.subscribe( () => {
-      const state = STORE.getState()
-      if(state.companies.data.size){
-       const previousCompany = state.companies.data.toSetSeq().toJS()[0]
-       const unsubscribe2 = STORE.subscribe( () => {
-         const state = STORE.getState()
-         const updatedCompany = state.companies.data.filter(company => company.get('name') === newName)
-         if(updatedCompany){
-           unsubscribe2()
-           done()
-         }
-       })
-       unsubscribe1()
-       STORE.dispatch(companiesActions.update({_id: previousCompany._id}, {name: newName}))
-      }
+    let companyId
+    const initialState = {}
+    const store = configureStore( rootReducer, initialState, COMPANY_UPDATED, getState => {
+      try{
+       const state = getState()
+       const updatedCompany = state.companies.data.get(companyId)
+       should.exist(updatedCompany)
+       should(updatedCompany.get('name')).be.eql(newName)
+       done()
+      }catch(e){ done(e) }
     })
 
-    DB.load(data, () => {
-      STORE.dispatch(companiesActions.load())
+    db.load(data, () => {
+      Company.findOne({isDeleted: {$ne: true}}, (err, company) => {
+        if(err) return done(err)
+        companyId = company._id.toString()
+        store.dispatch(companiesActions.load())
+        store.dispatch(companiesActions.update(company, {name: newName}))
+      })
     })
   })
 
   it('Check delete company', (done) => {
-    const unsubscribe1 = STORE.subscribe( () => {
-      const state1 = STORE.getState()
-      if(state1.companies.data.size){
-       const deletedCompany = state1.companies.data.toSetSeq().toJS()[0]
-       STORE.subscribe( () => {
-         const state2 = STORE.getState()
-         if(state2.companies.data.size == state1.companies.data.size - 1) done()
+    let companyId
+    const initialState = {}
+    const store = configureStore( rootReducer, initialState, COMPANY_DELETED, getState => {
+      try{
+       const state = getState()
+       const deletedCompany = state.companies.data.get(companyId.toString())
+       should.not.exist(deletedCompany)
+       Company.findOne({isDeleted: true, _id: companyId}, (err, company) => {
+         if(err) return done(err)
+         should.exist(company)
+         done()
        })
-       unsubscribe1()
-       STORE.dispatch(companiesActions.delete(deletedCompany))
-      }
+      }catch(e){ done(e) }
     })
 
-    DB.load(data, () => {
-      STORE.dispatch(companiesActions.load())
+    db.load(data, () => {
+      Company.findOne({isDeleted: {$ne: true}}, (err, company) => {
+        if(err) return done(err)
+        companyId = company._id
+        store.dispatch(companiesActions.load())
+        store.dispatch(companiesActions.delete(company))
+      })
     })
   })
 })
