@@ -70,12 +70,12 @@ class CompanyList extends Component{
 }
 
 CompanyList.propTypes = {
-  companies: PropTypes.object.isRequired,
-  filter: PropTypes.string,
-  filterPreferred: PropTypes.bool,
-  sortCond: PropTypes.object.isRequired,
-  isLoading: PropTypes.bool,
-  dispatch: PropTypes.func.isRequired,
+  companies:        PropTypes.object.isRequired,
+  filter:           PropTypes.string,
+  filterPreferred:  PropTypes.bool,
+  sortCond:         PropTypes.object.isRequired,
+  isLoading:        PropTypes.bool,
+  dispatch:         PropTypes.func.isRequired,
 }
 
 
