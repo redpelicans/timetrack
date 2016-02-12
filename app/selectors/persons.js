@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import {createSelector} from 'reselect';
 
 const persons = state => state.persons.data;
@@ -17,7 +18,7 @@ export const visiblePersonsSelector = createSelector(
   pendingRequests,
   (persons, companies, filter, sortCond, filterPreferred, pendingRequests) => {
     return {
-      persons: filterAndSort(persons, filter, sortCond, filterPreferred),
+      persons: filterAndSort(persons, companies, filter, sortCond, filterPreferred),
       companies: companies,
       filter,
       sortCond,
@@ -27,12 +28,10 @@ export const visiblePersonsSelector = createSelector(
   }
 )
 
-
-// Place this in utils and re-use it, copy-paste is bad.
-function filterAndSort(entities, filter, sort, filterPreferred){
-  return entities
+function filterAndSort(persons, companies, filter, sort, filterPreferred){
+  return persons
     .toSetSeq()
-    .filter(filterForSearch(filter))
+    .filter(filterForSearch(filter, companies))
     .filter(filterForPreferred(filterPreferred))
     .sort( (a,b) => sortByCond(a, b, sort.by, sort.order));
 }
@@ -44,35 +43,61 @@ function sortByCond(a, b, attr, order){
 function sortBy(a, b, attr){
   if( a.get(attr) === b.get(attr) ) return attr !== 'name' ? sortByCond(a,b, 'name', 'desc') : 0;
   if(attr != 'name') return a.get(attr) < b.get(attr) ? 1 : -1;
-  return a.get(attr) >= b.get(attr) ? 1 : -1;
+  return a.get(attr) > b.get(attr) ? 1 : -1;
 }
 
 function filterForPreferred(filter){
   return p => filter ? p.get('preferred') : true;
 }
 
-function filterForSearch(filter=''){
-  return  c => {
-    const name = c.get('name') || '';
-    return name.toLowerCase().indexOf(filter) !== -1;
-  }
-}
+function filterForSearch(filter='', companies){
 
-function filterForSearch(filter=''){
-  function filterByName(key, name){
+  if(!filter) return p => p;
+
+  function filterByName(p, key){
+    const company = companies.get(p.get('companyId'));
+    const name = [
+      p.get('name').toLowerCase(), 
+      company && company.get('name').toLowerCase(), 
+      p.get('email'),
+    ].join( ' ') ;
     return name.indexOf(key) !== -1;
   }
 
-  function filterByTag(key, tags){
+  function filterByTag(p, key){
+    const tags = _.chain(p.get('tags') && p.get('tags').toJS() || []).map(tag => tag.toLowerCase()).value().join(' ');
     const tag = key.slice(1);
     if(!tag) return true;
     return tags.indexOf(tag) !== -1;
   }
 
-  const keys = _.chain(filter.split(' ')).compact().map(key => key.toLowerCase()).value();
-  return  p => {
-    const name = p.get('name').toLowerCase();
-    const tags = _.chain(p.get('tags') && p.get('tags').toJS() || []).map(tag => tag.toLowerCase()).value().join(' ');
-    return _.every(keys, key => key.startsWith('#') ? filterByTag(key, tags) : filterByName(key, name));
+  function filterByRole(p, key){
+    const roles = _.chain(p.get('roles') && p.get('roles').toJS() || []).map(role => role.toLowerCase()).value().join(' ');
+    const role = key.slice(1);
+    if(!role) return true;
+    return roles.indexOf(role) !== -1;
   }
+
+  function filterBySkills(p, key){
+    const skills = _.chain(p.get('skills') && p.get('skills').toJS() || []).map(skill => skill.toLowerCase()).value().join(' ');
+    const skill = key.slice(1);
+    if(!skill) return true;
+    return skills.indexOf(skill) !== -1;
+  }
+
+  function filterMode(p){
+    return function(key){
+      return ({
+        '#': filterByTag,
+        '!': filterByRole,
+        '+': filterBySkills,
+      }[key[0]] || filterByName)(p, key);
+    }
+  }
+
+  const keys = _.chain(filter.split(' ')).compact().map(key => key.toLowerCase()).value();
+
+  return  p => _.every(keys, filterMode(p));
 }
+
+
