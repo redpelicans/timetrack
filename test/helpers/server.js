@@ -18,6 +18,7 @@ const params = {
   },
   db,
   secretKey: 'test',
+  verbose: false,
   duration: moment().add(1, 'day').toDate(),
   user: {
     _id: ObjectId(),
@@ -32,7 +33,7 @@ const params = {
 require('universal-fetch')
 global.window = { location: { origin: params.server.url } }
 
-export function start(cb){
+export function createServer(cb){
   async.waterfall([startServer.bind(null, {params}), loadUser, createDBLoader], cb)
 }
 
@@ -45,7 +46,6 @@ function startServer({params}, cb){
     .then( value => {
       const server = {
         stop: stop.bind(null, value.server), 
-        getStore: createLocalStore.bind(null, params),
       }
       cb(null, {server, params, resources: value.resources}) 
     })
@@ -64,10 +64,33 @@ function createDBLoader(data, cb){
   setImmediate(cb, null, {...data, db})
 }
 
-function createLocalStore(params){
+export function configureStore(reducer, initialState, type, cb){
   const sessionId = 1
   const appJwt = getToken(params.user._id, params.secretKey, params.duration)
-  return createStore( rootReducer, {login: {appJwt, sessionId}}, compose(applyMiddleware(thunk)))
+  const loginState = {login: {appJwt, sessionId}}
+  const state = {...initialState, ...loginState}
+  return createStore( reducer, state, applyMiddleware(myMiddleware(type, cb), thunk))
+}
+
+const myMiddleware = (type, cb) => {
+  let fired = false;
+  return store => next => action => {
+    const result = next(action)
+    if (type === action.type && !fired){
+      fired = true
+      cb(store.getState, action)
+    }
+    return result
+  }
+}
+
+const crashReporter = store => next => action => {
+  try {
+    return next(action)
+  } catch (err) {
+    console.error('Caught an exception!', err)
+    return err
+  }
 }
 
 function getToken(id, secretKey, expirationDate){

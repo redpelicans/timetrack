@@ -68,7 +68,7 @@ export function start(params, resources, cb) {
     require('./version').init(app, resources);
 
     // register morgan logger
-    app.use(logger('dev'));
+    if(params.verbose) app.use(logger('dev'));
 
     require('./login').init(app, resources, params);
     require('./logout').init(app, resources, params);
