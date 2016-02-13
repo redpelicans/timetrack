@@ -4,6 +4,7 @@ import {Content} from '../../components/layout';
 import {Sort, FilterPreferred, Filter, Refresh, Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
 import {AddButton, Preferred, Preview, Edit, Delete} from '../../components/person/widgets';
 import {personsActions} from '../../actions/persons';
+import {companiesActions} from '../../actions/companies';
 import {visiblePersonsSelector} from '../../selectors/persons.js'
 import routes from '../../routes';
 
@@ -17,6 +18,7 @@ class PersonList extends Component {
 
   componentWillMount() {
     this.props.dispatch(personsActions.load())
+    this.props.dispatch(companiesActions.load())
   }
 
   handleRefresh = () => {
