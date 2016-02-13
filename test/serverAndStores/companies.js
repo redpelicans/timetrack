@@ -28,7 +28,7 @@ describe('server and redux tests for companies', () => {
 
   it('Check load companies', function(done){
     const initialState = {}
-    const store = configureStore( rootReducer, initialState, COMPANIES_LOADED, getState => {
+    const store = configureStore( rootReducer, initialState, {COMPANIES_LOADED: getState => {
       try{
         const state = getState()
         const source = _.map(data['collections']['companies'], company => company.name)
@@ -36,7 +36,7 @@ describe('server and redux tests for companies', () => {
         should(source).be.eql(target)
         done()
       }catch(e){ done(e) }
-    })
+    }})
 
     db.load(data, () => store.dispatch(companiesActions.load()))
   })
@@ -44,14 +44,14 @@ describe('server and redux tests for companies', () => {
   it('Check create company', (done) => {
     const newCompany = data['collections']['companies'][0]
     const initialState = {}
-    const store = configureStore( rootReducer, initialState, COMPANY_CREATED, getState => {
+    const store = configureStore( rootReducer, initialState, {COMPANY_CREATED: getState => {
       try{
         const state = getState()
         const company = state.companies.data.toSetSeq().toJS()[0]
         should(newCompany.name).be.eql(company.name)
         done()
       }catch(e){ done(e) }
-    })
+    }})
 
     store.dispatch(companiesActions.create(newCompany))
   })
@@ -60,7 +60,7 @@ describe('server and redux tests for companies', () => {
     const newName = 'toto'
     let companyId
     const initialState = {}
-    const store = configureStore( rootReducer, initialState, COMPANY_UPDATED, getState => {
+    const store = configureStore( rootReducer, initialState, {COMPANY_UPDATED: getState => {
       try{
        const state = getState()
        const updatedCompany = state.companies.data.get(companyId)
@@ -68,7 +68,7 @@ describe('server and redux tests for companies', () => {
        should(updatedCompany.get('name')).be.eql(newName)
        done()
       }catch(e){ done(e) }
-    })
+    }})
 
     db.load(data, () => {
       Company.findOne({isDeleted: {$ne: true}}, (err, company) => {
@@ -83,7 +83,7 @@ describe('server and redux tests for companies', () => {
   it('Check delete company', (done) => {
     let companyId
     const initialState = {}
-    const store = configureStore( rootReducer, initialState, COMPANY_DELETED, getState => {
+    const store = configureStore( rootReducer, initialState, {COMPANY_DELETED: getState => {
       try{
        const state = getState()
        const deletedCompany = state.companies.data.get(companyId.toString())
@@ -94,7 +94,7 @@ describe('server and redux tests for companies', () => {
          done()
        })
       }catch(e){ done(e) }
-    })
+    }})
 
     db.load(data, () => {
       Company.findOne({isDeleted: {$ne: true}}, (err, company) => {

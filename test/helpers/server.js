@@ -64,20 +64,24 @@ function createDBLoader(data, cb){
   setImmediate(cb, null, {...data, db})
 }
 
-export function configureStore(reducer, initialState, type, cb){
+export function configureStore(reducer, initialState, types){
   const sessionId = 1
   const appJwt = getToken(params.user._id, params.secretKey, params.duration)
   const loginState = {login: {appJwt, sessionId}}
   const state = {...initialState, ...loginState}
-  return createStore( reducer, state, applyMiddleware(myMiddleware(type, cb), thunk))
+  return createStore( reducer, state, applyMiddleware(myMiddleware(types), thunk))
 }
 
-const myMiddleware = (type, cb) => {
-  let fired = false;
+const isFunction = arg => typeof arg === 'function'
+
+const myMiddleware = (types={}) => {
+  const fired = {}
   return store => next => action => {
     const result = next(action)
-    if (type === action.type && !fired){
-      fired = true
+    const cb = types[action.type]
+    if(cb && !fired[action.type]){
+      if(!isFunction(cb)) throw new Error("action's type value must be a function")
+      fired[action.type] = true
       cb(store.getState, action)
     }
     return result
