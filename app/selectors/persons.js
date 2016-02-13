@@ -3,11 +3,35 @@ import {createSelector} from 'reselect';
 
 const persons = state => state.persons.data;
 const companies = state => state.companies.data;
+const missions = state => state.missions.data;
 const filterSelector = state => state.persons.filter;
 const sortCondSelector = state => state.persons.sortCond;
 const preferredSelector = state => state.persons.filterPreferred;
 const pendingRequests = state => state.pendingRequests;
 const personId = state => state.routing.location.state && state.routing.location.state.personId;
+
+const getFilterMissionById = id => mission =>  {
+  const workers = mission.get('workerIds')
+  return (mission.get('managerId') === id || (workers && workers.toJS().indexOf(id) !== -1))
+}
+
+export const viewPersonsSelector = createSelector(
+  personId,
+  companies,
+  persons,
+  missions,
+  pendingRequests,
+  (personId, companies, persons, missions, pendingRequests) => {
+    return {
+      person: persons.get(personId),
+      company: personId ? companies.get(persons.get(personId).get('companyId')) : null,
+      missions: missions.filter(getFilterMissionById(personId)),
+      companies: companies,
+      persons: persons,
+      isLoading: !!pendingRequests
+    }
+  }
+)
 
 export const visiblePersonsSelector = createSelector(
   persons,
