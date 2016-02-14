@@ -16,6 +16,13 @@ const getFilterMissionById = id => mission =>  {
   return (mission.get('managerId') === id || (workers && workers.toJS().indexOf(id) !== -1))
 }
 
+export const newPersonSelector = createSelector(
+  userCompany,
+  (userCompany) => {
+    return { userCompany }
+  }
+)
+
 export const editPersonSelector = createSelector(
   personId,
   persons,
