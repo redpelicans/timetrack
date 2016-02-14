@@ -7,7 +7,7 @@ import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, L
 import {Edit, Preferred, Delete} from '../../components/person/widgets';
 import {Edit as EditMission, Preview as MissionPreview, Closed as ClosedMission} from '../../components/mission/widgets';
 import {Content} from '../../components/layout';
-import {viewPersonsSelector} from '../../selectors/persons'
+import {viewPersonSelector} from '../../selectors/persons'
 import {personsActions} from '../../actions/persons'
 import {companiesActions} from '../../actions/companies'
 import {missionsActions} from '../../actions/missions'
@@ -298,4 +298,4 @@ Missions.PropTypes = {
   persons:    PropTypes.object.isRequired
 }
 
-export default connect (viewPersonsSelector)(ViewPerson)
+export default connect (viewPersonSelector)(ViewPerson)

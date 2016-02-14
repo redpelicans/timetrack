@@ -3,6 +3,7 @@ import {createSelector} from 'reselect';
 
 const persons = state => state.persons.data;
 const companies = state => state.companies.data;
+const userCompany = state => state.login.user
 const missions = state => state.missions.data;
 const filterSelector = state => state.persons.filter;
 const sortCondSelector = state => state.persons.sortCond;
@@ -15,7 +16,21 @@ const getFilterMissionById = id => mission =>  {
   return (mission.get('managerId') === id || (workers && workers.toJS().indexOf(id) !== -1))
 }
 
-export const viewPersonsSelector = createSelector(
+export const editPersonSelector = createSelector(
+  personId,
+  persons,
+  companies,
+  userCompany,
+  (personId, persons, companies, userCompany) => {
+    return {
+      person: persons.get(personId),
+      company: personId ? companies.get(persons.get(personId).get('companyId')) : null,
+      userCompany
+    }
+  }
+)
+
+export const viewPersonSelector = createSelector(
   personId,
   companies,
   persons,
