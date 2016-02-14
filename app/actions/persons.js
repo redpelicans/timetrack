@@ -12,6 +12,7 @@ export const PERSON_UPDATED = 'PERSON_UPDATED';
 export const PERSON_DELETED = 'PERSON_DELETED';
 export const PERSON_CREATED = 'PERSON_CREATED';
 export const PERSON_TOGGLE_PREFERRED_COMPLETED = 'PERSON_TOGGLE_PREFERRED_COMPLETED';
+export const PERSON_UPDATE_TAGS_COMPLETED = 'PERSON_UPDATE_TAGS_COMPLETED';
 
 export function createCompleted(){
 }
@@ -127,7 +128,26 @@ export function createPerson(person){
   }
 }
 
+function updateTagsCompleted(person){
+  return {
+    type: PERSON_UPDATE_TAGS_COMPLETED,
+    id: person._id,
+    tags: Immutable.fromJS(person.tags)
+  }
+}
+
+export function updateTags(person, tags){
+  return (dispatch, getState) => {
+    let body = { _id: person.get('_id'), tags }
+    const message = 'Cannot update tags, check your backend server'
+    let request = requestJson('api/persons/tags', dispatch, getState, {verb: 'post', body: body, message: message})
+
+    request.then(person => dispatch(updateTagsCompleted(person)))
+  }
+}
+
 export const personsActions = {
+  updateTags,
   createCompleted,
   updateCompleted,
   deleteCompleted,
