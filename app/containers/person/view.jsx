@@ -23,11 +23,17 @@ class ViewPerson extends Component {
     if (!person) dispatch(routeActions.replace(sitemap.person.list))
 
     this.tagsField = tagsForm({tags: person.get('tags')}).field('tags')
-    // here subscribe the store for a changement.
+    this.unsubscribeTagsField = this.tagsField.onValue(state => {
+      if (state.hasBeenModified) dispatch(personsActions.updateTags(person, state.value))
+    })
 
     dispatch(personsActions.load())
     dispatch(missionsActions.load())
     dispatch(companiesActions.load())
+  }
+
+  componentWillUnmount(){
+    if(this.unsubscribeTagsField) this.unsubscribeTagsField()
   }
 
   goBack = () => {

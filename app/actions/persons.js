@@ -140,7 +140,7 @@ export function updateTags(person, tags){
   return (dispatch, getState) => {
     let body = { _id: person.get('_id'), tags }
     const message = 'Cannot update tags, check your backend server'
-    let request = requestJson('api/persons/tags', dispatch, getState, {verb: 'post', body: body, message: message})
+    let request = requestJson('/api/people/tags', dispatch, getState, {verb: 'post', body: body, message: message})
 
     request.then(person => dispatch(updateTagsCompleted(person)))
   }
