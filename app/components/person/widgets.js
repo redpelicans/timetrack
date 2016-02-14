@@ -230,7 +230,7 @@ export class Preview extends Component {
       const onClick = (tag, e) => {
         e.preventDefault();
         const filter = `#${tag} `;
-        personsAppActions.filter(filter);
+        dispatch(personsActions.filter(filter));
         dispatch(pushRoute(routes.person.list, {filter}));
       }
 

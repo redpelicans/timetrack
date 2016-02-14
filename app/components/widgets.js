@@ -167,7 +167,7 @@ export const Labels = ({label, value, onClick}) => {
 
 Labels.propTypes = {
   label:    PropTypes.string,
-  value:    PropTypes.string, 
+  value:    PropTypes.object, 
   onClick:  PropTypes.func
 }
 
