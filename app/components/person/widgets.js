@@ -57,7 +57,7 @@ Delete.propTypes = {
 export const Preferred = authable(({person, active}, {authManager, dispatch}) => {
   const handleChange = (e) => {
     e.preventDefault();
-    dispatch(personsActions.togglePreferred(person));
+    dispatch(personsActions.togglePreferred(person.toJS()));
   }
 
   const classnames = classNames("iconButton star fa fa-star-o m-r-1", {

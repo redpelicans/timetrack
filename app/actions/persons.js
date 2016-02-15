@@ -69,7 +69,7 @@ export function sort(by){
 
 export function togglePreferred(person){
   return (dispatch, getState) => {
-    const body = { id: person.get('_id') , preferred: !person.get('preferred')};
+    const body = { id: person._id , preferred: !person.preferred};
     const message = 'Cannot toggle preferred status, check your backend server';
     const request = requestJson(`/api/people/preferred`, dispatch, getState, {verb: 'post', body, message});
 
@@ -138,7 +138,7 @@ function updateTagsCompleted(person){
 
 export function updateTags(person, tags){
   return (dispatch, getState) => {
-    let body = { _id: person.get('_id'), tags }
+    let body = { _id: person._id, tags }
     const message = 'Cannot update tags, check your backend server'
     let request = requestJson('/api/people/tags', dispatch, getState, {verb: 'post', body: body, message: message})
 

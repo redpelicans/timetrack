@@ -24,7 +24,7 @@ class ViewPerson extends Component {
 
     this.tagsField = tagsForm({tags: person.get('tags')}).field('tags')
     this.unsubscribeTagsField = this.tagsField.onValue(state => {
-      if (state.hasBeenModified) dispatch(personsActions.updateTags(person, state.value))
+      if (state.hasBeenModified) dispatch(personsActions.updateTags(person.toJS(), state.value))
     })
 
     dispatch(personsActions.load())
