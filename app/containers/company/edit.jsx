@@ -85,7 +85,7 @@ class NewCompany extends Component {
 }
 
 NewCompany.contextTypes = {
-  router: React.PropTypes.object.isRequired,
+  router: PropTypes.object.isRequired,
 }
 
 NewCompany.propTypes = {
@@ -171,7 +171,7 @@ class EditCompany extends Component {
 }
 
 EditCompany.contextTypes = {
-  router: React.PropTypes.object.isRequired,
+  router: PropTypes.object.isRequired,
 }
 
 EditCompany.propTypes = {
@@ -179,7 +179,7 @@ EditCompany.propTypes = {
   company: PropTypes.object,
 }
 
-export default class EditContent extends Component {
+class EditContent extends Component {
   render(){
     if(!this.props.companyForm) return false;
     const editMode = !!this.props.companyDocument;

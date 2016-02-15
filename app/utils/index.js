@@ -2,6 +2,7 @@ import {alert} from '../actions/errors';
 import {startLoading, stopLoading} from '../actions/loading';
 import {gotoLogin} from '../actions/routes';
 import {logout} from '../actions/login';
+import store from '../store'
 
 export function parseJSON(res) {
   return res.json && res.json() || res;
@@ -25,7 +26,7 @@ export function checkStatus(res) {
   }
 }
 
-export function requestJson(uri, dispatch, getState, {verb='get', header='Runtime Error', body, message='Check your backend server'} = {}){
+export function requestJson(uri, dispatch = store.dispatch, getState = store.getState, {verb='get', header='Runtime Error', body, message='Check your backend server'} = {}){
   let  promise;
   const {login: {appJwt, sessionId}} = getState();
   const absoluteUri = window.location ? window.location.origin + uri : uri;

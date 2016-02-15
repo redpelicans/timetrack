@@ -1,15 +1,17 @@
 import _ from 'lodash'
 import {createSelector} from 'reselect';
 
-const persons = state => state.persons.data;
-const companies = state => state.companies.data;
-const userCompany = state => state.login.user
-const missions = state => state.missions.data;
-const filterSelector = state => state.persons.filter;
-const sortCondSelector = state => state.persons.sortCond;
-const preferredSelector = state => state.persons.filterPreferred;
-const pendingRequests = state => state.pendingRequests;
-const personId = state => state.routing.location.state && state.routing.location.state.personId;
+const persons = state => state.persons.data
+const companies = state => state.companies.data
+const skills = state => state.skills
+const userCompanyId = state => state.login.user.get('companyId')
+const missions = state => state.missions.data
+const filterSelector = state => state.persons.filter
+const sortCondSelector = state => state.persons.sortCond
+const preferredSelector = state => state.persons.filterPreferred
+const pendingRequests = state => state.pendingRequests
+const personId = state => state.routing.location.state && state.routing.location.state.personId
+const companyId = state => state.routing.location.state && state.routing.location.state.companyId
 
 const getFilterMissionById = id => mission =>  {
   const workers = mission.get('workerIds')
@@ -17,9 +19,17 @@ const getFilterMissionById = id => mission =>  {
 }
 
 export const newPersonSelector = createSelector(
-  userCompany,
-  (userCompany) => {
-    return { userCompany }
+  companyId,
+  companies,
+  skills,
+  userCompanyId,
+  (companyId, companies, skills, userCompanyId) => {
+    return {
+      userCompanyId,
+      companyId,
+      companies,
+      skills
+    }
   }
 )
 
@@ -27,12 +37,15 @@ export const editPersonSelector = createSelector(
   personId,
   persons,
   companies,
-  userCompany,
-  (personId, persons, companies, userCompany) => {
+  skills,
+  userCompanyId,
+  (personId, persons, companies, skills, userCompanyId) => {
     return {
       person: persons.get(personId),
       company: personId ? companies.get(persons.get(personId).get('companyId')) : null,
-      userCompany
+      companies,
+      skills,
+      userCompanyId
     }
   }
 )

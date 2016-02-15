@@ -15,7 +15,7 @@ export function rndColor() {
 
 export function avatartarUrlValueChecker(url, state){
   if(!url) return new Promise(resolve => resolve({checked: true}));
-  return requestJson('/api/check_url', {verb: 'post', body: {url: url}})
+  return requestJson('/api/check_url', undefined, undefined, {verb: 'post', body: {url: url}})
     .then( res => {
       return { 
         checked: res.ok, 
@@ -26,7 +26,7 @@ export function avatartarUrlValueChecker(url, state){
 
 export function emailUniqueness(email, person={}){
   if(!email || person.email === email) return new Promise(resolve => resolve({checked: true}));
-  return requestJson('/api/person/check_email_uniqueness', { verb: 'post', body: {email: email}})
+  return requestJson('/api/person/check_email_uniqueness', undefined, undefined, { verb: 'post', body: {email: email}})
   .then( res => {
     return { 
       checked:  res.ok, 
