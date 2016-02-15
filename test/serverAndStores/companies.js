@@ -1,9 +1,10 @@
 //assertion library
+import uuid from 'uuid'
 import  should from "should"
 import  _ from "lodash"
 import Immutable from 'immutable'
 import {createServer, configureStore} from '../helpers/server'
-import {companiesActions, COMPANIES_LOADED, COMPANY_CREATED, COMPANY_DELETED, COMPANY_UPDATED} from '../../app/actions/companies'
+import {companiesActions, FILTER_COMPANIES, UPDATE_TAGS_COMPLETED, TOGGLE_PREFERRED_FILTER, COMPANY_TOGGLE_PREFERRED_COMPLETED, COMPANIES_LOADED, COMPANY_CREATED, COMPANY_DELETED, COMPANY_UPDATED} from '../../app/actions/companies'
 import companiesReducer from '../../app/reducers/companies'
 import rootReducer from '../../app/reducers'
 import {data} from './data/companies'
@@ -105,4 +106,155 @@ describe('server and redux tests for companies', () => {
       })
     })
   })
+
+  it('Check toggle preferred', (done) => {
+    let companytoBeUpdated
+    const initialState = {}
+    const actions = {
+      COMPANIES_LOADED: () => {
+        store.dispatch(companiesActions.togglePreferred(companytoBeUpdated))
+      },
+      COMPANY_TOGGLE_PREFERRED_COMPLETED: getState => {
+        try{
+         const state = getState()
+         const updatedCompany = state.companies.data.get(companytoBeUpdated._id.toString())
+         should.exist(updatedCompany)
+         should(updatedCompany.get('preferred')).be.true
+         done()
+        }catch(e){ done(e) }
+      }
+    }
+
+    const store = configureStore( rootReducer, initialState, actions )
+
+    db.load(data, () => {
+      Company.findOne({isDeleted: {$ne: true}}, (err, company) => {
+        if(err) return done(err)
+        store.dispatch(companiesActions.load())
+        companytoBeUpdated = company
+      })
+    })
+  })
+
+  it('Check update tags preferred', (done) => {
+    let companytoBeUpdated
+    const initialState = {}
+    const tags = ['toto', 'titi']
+    const actions = {
+      COMPANIES_LOADED: () => {
+        store.dispatch(companiesActions.updateTags(companytoBeUpdated, tags))
+      },
+      UPDATE_TAGS_COMPLETED: getState => {
+        try{
+         const state = getState()
+         const updatedCompany = state.companies.data.get(companytoBeUpdated._id.toString())
+         should.exist(updatedCompany)
+         should(updatedCompany.get('tags').toJS()).eql(tags);
+         done()
+        }catch(e){ done(e) }
+      }
+    }
+
+    const store = configureStore( rootReducer, initialState, actions )
+
+    db.load(data, () => {
+      Company.findOne({isDeleted: {$ne: true}}, (err, company) => {
+        if(err) return done(err)
+        store.dispatch(companiesActions.load())
+        companytoBeUpdated = company
+      })
+    })
+  })
+
+  it('Check filter companies', (done) => {
+    const newName = uuid.v4()
+    const initialState = {}
+    const actions = {
+      FILTER_COMPANIES: getState => {
+        try{
+         const state = getState()
+         should(state.companies.filter).eql(newName);
+         done()
+        }catch(e){ done(e) }
+      }
+    }
+
+    const store = configureStore( rootReducer, initialState, actions )
+    store.dispatch(companiesActions.filter(newName))
+
+  })
+
+  it('Check filter preferred companies', (done) => {
+    const initialState = { companies: {filterPreferred: false}}
+    const actions = {
+      TOGGLE_PREFERRED_FILTER: getState => {
+        try{
+         const state = getState()
+         should(state.companies.filterPreferred).be.true
+         done()
+        }catch(e){ done(e) }
+      }
+    }
+
+    const store = configureStore( rootReducer, initialState, actions )
+    store.dispatch(companiesActions.togglePreferredFilter())
+  })
+
+  it('Check unfilter preferred companies', (done) => {
+    const initialState = { companies: {filterPreferred: true}}
+    const actions = {
+      TOGGLE_PREFERRED_FILTER: getState => {
+        try{
+         const state = getState()
+         should(state.companies.filterPreferred).be.false
+         done()
+        }catch(e){ done(e) }
+      }
+    }
+
+    const store = configureStore( rootReducer, initialState, actions )
+    store.dispatch(companiesActions.togglePreferredFilter())
+  })
+
+
+  it('Check sort companies', (done) => {
+    const initialState = { companies: {sortCond: {by: 'name', order: 'asc'}}}
+    const actions = {
+      SORT_COMPANIES: getState => {
+        try{
+         const state = getState()
+         should(state.companies.sortCond.by).eql('date')
+         should(state.companies.sortCond.order).eql('asc')
+         done()
+        }catch(e){ done(e) }
+      }
+    }
+
+    const store = configureStore( rootReducer, initialState, actions )
+    store.dispatch(companiesActions.sort('date'))
+
+  })
+
+
+  it('Check re-sort companies', (done) => {
+    const initialState = { companies: {sortCond: {by: 'name', order: 'asc'}}}
+    const actions = {
+      SORT_COMPANIES: getState => {
+        try{
+         const state = getState()
+         should(state.companies.sortCond.by).eql('name')
+         should(state.companies.sortCond.order).eql('desc')
+         done()
+        }catch(e){ done(e) }
+      }
+    }
+
+    const store = configureStore( rootReducer, initialState, actions )
+    store.dispatch(companiesActions.sort('name'))
+
+  })
+
+
+
+
 })

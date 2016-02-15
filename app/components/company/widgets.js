@@ -31,7 +31,7 @@ export const Preferred = authable(({company, active}, {authManager, dispatch}) =
 
   const handleChange = (e) => {
     e.preventDefault();
-    dispatch(companiesActions.togglePreferred(company));
+    dispatch(companiesActions.togglePreferred(company.toJS()));
   }
 
   const classnames = classNames("iconButton star fa fa-star-o m-r-1", {

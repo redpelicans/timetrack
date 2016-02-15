@@ -26,7 +26,7 @@ class CompanyView extends Component {
 
     this.tagsField = tagsForm({tags: company.get('tags')}).field('tags');
     this.unsubscribeTagsField = this.tagsField.onValue( state => {
-      if(state.hasBeenModified) dispatch(companiesActions.updateTags(company, state.value));
+      if(state.hasBeenModified) dispatch(companiesActions.updateTags(company.toJS(), state.value));
     });
 
     dispatch(personsActions.load());

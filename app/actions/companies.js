@@ -69,7 +69,7 @@ export function sort(by){
 
 export function togglePreferred(company){
   return (dispatch, getState) => {
-    const body = { id: company.get('_id') , preferred: !company.get('preferred')};
+    const body = { id: company._id , preferred: !company.preferred};
     const message = 'Cannot toggle preferred status, check your backend server';
     const request = requestJson(`/api/companies/preferred`, dispatch, getState, {verb: 'post', body, message});
 
@@ -138,7 +138,7 @@ function updateTagsCompleted(company){
 
 export function updateTags(company, tags){
   return (dispatch, getState) => {
-    let body = { _id: company.get('_id') , tags};
+    let body = { _id: company._id , tags};
     const message = 'Cannot update tags, check your backend server';
     let request = requestJson(`/api/companies/tags`,dispatch, getState, {verb: 'post', body: body, message: message});
 
