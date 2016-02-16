@@ -1,10 +1,10 @@
 import React, {Component, PropTypes} from 'react';
-import { routeActions } from 'react-router-redux'
+import ReactToastr from 'react-toastr';
 import { connect } from 'react-redux';
 import {logout} from '../actions/login';
+import { routeActions } from '../actions/routes'
 import sitemap from '../routes';
-import ReactToastr from 'react-toastr';
-import {AvatarView} from '../views/widgets';
+import {AvatarView} from '../components/widgets';
 const {ToastContainer} = ReactToastr;
 const ToastMessageFactory = React.createFactory(ReactToastr.ToastMessage.animation);
 

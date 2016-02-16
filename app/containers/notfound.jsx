@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react';
-import {Content} from '../views/layout';
+import {Content} from '../components/layout';
 import { connect } from 'react-redux';
 import { replaceRoute } from '../actions/routes';
 import routes from '../routes';

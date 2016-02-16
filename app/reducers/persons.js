@@ -9,6 +9,7 @@ import {
   SORT_PERSONS, 
   TOGGLE_PREFERRED_FILTER,
   PERSON_TOGGLE_PREFERRED_COMPLETED,
+  PERSON_UPDATE_TAGS_COMPLETED,
 } from '../actions/persons';
 
 const initialState = {
@@ -23,6 +24,11 @@ const initialState = {
 
 export default function personsReducer(state = initialState, action) {
   switch(action.type){
+    case PERSON_UPDATE_TAGS_COMPLETED:
+      return {
+        ...state,
+        data: state.data.update(action.id, p => p.set('tags', action.tags))
+      }
     case PERSON_TOGGLE_PREFERRED_COMPLETED:
       return {
         ...state,

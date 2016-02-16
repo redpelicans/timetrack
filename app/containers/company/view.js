@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React, {Component, PropTypes} from 'react';
-import { routeActions } from 'react-router-redux'
+import { routeActions } from '../../actions/routes'
 import { connect } from 'react-redux';
 import {viewCompanySelector} from '../../selectors/companies';
 import {authable} from '../../components/authmanager';

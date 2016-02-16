@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
 import {InputField, DropdownField} from './fields';
 
@@ -63,42 +63,49 @@ export class PhonesField extends Component{
   }
 }
 
-
-export class Phone extends Component{
-  render(){
-    let styles={
-      container:{
-        display: 'flex',
-        flexWrap: 'nowrap',
-
-      },
-      number:{
-        flexBasis: 'auto',
-      },
-      number:{
-        flexGrow: 1,
-      },
-      delete:{
-        paddingTop: '35px',
-        paddingLeft: '10px',
-        fontSize: '1rem',
-      }
-    }
-
-    return (
-      <div style={styles.container} className="row">
-        <div style={styles.label} className="col-md-4">
-          <DropdownField field={this.props.field.field('label')}/>
-        </div>
-        <div style={styles.number} className="m-l-1">
-          <InputField field={this.props.field.field('number')}/>
-        </div>
-        <div style={styles.delete}>
-          <a className="" href="#" onClick={this.props.onDeleteField.bind(null, this.props.field)} >
-            <i className="iconButton danger fa fa-minus-circle m-r-1"/>
-          </a>
-        </div>
-      </div>
-    )
-  }
+PhonesField.propTypes = {
+  field: PropTypes.object.isRequired
 }
+
+export const Phone = ({onDeleteField, field}) => {
+  const styles={
+    container:{
+      display: 'flex',
+      flexWrap: 'nowrap',
+
+    },
+    number:{
+      flexBasis: 'auto',
+    },
+    number:{
+      flexGrow: 1,
+    },
+    delete:{
+      paddingTop: '35px',
+      paddingLeft: '10px',
+      fontSize: '1rem',
+    }
+  }
+
+  return (
+    <div style={styles.container} className="row">
+      <div style={styles.label} className="col-md-4">
+        <DropdownField field={field.field('label')}/>
+      </div>
+      <div style={styles.number} className="m-l-1">
+        <InputField field={field.field('number')}/>
+      </div>
+      <div style={styles.delete}>
+        <a className="" href="#" onClick={onDeleteField.bind(null, field)} >
+          <i className="iconButton danger fa fa-minus-circle m-r-1"/>
+        </a>
+      </div>
+    </div>
+  )
+}
+
+Phone.propTypes = {
+  field:          PropTypes.object.isRequired,
+  onDeleteField:  PropTypes.func.isRequired
+}
+
