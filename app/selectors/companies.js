@@ -10,6 +10,8 @@ const preferredSelector = state => state.companies.filterPreferred;
 const pendingRequests = state => state.pendingRequests;
 const companyId = state => state.routing.location.state && state.routing.location.state.companyId;
 
+const getFilterPersonsByCompanyId = companyId => person => person.get('companyId') === companyId
+
 export const newCompanySelector = createSelector(
   getStateSelector,
   (getState) => {
@@ -42,6 +44,7 @@ export const viewCompanySelector = createSelector(
       company: companies.get(companyId),
       isLoading: !!pendingRequests,
       persons,
+      workers: persons.filter(getFilterPersonsByCompanyId(companyId)),
       missions: missions.filter(mission => mission.get("clientId") === companyId),
       companies
     }

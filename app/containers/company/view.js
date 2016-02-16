@@ -46,7 +46,7 @@ class CompanyView extends Component {
   // }
 
   render(){
-    const {company, persons, missions, isLoading} = this.props;
+    const {company, persons, workers, missions, isLoading} = this.props;
     if( !company || !persons) return false;
     return (
       <Content>
@@ -69,7 +69,9 @@ class CompanyView extends Component {
           company={company} 
           missions={missions} 
           tagsField={this.tagsField} 
-          persons={persons}/>
+          persons={persons}
+          workers={workers}
+        />
       </Content>
     )
   }
@@ -78,11 +80,12 @@ class CompanyView extends Component {
 CompanyView.propTypes = {
   company: PropTypes.object,
   persons: PropTypes.object,
+  workers: PropTypes.object,
   missions: PropTypes.object,
   dispatch: PropTypes.func.isRequired,
 }
 
-const Card = ({company, persons, missions, tagsField}) =>  {
+const Card = ({company, persons, workers, missions, tagsField}) =>  {
   const styles={
     container:{
       marginTop: '3rem',
@@ -120,7 +123,7 @@ const Card = ({company, persons, missions, tagsField}) =>  {
       <div className="col-md-12">
         <Persons 
           label="Contacts" 
-          persons={persons} 
+          persons={workers} 
           company={company}/>
       </div>
       <div className="col-md-12">
@@ -141,6 +144,7 @@ const Card = ({company, persons, missions, tagsField}) =>  {
 Card.PropTypes = {
   company: PropTypes.object.isRequired,
   persons: PropTypes.object.isRequired,
+  workers: PropTypes.object.isRequired,
   missions: PropTypes.object.isRequired,
   tagsField: PropTypes.object.isRequired,
 }
@@ -204,11 +208,8 @@ const Persons = ({label, company, persons}) => {
     }
   };
 
-  const ids = company.get('personIds').toJS();
-  const data = _.chain(ids)
-    .map(id => persons.get(id))
-    .compact()
-    .sortBy( person => person.get('name') )
+    const data = _.chain(persons.toArray())
+    .sortBy(person => person.get('name'))
     .map( person => {
       return (
         <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
@@ -219,8 +220,7 @@ const Persons = ({label, company, persons}) => {
           </PersonPreview>
         </div>
         )
-      })
-    .value();
+      }).value()
 
   if(!data.length) return <div/>;
 

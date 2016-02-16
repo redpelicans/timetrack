@@ -14,7 +14,7 @@ const pendingRequests = state => state.pendingRequests
 const personId = state => state.routing.location.state && state.routing.location.state.personId
 const companyId = state => state.routing.location.state && state.routing.location.state.companyId
 
-const getFilterMissionById = id => mission =>  {
+const getFilterMissionsById = id => mission =>  {
   const workers = mission.get('workerIds')
   return (mission.get('managerId') === id || (workers && workers.toJS().indexOf(id) !== -1))
 }
@@ -65,7 +65,7 @@ export const viewPersonSelector = createSelector(
     return {
       person: persons.get(personId),
       company: personId ? companies.get(persons.get(personId).get('companyId')) : null,
-      missions: missions.filter(getFilterMissionById(personId)),
+      missions: missions.filter(getFilterMissionsById(personId)),
       companies: companies,
       persons: persons,
       isLoading: !!pendingRequests
