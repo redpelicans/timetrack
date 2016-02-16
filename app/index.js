@@ -12,8 +12,9 @@ import {registerSocketIO}from './socketIO';
 import moment from 'moment';
 import momentLocalizer from 'react-widgets/lib/localizers/moment';
 momentLocalizer(moment);
-import store from './store';
+import configureStore from './store/configureStore';
 
+const store = configureStore();
 registerSocketIO(store);
 const authManager = registerAuthManager(store);
 
