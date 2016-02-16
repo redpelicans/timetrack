@@ -9,12 +9,12 @@ var nodemon = require('gulp-nodemon');
 var runSequence = require('run-sequence');
 var merge = require('merge-stream');
 var path = require('path');
-const SRV_SRC = 'server/src';
+const SRV_SRC = './src';
 
 var serverPaths = {
-  src: SRV_SRC + '/**/*.js',
-  dist:'server/dist',
-  sourceRoot: path.join(__dirname, 'server/src'),
+  src: [SRV_SRC + '/**/*.js', SRV_SRC + '/**/*.jsx'],
+  dist:'./dist',
+  sourceRoot: path.join(__dirname, 'src/server'),
 };
 
 
@@ -80,7 +80,7 @@ gulp.task('run-client', function (cb) {
 
 gulp.task('run-server', ['build-server'], function () {
   return nodemon({
-      script: path.join(serverPaths.dist, '/main.js')
+      script: path.join(serverPaths.dist, 'server/main.js')
     , ext: 'js json'
     , verbose: true
     , watch: [ serverPaths.dist, './params.js' ]
