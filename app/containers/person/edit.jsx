@@ -238,7 +238,7 @@ class EditContent extends Component {
     //this.editMode = !!this.props.personDocument
     // dynamic behavior
     emailRule(this.props.personForm)
-    companyRule(this.props.personForm, this.props.userCompanyId, this.props.companies)
+    companyRule(this.props.personForm, this.props.userCompanyId)
 
     const type = this.props.personForm.field('type')
     type.onValue( state => this.setState({isWorker: state.value === 'worker'}))
@@ -402,7 +402,7 @@ AvatarChooser.propTypes = {
   person: PropTypes.object.isRequired
 }
 
-function companyRule(person, userCompanyId, companies){
+function companyRule(person, userCompanyId){
   const type = person.field('type')
   const companyField = person.field('companyId')
 
