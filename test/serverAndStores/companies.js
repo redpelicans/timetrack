@@ -1,4 +1,3 @@
-//assertion library
 import uuid from 'uuid'
 import  should from "should"
 import  _ from "lodash"
@@ -253,8 +252,5 @@ describe('server and redux tests for companies', () => {
     store.dispatch(companiesActions.sort('name'))
 
   })
-
-
-
 
 })

@@ -5,7 +5,6 @@ import njwt from 'njwt'
 import * as server from '../../server/src/index'
 import { createStore, applyMiddleware, compose } from 'redux'
 import thunk from 'redux-thunk'
-import rootReducer from '../../app/reducers'
 import {ObjectId} from 'mongobless'
 
 const database = 'test'
