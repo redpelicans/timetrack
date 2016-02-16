@@ -13,7 +13,8 @@ import TagsField from '../tags';
 import sitemap from '../../routes';
 import {companiesActions} from '../../actions/companies';
 import {goBack, pushRoute, replaceRoute} from '../../actions/routes';
-import {editCompanySelector} from '../../selectors/companies';
+import {newCompanySelector, editCompanySelector} from '../../selectors/companies';
+import {avatarUrlValueChecker} from '../../forms/helpers'
 
 class NewCompany extends Component {
 
@@ -52,10 +53,11 @@ class NewCompany extends Component {
   }
 
   componentWillMount() {
+    const {dispatch, getState} = this.props
     this.companyForm = companyForm();
 
     this.unsubscribeSubmit = this.companyForm.onSubmit( (state, document) => {
-      this.props.dispatch(companiesActions.create(document));
+      dispatch(companiesActions.create(document));
       this.goBack(true);
     });
 
@@ -65,6 +67,11 @@ class NewCompany extends Component {
         hasBeenModified: state.hasBeenModified,
       });
     });
+
+  // Not very good //
+    const avatarUrlField = this.companyForm.fields.avatar.field('url')
+    avatarUrlField.schema.valueChecker.checker = avatarUrlValueChecker(dispatch, getState)
+  //////////////////
   }
 
   render(){
@@ -90,6 +97,7 @@ NewCompany.contextTypes = {
 
 NewCompany.propTypes = {
   dispatch: PropTypes.func.isRequired,
+  getState: PropTypes.func.isRequired,
 }
 
 
@@ -130,7 +138,7 @@ class EditCompany extends Component {
   }
 
   componentWillMount() {
-    const {company, dispatch} = this.props;
+    const {company, dispatch, getState} = this.props;
 
     if(!company) dispatch(replaceRoute(sitemap.company.list));
 
@@ -148,6 +156,11 @@ class EditCompany extends Component {
         hasBeenModified: state.hasBeenModified,
       });
     });
+
+  // Not very good //
+    const avatarUrlField = this.companyForm.fields.avatar.field('url')
+    avatarUrlField.schema.valueChecker.checker = avatarUrlValueChecker(dispatch, getState)
+  //////////////////
 
    //dispatch(companiesActions.load({ids: [companyId]}));
   }
@@ -176,6 +189,7 @@ EditCompany.contextTypes = {
 
 EditCompany.propTypes = {
   dispatch: PropTypes.func.isRequired,
+  getState: PropTypes.func.isRequired,
   company: PropTypes.object,
 }
 
@@ -281,5 +295,5 @@ EditContent.propTypes = {
   companyForm: PropTypes.object.isRequired,
   companyDocument: PropTypes.object,
 }
-export const NewCompanyApp =  connect()(NewCompany);
+export const NewCompanyApp =  connect(newCompanySelector)(NewCompany);
 export const EditCompanyApp = connect(editCompanySelector)(EditCompany);

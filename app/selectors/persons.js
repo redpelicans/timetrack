@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import {createSelector} from 'reselect';
 
+const getStateSelector = state => () => state
 const persons = state => state.persons.data
 const companies = state => state.companies.data
 const skills = state => state.skills
@@ -19,12 +20,14 @@ const getFilterMissionById = id => mission =>  {
 }
 
 export const newPersonSelector = createSelector(
+  getStateSelector,
   companyId,
   companies,
   skills,
   userCompanyId,
-  (companyId, companies, skills, userCompanyId) => {
+  (getState, companyId, companies, skills, userCompanyId) => {
     return {
+      getState,
       userCompanyId,
       companyId,
       companies,
@@ -34,13 +37,15 @@ export const newPersonSelector = createSelector(
 )
 
 export const editPersonSelector = createSelector(
+  getStateSelector,
   personId,
   persons,
   companies,
   skills,
   userCompanyId,
-  (personId, persons, companies, skills, userCompanyId) => {
+  (getState, personId, persons, companies, skills, userCompanyId) => {
     return {
+      getState,
       person: persons.get(personId),
       company: personId ? companies.get(persons.get(personId).get('companyId')) : null,
       companies,

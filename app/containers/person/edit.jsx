@@ -14,6 +14,7 @@ import TagsField from '../tags'
 import {PhonesField} from '../../components/phone'
 import sitemap from '../../routes'
 import {newPersonSelector, editPersonSelector} from '../../selectors/persons'
+import {emailUniqueness, avatarUrlValueChecker} from '../../forms/helpers'
 
 class NewPerson extends Component {
 
@@ -52,7 +53,7 @@ class NewPerson extends Component {
   }
 
   componentWillMount() {
-    const {dispatch, companyId, companies, skills} = this.props
+    const {dispatch, getState, companyId, companies, skills} = this.props
     this.personForm =  companyId ? personForm({companyId}) : personForm()
 
     this.unsubscribeSubmit = this.personForm.onSubmit( (state, document) => {
@@ -69,8 +70,16 @@ class NewPerson extends Component {
 
     const companyField = this.personForm.field('companyId')
     const skillsField = this.personForm.field('skills')
+    const emailField = this.personForm.field('email')
+    const avatarUrlField = this.personForm.fields.avatar.field('url')
+
     companyField.setSchemaValue('domainValue', companiesDomain(companies))
     skillsField.setSchemaValue('domainValue', skills.toJS() || [])
+
+  // Not very good //
+    emailField.schema.valueChecker.checker = emailUniqueness(dispatch, getState)
+    avatarUrlField.schema.valueChecker.checker = avatarUrlValueChecker(dispatch, getState)
+  //////////////////
 
     dispatch(companiesActions.load())
     dispatch(skillsActions.load())
@@ -107,6 +116,7 @@ NewPerson.propTypes = {
   companyId:      PropTypes.string,
   companies:      PropTypes.object,
   skills:         PropTypes.object,
+  getState:       PropTypes.func.isRequired,
   dispatch:       PropTypes.func.isRequired
 }
 
@@ -146,7 +156,7 @@ class EditPerson extends Component {
   }
 
   componentWillMount() {
-    const {dispatch, person, companies, skills} = this.props
+    const {dispatch, getState, person, companies, skills} = this.props
 
     if (!person) return dispatch(replace(sitemap.person.list))
 
@@ -167,8 +177,16 @@ class EditPerson extends Component {
 
     const companyField = this.personForm.field('companyId')
     const skillsField = this.personForm.field('skills')
+    const emailField = this.personForm.field('email')
+    const avatarUrlField = this.personForm.fields.avatar.field('url')
+
     companyField.setSchemaValue('domainValue', companiesDomain(companies))
     skillsField.setSchemaValue('domainValue', skills.toJS() || [])
+
+  // Not very good //
+    emailField.schema.valueChecker.checker = emailUniqueness(dispatch, getState)
+    avatarUrlField.schema.valueChecker.checker = avatarUrlValueChecker(dispatch, getState)
+  //////////////////
 
     dispatch(personsActions.load({ids: [person.get('_id')]}))
     dispatch(companiesActions.load())
@@ -207,6 +225,7 @@ EditPerson.propTypes = {
   company:        PropTypes.object,
   companies:      PropTypes.object,
   skills:         PropTypes.object,
+  getState:       PropTypes.func.isRequired,
   dispatch:       PropTypes.func.isRequired
 }
 

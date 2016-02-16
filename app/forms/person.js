@@ -1,6 +1,6 @@
 import {Formo, Field, FieldGroup, MultiField} from 'formo';
 import _ from 'lodash';
-import {colors, rndColor, avatarTypes, avatartarUrlValueChecker, emailUniqueness} from './helpers';
+import {colors, rndColor, avatarTypes} from './helpers';
 
 export {colors, avatarTypes};
 
@@ -71,7 +71,7 @@ export default function person(document){
       }),
       new Field('url', {
         label: "URL",
-        valueChecker: { checker: avatartarUrlValueChecker, debounce: 200},
+        valueChecker: { checker: undefined, debounce: 200},
       }),
       new Field('src', {
         label: "File",
@@ -85,7 +85,7 @@ export default function person(document){
     new Field('email', {
       label: "Email",
       type: "text",
-      valueChecker: { checker: emailUniqueness, debounce: 200},
+      valueChecker: { checker: undefined, debounce: 200},
       pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
     }),
     new Field('department', {

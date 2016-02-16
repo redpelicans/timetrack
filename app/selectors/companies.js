@@ -1,5 +1,6 @@
 import {createSelector} from 'reselect';
 
+const getStateSelector = state => () => state;
 const companies = state => state.companies.data;
 const missions = state => state.missions.data;
 const persons = state => state.persons.data;
@@ -9,24 +10,35 @@ const preferredSelector = state => state.companies.filterPreferred;
 const pendingRequests = state => state.pendingRequests;
 const companyId = state => state.routing.location.state && state.routing.location.state.companyId;
 
+export const newCompanySelector = createSelector(
+  getStateSelector,
+  (getState) => {
+    return {getState}
+  }
+)
+
 export const editCompanySelector = createSelector(
+  getStateSelector,
   companyId,
   companies,
-  (companyId, companies) => {
+  (getState, companyId, companies) => {
     return {
+      getState,
       company: companies.get(companyId),
     }
   }
 )
 
 export const viewCompanySelector = createSelector(
+  getStateSelector,
   companyId,
   companies,
   persons,
   missions,
   pendingRequests,
-  (companyId, companies, persons, missions, pendingRequests) => {
+  (getState, companyId, companies, persons, missions, pendingRequests) => {
     return {
+      getState,
       company: companies.get(companyId),
       isLoading: !!pendingRequests,
       persons,
