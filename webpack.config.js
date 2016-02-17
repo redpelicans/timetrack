@@ -9,7 +9,7 @@ module.exports = {
   entry: [
     'webpack-dev-server/client?http://' + host + ':' + port,
     'webpack/hot/dev-server',
-    path.join(__dirname, 'app', 'index')
+    path.join(__dirname, 'src/client/index')
   ],
   output: {
     path: path.join(__dirname, 'build'),
@@ -27,11 +27,11 @@ module.exports = {
   },
   module: {
     preLoaders: [
-      {test: /\.jsx?$/, loaders: ['regenerator'], include: path.join(__dirname, 'app')}
+      {test: /\.jsx?$/, loaders: ['regenerator'], include: path.join(__dirname, 'src/client')}
     ],
     loaders: [
-      {test: /\.jsx?$/, loader: 'react-hot', include: path.join(__dirname, 'app')},
-      {test: /\.jsx?$/, loader: 'babel', exclude: /node_modules/, include: path.join(__dirname, 'app'), stage: 0},
+      {test: /\.jsx?$/, loader: 'react-hot', include: path.join(__dirname, 'src/client')},
+      {test: /\.jsx?$/, loader: 'babel', exclude: /node_modules/, include: path.join(__dirname, 'src/client'), stage: 0},
       { test: /\.css$/,  loader: "style-loader!css-loader" },
       { test: /\.less$/, loader: "style-loader!css-loader!less-loader" },
       { test: /\.gif$/, loader: "url-loader?mimetype=image/png" },

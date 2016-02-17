@@ -9,12 +9,12 @@ var nodemon = require('gulp-nodemon');
 var runSequence = require('run-sequence');
 var merge = require('merge-stream');
 var path = require('path');
-const SRV_SRC = 'server/src';
+const SRV_SRC = './src';
 
 var serverPaths = {
-  src: SRV_SRC + '/**/*.js',
-  dist:'server/dist',
-  sourceRoot: path.join(__dirname, 'server/src'),
+  src: [SRV_SRC + '/**/*.js', SRV_SRC + '/**/*.jsx'],
+  dist:'./dist',
+  sourceRoot: path.join(__dirname, 'src/server'),
 };
 
 
@@ -64,7 +64,7 @@ gulp.task('run-client', function (cb) {
       script: './proxy.js'
     , quiet: true
     , "no-stdin": true
-    , watch: [ './proxy.js', './webpack.config.js', './bundle.js']
+    , watch: ['./proxy.js', './webpack.config.js', './bundle.js']
     , env: {
       'DEBUG': 'timetrack:*'
     }
@@ -80,10 +80,10 @@ gulp.task('run-client', function (cb) {
 
 gulp.task('run-server', ['build-server'], function () {
   return nodemon({
-      script: path.join(serverPaths.dist, '/main.js')
-    , ext: 'js json'
+      script: path.join(serverPaths.dist, 'server/main.js')
+    , ext: 'js json ejs'
     , verbose: true
-    , watch: [ serverPaths.dist, './params.js' ]
+    , watch: [ serverPaths.dist, './views/*', './params.js' ]
     , ignore: ['*.swp',  "*.js.map" ]
     , env: { 'DEBUG': 'timetrack:*' }
   })

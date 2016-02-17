@@ -15,7 +15,7 @@ var proxy = httpProxy.createProxyServer({
 var app = express();
 
 // switch to server
-app.use(express.static(path.resolve(__dirname, 'public')));
+//app.use(express.static(path.resolve(__dirname, 'public')));
 
 
 var bundle = require('./bundle.js');
