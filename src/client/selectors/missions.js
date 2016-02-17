@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import Immutable from 'immutable'
 import {createSelector} from 'reselect'
 
 const missions = state => state.missions.data
@@ -7,6 +8,31 @@ const sortCondSelector = state => state.missions.sortCond
 const persons = state => state.persons.data
 const companies = state => state.companies.data
 const pendingRequests = state => state.pendingRequests
+const missionId = state => state.routing.location.state && state.routing.location.state.missionId
+
+export const viewMissionSelector = createSelector(
+  missionId,
+  missions,
+  persons,
+  companies,
+  pendingRequests,
+  (missionId, missions, persons, companies, pendingRequests) => {
+    const mission = missions.get(missionId)
+    const isLoading = !!pendingRequests
+
+    if (mission) { 
+      return {
+        mission,
+        client: companies.get(mission.get('clientId')),
+        manager: persons.get(mission.get('managerId')),
+        workers: Immutable.fromJS(mission.get('workerIds').toJS().map(id => persons.get(id))),
+        isLoading: isLoading
+      }
+    }
+    else
+      return {isLoading}
+  }
+)
 
 export const visibleMissionsSelector = createSelector(
   missions,
