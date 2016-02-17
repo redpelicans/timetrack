@@ -2,7 +2,7 @@ import  _  from 'lodash'
 import  moment from "moment"
 import  async from "async"
 import njwt from 'njwt'
-import * as server from '../../server/src/index'
+import * as server from '../../src/server/index'
 import { createStore, applyMiddleware, compose } from 'redux'
 import thunk from 'redux-thunk'
 import {ObjectId} from 'mongobless'

@@ -3,11 +3,11 @@ import  should from "should"
 import  _ from "lodash"
 import Immutable from 'immutable'
 import {createServer, configureStore} from '../helpers/server'
-import {companiesActions, FILTER_COMPANIES, UPDATE_TAGS_COMPLETED, TOGGLE_PREFERRED_FILTER, COMPANY_TOGGLE_PREFERRED_COMPLETED, COMPANIES_LOADED, COMPANY_CREATED, COMPANY_DELETED, COMPANY_UPDATED} from '../../app/actions/companies'
-import companiesReducer from '../../app/reducers/companies'
-import rootReducer from '../../app/reducers'
+import {companiesActions, FILTER_COMPANIES, UPDATE_TAGS_COMPLETED, TOGGLE_PREFERRED_FILTER, COMPANY_TOGGLE_PREFERRED_COMPLETED, COMPANIES_LOADED, COMPANY_CREATED, COMPANY_DELETED, COMPANY_UPDATED} from '../../src/client/actions/companies'
+import companiesReducer from '../../src/client/reducers/companies'
+import rootReducer from '../../src/client/reducers'
 import {data} from './data/companies'
-import {Company} from '../../server/src/models'
+import {Company} from '../../src/server/models'
 
 
 describe('server and redux tests for companies', () => {
