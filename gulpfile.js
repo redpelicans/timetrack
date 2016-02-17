@@ -9,14 +9,6 @@ var nodemon = require('gulp-nodemon');
 var runSequence = require('run-sequence');
 var merge = require('merge-stream');
 var path = require('path');
-const SRV_SRC = './src';
-
-var serverPaths = {
-  src: [SRV_SRC + '/**/*.js', SRV_SRC + '/**/*.jsx'],
-  dist:'./dist',
-  sourceRoot: path.join(__dirname, 'src/server'),
-};
-
 
 // need this options to use decorators
 var compilerOptions = {
@@ -31,81 +23,62 @@ var compilerOptions = {
 //  presets: ['react', 'es2015'],
 };
 
-gulp.task('build-server', function () {
+gulp.task('transpile', function () {
   // tanspile from src to dist
-  var build =  gulp.src(serverPaths.src)
+  var build =  gulp.src('./src/**')
     .pipe(sourcemaps.init())
     .pipe(plumber())
-    .pipe(changed(serverPaths.dist, {extension: '.js'}))
+    .pipe(changed('./dist/', {extension: '.js'}))
     .pipe(babel(compilerOptions))
-    .pipe(sourcemaps.write('.', { sourceRoot: serverPaths.sourceRoot}))
-    .pipe(gulp.dest(serverPaths.dist));
+    .pipe(sourcemaps.write('.', { sourceRoot: './src'}))
+    .pipe(gulp.dest('./dist/'));
 
   // package.json is read by main.js, so we need it at root level: /server/dist
   var copy = gulp.src('package.json')
-    .pipe(gulp.dest(serverPaths.dist));
+    .pipe(gulp.dest('./dist'));
 
   return merge.apply(null, [copy, build]);
 });
-
 
 function reportChange(event){
   console.log('File ' + event.path + ' has been ' + event.type );
 }
 
-gulp.task('clean-server', function() {
- return gulp.src([serverPaths.dist])
+gulp.task('clean-dist', function() {
+ return gulp.src(['./dist'])
     .pipe(vinylPaths(del));
 });
 
-gulp.task('run-client', function (cb) {
-  var called = false;
-  return nodemon({
+gulp.task('run-server', function (cb) {
+  var started = false;
+  nodemon({
       script: './proxy.js'
-    , quiet: true
-    , "no-stdin": true
-    , watch: ['./proxy.js', './webpack.config.js', './bundle.js']
-    , env: {
-      'DEBUG': 'timetrack:*'
+    , verbose: true
+    , ext: 'js ejs json'
+    //, watch: [ './dist/server/', './views/']
+    , ignore: ['*.swp',  "*.js.map", './src/client/' ]
+    , env: { DEBUG: 'timetrack:*' }
+  })
+  //.on('restart', function(files){ console.log("node restarted")})
+  .on('start', function() { 
+    console.log('node started') 
+    if(!started){
+      started = true;
+      cb();
     }
   })
-  .on('start', function () {
-    if(!called)cb();
-    called = true;
-  })
-  //.on('restart', function (files) { console.log('server restarted ...') })
 });
 
-
-
-gulp.task('run-server', ['build-server'], function () {
-  return nodemon({
-      script: path.join(serverPaths.dist, 'server/main.js')
-    , ext: 'js json ejs'
-    , verbose: true
-    , watch: [ serverPaths.dist, './views/*', './params.js' ]
-    , ignore: ['*.swp',  "*.js.map" ]
-    , env: { 'DEBUG': 'timetrack:*' }
-  })
-  .on('restart', function (files) { console.log('node server restarted ...') })
+gulp.task('watch-server', ['transpile'], function() { 
+  gulp.watch('./src/server/**', ['transpile']).on('change', reportChange);
 });
 
-
-gulp.task('watch-server',  ['run-server'], function() { 
-  gulp.watch(serverPaths.src, ['build-server']).on('change', reportChange);
+gulp.task('watch-client', function() { 
+  gulp.watch('./src/client/**').on('change', reportChange);
 });
 
-gulp.task('run', function(callback) {
-  return runSequence(
-    'clean-server',
-    //['watch-server', 'run-client'],
-    'run-client',
-    'watch-server',
-    callback
-  );
+gulp.task('run', ['watch-server', 'watch-client'], function(cb){
+  return runSequence( 'run-server', 'run-proxy', cb )
 });
 
 gulp.task('default', ['run']);
-
-
-

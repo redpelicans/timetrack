@@ -21,7 +21,6 @@ import {init as initLogin} from './login';
 import {init as initLogout} from './logout';
 import {init as initAPI} from './api';
 
-
 let logerror = debug('timetrack:error')
   , loginfo = debug('timetrack:info');
 

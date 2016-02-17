@@ -1,4 +1,3 @@
-require("node-jsx").install();
 
 import params from '../../params';
 import * as server from './index';
