@@ -41,7 +41,7 @@ gulp.task('transpile', function () {
 });
 
 function reportChange(event){
-  console.log('File ' + event.path + ' has been ' + event.type );
+  console.log('=> File ' + event.path + ' has been ' + event.type );
 }
 
 gulp.task('clean-dist', function() {
@@ -78,7 +78,7 @@ gulp.task('watch-client', function() {
 });
 
 gulp.task('run', ['watch-server', 'watch-client'], function(cb){
-  return runSequence( 'run-server', 'run-proxy', cb )
+  return runSequence( 'run-server', cb )
 });
 
 gulp.task('default', ['run']);

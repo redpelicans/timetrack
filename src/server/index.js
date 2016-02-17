@@ -1,4 +1,3 @@
-require("node-jsx").install();
 import async from 'async'; 
 import debug from 'debug';
 import * as app  from './app';

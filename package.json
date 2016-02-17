@@ -69,7 +69,6 @@
     "mongobless": "^2.0.3",
     "morgan": "^1.6.1",
     "njwt": "^0.2.3",
-    "node-jsx": "^0.13.3",
     "react": "^0.14.0",
     "react-file-input": "^0.2.5",
     "react-mixin": "^3.0.1",
