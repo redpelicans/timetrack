@@ -30,7 +30,6 @@
  
     <link rel="icon" href="/images/favicon.ico">
     <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css">
-    <script src="build/bundle.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:400,300,500" type="text/css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -38,15 +37,16 @@
     <link rel="stylesheet" href="/styles/toastr.css" type="text/css">
     <!--link rel="stylesheet" href="/styles/base.css"-->
     <link rel="stylesheet" href="/styles/select.css" type="text/css">
-    <!--link rel="stylesheet" href="/styles/app.css" type="text/css"-->
+    <link rel="stylesheet" href="/styles/app.css" type="text/css">
   </head>
   <body>
-    <div id="timetrack">
+    <div id="timetrackApp">
       <%- reactOutput %>
     </div>
+    <script src="https://apis.google.com/js/platform.js"></script>
+    <script src="build/bundle.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.1.1/js/tether.min.js"></script>
     <script src="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.js"></script>
-    <script src="https://apis.google.com/js/platform.js"></script>
   </body>
 </html>

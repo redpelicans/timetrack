@@ -8,10 +8,18 @@ import {default as bodyParser} from 'body-parser';
 //import {default as cookieParser} from 'cookie-parser';
 import findUser from '../middleware/find_user';
 import express from 'express';
+import expressLess from 'express-less';
 import favicon from 'serve-favicon';
 import socketIO from 'socket.io';
 import Reactor from '../lib/reactor';
 import events from '../events';
+import {init as initServerSideRendering} from './universal';
+import {init as initPing} from './ping';
+import {init as initHealth} from './health';
+import {init as initVersion} from './version';
+import {init as initLogin} from './login';
+import {init as initLogout} from './logout';
+import {init as initAPI} from './api';
 
 
 let logerror = debug('timetrack:error')
@@ -56,13 +64,14 @@ export function start(params, resources, cb) {
     // params
     app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
     app.use(bodyParser.json({limit: '10mb', extended: true}));
+    app.use('/styles', expressLess(path.join(__dirname, '../../../public/styles'), {compress: true, debug: true}));
 
     // manage cookie
     //app.use(cookieParser());
 
-    require('./ping').init(app, resources);
-    require('./health').init(app, resources);
-    require('./version').init(app, resources);
+    initPing(app, resources);
+    initHealth(app, resources);
+    initVersion(app, resources);
 
     app.use(favicon(path.join(__dirname, '../../../public/images/favicon.ico')));
     app.use(express.static(path.join(__dirname, '../../../public')));
@@ -71,8 +80,8 @@ export function start(params, resources, cb) {
     // register morgan logger
     if(params.verbose) app.use(logger('dev'));
 
-    require('./login').init(app, resources, params);
-    require('./logout').init(app, resources, params);
+    initLogin(app, resources, params);
+    initLogout(app, resources, params);
 
     // require auth 
 
@@ -80,7 +89,7 @@ export function start(params, resources, cb) {
       res.json(req.user);
     });
 
-    app.use('/api', findUser(params.secretKey), require('./api').init(app, resources, params));
+    app.use('/api', findUser(params.secretKey), initAPI(app, resources, params));
 
     // app.use(function(req, res, next){ 
     //   res.sendFile(path.join(__dirname + '../../../../public/index.html')) 
@@ -88,7 +97,7 @@ export function start(params, resources, cb) {
     
     app.set('views', path.join(__dirname, '../../../views'));
     app.set('view engine', 'ejs');
-    require('./universal').init(app, resources);
+    initServerSideRendering(app, resources);
 
     app.use(errors);
 

@@ -45,6 +45,10 @@ var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
 
+var _expressLess = require('express-less');
+
+var _expressLess2 = _interopRequireDefault(_expressLess);
+
 var _serveFavicon = require('serve-favicon');
 
 var _serveFavicon2 = _interopRequireDefault(_serveFavicon);
@@ -60,6 +64,20 @@ var _libReactor2 = _interopRequireDefault(_libReactor);
 var _events = require('../events');
 
 var _events2 = _interopRequireDefault(_events);
+
+var _universal = require('./universal');
+
+var _ping = require('./ping');
+
+var _health = require('./health');
+
+var _version = require('./version');
+
+var _login = require('./login');
+
+var _logout = require('./logout');
+
+var _api = require('./api');
 
 var logerror = (0, _debug2['default'])('timetrack:error'),
     loginfo = (0, _debug2['default'])('timetrack:info');
@@ -103,13 +121,14 @@ function start(params, resources, cb) {
     // params
     app.use(_bodyParser2['default'].urlencoded({ limit: '10mb', extended: true }));
     app.use(_bodyParser2['default'].json({ limit: '10mb', extended: true }));
+    app.use('/styles', (0, _expressLess2['default'])(_path2['default'].join(__dirname, '../../../public/styles'), { compress: true, debug: true }));
 
     // manage cookie
     //app.use(cookieParser());
 
-    require('./ping').init(app, resources);
-    require('./health').init(app, resources);
-    require('./version').init(app, resources);
+    (0, _ping.init)(app, resources);
+    (0, _health.init)(app, resources);
+    (0, _version.init)(app, resources);
 
     app.use((0, _serveFavicon2['default'])(_path2['default'].join(__dirname, '../../../public/images/favicon.ico')));
     app.use(_express2['default']['static'](_path2['default'].join(__dirname, '../../../public')));
@@ -118,8 +137,8 @@ function start(params, resources, cb) {
     // register morgan logger
     if (params.verbose) app.use((0, _morgan2['default'])('dev'));
 
-    require('./login').init(app, resources, params);
-    require('./logout').init(app, resources, params);
+    (0, _login.init)(app, resources, params);
+    (0, _logout.init)(app, resources, params);
 
     // require auth
 
@@ -127,7 +146,7 @@ function start(params, resources, cb) {
       res.json(req.user);
     });
 
-    app.use('/api', (0, _middlewareFind_user2['default'])(params.secretKey), require('./api').init(app, resources, params));
+    app.use('/api', (0, _middlewareFind_user2['default'])(params.secretKey), (0, _api.init)(app, resources, params));
 
     // app.use(function(req, res, next){
     //   res.sendFile(path.join(__dirname + '../../../../public/index.html'))
@@ -135,7 +154,7 @@ function start(params, resources, cb) {
 
     app.set('views', _path2['default'].join(__dirname, '../../../views'));
     app.set('view engine', 'ejs');
-    require('./universal').init(app, resources);
+    (0, _universal.init)(app, resources);
 
     app.use(_middlewareErrors2['default']);
 

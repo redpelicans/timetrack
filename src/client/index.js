@@ -61,7 +61,7 @@ boot().then( ({user, jwt}={}) => {
   console.log("End of boot process.")
   console.log("Rendering react App...")
   if(user) store.dispatch(loggedIn(user, jwt));
-  render(<Root store={store} routes={routes} history={history} authManager={authManager}/>, document.getElementById("timetrack"));
+  render(<Root store={store} routes={routes} history={history} authManager={authManager}/>, document.getElementById("timetrackApp"));
 })
 // .catch( (err) => {
 //   console.log(err)

@@ -29,8 +29,8 @@ var _initModels = require('./init/models');
 
 var _initModels2 = _interopRequireDefault(_initModels);
 
-var logerror = (0, _debug2['default'])('transac:error'),
-    loginfo = (0, _debug2['default'])('transac:info');
+var logerror = (0, _debug2['default'])('timetrack:error'),
+    loginfo = (0, _debug2['default'])('timetrack:info');
 
 var resources = {};
 

@@ -31,6 +31,7 @@
     "debug": "^2.2.0",
     "ejs": "^2.4.1",
     "exports-loader": "^0.6.2",
+    "express-less": "0.0.8",
     "extend": "^3.0.0",
     "faker": "^3.0.1",
     "fbjs": "^0.3.1",

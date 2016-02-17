@@ -64,7 +64,7 @@ gulp.task('run-client', function (cb) {
       script: './proxy.js'
     , quiet: true
     , "no-stdin": true
-    , watch: [ './proxy.js', './webpack.config.js', './bundle.js']
+    , watch: ['./proxy.js', './webpack.config.js', './bundle.js']
     , env: {
       'DEBUG': 'timetrack:*'
     }
@@ -81,9 +81,9 @@ gulp.task('run-client', function (cb) {
 gulp.task('run-server', ['build-server'], function () {
   return nodemon({
       script: path.join(serverPaths.dist, 'server/main.js')
-    , ext: 'js json'
+    , ext: 'js json ejs'
     , verbose: true
-    , watch: [ serverPaths.dist, './params.js' ]
+    , watch: [ serverPaths.dist, './views/*', './params.js' ]
     , ignore: ['*.swp',  "*.js.map" ]
     , env: { 'DEBUG': 'timetrack:*' }
   })

@@ -103,7 +103,7 @@ var routes = _react2['default'].createElement(
   console.log("End of boot process.");
   console.log("Rendering react App...");
   if (user) store.dispatch((0, _actionsLogin.loggedIn)(user, jwt));
-  (0, _reactDom.render)(_react2['default'].createElement(_containersRoot2['default'], { store: store, routes: routes, history: _reactRouter.browserHistory, authManager: authManager }), document.getElementById("timetrack"));
+  (0, _reactDom.render)(_react2['default'].createElement(_containersRoot2['default'], { store: store, routes: routes, history: _reactRouter.browserHistory, authManager: authManager }), document.getElementById("timetrackApp"));
 });
 // .catch( (err) => {
 //   console.log(err)
