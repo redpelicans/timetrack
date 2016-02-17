@@ -57,13 +57,15 @@ function filterCompanies(companies, filter, sortCond, filterPreferred){
 
 export const visibleCompaniesSelector = createSelector(
   companies,
+  persons,
   filterSelector,
   sortCondSelector,
   preferredSelector,
   pendingRequests,
-  (companies, filter, sortCond, filterPreferred, pendingRequests) => {
+  (companies, persons, filter, sortCond, filterPreferred, pendingRequests) => {
     return {
       companies: filterAndSort(companies, filter, sortCond, filterPreferred),
+      persons,
       isLoading: !!pendingRequests,
       filter,
       sortCond,

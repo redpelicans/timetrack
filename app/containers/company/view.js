@@ -62,7 +62,7 @@ class CompanyView extends Component {
             <AddMission company={company}/>
             <AddPerson company={company}/>
             <Edit company={company}/>
-            <Delete company={company} postAction={this.goBack}/>
+            <Delete workers={workers} company={company} postAction={this.goBack}/>
           </HeaderRight>
         </Header>
         <Card 

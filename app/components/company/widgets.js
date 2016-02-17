@@ -56,7 +56,7 @@ Preferred.propTypes = {
   active:   PropTypes.bool
 }
 
-export const Delete = authable(({company, postAction}, {authManager, dispatch}) => {
+export const Delete = authable(({company, workers, postAction}, {authManager, dispatch}) => {
   const handleChange = (e) => {
     e.preventDefault();
     const answer = confirm(`Are you sure to delete the company "${company.get('name')}"`);
@@ -66,7 +66,7 @@ export const Delete = authable(({company, postAction}, {authManager, dispatch}) 
     }
   }
 
-  if(authManager.company.isAuthorized('delete', {company})){
+  if(authManager.company.isAuthorized('delete', {company, workers})){
     return (
       <a href="#" onClick={handleChange}>
         <i className="iconButton fa fa-trash m-r-1"/>
@@ -79,6 +79,7 @@ export const Delete = authable(({company, postAction}, {authManager, dispatch}) 
 
 Delete.propTypes = {
   company:    PropTypes.object.isRequired,
+  workers:    PropTypes.object.isRequired,
   postAction: PropTypes.func
 }
 
@@ -214,8 +215,8 @@ export class Preview extends Component {
       },
     };
 
-    const company = this.props.company;
-    const avatar = <AvatarView obj={company}/>;
+    const {company, workers} = this.props
+    const avatar = <AvatarView obj={company}/>
 
     const isNew = () =>{
       if(company.get('isNew')) return <NewLabel/> 
@@ -256,7 +257,7 @@ export class Preview extends Component {
       return(
         <div style={styles.containerRight} href="#">
           <Edit company={company}/>
-          <Delete company={company}/>
+          <Delete workers={workers} company={company}/>
         </div>
       )
     }
@@ -290,5 +291,6 @@ export class Preview extends Component {
 }
 
 Preview.propTypes = {
-  company: PropTypes.object.isRequired
+  company: PropTypes.object.isRequired,
+  workers: PropTypes.object.isRequired, 
 }
