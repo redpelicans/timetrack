@@ -28,11 +28,8 @@ class App extends Component {
 
   handleViewPerson = () => {
     this.props.dispatch(
-      routeActions.push({
-        pathname: sitemap.person.view, 
-        state: {personId: this.props.user.get('_id')},
-      })
-    );
+      routeActions.push(sitemap.person.view, {personId: this.props.user.get('_id')})
+    )
   }
 
   componentWillReceiveProps(nextProps){
