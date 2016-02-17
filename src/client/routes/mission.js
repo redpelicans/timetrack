@@ -1,4 +1,4 @@
-import ListMissionApp from '../views/mission/list';
+import ListMissionApp from '../containers/mission/list';
 import {NewMissionApp, EditMissionApp} from '../views/mission/edit';
 import ViewMissionApp from '../views/mission/view';
 import {Route, RouteManager} from 'kontrolo';
