@@ -1,6 +1,6 @@
 import {Formo, Field, FieldGroup} from 'formo';
 import _ from 'lodash';
-import {colors, rndColor, avatarTypes, avatartarUrlValueChecker} from './helpers';
+import {colors, rndColor, avatarTypes} from './helpers';
 
 export {colors, avatarTypes};
 
@@ -34,7 +34,7 @@ export default function company(document){
       }),
       new Field('url', {
         label: "URL",
-        valueChecker: { checker: avatartarUrlValueChecker, debounce: 200},
+        valueChecker: { checker: undefined, debounce: 200},
       }),
       new Field('src', {
         label: "File",

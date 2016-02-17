@@ -13,9 +13,9 @@ export function rndColor() {
   return colors[ index ];
 }
 
-export function avatartarUrlValueChecker(url, state){
+export const avatarUrlValueChecker = (dispatch, getState) => (url, state) => {
   if(!url) return new Promise(resolve => resolve({checked: true}));
-  return requestJson('/api/check_url', undefined, undefined, {verb: 'post', body: {url: url}})
+  return requestJson('/api/check_url', dispatch, getState, {verb: 'post', body: {url: url}})
     .then( res => {
       return { 
         checked: res.ok, 
@@ -24,9 +24,9 @@ export function avatartarUrlValueChecker(url, state){
     });
 }
 
-export function emailUniqueness(email, person={}){
+export const emailUniqueness = (dispatch, getState) => (email, person={}) => {
   if(!email || person.email === email) return new Promise(resolve => resolve({checked: true}));
-  return requestJson('/api/person/check_email_uniqueness', undefined, undefined, { verb: 'post', body: {email: email}})
+  return requestJson('/api/person/check_email_uniqueness', dispatch, getState, { verb: 'post', body: {email: email}})
   .then( res => {
     return { 
       checked:  res.ok, 

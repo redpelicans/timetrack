@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import {createSelector} from 'reselect';
 
+const getStateSelector = state => () => state
 const persons = state => state.persons.data
 const companies = state => state.companies.data
 const skills = state => state.skills
@@ -13,18 +14,20 @@ const pendingRequests = state => state.pendingRequests
 const personId = state => state.routing.location.state && state.routing.location.state.personId
 const companyId = state => state.routing.location.state && state.routing.location.state.companyId
 
-const getFilterMissionById = id => mission =>  {
+const getFilterMissionsById = id => mission =>  {
   const workers = mission.get('workerIds')
   return (mission.get('managerId') === id || (workers && workers.toJS().indexOf(id) !== -1))
 }
 
 export const newPersonSelector = createSelector(
+  getStateSelector,
   companyId,
   companies,
   skills,
   userCompanyId,
-  (companyId, companies, skills, userCompanyId) => {
+  (getState, companyId, companies, skills, userCompanyId) => {
     return {
+      getState,
       userCompanyId,
       companyId,
       companies,
@@ -34,13 +37,15 @@ export const newPersonSelector = createSelector(
 )
 
 export const editPersonSelector = createSelector(
+  getStateSelector,
   personId,
   persons,
   companies,
   skills,
   userCompanyId,
-  (personId, persons, companies, skills, userCompanyId) => {
+  (getState, personId, persons, companies, skills, userCompanyId) => {
     return {
+      getState,
       person: persons.get(personId),
       company: personId ? companies.get(persons.get(personId).get('companyId')) : null,
       companies,
@@ -60,7 +65,7 @@ export const viewPersonSelector = createSelector(
     return {
       person: persons.get(personId),
       company: personId ? companies.get(persons.get(personId).get('companyId')) : null,
-      missions: missions.filter(getFilterMissionById(personId)),
+      missions: missions.filter(getFilterMissionsById(personId)),
       companies: companies,
       persons: persons,
       isLoading: !!pendingRequests

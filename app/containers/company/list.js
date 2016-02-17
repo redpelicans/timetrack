@@ -47,7 +47,7 @@ class CompanyList extends Component{
   }
 
   render(){
-    const {companies, filter, filterPreferred, sortCond, isLoading} = this.props;
+    const {companies, persons, filter, filterPreferred, sortCond, isLoading} = this.props;
     return (
       <Content>
         <Header>
@@ -62,7 +62,7 @@ class CompanyList extends Component{
             <Refresh onClick={this.handleRefresh}/>
           </HeaderRight>
         </Header>
-        <List companies={companies}  />
+        <List companies={companies} persons={persons}  />
         <AddButton title='Add a company'/>
       </Content>
     )
@@ -71,6 +71,7 @@ class CompanyList extends Component{
 
 CompanyList.propTypes = {
   companies:        PropTypes.object.isRequired,
+  persons:          PropTypes.object.isRequired,
   filter:           PropTypes.string,
   filterPreferred:  PropTypes.bool,
   sortCond:         PropTypes.object.isRequired,
@@ -79,7 +80,7 @@ CompanyList.propTypes = {
 }
 
 
-const List = ({companies}) => {
+const List = ({companies, persons}) => {
   if(!companies) return false;
 
   const styles={
@@ -93,10 +94,13 @@ const List = ({companies}) => {
     }
   }
 
+  const getFilterPersonsByCompanyId = companyId => person => person.get('companyId') == companyId
+
   const data = companies.map(company => {
+    const workers = persons.filter(getFilterPersonsByCompanyId(company.get('_id')))
     return (
       <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-        <Preview company={company} />
+        <Preview workers={workers} company={company} />
       </div>
     )
   });
@@ -110,6 +114,7 @@ const List = ({companies}) => {
 
 List.propTypes = {
   companies: PropTypes.object.isRequired,
+  persons: PropTypes.object.isRequired,
 }
 
 export default connect(visibleCompaniesSelector)(CompanyList);

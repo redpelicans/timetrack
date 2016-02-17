@@ -5,8 +5,8 @@ export default AuthManager([
     name: 'delete',
     roles: ['admin'],
     method: function(user, context){
-      if(!context.company) return false;
-      return !context.company.get('personIds').size;
+      if(!context.company) return false
+      return !context.workers || !context.workers.size
     }
   }),
   Auth({
