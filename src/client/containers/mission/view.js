@@ -61,6 +61,16 @@ class ViewMission extends Component {
   }
 }
 
+ViewMission.propTypes = {
+  mission:     PropTypes.object,
+  client:      PropTypes.object,
+  manager:     PropTypes.object,
+  workers:     PropTypes.object,
+  isLoading:   PropTypes.bool,
+  dispatch:    PropTypes.func.isRequired
+
+}
+
 const Card = ({mission, client, manager, workers}) =>  {
 
   const styles={
@@ -100,6 +110,13 @@ const Card = ({mission, client, manager, workers}) =>  {
   )
 }
 
+Card.propTypes = {
+  mission:     PropTypes.object.isRequired,
+  client:      PropTypes.object.isRequired,
+  manager:     PropTypes.object.isRequired,
+  workers:     PropTypes.object.isRequired,
+}
+
 const Date = ({label, date}) => {
   return (
     <fieldset className="form-group">
@@ -111,6 +128,11 @@ const Date = ({label, date}) => {
         />
     </fieldset>
   )
+}
+
+Date.propTypes = {
+  label:    PropTypes.string.isRequired,
+  date:     PropTypes.object
 }
 
 const Client = ({label, client, workers}) => {
@@ -140,6 +162,12 @@ const Client = ({label, client, workers}) => {
   )
 }
 
+Client.propTypes = {
+  label:    PropTypes.string.isRequired,
+  client:   PropTypes.object.isRequired,
+  workers:  PropTypes.object.isRequired
+}
+
 const Manager = ({label, manager}) => {
  const styles={
     container:{
@@ -166,6 +194,11 @@ const Manager = ({label, manager}) => {
     </fieldset>
   )
 
+}
+
+Manager.propTypes = {
+  label:    PropTypes.string.isRequired,
+  manager:  PropTypes.object.isRequired
 }
 
 const Workers = ({label, workers, mission}) => {
@@ -204,6 +237,12 @@ const Workers = ({label, workers, mission}) => {
       </div>
     </fieldset>
   )
+}
+
+Worker.propTypes = {
+  label:    PropTypes.string.isRequired,
+  mission:  PropTypes.object.isRequired,
+  workers:  PropTypes.object.isRequired
 }
 
 export default connect(viewMissionSelector)(ViewMission)
