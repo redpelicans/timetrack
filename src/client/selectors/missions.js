@@ -15,6 +15,22 @@ const name = x => x.get('name')
 const getClientsFilter = c => c.get('type') === 'client' || c.get('type') === 'partner'
 const getWorkersFilter = p => p.get('type') === 'worker'
 
+export const editMissionSelector = createSelector(
+  missionId,
+  missions,
+  companies,
+  persons,
+  clientId,
+  (missionId, missions, companies, persons, clientId) => {
+    return {
+      mission: missions.get(missionId),
+      workers: persons.filter(getWorkersFilter).sortBy(name),
+      clients: companies.filter(getClientsFilter).sortBy(name),
+      clientId
+    }
+  }
+)
+
 export const newMissionSelector = createSelector(
   companies,
   persons,

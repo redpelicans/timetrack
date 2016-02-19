@@ -112,7 +112,7 @@ NewMission.propTypes = {
   dispatch:     PropTypes.func.isRequired
 }
 
-export class EditMission extends Component {
+class EditMission extends Component {
 
   state = {
     forceLeave: false,
@@ -123,8 +123,14 @@ export class EditMission extends Component {
     return true;
   }
 
+  componentDidMount() {
+    const {route} = this.props
+    const {router} = this.context
+    router.setRouteLeaveHook(route, this.routerWillLeave)
+  }
+
   handleSubmit = () => {
-    this.missionForm.submit();
+    this.missionForm.submit()
   }
 
   handleCancel = () => {
@@ -133,67 +139,54 @@ export class EditMission extends Component {
 
   goBack = (forceLeave) => {
     this.setState({forceLeave: forceLeave}, () => {
-      navActions.goBack();
+      this.props.dispatch(goBack())
     });
   }
 
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit();
     if(this.unsubscribeState) this.unsubscribeState();
-    if(this.unsubscribeMissions) this.unsubscribeMissions();
-    if(this.unsubscribeCompanies) this.unsubscribeCompanies();
-    if(this.unsubscribePersons) this.unsubscribePersons();
   }
 
   componentWillMount() {
-    let missionId = this.props.location.state && this.props.location.state.missionId;
+    const {dispatch, mission, clients, workers} = this.props
+    if (!mission)
+    {
+      this.props.dispatch(replace(sitemap.mission.list))
+      return
+    }
 
-    this.unsubscribeMissions = missionsStore.listen( missions => {
-      const mission = missions.data.get(missionId);
-      if(!mission) return navActions.replace(sitemap.mission.list);
-      if(!this.missionDocument){
-        this.missionDocument = mission.toJS();
-        this.missionForm = missionForm(this.missionDocument);
+    this.missionDocument = mission.toJS();
+    this.missionForm = missionForm(this.missionDocument);
 
-        this.unsubscribeCompanies = companiesStore.listen( companies => {
-          const clientIdField = this.missionForm.field('clientId');
-          clientIdField.setSchemaValue('domainValue', clientsDomain(companies.data));
-          this.setState({companies: companies.data});
-        });
-
-        this.unsubscribePersons = personsStore.listen( persons => {
-          const managerIdField = this.missionForm.field('managerId');
-          managerIdField.setSchemaValue('domainValue', workersDomain(persons.data));
-
-          const workerIdsField = this.missionForm.field('workerIds');
-          workerIdsField.setSchemaValue('domainValue', workersDomain(persons.data));
-
-          this.setState({persons: persons.data});
-        });
-
-        this.unsubscribeSubmit = this.missionForm.onSubmit( (state, mission) => {
-          missionsActions.update(this.missionDocument, mission);
-          this.goBack(true);
-        });
-
-        this.unsubscribeState = this.missionForm.onValue( state => {
-          this.setState({
-            canSubmit: state.canSubmit,
-            hasBeenModified: state.hasBeenModified,
-          });
-        });
-
-        companiesActions.load();
-        personsActions.load();
-      }
+    this.unsubscribeSubmit = this.missionForm.onSubmit( (state, mission) => {
+      dispatch(missionsActions.update(this.missionDocument, mission))
+      this.goBack(true);
     });
 
-   if(missionId) missionsActions.load({ids: [missionId]});
-   else navActions.replace(sitemap.mission.list);
+    this.unsubscribeState = this.missionForm.onValue( state => {
+      this.setState({
+        canSubmit: state.canSubmit,
+        hasBeenModified: state.hasBeenModified,
+      });
+    });
+
+   const clientIdField = this.missionForm.field('clientId');
+   const managerIdField = this.missionForm.field('managerId');
+   const workerIdsField = this.missionForm.field('workerIds');
+
+   clientIdField.setSchemaValue('domainValue', clientsDomain(clients));
+   managerIdField.setSchemaValue('domainValue', workersDomain(workers));
+   workerIdsField.setSchemaValue('domainValue', workersDomain(workers));
+
+   dispatch(companiesActions.load())
+   dispatch(personsActions.load())
+   dispatch(missionsActions.load({ids: [mission.get('_id')]}))
   }
 
   render(){
-    if(!this.missionForm || !this.state.companies)return false;
+    const {clients} = this.props
+    if(!this.missionForm || !clients) return false;
     let submitBtn = <UpdateBtn onSubmit={this.handleSubmit} canSubmit={this.state.canSubmit && this.state.hasBeenModified}/>;
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>;
 
@@ -204,7 +197,7 @@ export class EditMission extends Component {
           submitBtn={submitBtn}
           cancelBtn={cancelBtn}
           goBack={this.goBack}
-          clients={this.state.companies}
+          clients={clients}
           missionDocument={this.missionDocument} 
           missionForm={this.missionForm}/>
       </div>
@@ -212,6 +205,16 @@ export class EditMission extends Component {
   }
 }
 
+EditMission.contextTypes = {
+  router: PropTypes.object.isRequired
+}
+
+EditMission.propTypes = {
+  mission:      PropTypes.object,
+  clients:      PropTypes.object,
+  workers:      PropTypes.object,
+  dispatch:     PropTypes.func.isRequired
+}
 
 export default class EditContent extends Component {
 
@@ -340,4 +343,4 @@ function  workersDomain(workers){
 }
 
 export const NewMissionApp = connect(newMissionSelector)(NewMission)
-//export const EditMissionApp = connect(editMissionSelector)(EditMission)
+export const EditMissionApp = connect(editMissionSelector)(EditMission)
