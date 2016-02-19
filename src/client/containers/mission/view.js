@@ -239,7 +239,7 @@ const Workers = ({label, workers, mission}) => {
   )
 }
 
-Worker.propTypes = {
+Workers.propTypes = {
   label:    PropTypes.string.isRequired,
   mission:  PropTypes.object.isRequired,
   workers:  PropTypes.object.isRequired

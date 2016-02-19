@@ -9,6 +9,24 @@ const persons = state => state.persons.data
 const companies = state => state.companies.data
 const pendingRequests = state => state.pendingRequests
 const missionId = state => state.routing.location.state && state.routing.location.state.missionId
+const clientId = state => state.routing.location.state && state.routing.location.state.clientId
+
+const name = x => x.get('name')
+const getClientsFilter = c => c.get('type') === 'client' || c.get('type') === 'partner'
+const getWorkersFilter = p => p.get('type') === 'worker'
+
+export const newMissionSelector = createSelector(
+  companies,
+  persons,
+  clientId,
+  (companies, persons, clientId) => {
+    return {
+      clients: companies.filter(getClientsFilter).sortBy(name),
+      workers: persons.filter(getWorkersFilter).sortBy(name),
+      clientId
+    }
+  }
+)
 
 export const viewMissionSelector = createSelector(
   missionId,
