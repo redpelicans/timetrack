@@ -94,7 +94,7 @@ export function start(params, resources, cb) {
     //   res.sendFile(path.join(__dirname + '../../../../public/index.html')) 
     // }); 
     
-    app.set('components', path.join(__dirname, '../../../components'));
+    app.set('views', path.join(__dirname, '../../../components'));
     app.set('view engine', 'ejs');
     initServerSideRendering(app, resources);
 
