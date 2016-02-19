@@ -1,6 +1,6 @@
-import ListMissionApp from '../views/mission/list';
-import {NewMissionApp, EditMissionApp} from '../views/mission/edit';
-import ViewMissionApp from '../views/mission/view';
+import ListMissionApp from '../containers/mission/list';
+import ViewMissionApp from '../containers/mission/view';
+import {NewMissionApp, EditMissionApp} from '../containers/mission/edit';
 import {Route, RouteManager} from 'kontrolo';
 
 const routes = RouteManager([

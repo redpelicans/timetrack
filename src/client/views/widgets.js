@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import FileInput from 'react-file-input';
 import Remarkable from 'remarkable';
 import {colors} from '../forms/company';
+import $ from 'jquery'
 
 
 export const AvatarView = ({obj, size, label}) => {

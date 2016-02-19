@@ -3,7 +3,7 @@ import  should from "should"
 import  _ from "lodash"
 import Immutable from 'immutable'
 import {createServer, configureStore} from '../helpers/server'
-import {companiesActions, FILTER_COMPANIES, UPDATE_TAGS_COMPLETED, TOGGLE_PREFERRED_FILTER, COMPANY_TOGGLE_PREFERRED_COMPLETED, COMPANIES_LOADED, COMPANY_CREATED, COMPANY_DELETED, COMPANY_UPDATED} from '../../src/client/actions/companies'
+import {companiesActions, FILTER_COMPANIES, COMPANY_UPDATE_TAGS_COMPLETED, TOGGLE_PREFERRED_FILTER, COMPANY_TOGGLE_PREFERRED_COMPLETED, COMPANIES_LOADED, COMPANY_CREATED, COMPANY_DELETED, COMPANY_UPDATED} from '../../src/client/actions/companies'
 import companiesReducer from '../../src/client/reducers/companies'
 import rootReducer from '../../src/client/reducers'
 import {data} from './data/companies'
@@ -143,7 +143,7 @@ describe('server and redux tests for companies', () => {
       COMPANIES_LOADED: () => {
         store.dispatch(companiesActions.updateTags(companytoBeUpdated, tags))
       },
-      UPDATE_TAGS_COMPLETED: getState => {
+      COMPANY_UPDATE_TAGS_COMPLETED: getState => {
         try{
          const state = getState()
          const updatedCompany = state.companies.data.get(companytoBeUpdated._id.toString())

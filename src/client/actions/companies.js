@@ -12,7 +12,7 @@ export const COMPANY_UPDATED = 'COMPANY_UPDATED';
 export const COMPANY_DELETED = 'COMPANY_DELETED';
 export const COMPANY_CREATED = 'COMPANY_CREATED';
 export const COMPANY_TOGGLE_PREFERRED_COMPLETED = 'COMPANY_TOGGLE_PREFERRED_COMPLETED';
-export const UPDATE_TAGS_COMPLETED = 'UPDATE_TAGS_COMPLETED';
+export const COMPANY_UPDATE_TAGS_COMPLETED = 'COMPANY_UPDATE_TAGS_COMPLETED';
 
 export function createCompleted(){
 }
@@ -130,7 +130,7 @@ export function createCompany(company){
 
 function updateTagsCompleted(company){
   return {
-    type: UPDATE_TAGS_COMPLETED,
+    type: COMPANY_UPDATE_TAGS_COMPLETED,
     id: company._id,
     tags: Immutable.fromJS(company.tags),
   }
