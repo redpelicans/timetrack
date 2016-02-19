@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
-import {Content} from '../views/layout';
+import {Content} from '../components/layout';
 import { connect } from 'react-redux';
 import { loginRequest } from '../actions/login';
 import { replaceRoute } from '../actions/routes';

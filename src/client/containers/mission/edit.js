@@ -106,7 +106,7 @@ export class NewMission extends Component {
 }
 
 NewMission.propTypes = {
-  clientId:     PropTypes.number,
+  clientId:     PropTypes.string,
   clients:      PropTypes.object,
   workers:      PropTypes.object,
   dispatch:     PropTypes.func.isRequired
