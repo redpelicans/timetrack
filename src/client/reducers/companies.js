@@ -9,7 +9,7 @@ import {
   SORT_COMPANIES, 
   TOGGLE_PREFERRED_FILTER,
   COMPANY_TOGGLE_PREFERRED_COMPLETED,
-  UPDATE_TAGS_COMPLETED,
+  COMPANY_UPDATE_TAGS_COMPLETED,
 } from '../actions/companies';
 
 const initialState = {
@@ -24,7 +24,7 @@ const initialState = {
 
 export default function companiesReducer(state = initialState, action) {
   switch(action.type){
-    case UPDATE_TAGS_COMPLETED:
+    case COMPANY_UPDATE_TAGS_COMPLETED:
       return {
         ...state,
         data: state.data.update(action.id, p =>  p.set('tags', action.tags )),
