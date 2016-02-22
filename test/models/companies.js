@@ -24,12 +24,12 @@ describe('Client', () => {
   after( done => DB.close(done) )
 
   // it() here is async
-  it('Check clients data loading', (cb) => {
+  it('Check clients data loading', (done) => {
     Client.findAll({type: 'client'}, (err, clients) => {
-      if(err) return cb(err);
+      if(err) return done(err);
       let count = _.filter(data['collections']['companies'], client => client.type === 'client').length;
       should(clients.length).equal(count);
-      cb();
+      done();
     });
   });
 

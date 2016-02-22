@@ -4,7 +4,7 @@ export let data={
       {
         "_id" : 1,
         "type" : "client",
-        "name" : "Jacobs - Waters",
+        "name" : "iJacobs - Waters",
         "phones" : [
           {
             "label" : "sensor",
