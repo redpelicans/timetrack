@@ -111,6 +111,7 @@
     "gulp": "*",
     "gulp-babel": "^5.0.0",
     "gulp-changed": "^1.2.1",
+    "gulp-file-cache": "0.0.1",
     "gulp-nodemon": "^2.0.6",
     "gulp-plumber": "^1.0.0",
     "gulp-sourcemaps": "*",
