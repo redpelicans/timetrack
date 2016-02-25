@@ -1,3 +1,5 @@
+import async from 'async';
+import {Person} from '../models';
 import React, {Component} from 'react';
 import {renderToString} from 'react-dom/server';
 import { createStore, applyMiddleware} from 'redux'                                                                                                                             
@@ -65,8 +67,25 @@ const Root = ({store, authManager, renderProps}) => {
   )
 }
 
-export function init(app, resources){
-  app.get('*', function(req, res){
+function findUser(secretKey){
+  return function(req, res, next) {
+    const token = req.cookies.timetrackToken;
+    if(!token)return next();
+    Person.getFromToken(token, secretKey, (err, user) => {
+      if(err){
+        console.log(err);
+        return res.status(401).send("Unauthorized access");
+      }
+      if(!user)return next();
+      if(!user.hasSomeRoles(['admin', 'access']))  return res.status(401).send("Unauthorized access");
+      req.user = user;
+      next();
+    })
+  }
+}
+
+export function init(app, resources, params){
+  app.get('*', findUser(params.secretKey), function(req, res){
     match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {
       if (error) {
         res.status(500).send(error.message)
@@ -79,6 +98,5 @@ export function init(app, resources){
         res.status(404).send('Not found')
       }
     });
-
-  });
+  }); 
 }

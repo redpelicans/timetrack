@@ -12,6 +12,7 @@ export const USER_LOGOUT = 'USER_LOGOUT';
 
 export function loggedIn(user, appJwt){
   const sessionId = uuid.v4();
+  document.cookie = `timetrackToken=${appJwt}`;
   return {
     type: USER_LOGGED_IN,
     user: Immutable.fromJS(Maker(user)),
@@ -40,6 +41,7 @@ export function loginRequest(googleUser, nextRouteName){
 export function logout(){
   return (dispatch, getState) => {
     localStorage.removeItem('access_token');
+    document.cookie = "timetrackToken=";
     const state = getState();
     dispatch({type: USER_LOGOUT});
     dispatch(socketIOActions.logout());

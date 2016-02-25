@@ -14,7 +14,7 @@ export default function configureStore(initialState) {
     initialState,
     compose(
       applyMiddleware(thunk, reduxRouterMiddleware, createLogger()),
-      window.devToolsExtension ? window.devToolsExtension() : DevTools.instrument()
+      //window.devToolsExtension ? window.devToolsExtension() : DevTools.instrument()
     )
   );
 

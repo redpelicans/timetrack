@@ -5,7 +5,7 @@ import http from 'http';
 import async from 'async';
 import {default as logger} from 'morgan';
 import {default as bodyParser} from 'body-parser';
-//import {default as cookieParser} from 'cookie-parser';
+import {default as cookieParser} from 'cookie-parser';
 import findUser from '../middleware/find_user';
 import express from 'express';
 import expressLess from 'express-less';
@@ -65,8 +65,7 @@ export function start(params, resources, cb) {
     app.use(bodyParser.json({limit: '10mb', extended: true}));
     app.use('/styles', expressLess(path.join(__dirname, '../../../public/styles'), {compress: true, debug: true}));
 
-    // manage cookie
-    //app.use(cookieParser());
+    app.use(cookieParser());
 
     initPing(app, resources);
     initHealth(app, resources);
@@ -96,7 +95,7 @@ export function start(params, resources, cb) {
     
     app.set('views', path.join(__dirname, '../../../views'));
     app.set('view engine', 'ejs');
-    initServerSideRendering(app, resources);
+    initServerSideRendering(app, resources, params);
 
     app.use(errors);
 
