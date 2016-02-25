@@ -1,4 +1,5 @@
 import {createSelector} from 'reselect';
+import _ from 'lodash';
 
 const getStateSelector = state => () => state;
 const companies = state => state.companies.data;

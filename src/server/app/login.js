@@ -26,7 +26,7 @@ export function init(app, resources, params){
       method: 'GET',
       uri: TOKENINFO + `?id_token=${token}`,
       json: true,
-      timeout: 1000
+      timeout: 5000
     }, (error, response, body) => {
       if(error || response.statusCode !== 200) return cb(error);
       if(body.aud !== clientId) return cb(new Error("Wrong Google token_id!"));
