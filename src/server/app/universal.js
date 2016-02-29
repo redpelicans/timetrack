@@ -61,7 +61,7 @@ function configureRoutes(store, authManager){
       <IndexRoute component={defaultRoute.component} onEnter={onEnter.bind(defaultRoute)}/>
       <Route topic={defaultRoute.topic} onEnter={onEnter.bind(defaultRoute)} key={defaultRoute.path} path={defaultRoute.path} component={defaultRoute.component}/>
       <Route topic={loginRoute.topic} onEnter={onEnter.bind(loginRoute)} key={loginRoute.path} path={loginRoute.path} component={loginRoute.component}/>
-      {/*<Redirect from="*" to={defaultRoute.path} />*/}
+      <Redirect from="*" to={defaultRoute.path} />
     </Route>
   );
 

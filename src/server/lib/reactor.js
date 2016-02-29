@@ -59,30 +59,7 @@ class Dispatcher extends EventEmitter{
   }
 }
 
-function ping(socket, data, cb){
-  const subscription = this.subscriptions.get(socket);
-  if(subscription){
-    return cb('pong') 
-  }else{
-    this.subscriptions.add(socket, data.token, data.sessionId, (err, subscription) => {
-      if(err) return cb({status: 'error', error: err});
-      loginfo(`User ${subscription.user.fullName()} connected from socket.io.`);
-      cb('pong') 
-    });
-  }
-}
 
-function login(socket, data, cb){
-  this.subscriptions.add(socket, data.token, data.sessionId, (err, subscription) => {
-    if(err) return cb({status: 'error', error: err});
-    loginfo(`User ${subscription.user.fullName()} connected from socket.io.`);
-    cb({status: 'ok'});
-  });
-}
-
-function logout(socket){
-  this.subscriptions.remove(socket);
-}
 
 class Server{
   constructor(io, register){
@@ -94,11 +71,49 @@ class Server{
   init(){
     this.io.on('connection', socket => {
       loginfo("Socket.IO connection");
+      socket.on('message', (msg, cb) => {
+        switch(msg.type){
+          case 'ping':
+            return this.ping(socket, msg, cb);
+          case 'login':
+            return this.login(socket, msg, cb);
+          case 'logout':
+            return this.logout(socket);
+          default:
+            logerror("Unknown socket.io message's type");
+        }
+      })
       socket.on('disconnect', () => this.subscriptions.remove(socket) );
-      this.registerCallback('ping', ping, socket);
-      this.registerCallback('login', login, socket);
-      this.registerCallback('logout', logout, socket);
+      // TODO: socket.emit doesn't work from client, use socket.send instead !!!
+      // this.registerCallback('ping', ping, socket);
+      // this.registerCallback('login', login, socket);
+      // this.registerCallback('logout', logout, socket);
     });
+  }
+
+  ping(socket, data, cb){
+    const subscription = this.subscriptions.get(socket);
+    if(subscription){
+      return cb({type: 'pong'}) 
+    }else{
+      this.subscriptions.add(socket, data.token, data.sessionId, (err, subscription) => {
+        if(err) return cb({status: 'error', error: err});
+        loginfo(`User ${subscription.user.fullName()} connected from socket.io.`);
+        cb({type: 'pong'}) 
+      });
+    }
+  }
+
+  login(socket, data, cb){
+    this.subscriptions.add(socket, data.token, data.sessionId, (err, subscription) => {
+      if(err) return cb({status: 'error', error: err});
+      loginfo(`User ${subscription.user.fullName()} connected from socket.io.`);
+      cb({status: 'ok'});
+    });
+  }
+
+  logout(socket){
+    this.subscriptions.remove(socket);
   }
 
   registerCallback(name, fct, socket){

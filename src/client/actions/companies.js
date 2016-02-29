@@ -95,10 +95,9 @@ export function loadCompanies({forceReload=false, ids=[]} = {}){
 
     if(typeof timetrackInitCompanies != 'undefined' && timetrackInitCompanies){
       console.log("Loading server side Companies")
-      return companiesLoaded(timetrackInitCompanies)
-      // dispatch(companiesLoaded(timetrackInitCompanies))
-      // timetrackInitCompanies = undefined;
-      // return
+      dispatch(companiesLoaded(timetrackInitCompanies))
+      timetrackInitCompanies = undefined;
+      return
     }
 
     const url = '/api/companies';
@@ -170,7 +169,6 @@ export const companiesActions = {
 }
 
 function Maker(doc){
-  console.log(doc.name)
   doc.createdAt = moment(doc.createdAt);
   if(doc.updatedAt) doc.updatedAt = moment(doc.updatedAt);
   return doc;

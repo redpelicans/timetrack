@@ -14,7 +14,7 @@ export function login(){
     const state = getState();
     if(state.socketIO.socket){
       const {appJwt, sessionId} = state.login;
-      state.socketIO.socket.emit('login', {token: appJwt, sessionId}, data => {
+      state.socketIO.socket.send({type: 'login', token: appJwt, sessionId}, data => {
         if(data.status !== 'ok'){
           dispatch(alert({ header: 'Error', message: "Cannot subscribe to pushed events" }));
         }else{
@@ -29,7 +29,7 @@ export function logout(){
   return (dispatch, getState) => {
     const state = getState();
     if(state.socketIO.socket) {
-      state.socketIO.socket.emit('logout');
+      state.socketIO.socket.send({type: 'logout'});
       dispatch({type: SOCKETIO_LOGOUT});
     }
   }

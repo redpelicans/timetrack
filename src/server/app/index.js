@@ -10,7 +10,7 @@ import findUser from '../middleware/find_user';
 import express from 'express';
 import expressLess from 'express-less';
 import favicon from 'serve-favicon';
-import socketIO from 'socket.io';
+//import socketIO from 'socket.io';
 import Reactor from '../lib/reactor';
 import events from '../events';
 import {init as initServerSideRendering} from './universal';
@@ -27,7 +27,8 @@ let logerror = debug('timetrack:error')
 export function start(params, resources, cb) {
   let app = express()
     , httpServer = http.createServer(app)
-    , io = socketIO(httpServer)
+    //, io = socketIO(httpServer)
+    , io = require('socket.io')(httpServer)
     , reactor = Reactor(io, events, {secretKey: params.secretKey});
 
   resources.reactor = reactor;

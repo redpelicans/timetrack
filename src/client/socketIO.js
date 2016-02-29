@@ -15,24 +15,25 @@ export function registerSocketIO(store){
     const state = store.getState();
     const token = state.login && state.login.appJwt;
     const sessionId = state.login && state.login.sessionId;
-    const data = { message: 'ping', token, sessionId };
+    const message = { type: 'ping', token, sessionId };
 
-    socket.emit('ping', data, () => {
+    socket.send(message, (res) => {
       ack = true;
       commError = false;
     });
 
     setTimeout( () => {
-      if(ack)return ping(1000);
-      if(commError) return ping(1000);
+      if(ack)return ping(5000);
+      if(commError) return ping(2000);
       commError = true;
       store.dispatch(alert({ header: 'Server Communication Error', message: 'Cannot ping server' }));
     }, delay);
   }
 
   socket = socketIO.connect();
+  window.wst = socket;
   socket.on('connect', () => {
-   
+    console.log("socket.IO connected ..."); 
     ping(5000);
     store.dispatch(socketIOActions.connect(socket));
 
