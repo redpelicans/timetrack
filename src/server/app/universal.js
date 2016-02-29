@@ -1,59 +1,72 @@
+import async from 'async';
+import _ from 'lodash';
+import Immutable from 'immutable';
+import uuid from 'uuid';
+import {Person} from '../models';
 import React, {Component} from 'react';
 import {renderToString} from 'react-dom/server';
 import { createStore, applyMiddleware} from 'redux'                                                                                                                             
 import thunk from 'redux-thunk'
+import {requestJson} from '../../client/utils';
 import rootReducer from '../../client/reducers'
-import {Route, IndexRoute, match, RouterContext} from 'react-router';
+import companiesReducer from '../../client/reducers/companies'
+import {Route, IndexRoute, match, RouterContext, Redirect} from 'react-router';
 import { Provider } from 'react-redux'
 import { Router } from 'react-router'
 import AuthManager from '../../client/components/authmanager'
 import App from '../../client/containers/app';
 import {loggedIn} from '../../client/actions/login';
 import {sitemapActions} from '../../client/actions/sitemap';
+import {companiesLoaded} from '../../client/actions/companies';
 import registerAuthManager from '../../client/auths';
 import routesManager from '../../client/routes';
 import moment from 'moment';
 import momentLocalizer from 'react-widgets/lib/localizers/moment';
 momentLocalizer(moment);
 
-const store = createStore( rootReducer, undefined, applyMiddleware(thunk));
-const authManager = registerAuthManager(store);
-
-function onEnter(nextState, replace){
-  console.log("===> ENTER ROUTE: " + this.path)
-  const state = store.getState();
-  if(this.isAuthRequired() && !state.login.user) return replace(routesManager.login.path, null, {nextRouteName: this.fullName}); 
-  if(!authManager.isAuthorized(this)) return replace(routesManager.unauthorized.path); 
-  store.dispatch(sitemapActions.enter(this));
+function loadCompanies(getState){
+  return requestJson('/api/companies', new Function(), getState, {message: 'Cannot load companies, check your backend server'})
 }
 
-function onLeave(location){
-  console.log("===> LEAVE ROUTE: " + this.topic)
+function configureStore(user, token, cb){
+  let initialState = {};
+  if(!user) return setImmediate(cb, null, createStore(rootReducer, initialState, applyMiddleware(thunk)));
+  user.name = user.fullName(); // TODO: move it server side
+  initialState = rootReducer(initialState, loggedIn(JSON.parse(JSON.stringify(user)), token));
+  const getState = () => initialState;
+  loadCompanies(getState)
+    .then(companies => {
+      initialState = rootReducer(initialState, companiesLoaded(companies));
+      const store = createStore(rootReducer, initialState, applyMiddleware(thunk));
+      cb(null, store, companies);
+    })
+    .catch(cb);
 }
 
-function getRoutes(routes){
-  return routes
-    .filter(r => r.path)
-    .map(r => {
-      return <Route 
-        topic={r.topic} 
-        onEnter={onEnter.bind(r)} 
-        //onLeave={onLeave.bind(r)} 
-        key={r.path} 
-        path={r.path} 
-        component={r.component}/>
-    });
+function configureRoutes(store, authManager){
+
+  function onEnter(nextState, replace){
+    console.log("===> ENTER ROUTE: " + this.path)
+    const state = store.getState();
+    if(this.isAuthRequired() && !state.login.user) return replace(routesManager.login.path, null, {nextRouteName: this.fullName}); 
+    if(!authManager.isAuthorized(this)) return replace(routesManager.unauthorized.path); 
+    store.dispatch(sitemapActions.enter(this));
+  }
+
+  const defaultRoute = routesManager.defaultRoute;
+  const loginRoute = routesManager.login;
+
+  const routes = (
+    <Route path="/" component={App}>
+      <IndexRoute component={defaultRoute.component} onEnter={onEnter.bind(defaultRoute)}/>
+      <Route topic={defaultRoute.topic} onEnter={onEnter.bind(defaultRoute)} key={defaultRoute.path} path={defaultRoute.path} component={defaultRoute.component}/>
+      <Route topic={loginRoute.topic} onEnter={onEnter.bind(loginRoute)} key={loginRoute.path} path={loginRoute.path} component={loginRoute.component}/>
+      <Redirect from="*" to={defaultRoute.path} />
+    </Route>
+  );
+
+  return routes;
 }
-
-const defaultRoute = routesManager.defaultRoute;
-
-const routes = (
-  <Route path="/" component={App}>
-  <IndexRoute component={defaultRoute.component} onEnter={onEnter.bind(defaultRoute)}/>
-    {getRoutes(routesManager.routes)}
-    <Route path="*" component={routesManager.notfound.component} />
-  </Route>
-);
 
 const Root = ({store, authManager, renderProps}) => {
   return (
@@ -65,20 +78,46 @@ const Root = ({store, authManager, renderProps}) => {
   )
 }
 
-export function init(app, resources){
-  app.get('*', function(req, res){
-    match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {
-      if (error) {
-        res.status(500).send(error.message)
-      } else if (redirectLocation) {
-        res.redirect(302, redirectLocation.pathname + redirectLocation.search);
-      } else if (renderProps) {
-        const reactOutput = renderToString(React.createFactory(Root)({store, authManager, renderProps}));
-        res.render('index.ejs', {reactOutput});
-      } else {
-        res.status(404).send('Not found')
+function findUser(secretKey){
+  return function(req, res, next) {
+    const token = req.cookies.timetrackToken;
+    if(!token)return next();
+    Person.getFromToken(token, secretKey, (err, user) => {
+      if(err){
+        console.log(`Person.getFromToken: ${err.toString()}`);
+        return res.status(401).send("Unauthorized access");
       }
-    });
+      if(!user)return next();
+      if(!user.hasSomeRoles(['admin', 'access']))  return res.status(401).send("Unauthorized access");
+      req.user = user;
+      req.token = token;
+      next();
+    })
+  }
+}
 
-  });
+export function init(app, resources, params){
+  global.window = { location: { origin: params.server.url } };
+  app.get('*', findUser(params.secretKey), function(req, res){
+    console.log(`Isomorphic login of: ${req.user ? req.user.fullName() : 'an unknown user'}`); 
+    configureStore(req.user, req.token, (err, store, companies) => {
+      if (err) return res.status(500).send(err.message);
+
+      const authManager = registerAuthManager(store);
+      const routes = configureRoutes(store, authManager);
+      match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {
+        if (error) {
+          res.status(500).send(error.message)
+        } else if (redirectLocation) {
+          res.redirect(302, redirectLocation.pathname + redirectLocation.search);
+        } else if (renderProps) {
+          const reactOutput = renderToString(React.createFactory(Root)({store, authManager, renderProps}));
+          const reactInitData = companies ? `timetrackInitCompanies = ${JSON.stringify(companies)}` : "";
+          res.render('index.ejs', {reactOutput, reactInitData});
+        } else {
+          res.status(404).send('Not found')
+        }
+      })
+    })
+  }); 
 }

@@ -38,7 +38,7 @@ export function updateCompleted(company){
   }
 }
 
-function companiesLoaded(companies){
+export function companiesLoaded(companies){
   return {
     type: COMPANIES_LOADED,
     companies: Immutable.fromJS(_.reduce(companies, (res, p) => { res[p._id] = Maker(p); return res}, {})),
@@ -92,6 +92,13 @@ export function loadCompanies({forceReload=false, ids=[]} = {}){
     const objs = _.map(ids, id => state.companies.data.get(id));
     let doRequest = forceReload || !_.every(objs) || !state.companies.data.size;
     if(!doRequest) return;
+
+    if(typeof timetrackInitCompanies != 'undefined' && timetrackInitCompanies){
+      console.log("Loading server side Companies")
+      dispatch(companiesLoaded(timetrackInitCompanies))
+      timetrackInitCompanies = undefined;
+      return
+    }
 
     const url = '/api/companies';
     dispatch({type: LOAD_COMPANIES});

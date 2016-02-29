@@ -1,3 +1,4 @@
+require('universal-fetch');
 import {alert} from '../actions/errors';
 import {startLoading, stopLoading} from '../actions/loading';
 import {gotoLogin} from '../actions/routes';

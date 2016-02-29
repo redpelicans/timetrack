@@ -84,7 +84,7 @@ gulp.task('run-proxy', ['watch-server', 'watch-client'], function() {
 gulp.task('watch-server', ['transpile'], function () {
   var stream = nodemon({
                  script: './dist/server/main.js' 
-               , watch: './src/server' 
+               , watch: './src' 
                , tasks: ['transpile'] 
                , env: { 'DEBUG': 'timetrack:*' }
                })
