@@ -313,8 +313,7 @@ Note.propTypes = {
 }
 
 
-@authable
-export class ViewNote extends Component{
+export class BaseNote extends Component{
   state = {editable: false}
 
   handleViewAuthor = (author, e) => {
@@ -478,7 +477,7 @@ export class ViewNote extends Component{
   }
 }
 
-ViewNote.propTypes = {
+BaseNote.propTypes = {
   mode: PropTypes.string.isRequired,
   note: PropTypes.object.isRequired,
   persons: PropTypes.object.isRequired,
@@ -486,6 +485,15 @@ ViewNote.propTypes = {
   onEdit: PropTypes.func,
   onCancel: PropTypes.func,
   onDelete: PropTypes.func,
+}
+
+@authable
+export class ViewNote extends BaseNote {}
+
+@authable
+export class MyNote extends BaseNote {
+  handleMouseEnter = () => {}
+  handleMouseLeave = () => {}
 }
 
 export default connect(notesSelector)(Notes);

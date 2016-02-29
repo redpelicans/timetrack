@@ -6,11 +6,8 @@ import {personsActions} from '../../actions/persons'
 import {Content} from '../../components/layout';
 import {AvatarView, Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
-import {ViewNote} from '../notes'
+import {MyNote} from '../notes'
 import routes from '../../routes';
-
-// error Cannot find module
-// import './notes.less'
 
 class NotesList extends Component {
 
@@ -21,10 +18,12 @@ class NotesList extends Component {
 
   render() {
 
+    // const handleEdit = () => this.setState({mode: 'edit'});
+
     const listNotes = (notes, persons) => {
       return (
         notes.map((note) => {
-        return <ViewNote
+        return <MyNote
           mode="view"
           className="note-list-item"
           key={note.get('_id')}
@@ -35,6 +34,7 @@ class NotesList extends Component {
     }
 
     const {notes, persons} = this.props;
+
     return (
       <Content>
         <Header>
