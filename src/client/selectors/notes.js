@@ -20,3 +20,9 @@ export const notesSelector = createSelector(
 function filterAndSortNotes(notes, entity){
   return notes.filter(note => note.get('entityId') === entity.get('_id'));
 }
+
+export const allNotesSelector = createSelector(
+  notes,
+  persons,
+  (notes, persons) => {return {notes, persons}}
+)

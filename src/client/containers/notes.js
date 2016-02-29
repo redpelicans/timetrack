@@ -46,9 +46,9 @@ class Notes extends Component{
 
     const sortedNotes = notes.sort( (a,b) => a.get('createdAt') < b.get('createdAt')).map(note => {
       return (
-        <Note 
-          key={note.get('_id')} 
-          note={note} 
+        <Note
+          key={note.get('_id')}
+          note={note}
           persons={persons}
           entity={entity}/>
       )
@@ -67,15 +67,15 @@ class Notes extends Component{
 
     const addNotePanel = () => {
       if(!this.state.showAddNotePanel)return;
-      const handleCancel = () => this.setState({showAddNotePanel: false}); 
+      const handleCancel = () => this.setState({showAddNotePanel: false});
       const handleSubmit = (newNote) => {
-        this.setState({showAddNotePanel: false}); 
+        this.setState({showAddNotePanel: false});
         dispatch(notesActions.create(newNote, entity.toJS()));
       }
 
       return (
         <div style={styles.addNotePanel}>
-          <EditNote 
+          <EditNote
             author={user}
             onSubmit={handleSubmit}
             onCancel={handleCancel}/>
@@ -85,7 +85,7 @@ class Notes extends Component{
 
     return (
       <fieldset className="form-group">
-        <div style={styles.label}> 
+        <div style={styles.label}>
           <div><span>{label}</span></div>
           {addNote()}
         </div>
@@ -107,7 +107,7 @@ Notes.propTypes = {
 
 
 @authable
-class Note extends Component{
+export class Note extends Component{
   state = {mode: 'view'};
 
   render(){
@@ -115,29 +115,29 @@ class Note extends Component{
     const {dispatch} = this.context;
 
     const viewMode = () => {
-      const handleEdit = () => this.setState({mode: 'edit'}); 
+      const handleEdit = () => this.setState({mode: 'edit'});
       const handleDelete = () => this.setState({mode: 'delete'});
 
       return (
-        <ViewNote 
+        <ViewNote
           mode={'view'}
           note={note}
           persons={persons}
           entity={entity}
-          onEdit={handleEdit} 
+          onEdit={handleEdit}
           onDelele={handleDelete}/>
       )
     }
 
     const editMode = () => {
-      const handleCancel = () => this.setState({mode: 'view'}); 
+      const handleCancel = () => this.setState({mode: 'view'});
       const handleSubmit = (newNote) => {
-        this.setState({mode: 'view'}); 
+        this.setState({mode: 'view'});
         dispatch(notesActions.update(note.toJS(), newNote));
       }
 
       return (
-        <EditNote 
+        <EditNote
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           author={persons && persons.get(note.get('authorId'))}
@@ -146,19 +146,19 @@ class Note extends Component{
     }
 
     const deleteMode = () => {
-      const handleCancel = () => this.setState({mode: 'view'}); 
+      const handleCancel = () => this.setState({mode: 'view'});
       const handleDelete = () => {
         dispatch(notesActions.delete(note.toJS()));
         this.setState({mode: 'view'});
       }
 
       return (
-        <ViewNote 
+        <ViewNote
           mode={'delete'}
           note={note}
           persons={persons}
           entity={entity}
-          onCancel={handleCancel} 
+          onCancel={handleCancel}
           onDelele={handleDelete}/>
       )
     }
@@ -276,14 +276,14 @@ class EditNote extends Component{
       )
     }
 
-    let submitBtn = <UpdateBtn 
-      onSubmit={this.handleSubmit} 
-      canSubmit={this.state.canSubmit && this.state.hasBeenModified} 
+    let submitBtn = <UpdateBtn
+      onSubmit={this.handleSubmit}
+      canSubmit={this.state.canSubmit && this.state.hasBeenModified}
       label={this.props.note ? 'Update' : 'Create'}
       size={"small"}/>;
 
-    let cancelBtn = <CancelBtn 
-      onCancel={this.handleCancel} 
+    let cancelBtn = <CancelBtn
+      onCancel={this.handleCancel}
       size={'small'}/>;
 
 
@@ -314,7 +314,7 @@ Note.propTypes = {
 
 
 @authable
-class ViewNote extends Component{
+export class ViewNote extends Component{
   state = {editable: false}
 
   handleViewAuthor = (author, e) => {
@@ -329,7 +329,7 @@ class ViewNote extends Component{
   handleMouseLeave = (e) => {
     this.setState({editable: false})
   }
-   
+
   render(){
     const {mode, note, persons, entity, onCancel, onDelele, onEdit} = this.props;
     const md = new Remarkable();
@@ -337,7 +337,7 @@ class ViewNote extends Component{
 
     const styles = {
       content:{
-        height: '100%', 
+        height: '100%',
         minHeight: '36px',
         zIndex: 1,
       },
@@ -382,7 +382,7 @@ class ViewNote extends Component{
       },
     }
 
-  
+
     const avatar = (person) => {
       if(!person)return <div/>
       return (
@@ -482,7 +482,7 @@ ViewNote.propTypes = {
   mode: PropTypes.string.isRequired,
   note: PropTypes.object.isRequired,
   persons: PropTypes.object.isRequired,
-  entity: PropTypes.object.isRequired,
+  entity: PropTypes.object,
   onEdit: PropTypes.func,
   onCancel: PropTypes.func,
   onDelete: PropTypes.func,
