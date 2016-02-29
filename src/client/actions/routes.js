@@ -1,4 +1,5 @@
 import routes from '../routes';
+import _ from 'lodash';
 import { routeActions as router} from 'react-router-redux'
 
 import {browserHistory} from 'react-router';

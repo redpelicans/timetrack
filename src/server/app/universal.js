@@ -101,13 +101,18 @@ export function init(app, resources, params){
   app.get('*', findUser(params.secretKey), function(req, res){
     console.log(`Isomorphic login of: ${req.user ? req.user.fullName() : 'an unknown user'}`); 
     configureStore(req.user, req.token, (err, store, companies) => {
-      if (err) return res.status(500).send(err.message);
+      if (err){
+        console.log(err.stack);
+        return res.status(500)
+      }
 
       const authManager = registerAuthManager(store);
       const routes = configureRoutes(store, authManager);
       match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {
         if (error) {
-          res.status(500).send(error.message)
+          console.log(error);
+          console.log(error.stack);
+          res.status(500)
         } else if (redirectLocation) {
           res.redirect(302, redirectLocation.pathname + redirectLocation.search);
         } else if (renderProps) {
