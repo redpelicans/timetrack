@@ -163,6 +163,7 @@ export const personsActions = {
 
 function Maker(doc){
   doc.createdAt = moment(doc.createdAt);
+  doc.typeName = "person";
   if(doc.updatedAt) doc.updatedAt = moment(doc.updatedAt);
   return doc;
 }

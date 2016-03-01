@@ -113,6 +113,7 @@ function Maker(obj){
   if(obj.updatedAt) obj.updatedAt = moment(obj.updatedAt || new Date(1967, 9, 1));
   if(obj.startDate)obj.startDate = moment(obj.startDate).toDate();
   if(obj.endDate)obj.endDate = moment(obj.endDate).toDate();
+  obj.typeName = "mission";
   return obj;
 }
 

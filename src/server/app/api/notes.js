@@ -106,7 +106,7 @@ function Maker(obj){
 }
 
 function fromJson(json){
-  let attrs = ['content'];
+  let attrs = ['content', 'entityType'];
   let res = _.pick(json, attrs);
   if(json.entityId) res.entityId = ObjectId(json.entityId);
   return res;

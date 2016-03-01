@@ -170,6 +170,7 @@ export const companiesActions = {
 
 function Maker(doc){
   doc.createdAt = moment(doc.createdAt);
+  doc.typeName = "company";
   if(doc.updatedAt) doc.updatedAt = moment(doc.updatedAt);
   return doc;
 }

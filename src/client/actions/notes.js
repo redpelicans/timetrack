@@ -31,6 +31,7 @@ export function updateCompleted(previous, note){
 export function createNote(note, entity){
   return (dispatch, getState) => {
     note.entityId = entity._id;
+    note.entityType = entity.typeName;
     requestJson('/api/notes', dispatch, getState, {verb: 'post', body: {note}, message: 'Cannot create a note, check your backend server'})
       .then( note => dispatch(createCompleted(note)));
   }
