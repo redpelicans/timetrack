@@ -34,14 +34,14 @@ Timetrack is in its early stage (version 0.2), its actually a POC, tomorrow a CR
 
 ## Next Steps 
 
-* Write tests
+* Write tests *(IN PROGRESS)*
 * Use Authentification *(DONE)*
 * Go live for first version (CRM Lite)  *(DONE)*
 * write documentation
 * Add features (Missions, Works, Invoices)
 * Enrich CRM Lite version
 * Extend Formo features
-* Be native
+* Be native *(IN PROGRESS)*
 * Offer disconnected CRUD functionalities
 * continuous deployment (DONE)
 
