@@ -3,10 +3,12 @@ import { connect } from 'react-redux';
 import {allNotesSelector} from '../../selectors/notes';
 import {notesActions} from '../../actions/notes';
 import {personsActions} from '../../actions/persons'
+import {companiesActions} from '../../actions/companies'
+import {missionsActions} from '../../actions/missions'
 import {Content} from '../../components/layout';
 import {AvatarView, Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
-import {MyNote} from '../notes'
+import {ItemNote} from '../notes'
 import routes from '../../routes';
 
 class NotesList extends Component {
@@ -14,21 +16,20 @@ class NotesList extends Component {
   componentWillMount() {
       this.props.dispatch(notesActions.load())
       this.props.dispatch(personsActions.load())
+      this.props.dispatch(companiesActions.load())
+      this.props.dispatch(missionsActions.load())
   }
 
   render() {
 
-    // const handleEdit = () => this.setState({mode: 'edit'});
-
     const listNotes = (notes, persons) => {
       return (
         notes.map((note) => {
-        return <MyNote
-          mode="view"
-          className="note-list-item"
-          key={note.get('_id')}
-          note={note}
-          persons={persons} />
+          return  <ItemNote
+                    key={note.get('_id')}
+                    note={note}
+                    type={note.get('type')}
+                    persons={persons} />
         }).toSetSeq()
       )
     }

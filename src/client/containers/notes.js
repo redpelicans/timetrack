@@ -312,8 +312,8 @@ Note.propTypes = {
   onSubmit: PropTypes.func,
 }
 
-
-export class BaseNote extends Component{
+@authable
+export class ViewNote extends Component {
   state = {editable: false}
 
   handleViewAuthor = (author, e) => {
@@ -329,7 +329,7 @@ export class BaseNote extends Component{
     this.setState({editable: false})
   }
 
-  render(){
+  render() {
     const {mode, note, persons, entity, onCancel, onDelele, onEdit} = this.props;
     const md = new Remarkable();
     const text = {__html: md.render(note.get('content'))};
@@ -477,7 +477,7 @@ export class BaseNote extends Component{
   }
 }
 
-BaseNote.propTypes = {
+ViewNote.propTypes = {
   mode: PropTypes.string.isRequired,
   note: PropTypes.object.isRequired,
   persons: PropTypes.object.isRequired,
@@ -488,12 +488,151 @@ BaseNote.propTypes = {
 }
 
 @authable
-export class ViewNote extends BaseNote {}
+export class ItemNote extends Component {
 
-@authable
-export class MyNote extends BaseNote {
-  handleMouseEnter = () => {}
-  handleMouseLeave = () => {}
+  handleViewAuthor = (author, e) => {
+    e.preventDefault();
+    this.context.dispatch(pushRoute(routes.person.view, {personId: author.get('_id')}));
+  }
+
+  handleViewEntity = (note, e) => {
+    e.preventDefault();
+    switch(note.get('type')) {
+      case 'person':
+        this.context.dispatch(pushRoute(routes.person.view, {personId: note.get('entityId')}));
+        return
+      case 'mission':
+        this.context.dispatch(pushRoute(routes.mission.view, {missionId: note.get('entityId')}));
+        return
+      case 'company':
+        this.context.dispatch(pushRoute(routes.company.view, {companyId: note.get('entityId')}));
+        return
+      default:
+        return
+    }
+  }
+
+  render() {
+    const {note, persons, companies} = this.props;
+    const md = new Remarkable();
+    const text = {__html: md.render(note.get('content'))};
+    const styles = {
+      content:{
+        height: '100%',
+        minHeight: '36px',
+        zIndex: 1,
+      },
+      note:{
+        position: 'relative',
+        zIndex: 0,
+      },
+      deletePanel:{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: '#434857',
+        position: 'absolute',
+        top: '0px',
+        left: '0px',
+        height: '100%',
+        width: '100%',
+        zIndex: 2,
+        opacity: '.8'
+      },
+      container:{
+        height: '100%',
+      },
+      time: {
+        fontSize: '.7rem',
+        fontStyle: 'italic',
+        display: 'block',
+        //float: 'right',
+      },
+      footer:{
+        display: 'flex',
+        justifyContent: 'space-between',
+      },
+      left:{
+        display: 'flex',
+        alignItems: 'center',
+      },
+      right:{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+      },
+    }
+
+    const time = () =>{
+      return (
+        <div style={styles.time} >
+        {note.get('createdAt').format("dddd, MMMM Do YYYY")}
+        </div>
+      )
+    }
+
+    const avatar = (person) => {
+      if(!person)return <div/>
+      return (
+        <div>
+          <a href="#" onClick={this.handleViewAuthor.bind(null, person)}>
+            <AvatarView obj={person} size={24} label={`Wrote by ${person.get('name')}`}/>
+          </a>
+        </div>
+      )
+    }
+
+    const footer = () => {
+      const author = persons && persons.get(note.get('authorId'));
+      return (
+        <div style={styles.footer}>
+          <div style={styles.left}>
+            {avatar(author)}
+            {time()}
+          </div>
+          <div style={styles.right}>
+            {entity()}
+          </div>
+        </div>
+      )
+    }
+
+    const entity = () => {
+      const className = () => {
+        const base = "iconButton fa m-r-1"
+        switch(note.get('type')) {
+          case 'person':
+            return base+" fa-users"
+          case 'mission':
+            return base+" fa-shopping-cart"
+          case 'company':
+            return base+" fa-building-o"
+          default:
+            return base
+        }
+      }
+      return (
+        <a href="#" onClick={this.handleViewEntity.bind(null, note)}>
+          <i className={className()} />
+        </a>
+      )
+    }
+
+    return (
+      <div className="row">
+        <div className="col-md-12">
+          <fieldset className="form-group">
+            <div className="form-control" style={styles.container}>
+              <div style={styles.note}>
+                <div ref={note.get('_id')} style={styles.content} dangerouslySetInnerHTML={text}/>
+              </div>
+              {footer()}
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    )
+  }
 }
 
 export default connect(notesSelector)(Notes);
