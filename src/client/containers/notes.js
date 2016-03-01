@@ -496,20 +496,11 @@ export class ItemNote extends Component {
   }
 
   handleViewEntity = (note, e) => {
-    e.preventDefault();
-    switch(note.get('type')) {
-      case 'person':
-        this.context.dispatch(pushRoute(routes.person.view, {personId: note.get('entityId')}));
-        return
-      case 'mission':
-        this.context.dispatch(pushRoute(routes.mission.view, {missionId: note.get('entityId')}));
-        return
-      case 'company':
-        this.context.dispatch(pushRoute(routes.company.view, {companyId: note.get('entityId')}));
-        return
-      default:
-        return
-    }
+    e.preventDefault()
+    const type = note.get('entityType')
+    const id = note.get('entityId')
+    if (!type) return
+    this.context.dispatch(pushRoute(routes[type].view, {[type+'Id']: id}))
   }
 
   render() {
@@ -589,7 +580,7 @@ export class ItemNote extends Component {
     const entity = () => {
       const className = () => {
         const base = "iconButton fa m-r-1"
-        switch(note.get('type')) {
+        switch(note.get('entityType')) {
           case 'person':
             return base+" fa-users"
           case 'mission':
@@ -597,7 +588,7 @@ export class ItemNote extends Component {
           case 'company':
             return base+" fa-building-o"
           default:
-            return base
+            return base+" fa-bolt"
         }
       }
       return (

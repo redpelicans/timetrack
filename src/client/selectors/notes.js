@@ -26,18 +26,9 @@ function filterAndSortNotes(notes, entity){
 export const allNotesSelector = createSelector(
   notes,
   persons,
-  companies,
-  missions,
-  (notes, persons, companies, missions) => {
+  (notes, persons) => {
     return {
-      notes: notes.map((note) => {
-        const type =
-          (persons.get(note.get('entityId'))   && 'person')  ||
-          (companies.get(note.get('entityId')) && 'company') ||
-          (missions.get(note.get('entityId'))  && 'mission') ||
-          undefined;
-        return note.merge({type});
-      }).toSetSeq(),
+      notes,
       persons
     }
   }
