@@ -513,7 +513,7 @@ export class ItemNote extends Component {
   }
 
   render() {
-    const {note, persons, companies} = this.props;
+    const {note, persons} = this.props;
     const md = new Remarkable();
     const text = {__html: md.render(note.get('content'))};
     const styles = {
@@ -522,22 +522,12 @@ export class ItemNote extends Component {
         minHeight: '36px',
         zIndex: 1,
       },
+      item:{
+        margin: '5px auto',
+      },
       note:{
         position: 'relative',
         zIndex: 0,
-      },
-      deletePanel:{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: '#434857',
-        position: 'absolute',
-        top: '0px',
-        left: '0px',
-        height: '100%',
-        width: '100%',
-        zIndex: 2,
-        opacity: '.8'
       },
       container:{
         height: '100%',
@@ -546,7 +536,6 @@ export class ItemNote extends Component {
         fontSize: '.7rem',
         fontStyle: 'italic',
         display: 'block',
-        //float: 'right',
       },
       footer:{
         display: 'flex',
@@ -566,7 +555,7 @@ export class ItemNote extends Component {
     const time = () =>{
       return (
         <div style={styles.time} >
-        {note.get('createdAt').format("dddd, MMMM Do YYYY")}
+          {note.get('createdAt').format("dddd, MMMM Do YYYY")}
         </div>
       )
     }
@@ -619,20 +608,21 @@ export class ItemNote extends Component {
     }
 
     return (
-      <div className="row">
-        <div className="col-md-12">
-          <fieldset className="form-group">
+        <div className="col-md-4 list-note-item">
             <div className="form-control" style={styles.container}>
               <div style={styles.note}>
                 <div ref={note.get('_id')} style={styles.content} dangerouslySetInnerHTML={text}/>
               </div>
               {footer()}
             </div>
-          </fieldset>
         </div>
-      </div>
     )
   }
+}
+
+ItemNote.PropTypes = {
+  note: PropTypes.object.isRequired,
+  persons: PropTypes.object.isRequired
 }
 
 export default connect(notesSelector)(Notes);

@@ -10,6 +10,7 @@ import {AvatarView, Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLab
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
 import {ItemNote} from '../notes'
 import routes from '../../routes';
+import Masonry from 'react-masonry-component';
 
 class NotesList extends Component {
 
@@ -44,9 +45,9 @@ class NotesList extends Component {
             <Title title='Notes' />
           </HeaderLeft>
         </Header>
-        <div>
+        <Masonry className={''}>
           {listNotes(notes, persons)}
-        </div>
+        </Masonry>
       </Content>
     )
   }
