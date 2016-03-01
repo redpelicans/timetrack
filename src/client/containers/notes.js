@@ -46,9 +46,9 @@ class Notes extends Component{
 
     const sortedNotes = notes.sort( (a,b) => a.get('createdAt') < b.get('createdAt')).map(note => {
       return (
-        <Note 
-          key={note.get('_id')} 
-          note={note} 
+        <Note
+          key={note.get('_id')}
+          note={note}
           persons={persons}
           entity={entity}/>
       )
@@ -67,15 +67,15 @@ class Notes extends Component{
 
     const addNotePanel = () => {
       if(!this.state.showAddNotePanel)return;
-      const handleCancel = () => this.setState({showAddNotePanel: false}); 
+      const handleCancel = () => this.setState({showAddNotePanel: false});
       const handleSubmit = (newNote) => {
-        this.setState({showAddNotePanel: false}); 
+        this.setState({showAddNotePanel: false});
         dispatch(notesActions.create(newNote, entity.toJS()));
       }
 
       return (
         <div style={styles.addNotePanel}>
-          <EditNote 
+          <EditNote
             author={user}
             onSubmit={handleSubmit}
             onCancel={handleCancel}/>
@@ -85,7 +85,7 @@ class Notes extends Component{
 
     return (
       <fieldset className="form-group">
-        <div style={styles.label}> 
+        <div style={styles.label}>
           <div><span>{label}</span></div>
           {addNote()}
         </div>
@@ -107,7 +107,7 @@ Notes.propTypes = {
 
 
 @authable
-class Note extends Component{
+export class Note extends Component{
   state = {mode: 'view'};
 
   render(){
@@ -115,29 +115,29 @@ class Note extends Component{
     const {dispatch} = this.context;
 
     const viewMode = () => {
-      const handleEdit = () => this.setState({mode: 'edit'}); 
+      const handleEdit = () => this.setState({mode: 'edit'});
       const handleDelete = () => this.setState({mode: 'delete'});
 
       return (
-        <ViewNote 
+        <ViewNote
           mode={'view'}
           note={note}
           persons={persons}
           entity={entity}
-          onEdit={handleEdit} 
+          onEdit={handleEdit}
           onDelele={handleDelete}/>
       )
     }
 
     const editMode = () => {
-      const handleCancel = () => this.setState({mode: 'view'}); 
+      const handleCancel = () => this.setState({mode: 'view'});
       const handleSubmit = (newNote) => {
-        this.setState({mode: 'view'}); 
+        this.setState({mode: 'view'});
         dispatch(notesActions.update(note.toJS(), newNote));
       }
 
       return (
-        <EditNote 
+        <EditNote
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           author={persons && persons.get(note.get('authorId'))}
@@ -146,19 +146,19 @@ class Note extends Component{
     }
 
     const deleteMode = () => {
-      const handleCancel = () => this.setState({mode: 'view'}); 
+      const handleCancel = () => this.setState({mode: 'view'});
       const handleDelete = () => {
         dispatch(notesActions.delete(note.toJS()));
         this.setState({mode: 'view'});
       }
 
       return (
-        <ViewNote 
+        <ViewNote
           mode={'delete'}
           note={note}
           persons={persons}
           entity={entity}
-          onCancel={handleCancel} 
+          onCancel={handleCancel}
           onDelele={handleDelete}/>
       )
     }
@@ -276,14 +276,14 @@ class EditNote extends Component{
       )
     }
 
-    let submitBtn = <UpdateBtn 
-      onSubmit={this.handleSubmit} 
-      canSubmit={this.state.canSubmit && this.state.hasBeenModified} 
+    let submitBtn = <UpdateBtn
+      onSubmit={this.handleSubmit}
+      canSubmit={this.state.canSubmit && this.state.hasBeenModified}
       label={this.props.note ? 'Update' : 'Create'}
       size={"small"}/>;
 
-    let cancelBtn = <CancelBtn 
-      onCancel={this.handleCancel} 
+    let cancelBtn = <CancelBtn
+      onCancel={this.handleCancel}
       size={'small'}/>;
 
 
@@ -312,9 +312,8 @@ Note.propTypes = {
   onSubmit: PropTypes.func,
 }
 
-
 @authable
-class ViewNote extends Component{
+export class ViewNote extends Component {
   state = {editable: false}
 
   handleViewAuthor = (author, e) => {
@@ -329,15 +328,15 @@ class ViewNote extends Component{
   handleMouseLeave = (e) => {
     this.setState({editable: false})
   }
-   
-  render(){
+
+  render() {
     const {mode, note, persons, entity, onCancel, onDelele, onEdit} = this.props;
     const md = new Remarkable();
     const text = {__html: md.render(note.get('content'))};
 
     const styles = {
       content:{
-        height: '100%', 
+        height: '100%',
         minHeight: '36px',
         zIndex: 1,
       },
@@ -382,7 +381,7 @@ class ViewNote extends Component{
       },
     }
 
-  
+
     const avatar = (person) => {
       if(!person)return <div/>
       return (
@@ -482,10 +481,148 @@ ViewNote.propTypes = {
   mode: PropTypes.string.isRequired,
   note: PropTypes.object.isRequired,
   persons: PropTypes.object.isRequired,
-  entity: PropTypes.object.isRequired,
+  entity: PropTypes.object,
   onEdit: PropTypes.func,
   onCancel: PropTypes.func,
   onDelete: PropTypes.func,
+}
+
+@authable
+export class ItemNote extends Component {
+
+  handleViewAuthor = (author, e) => {
+    e.preventDefault();
+    this.context.dispatch(pushRoute(routes.person.view, {personId: author.get('_id')}));
+  }
+
+  handleViewEntity = (note, e) => {
+    e.preventDefault();
+    switch(note.get('type')) {
+      case 'person':
+        this.context.dispatch(pushRoute(routes.person.view, {personId: note.get('entityId')}));
+        return
+      case 'mission':
+        this.context.dispatch(pushRoute(routes.mission.view, {missionId: note.get('entityId')}));
+        return
+      case 'company':
+        this.context.dispatch(pushRoute(routes.company.view, {companyId: note.get('entityId')}));
+        return
+      default:
+        return
+    }
+  }
+
+  render() {
+    const {note, persons} = this.props;
+    const md = new Remarkable();
+    const text = {__html: md.render(note.get('content'))};
+    const styles = {
+      content:{
+        height: '100%',
+        minHeight: '36px',
+        zIndex: 1,
+      },
+      item:{
+        margin: '5px auto',
+      },
+      note:{
+        position: 'relative',
+        zIndex: 0,
+      },
+      container:{
+        height: '100%',
+      },
+      time: {
+        fontSize: '.7rem',
+        fontStyle: 'italic',
+        display: 'block',
+      },
+      footer:{
+        display: 'flex',
+        justifyContent: 'space-between',
+      },
+      left:{
+        display: 'flex',
+        alignItems: 'center',
+      },
+      right:{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+      },
+    }
+
+    const time = () =>{
+      return (
+        <div style={styles.time} >
+          {note.get('createdAt').format("dddd, MMMM Do YYYY")}
+        </div>
+      )
+    }
+
+    const avatar = (person) => {
+      if(!person)return <div/>
+      return (
+        <div>
+          <a href="#" onClick={this.handleViewAuthor.bind(null, person)}>
+            <AvatarView obj={person} size={24} label={`Wrote by ${person.get('name')}`}/>
+          </a>
+        </div>
+      )
+    }
+
+    const footer = () => {
+      const author = persons && persons.get(note.get('authorId'));
+      return (
+        <div style={styles.footer}>
+          <div style={styles.left}>
+            {avatar(author)}
+            {time()}
+          </div>
+          <div style={styles.right}>
+            {entity()}
+          </div>
+        </div>
+      )
+    }
+
+    const entity = () => {
+      const className = () => {
+        const base = "iconButton fa m-r-1"
+        switch(note.get('type')) {
+          case 'person':
+            return base+" fa-users"
+          case 'mission':
+            return base+" fa-shopping-cart"
+          case 'company':
+            return base+" fa-building-o"
+          default:
+            return base
+        }
+      }
+      return (
+        <a href="#" onClick={this.handleViewEntity.bind(null, note)}>
+          <i className={className()} />
+        </a>
+      )
+    }
+
+    return (
+        <div className="col-md-4 list-note-item">
+            <div className="form-control" style={styles.container}>
+              <div style={styles.note}>
+                <div ref={note.get('_id')} style={styles.content} dangerouslySetInnerHTML={text}/>
+              </div>
+              {footer()}
+            </div>
+        </div>
+    )
+  }
+}
+
+ItemNote.PropTypes = {
+  note: PropTypes.object.isRequired,
+  persons: PropTypes.object.isRequired
 }
 
 export default connect(notesSelector)(Notes);

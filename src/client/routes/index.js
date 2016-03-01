@@ -5,11 +5,13 @@ import UnAuthorized from '../components/unauthorized';
 import personRoutes from './person';
 import companyRoutes from './company';
 import missionRoutes from './mission';
+import notesRoutes from './notes';
 
 const routes = RouteManager([
   personRoutes,
   companyRoutes,
   missionRoutes,
+  notesRoutes,
   Route({
     name: 'notfound',
     path: '/notfound',

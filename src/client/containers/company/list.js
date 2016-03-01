@@ -99,7 +99,7 @@ const List = ({companies, persons}) => {
   const data = companies.map(company => {
     const workers = persons.filter(getFilterPersonsByCompanyId(company.get('_id')))
     return (
-      <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
+      <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}>
         <Preview workers={workers} company={company} />
       </div>
     )
