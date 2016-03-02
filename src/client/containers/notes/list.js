@@ -29,7 +29,6 @@ class NotesList extends Component {
           return  <ItemNote
                     key={note.get('_id')}
                     note={note}
-                    type={note.get('type')}
                     persons={persons} />
         }).toSetSeq()
       )
@@ -45,7 +44,7 @@ class NotesList extends Component {
             <Title title='Notes' />
           </HeaderLeft>
         </Header>
-        <Masonry className={''}>
+        <Masonry>
           {listNotes(notes, persons)}
         </Masonry>
       </Content>
