@@ -6,6 +6,7 @@ import routes from '../../routes';
 import {AvatarView, NewLabel, UpdatedLabel} from '../widgets';
 import {pushRoute} from '../../actions/routes';
 import {companiesActions} from '../../actions/companies';
+import ReactTooltip from 'react-tooltip'
 
 export const Edit = authable(({company}, {authManager, dispatch}) => {
   const handleChange = (e) => {
@@ -86,12 +87,8 @@ Delete.propTypes = {
 
 @authable
 export class AddButton extends Component {
-  componentDidMount(){
-    $('#addObject').tooltip({animation: true});
-  }
 
   handleClick = () => {
-    $('#addObject').tooltip('hide');
     this.context.dispatch(pushRoute(routes.company.new));
   }
 
@@ -112,9 +109,12 @@ export class AddButton extends Component {
       return <div/>
     } else {
       return (
-        <button id="addObject" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title={title} style={style}  onClick={this.handleClick}>
-          <i className="fa fa-plus"/>
-        </button>
+        <div>
+          <button id="addObject" type="button" className="btn-primary btn" data-tip={title} data-for="addCompany" style={style} onClick={this.handleClick}>
+            <i className="fa fa-plus"/>
+          </button>
+          <ReactTooltip id="addCompany" place="left" effect="solid" />
+        </div>
       )
     }
   }
@@ -220,8 +220,8 @@ export class Preview extends Component {
     const avatar = <AvatarView obj={company}/>
 
     const isNew = () =>{
-      if(company.get('isNew')) return <NewLabel/> 
-      if(company.get('isUpdated')) return <UpdatedLabel/> 
+      if(company.get('isNew')) return <NewLabel/>
+      if(company.get('isUpdated')) return <UpdatedLabel/>
       return <div/>
     }
 
@@ -262,7 +262,7 @@ export class Preview extends Component {
         </div>
       )
     }
- 
+
     return (
       <div style={styles.container} onMouseOver={this.handleMouseEnter} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave} >
         <div style={styles.containerLeft}>
@@ -293,5 +293,5 @@ export class Preview extends Component {
 
 Preview.propTypes = {
   company: PropTypes.object.isRequired,
-  workers: PropTypes.object.isRequired, 
+  workers: PropTypes.object.isRequired,
 }

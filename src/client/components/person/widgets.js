@@ -6,6 +6,7 @@ import {AvatarView, NewLabel, UpdatedLabel} from '../widgets';
 import {authable} from '../../components/authmanager';
 import {personsActions} from '../../actions/persons';
 import {pushRoute} from '../../actions/routes';
+import ReactTooltip from 'react-tooltip'
 
 
 export const Edit = authable(({person}, {authManager, dispatch}) => {
@@ -85,12 +86,8 @@ Preferred.propTypes = {
 
 @authable
 export class AddButton extends Component {
-  componentDidMount(){
-    $('#addObject').tooltip({animation: true});
-  }
 
   handleClick = () => {
-    $('#addObject').tooltip('hide');
     this.context.dispatch(pushRoute(routes.person.new));
   }
 
@@ -112,9 +109,12 @@ export class AddButton extends Component {
       return <div/>
     } else {
       return (
-        <button id="addObject" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title={title} style={style}  onClick={this.handleClick}>
-          <i className="fa fa-plus"/>
-        </button>
+        <div>
+          <button id="addObject" type="button" className="btn-primary btn" data-tip={title} data-for="addPerson" style={style} onClick={this.handleClick}>
+            <i className="fa fa-plus"/>
+          </button>
+          <ReactTooltip id="addPerson" place="left" effect="solid" />
+        </div>
       )
     }
   }
@@ -129,7 +129,7 @@ export class Preview extends Component {
   state = {showActions: false}
 
   shouldComponentUpdate(nextProps, nextState){
-    return this.props.person !== nextProps.person || 
+    return this.props.person !== nextProps.person ||
       this.props.company !== nextProps.company ||
       this.state.showActions !== nextState.showActions;
   }
@@ -160,7 +160,7 @@ export class Preview extends Component {
       const {label, phone} = person.phones[0];
       return `tel. ${label}: ${phone}`;
     }
-    
+
     const companyView = () => {
       const company = this.props.company;
       if(!company) return '';
@@ -222,8 +222,8 @@ export class Preview extends Component {
     const person = this.props.person;
     const avatar = <AvatarView obj={person}/>;
     const isNew = () =>{
-      if(person.get('isNew')) return <NewLabel/> 
-      if(person.get('isUpdated')) return <UpdatedLabel/> 
+      if(person.get('isNew')) return <NewLabel/>
+      if(person.get('isUpdated')) return <UpdatedLabel/>
       return <div/>
     }
 
@@ -262,7 +262,7 @@ export class Preview extends Component {
         </div>
       )
     }
-    
+
     return (
       <div style={styles.container} onMouseOver={this.handleMouseEnter} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
         <div style={styles.containerLeft}>
@@ -296,4 +296,3 @@ Preview.propTypes = {
   company:  PropTypes.object,
   children: PropTypes.node
 }
-
