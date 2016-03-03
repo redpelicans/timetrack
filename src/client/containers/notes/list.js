@@ -23,18 +23,25 @@ class NotesList extends Component {
 
   render() {
 
-    const listNotes = (notes, persons) => {
+    const listNotes = (notes, persons, companies, missions) => {
       return (
         notes.map((note) => {
           return  <ItemNote
                     key={note.get('_id')}
                     note={note}
-                    persons={persons} />
+                    persons={persons}
+                    companies={companies}
+                    missions={missions} />
         }).toSetSeq()
       )
     }
 
-    const {notes, persons} = this.props;
+    const {notes, persons, companies, missions} = this.props;
+
+    const options = {
+      trnaistionDuration: 0,
+      gutter: 10,
+    }
 
     return (
       <Content>
@@ -44,8 +51,8 @@ class NotesList extends Component {
             <Title title='Notes' />
           </HeaderLeft>
         </Header>
-        <Masonry>
-          {listNotes(notes, persons)}
+        <Masonry options={options}>
+          {listNotes(notes, persons, companies, missions)}
         </Masonry>
       </Content>
     )

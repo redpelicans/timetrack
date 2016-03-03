@@ -57,6 +57,10 @@ a:hover {
   color: grey;
 }
 
+.iconButton-small {
+  font-size: 0.9rem;
+}
+
 .iconButton.star.preferred {
   color: @preferred-star-color;
 }
@@ -394,7 +398,11 @@ button:hover {
 
 .list-note-item {
   margin-bottom: 10px;
-  @media (max-width: 768px) {
+  width: calc(~"33.33% - 10px");
+  @media (max-width: 1280px) {
+    width: calc(~"50% - 5px");
+  }
+  @media (max-width: 1024px) {
     width: 100%;
   }
 }
