@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import FileInput from 'react-file-input';
 import Remarkable from 'remarkable';
 import {colors} from '../forms/company';
-
+import ReactTooltip from 'react-tooltip';
 
 export const AvatarView = ({obj, size, label}) => {
   if(!obj || !obj.get('avatar')) return <div className="m-r-1"><Avatar size={size} name={"?"}/></div>;
@@ -41,14 +41,6 @@ export class Avatar extends Component {
     return _.map(parts, part => part.substr(0,1).toUpperCase()).join('');
   }
 
-  componentWillUnmount(){
-    $('[data-toggle="tooltip"]').tooltip('dispose');
-  }
-
-  componentDidMount(){
-    $('[data-toggle="tooltip"]').tooltip();
-  }
-
   render(){
     const size = this.props.size || 36;
     const styleSize = `${size}px`;
@@ -73,12 +65,18 @@ export class Avatar extends Component {
 
     if(this.props.src){
       return (
-        <div data-toggle="tooltip" data-placement="top" title={this.props.label}>
-          <img src={this.props.src} style={imageStyle}/>
+        <div>
+          <img data-tip={this.props.label} src={this.props.src} style={imageStyle}/>
+          <ReactTooltip effect="solid" />
         </div>
       )
     }else{
-      return <div data-toggle="tooltip" data-placement="top" title={this.props.label} style={initialsStyle}>{this.getInitials(this.props.name)}</div>
+      return (
+        <div>
+          <div data-tip={this.props.label} style={initialsStyle}>{this.getInitials(this.props.name)}</div>
+          <ReactTooltip effect="solid" />
+        </div>
+      )
     }
   }
 
@@ -112,8 +110,8 @@ export const TextLabel = ({label, value, url, onClick}) => {
 
   return(
     <fieldset className="form-group">
-      <label htmlFor={label}> 
-        {label} 
+      <label htmlFor={label}>
+        {label}
         {labelUrl()}
       </label>
       <span className="form-control" id={label}>{value}</span>
@@ -122,7 +120,7 @@ export const TextLabel = ({label, value, url, onClick}) => {
 }
 
 TextLabel.proptypes = {
-  label:    PropTypes.string, 
+  label:    PropTypes.string,
   value:    PropTypes.string,
   url:      PropTypes.string,
   onClick:  PropTypes.func
@@ -156,8 +154,8 @@ export const Labels = ({label, value, onClick}) => {
 
   return(
     <fieldset className="form-group">
-      <label htmlFor={label}> 
-        {label} 
+      <label htmlFor={label}>
+        {label}
       </label>
       <div className="form-control" id={label}>
         {labels}
@@ -168,7 +166,7 @@ export const Labels = ({label, value, onClick}) => {
 
 Labels.propTypes = {
   label:    PropTypes.string,
-  value:    PropTypes.object, 
+  value:    PropTypes.object,
   onClick:  PropTypes.func
 }
 
@@ -177,8 +175,8 @@ export const MarkdownText = ({label, value}) => {
   const text = {__html: md.render(value)};
   return(
     <fieldset className="form-group">
-      <label htmlFor={label}> 
-        {label} 
+      <label htmlFor={label}>
+        {label}
       </label>
       <div style={{height: '100%', minHeight: '36px'}}className="form-control" id={label} dangerouslySetInnerHTML={text}/>
     </fieldset>
@@ -426,7 +424,7 @@ export const ResetBtn = ({obj, label, size}) => {
 
 ResetBtn.propTypes = {
   obj:    PropTypes.object.isRequired,
-  label:  PropTypes.string, 
+  label:  PropTypes.string,
   size:   PropTypes.string
 }
 
@@ -510,7 +508,7 @@ export const FilterPreferred = ({preferred, onClick}) => {
 
   return (
     <div className="m-l-1">
-      <a href="#" onClick={handleChange} > 
+      <a href="#" onClick={handleChange} >
         <i style={style} className="iconButton fa fa-star-o"/>
       </a>
     </div>
@@ -555,7 +553,7 @@ export const Sort = ({sortMenu, sortCond, onClick}) => {
 
   return (
     <div className="dropdown m-l-1">
-      <a href="#"  id="sort-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> 
+      <a href="#"  id="sort-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
         <i style={styles.button} className="iconButton fa fa-sort" />
       </a>
       <ul style={styles.menu} className="dropdown-menu dropdown-menu-right" aria-labelledby="sort-menu">
@@ -579,4 +577,3 @@ TitleIcon.propTypes = {
   icon:       PropTypes.string.isRequired,
   isLoading:  PropTypes.bool
 }
-

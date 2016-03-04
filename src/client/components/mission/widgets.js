@@ -5,6 +5,7 @@ import {authable} from '../../components/authmanager';
 import {AvatarView, NewLabel, UpdatedLabel} from '../widgets';
 import {pushRoute} from '../../actions/routes';
 import {missionsActions} from '../../actions/missions';
+import ReactTooltip from 'react-tooltip'
 
 export const Closed = ({mission}) => {
   if(mission.get('isClosed')) return <i className="iconButton fa fa-lock m-r-1"/>;
@@ -129,12 +130,8 @@ Delete.propTypes = {
 
 @authable
 export class AddButton extends Component {
-  componentDidMount(){
-    $('#addObject').tooltip({animation: true});
-  }
 
   handleClick = () => {
-    $('#addObject').tooltip('hide');
     this.context.dispatch(pushRoute(routes.mission.new));
   }
 
@@ -156,9 +153,12 @@ export class AddButton extends Component {
       return <div/>
     } else {
       return (
-        <button id="addObject" type="button" className="btn-primary btn"  data-toggle="tooltip" data-placement="left" title={title} style={style}  onClick={this.handleClick}>
-          <i className="fa fa-plus"/>
-        </button>
+        <div>
+          <button id="addObject" type="button" className="btn-primary btn" data-tip={title} data-for="addMission" style={style} onClick={this.handleClick}>
+            <i className="fa fa-plus"/>
+          </button>
+          <ReactTooltip id="addMission" place="left" effect="solid" />
+        </div>
       )
     }
   }
@@ -173,9 +173,9 @@ export class Preview extends Component {
   state = {showActions: false}
 
   shouldComponentUpdate(nextProps, nextState){
-    return this.props.mission !== nextProps.mission 
+    return this.props.mission !== nextProps.mission
     || this.props.manager !== nextProps.manager
-    //|| this.props.workers !== nextProps.workers // TODO: find a way to avoid refresh each time 
+    //|| this.props.workers !== nextProps.workers // TODO: find a way to avoid refresh each time
     || this.props.company !== nextProps.company
     || this.state.showActions !== nextState.showActions;
   }
@@ -200,7 +200,7 @@ export class Preview extends Component {
 
   render() {
     console.log("render Mission")
-    const {authManager, dispatch} = this.context; 
+    const {authManager, dispatch} = this.context;
     const companyView = () => {
       const company = this.props.company;
       if(!company) return '';
@@ -265,8 +265,8 @@ export class Preview extends Component {
     const avatar = <AvatarView obj={company}/>;
 
     const isNew = () =>{
-      if(mission.get('isUpdated')) return <UpdatedLabel/> 
-      if(mission.get('isNew')) return <NewLabel/> 
+      if(mission.get('isUpdated')) return <UpdatedLabel/>
+      if(mission.get('isNew')) return <NewLabel/>
       return <div/>
     }
 
@@ -317,7 +317,7 @@ export class Preview extends Component {
         </div>
       )
     }
-    
+
     return (
       <div style={styles.container} onMouseOver={this.handleMouseEnter} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
         <div style={styles.containerLeft}>
@@ -353,4 +353,3 @@ Preview.propTypes = {
   manager:  PropTypes.object,
   children: PropTypes.node
 }
-

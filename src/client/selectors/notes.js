@@ -26,10 +26,14 @@ function filterAndSortNotes(notes, entity){
 export const allNotesSelector = createSelector(
   notes,
   persons,
-  (notes, persons) => {
+  companies,
+  missions,
+  (notes, persons, companies, missions) => {
     return {
       notes,
-      persons
+      persons,
+      companies,
+      missions
     }
   }
 )

@@ -495,18 +495,20 @@ export class ItemNote extends Component {
     this.context.dispatch(pushRoute(routes.person.view, {personId: author.get('_id')}));
   }
 
-  handleViewEntity = (note, e) => {
+  handleViewEntity = (type, id, e) => {
     e.preventDefault()
-    const type = note.get('entityType')
-    const id = note.get('entityId')
     if (!type) return
     this.context.dispatch(pushRoute(routes[type].view, {[type+'Id']: id}))
   }
 
   render() {
-    const {note, persons} = this.props;
+    const {note, persons, companies, missions} = this.props;
     const md = new Remarkable();
     const text = {__html: md.render(note.get('content'))};
+
+    const entityType = note.get('entityType');
+    const entityId = note.get('entityId');
+
     const styles = {
       content:{
         height: '100%',
@@ -522,11 +524,25 @@ export class ItemNote extends Component {
       },
       container:{
         height: '100%',
+        paddingTop: '15px',
+      },
+      avatar:{
+        paddingBottom: '10px',
+        paddingRight: '5px',
+      },
+      icon:{
+        position: 'absolute',
+        bottom: '2px',
+        left: '3rem',
       },
       time: {
         fontSize: '.7rem',
         fontStyle: 'italic',
         display: 'block',
+      },
+      line:{
+        borderTop: '1px solid #555d73',
+        margin: '0px 0px 5px 0px',
       },
       footer:{
         display: 'flex',
@@ -551,36 +567,36 @@ export class ItemNote extends Component {
       )
     }
 
-    const avatar = (person) => {
-      if(!person)return <div/>
+    const avatar = (entity) => {
+      if(!entity || !author)return <div/>
+      const type = entityType === 'mission' ? 'company' : entityType;
       return (
-        <div>
-          <a href="#" onClick={this.handleViewAuthor.bind(null, person)}>
-            <AvatarView obj={person} size={24} label={`Wrote by ${person.get('name')}`}/>
+        <div style={styles.avatar}>
+          <a href="#" onClick={this.handleViewEntity.bind(null, type, entity.get('_id'))}>
+            <AvatarView obj={entity} size={34} />
           </a>
         </div>
       )
     }
 
-    const footer = () => {
-      const author = persons && persons.get(note.get('authorId'));
-      return (
-        <div style={styles.footer}>
-          <div style={styles.left}>
-            {avatar(author)}
-            {time()}
-          </div>
-          <div style={styles.right}>
-            {entity()}
-          </div>
-        </div>
-      )
+    const getEntity = () => {
+      switch (entityType) {
+        case 'person':
+          return persons.get(entityId);
+        case 'mission':
+          if (!missions.get(entityId)) return
+          else return companies.get(missions.get(entityId).get('clientId'));
+        case 'company':
+          return companies.get(entityId);
+        default:
+          return undefined;
+      }
     }
 
-    const entity = () => {
+    const entityIcon = () => {
       const className = () => {
-        const base = "iconButton fa m-r-1"
-        switch(note.get('entityType')) {
+        const base = "iconButton-small iconButton fa m-r-1"
+        switch(entityType) {
           case 'person':
             return base+" fa-users"
           case 'mission':
@@ -592,18 +608,47 @@ export class ItemNote extends Component {
         }
       }
       return (
-        <a href="#" onClick={this.handleViewEntity.bind(null, note)}>
+        <a href="#" style={styles.icon} onClick={this.handleViewEntity.bind(null, entityType, entityId)}>
           <i className={className()} />
         </a>
       )
     }
 
+    const author = (authorEntity) => {
+      if (!authorEntity) return;
+      return (
+        <div>{`by ${authorEntity.get('name')}`}</div>
+      )
+    }
+
+    const footer = () => {
+      const authorEntity = persons && persons.get(note.get('authorId'));
+      const entity = getEntity();
+      if (!entity) return;
+      return (
+        <div style={styles.footer}>
+          <div style={styles.left}>
+            {avatar(entity)}
+            {entityIcon()}
+            <div>
+              <strong>{entity.get('name')}</strong>
+              {time()}
+            </div>
+          </div>
+          <div style={styles.right}>
+            {author(authorEntity)}
+          </div>
+        </div>
+      )
+    }
+
     return (
-        <div className="col-md-4 list-note-item">
+        <div className="list-note-item">
             <div className="form-control" style={styles.container}>
               <div style={styles.note}>
                 <div ref={note.get('_id')} style={styles.content} dangerouslySetInnerHTML={text}/>
               </div>
+              <hr style={styles.line}/>
               {footer()}
             </div>
         </div>
