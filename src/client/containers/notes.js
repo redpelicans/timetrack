@@ -549,7 +549,6 @@ export class ItemNote extends Component {
         left: 0,
         right: 0,
         bottom: 0,
-        width: '33%',
         margin: '10% auto 0 auto',
         border: '1px solid #ccc',
         background: '#434857',
@@ -804,7 +803,9 @@ export class ItemNote extends Component {
               isOpen={this.state.modalIsOpen}
               onRequestClose={this.closeModal}>
 
-              {editModal()}
+              <div className="editModal">
+                {editModal()}
+              </div>
             </Modal>
         </div>
     )
