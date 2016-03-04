@@ -15,6 +15,7 @@ import {notesActions} from '../actions/notes';
 import {personsActions} from '../actions/persons';
 import {authable} from '../components/authmanager';
 import {pushRoute} from '../actions/routes';
+import Modal from 'react-modal';
 
 class Notes extends Component{
   state = {
@@ -490,6 +491,8 @@ ViewNote.propTypes = {
 @authable
 export class ItemNote extends Component {
 
+  state = {mode: 'view', modalIsOpen: false}
+
   handleViewAuthor = (author, e) => {
     e.preventDefault();
     this.context.dispatch(pushRoute(routes.person.view, {personId: author.get('_id')}));
@@ -497,9 +500,28 @@ export class ItemNote extends Component {
 
   handleViewEntity = (type, id, e) => {
     e.preventDefault()
-    if (!type) return
+    if (!type || !id) return
     this.context.dispatch(pushRoute(routes[type].view, {[type+'Id']: id}))
   }
+
+  handleMouseEnter = (e) => {
+    if (this.state.mode !== 'delete')
+      this.setState({mode: 'edit'})
+  }
+
+  handleMouseLeave = (e) => {
+    this.setState({mode: 'view'})
+  }
+
+  handleMouseOver = (e) => {
+    if (this.state.mode !== 'delete')
+      this.setState({mode: 'edit'})
+  }
+
+  closeModal = () => {
+    this.setState({modalIsOpen: false});
+  }
+
 
   render() {
     const {note, persons, companies, missions} = this.props;
@@ -507,7 +529,36 @@ export class ItemNote extends Component {
     const text = {__html: md.render(note.get('content'))};
 
     const entityType = note.get('entityType');
+    const type = entityType === 'mission' ? 'company' : entityType;
     const entityId = note.get('entityId');
+    const authorEntity = persons && persons.get(note.get('authorId'));
+
+    const customStyles = {
+      overlay : {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(67, 72, 87, 0.7)'
+      },
+      content : {
+        position: 'relative',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '33%',
+        margin: '10% auto 0 auto',
+        border: '1px solid #ccc',
+        background: '#434857',
+        overflow: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        borderRadius: '4px',
+        outline: 'none',
+        padding: '0',
+      }
+    }
 
     const styles = {
       content:{
@@ -532,8 +583,8 @@ export class ItemNote extends Component {
       },
       icon:{
         position: 'absolute',
-        bottom: '2px',
-        left: '3rem',
+        bottom: '-4px',
+        left: '2.2rem',
       },
       time: {
         fontSize: '.7rem',
@@ -541,12 +592,13 @@ export class ItemNote extends Component {
         display: 'block',
       },
       line:{
-        borderTop: '1px solid #555d73',
+        borderTop: '1px solid #575d70',
         margin: '0px 0px 5px 0px',
       },
       footer:{
         display: 'flex',
         justifyContent: 'space-between',
+        position: 'relative',
       },
       left:{
         display: 'flex',
@@ -557,6 +609,35 @@ export class ItemNote extends Component {
         justifyContent: 'flex-end',
         alignItems: 'center',
       },
+      deletePanel:{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: 'rgba(67, 72, 87, 0.8)',
+        position: 'absolute',
+        top: '0px',
+        left: '0px',
+        height: '100%',
+        width: '100%',
+        zIndex: 2,
+      },
+      editPanel:{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: 'rgba(37, 40, 48, 0.9)',
+        color: 'cfd2da',
+        position: 'absolute',
+        top: '1px',
+        right: '1px',
+        borderRadius: '0 4px 0 0',
+      },
+      editBtn:{
+        padding: '8px 8px 6px 8px'
+      },
+      delBtn:{
+        padding: '8px 8px 8px 4px'
+      }
     }
 
     const time = () =>{
@@ -568,8 +649,7 @@ export class ItemNote extends Component {
     }
 
     const avatar = (entity) => {
-      if(!entity || !author)return <div/>
-      const type = entityType === 'mission' ? 'company' : entityType;
+      if(!entity)return <div/>
       return (
         <div style={styles.avatar}>
           <a href="#" onClick={this.handleViewEntity.bind(null, type, entity.get('_id'))}>
@@ -614,15 +694,60 @@ export class ItemNote extends Component {
       )
     }
 
-    const author = (authorEntity) => {
+    const author = () => {
       if (!authorEntity) return;
       return (
         <div>{`by ${authorEntity.get('name')}`}</div>
       )
     }
 
+    const deletePanel = () => {
+      if (this.state.mode !== 'delete') return;
+
+      const handleDelete = (e) => {
+        this.context.dispatch(notesActions.delete(note.toJS()))
+        e.preventDefault()
+      }
+      const handleCancel = (e) => {
+        this.setState({mode: 'edit'})
+        e.preventDefault()
+      }
+      return (
+        <div style={styles.deletePanel}>
+          <div>
+            <button type="button" className="btn btn-danger" onClick={handleDelete}>Confirm</button>
+          </div>
+          <div>
+            <button type="button" className="btn btn-warning m-l-1" onClick={handleCancel}>Cancel</button>
+          </div>
+        </div>
+      )
+    }
+
+    const editPanel = () => {
+      if (this.state.mode !== 'edit') return;
+
+      const handleEdit = (e) => {
+        e.preventDefault()
+        this.setState({modalIsOpen: true});
+      }
+      const handleDelete = (e) => {
+        e.preventDefault()
+        this.setState({mode: 'delete'})
+      }
+      return (
+        <div style={styles.editPanel}>
+          <a style={styles.editBtn} href="#" onClick={handleEdit}>
+            <i className="iconButton fa fa-pencil"/>
+          </a>
+          <a style={styles.delBtn} href="#" onClick={handleDelete}>
+            <i className="iconButton fa fa-trash"/>
+          </a>
+        </div>
+      )
+    }
+
     const footer = () => {
-      const authorEntity = persons && persons.get(note.get('authorId'));
       const entity = getEntity();
       if (!entity) return;
       return (
@@ -631,19 +756,40 @@ export class ItemNote extends Component {
             {avatar(entity)}
             {entityIcon()}
             <div>
-              <strong>{entity.get('name')}</strong>
+              <strong>
+                <a href="#"
+                  onClick={this.handleViewEntity.bind(null, type, entity.get('_id'))}>
+                  {entity.get('name')}
+                </a>
+              </strong>
               {time()}
             </div>
           </div>
           <div style={styles.right}>
             {author(authorEntity)}
           </div>
+          {deletePanel()}
         </div>
       )
     }
 
+    const editModal = () => {
+      const handleSubmit = (newNote) => {
+        this.closeModal();
+        this.context.dispatch(notesActions.update(note.toJS(), newNote));
+      }
+
+      return (
+        <EditNote
+          onSubmit={handleSubmit}
+          onCancel={this.closeModal}
+          author={authorEntity}
+          note={note}/>
+      )
+    }
+
     return (
-        <div className="list-note-item">
+        <div className="list-note-item" onMouseOver={this.handleMouseOver} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
             <div className="form-control" style={styles.container}>
               <div style={styles.note}>
                 <div ref={note.get('_id')} style={styles.content} dangerouslySetInnerHTML={text}/>
@@ -651,6 +797,15 @@ export class ItemNote extends Component {
               <hr style={styles.line}/>
               {footer()}
             </div>
+            {editPanel()}
+
+            <Modal
+              style={customStyles}
+              isOpen={this.state.modalIsOpen}
+              onRequestClose={this.closeModal}>
+
+              {editModal()}
+            </Modal>
         </div>
     )
   }
