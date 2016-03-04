@@ -525,6 +525,7 @@ export class ItemNote extends Component {
 
   render() {
     const {note, persons, companies, missions} = this.props;
+
     const md = new Remarkable();
     const text = {__html: md.render(note.get('content'))};
 
@@ -533,7 +534,7 @@ export class ItemNote extends Component {
     const entityId = note.get('entityId');
     const authorEntity = persons && persons.get(note.get('authorId'));
 
-    const customStyles = {
+    const modalStyles = {
       overlay : {
         position: 'fixed',
         top: 0,
@@ -581,6 +582,9 @@ export class ItemNote extends Component {
         paddingBottom: '10px',
         paddingRight: '5px',
       },
+      author:{
+        display: 'inline-block',
+      },
       icon:{
         position: 'absolute',
         bottom: '-4px',
@@ -625,18 +629,24 @@ export class ItemNote extends Component {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'rgba(37, 40, 48, 0.9)',
-        color: 'cfd2da',
-        position: 'absolute',
-        top: '1px',
-        right: '1px',
-        borderRadius: '0 4px 0 0',
-      },
-      editBtn:{
-        padding: '8px 8px 6px 8px'
+        color: '#cfd2da',
       },
       delBtn:{
-        padding: '8px 8px 8px 4px'
+        margin: '0 8px',
+      }
+    }
+
+    const getEntity = () => {
+      switch (entityType) {
+        case 'person':
+          return persons.get(entityId);
+        case 'mission':
+          if (!missions.get(entityId)) return
+          else return companies.get(missions.get(entityId).get('clientId'));
+        case 'company':
+          return companies.get(entityId);
+        default:
+          return undefined;
       }
     }
 
@@ -657,20 +667,6 @@ export class ItemNote extends Component {
           </a>
         </div>
       )
-    }
-
-    const getEntity = () => {
-      switch (entityType) {
-        case 'person':
-          return persons.get(entityId);
-        case 'mission':
-          if (!missions.get(entityId)) return
-          else return companies.get(missions.get(entityId).get('clientId'));
-        case 'company':
-          return companies.get(entityId);
-        default:
-          return undefined;
-      }
     }
 
     const entityIcon = () => {
@@ -697,7 +693,11 @@ export class ItemNote extends Component {
     const author = () => {
       if (!authorEntity) return;
       return (
-        <div>{`by ${authorEntity.get('name')}`}</div>
+        <div style={styles.author}>
+          <a href="#" onClick={this.handleViewEntity.bind(null, 'person', authorEntity.get('_id'))}>
+            <AvatarView obj={authorEntity} size={24}/>
+          </a>
+        </div>
       )
     }
 
@@ -766,7 +766,8 @@ export class ItemNote extends Component {
             </div>
           </div>
           <div style={styles.right}>
-            {author(authorEntity)}
+            {editPanel()}
+            {author()}
           </div>
           {deletePanel()}
         </div>
@@ -797,10 +798,9 @@ export class ItemNote extends Component {
               <hr style={styles.line}/>
               {footer()}
             </div>
-            {editPanel()}
 
             <Modal
-              style={customStyles}
+              style={modalStyles}
               isOpen={this.state.modalIsOpen}
               onRequestClose={this.closeModal}>
 
