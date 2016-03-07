@@ -626,9 +626,16 @@ export class ItemNote extends Component {
       },
       editPanel:{
         display: 'flex',
+        position: 'absolute',
+        top: '30%',
+        right: '40px',
         justifyContent: 'center',
         alignItems: 'center',
         color: '#cfd2da',
+        background: 'rgba(67, 72, 87, 0.8)',
+      },
+      editBtn:{
+        paddgin: '10px',
       },
       delBtn:{
         margin: '0 8px',
