@@ -64,7 +64,7 @@ const getVisibleNotes = (notes, filter) => {
 
 const filterForSearch = (filter) => {
   function filterByContent(key, content) {
-    return content.indexOf(key) !== -1;
+    return content.toLowerCase().indexOf(key) !== -1;
   }
 
   const keys = _.chain(filter.split(' ')).compact().map(key => key.toLowerCase()).value();
