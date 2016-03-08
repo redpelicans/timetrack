@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import { connect } from 'react-redux';
-import {allNotesSelector} from '../../selectors/notes';
+import {visibleNotesSelector} from '../../selectors/notes';
 import {notesActions} from '../../actions/notes';
 import {personsActions} from '../../actions/persons'
 import {companiesActions} from '../../actions/companies'
@@ -12,13 +12,35 @@ import {ItemNote} from '../notes'
 import routes from '../../routes';
 import Masonry from 'react-masonry-component';
 
+const sortMenu = [
+  {key: 'name', label: 'Sort Alphabeticaly'},
+  {key: 'createdAt', label: 'Sort by creation date'},
+  {key: 'updatedAt', label: 'Sort by updated date'},
+];
+
 class NotesList extends Component {
 
-  componentWillMount() {
-      this.props.dispatch(notesActions.load())
-      this.props.dispatch(personsActions.load())
-      this.props.dispatch(companiesActions.load())
-      this.props.dispatch(missionsActions.load())
+  state = {}
+
+  componentWillMount = () => {
+    this.props.dispatch(notesActions.load())
+    this.props.dispatch(personsActions.load())
+    this.props.dispatch(companiesActions.load())
+    this.props.dispatch(missionsActions.load())
+  }
+
+  handleSort = (mode) => {
+    // this.props.dispatch(notesActions.sort(mode))
+  }
+
+  handleResetFilter = () => {
+    this.props.dispatch(notesActions.filter(''))
+  }
+
+  handleSearchFilter = (filter) => {
+    this.props.dispatch(notesActions.filter(filter))
+    // Masonry hack for reloading layout on search
+    this.masonry.layout()
   }
 
   render() {
@@ -36,10 +58,12 @@ class NotesList extends Component {
       )
     }
 
-    const {notes, persons, companies, missions} = this.props;
+    const {notes, persons, companies, missions, filter, sortCond} = this.props
+
+    if (!notes || !persons || !companies || !missions) return <div />
 
     const options = {
-      trnaistionDuration: 0,
+      transitionDuration: 0,
       gutter: 10,
     }
 
@@ -50,13 +74,19 @@ class NotesList extends Component {
             <TitleIcon icon={routes.notes.list.iconName} />
             <Title title='Notes' />
           </HeaderLeft>
+          <HeaderRight>
+            <Filter filter={filter} onReset={this.handleResetFilter} onChange={this.handleSearchFilter}/>
+            <Sort sortMenu={sortMenu} sortCond={sortCond} onClick={this.handleSort}/>
+          </HeaderRight>
         </Header>
-        <Masonry options={options}>
-          {listNotes(notes, persons, companies, missions)}
+        <Masonry
+          ref={function(c) {if (c != null) this.masonry = c.masonry;}.bind(this)}
+          options={options}>
+            {listNotes(notes, persons, companies, missions)}
         </Masonry>
       </Content>
     )
   }
 }
 
-export default connect(allNotesSelector)(NotesList);
+export default connect(visibleNotesSelector)(NotesList)

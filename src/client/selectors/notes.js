@@ -1,4 +1,5 @@
 import {createSelector} from 'reselect';
+import _ from 'lodash';
 
 const notes = state => state.notes;
 const entity = (state, props) => props.entity;
@@ -20,7 +21,7 @@ export const notesSelector = createSelector(
 )
 
 function filterAndSortNotes(notes, entity){
-  return notes.filter(note => note.get('entityId') === entity.get('_id'));
+  return notes.data.filter(note => note.get('entityId') === entity.get('_id'));
 }
 
 export const allNotesSelector = createSelector(
@@ -30,10 +31,45 @@ export const allNotesSelector = createSelector(
   missions,
   (notes, persons, companies, missions) => {
     return {
-      notes,
+      notes: notes.data,
+      filter: notes.filter,
+      sortCond: notes.sortCond,
       persons,
       companies,
-      missions
+      missions,
     }
   }
 )
+
+export const visibleNotesSelector = createSelector(
+  notes,
+  persons,
+  companies,
+  missions,
+  (notes, persons, companies, missions) => {
+    return {
+      notes: getVisibleNotes(notes.data, notes.filter),
+      filter: notes.filter,
+      sortCond: notes.sortCond,
+      persons,
+      companies,
+      missions,
+    }
+  }
+)
+
+const getVisibleNotes = (notes, filter) => {
+  return notes.filter(filterForSearch(filter))
+}
+
+const filterForSearch = (filter) => {
+  function filterByContent(key, content) {
+    return content.indexOf(key) !== -1;
+  }
+
+  const keys = _.chain(filter.split(' ')).compact().map(key => key.toLowerCase()).value();
+  return note => {
+    const content = note.get('content')
+    return _.every(keys, key => filterByContent(key, content))
+  }
+}
