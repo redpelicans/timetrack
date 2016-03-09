@@ -8,21 +8,18 @@ import React, {
   TouchableHighlight,
 } from 'react-native';
 
+import {Avatar, Icon, Image} from 'react-native-material-design'
+
 const Touch = TouchableHighlight
 
 const webClientId = "1013003508849-ke0dsjttftqcl0ee3jl7nv7av9iuij8p.apps.googleusercontent.com"
 
 // Routes
 import {Router, Route} from './react-native-router'
-import CompanyList from './components/company/list'
-import PersonList from './components/person/list'
-import MissionList from './components/mission/list'
 
 import {Menu} from './components/menu'
-
 import {LoginTimetrack} from './components/login'
 
-import {Avatar, Icon, Image} from 'react-native-material-design'
 
 
 const Header = (props) => {
