@@ -8,6 +8,8 @@
     "android": "react-native run-android"
   },
   "dependencies": {
+    "immutable": "^3.7.6",
+    "lodash": "^4.6.1",
     "react-native": "^0.20.0",
     "react-native-extended-stylesheet": "^0.1.7",
     "react-native-google-signin": "github:guillaumearm/react-native-google-signin",
