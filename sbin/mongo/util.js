@@ -1,4 +1,3 @@
-// run as: "babel-node --stage 0 loadClients.js"
 
 import _ from 'lodash';
 import faker from 'faker';
@@ -12,7 +11,7 @@ function makeFakeObject(schema){
   }
 
   let res = {};
-  for(let [key, property] of _.pairs(schema)){
+  for(let [key, property] of _.toPairs(schema)){
     if(_.isString(property)){
       res[key] = fakeMe(property);
     }else if(_.isArray(property)){
