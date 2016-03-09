@@ -6,6 +6,14 @@ export const NOTES_LOADED = 'NOTES_LOADED';
 export const NOTE_DELETED = 'NOTE_DELETED';
 export const NOTE_UPDATED = 'NOTE_UPDATED';
 export const NOTE_CREATED = 'NOTE_CREATED';
+export const FILTER_NOTES = 'FILTER_NOTES';
+export const ALL_LOADED   = 'ALL_LOADED';
+
+export function allDataLoaded() {
+  return {
+    type: ALL_LOADED
+  }
+}
 
 export function createCompleted(note){
   return {
@@ -72,11 +80,19 @@ export function loadNotes({forceReload=false, ids} = {}){
   }
 }
 
+export function filterNotes(filter) {
+  return {
+    type: FILTER_NOTES,
+    filter: filter,
+  }
+}
+
 export const notesActions = {
   load: loadNotes,
   create: createNote,
   update: updateNote,
   delete: deleteNote,
+  filter: filterNotes,
   createCompleted,
   updateCompleted,
   deleteCompleted,
