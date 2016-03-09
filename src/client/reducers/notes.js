@@ -6,13 +6,14 @@ import {
   NOTE_UPDATED,
   NOTE_DELETED,
   FILTER_NOTES,
+  SORT_NOTES,
 } from '../actions/notes';
 
 const initialState = {
   data: Immutable.Map(),
   filter: '',
   sortCond: {
-     by: 'name',
+     by: 'content',
      order: 'asc'
   },
 }
@@ -39,6 +40,15 @@ export default function notesReducer(state = initialState, action) {
       return {
         ...state,
         filter: action.filter,
+      }
+    case SORT_NOTES:
+      const sortCond = {
+        by: action.by,
+        order: state.sortCond.by === action.by ? {asc: 'desc', desc: 'asc'}[state.sortCond.order] : state.sortCond.order,
+      };
+      return {
+        ...state,
+        sortCond,
       }
     default:
       return state;

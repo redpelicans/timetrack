@@ -13,7 +13,7 @@ import routes from '../../routes';
 import Masonry from 'react-masonry-component';
 
 const sortMenu = [
-  {key: 'name', label: 'Sort Alphabeticaly'},
+  {key: 'content', label: 'Sort Alphabeticaly'},
   {key: 'createdAt', label: 'Sort by creation date'},
   {key: 'updatedAt', label: 'Sort by updated date'},
 ];
@@ -30,7 +30,7 @@ class NotesList extends Component {
   }
 
   handleSort = (mode) => {
-    // this.props.dispatch(notesActions.sort(mode))
+    this.props.dispatch(notesActions.sort(mode))
   }
 
   handleResetFilter = () => {
@@ -45,6 +45,10 @@ class NotesList extends Component {
 
   render() {
 
+    const {notes, persons, companies, missions, filter, sortCond} = this.props
+
+    if (!notes || !persons || !companies || !missions) return <div />
+
     const listNotes = (notes, persons, companies, missions) => {
       return (
         notes.map((note) => {
@@ -57,10 +61,6 @@ class NotesList extends Component {
         }).toSetSeq()
       )
     }
-
-    const {notes, persons, companies, missions, filter, sortCond} = this.props
-
-    if (!notes || !persons || !companies || !missions) return <div />
 
     const options = {
       transitionDuration: 0,

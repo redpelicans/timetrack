@@ -8,6 +8,7 @@ export const NOTE_UPDATED = 'NOTE_UPDATED';
 export const NOTE_CREATED = 'NOTE_CREATED';
 export const FILTER_NOTES = 'FILTER_NOTES';
 export const ALL_LOADED   = 'ALL_LOADED';
+export const SORT_NOTES   = 'SORT_NOTES';
 
 export function allDataLoaded() {
   return {
@@ -83,7 +84,14 @@ export function loadNotes({forceReload=false, ids} = {}){
 export function filterNotes(filter) {
   return {
     type: FILTER_NOTES,
-    filter: filter,
+    filter,
+  }
+}
+
+export function sortNotes(by) {
+  return {
+    type: SORT_NOTES,
+    by,
   }
 }
 
@@ -93,6 +101,7 @@ export const notesActions = {
   update: updateNote,
   delete: deleteNote,
   filter: filterNotes,
+  sort: sortNotes,
   createCompleted,
   updateCompleted,
   deleteCompleted,

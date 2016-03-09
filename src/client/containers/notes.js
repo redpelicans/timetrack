@@ -821,7 +821,9 @@ export class ItemNote extends Component {
 
 ItemNote.PropTypes = {
   note: PropTypes.object.isRequired,
-  persons: PropTypes.object.isRequired
+  persons: PropTypes.object.isRequired,
+  companies: PropTypes.object.isRequired,
+  missions: PropTypes.object.isRequired,
 }
 
 export default connect(notesSelector)(Notes);

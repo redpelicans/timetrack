@@ -48,7 +48,7 @@ export const visibleNotesSelector = createSelector(
   missions,
   (notes, persons, companies, missions) => {
     return {
-      notes: getVisibleNotes(notes.data, notes.filter),
+      notes: getVisibleNotes(notes.data, notes.filter, notes.sortCond),
       filter: notes.filter,
       sortCond: notes.sortCond,
       persons,
@@ -58,8 +58,20 @@ export const visibleNotesSelector = createSelector(
   }
 )
 
-const getVisibleNotes = (notes, filter) => {
-  return notes.filter(filterForSearch(filter))
+const getVisibleNotes = (notes, filter, sort) => {
+  return notes
+    .toSetSeq()
+    .filter(filterForSearch(filter))
+    .sort( (a,b) => sortByCond(a, b, sort.by, sort.order));
+}
+
+function sortByCond(a, b, attr, order) {
+  return order === 'asc' ? sortBy(a, b, attr) : sortBy(b, a, attr);
+}
+
+function sortBy(a, b, attr) {
+  if(attr === 'content') return a.get(attr).localeCompare(b.get(attr));
+  return a.get(attr) < b.get(attr) ? 1 : -1;
 }
 
 const filterForSearch = (filter) => {
