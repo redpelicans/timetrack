@@ -8,6 +8,7 @@ export const printBench = (str = "") => {
 }
 
 /*** Utils ***/
+export const id = x => x
 export const add = x => y => x + y
 export const sub = x => y => x - y
 export const foldl = f => acc => xs => _.reduce(xs, f, acc)

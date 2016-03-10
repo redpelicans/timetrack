@@ -2,36 +2,33 @@
 
 import _ from 'lodash'
 import { fetchData } from './fetch_db'
-import { printBench, add, sub, foldl } from './utils'
+import { printBench, id, add, sub, foldl } from './utils'
 
-
-const prepareHashCompanies = (companies) => _
-  .chain(companies)
-  .groupBy('_id')
-  .mapValues(([v]) => { return {...v, deals: []} })
+const hashBy = it => xs => f => _
+  .chain(xs)
+  .groupBy(it)
+  .mapValues(([v]) => f (v))
   .toPlainObject()
   .value()
 
-
-const constructCompanies = (products, quotes) => foldl ( (companies, deal) => {
-  const id = deal.companyId
-  const product = products.find(x => x._id.toString() === deal.productId.toString())
-  const d = {...deal, product}
-
-  companies[id].deals.push(d)
+const constructCompanies = products => quotes => foldl ( (companies, deal) => {
+  const product = products[deal.productId.toString()]
+  product.price = quotes[product._id].price
+  companies[deal.companyId].deals.push({...deal, product})
   return companies
 })
 
 // Entry point for computation
 printBench("BEGIN")
-fetchData(data => {                           // Fetch data on DB
-  printBench("Construct companies")
-
+fetchData(data => {                                 // Fetch data on DB
   const companies = constructCompanies
-      (data.products, data.quotes)            // Tuple as first argument
-      (prepareHashCompanies(data.companies))  // Accumulator for partial foldl
-      (data.deals)                            // Traversable for partial foldl
-  //console.log(_.map(companies, x => x.deals[0])[0])
+      (hashBy ('_id') (data.products) (id))
+      (hashBy ('productId') (data.quotes) (id))
+      (hashBy ('_id') (data.companies) ((o) => { return { ...o, deals: [] } }))         // Accumulator for partial foldl
+      (data.deals)                                  // Traversable for partial foldl
+
+  // compute here
+
   printBench("END")
 })
 
