@@ -18,16 +18,33 @@ const constructCompanies = products => quotes => foldl ( (companies, deal) => {
   return companies
 })
 
-// Entry point for computation
+
+const calcPosition = (total, deal, calc) =>
+  calc (total) (deal.product.price * deal.quantity)
+
+  const calcAllPositions = foldl ((total, deal) =>
+    deal.buyOrSell === "buy" ?
+      calcPosition(total, deal, add)
+    : calcPosition(total, deal, sub)
+  ) (0)
+
+
+
+// Entry point
 printBench("BEGIN")
 fetchData(data => {                                 // Fetch data on DB
+
   const companies = constructCompanies
       (hashBy ('_id') (data.products) (id))
       (hashBy ('productId') (data.quotes) (id))
-      (hashBy ('_id') (data.companies) ((o) => { return { ...o, deals: [] } }))         // Accumulator for partial foldl
-      (data.deals)                                  // Traversable for partial foldl
+      (hashBy ('_id') (data.companies) ((o) => { return { ...o, deals: [] } }))   // Accumulator for partial foldl
+      (data.deals)                                                                // Traversable for partial foldl
 
   // compute here
+  _.forEach(companies, company => {
+    const total = calcAllPositions(company.deals)
+    console.log("[" + total + "] - " + company.name)
+  })
 
   printBench("END")
 })
