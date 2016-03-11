@@ -1,5 +1,6 @@
 import mongobless from 'mongobless'
 import async from 'async'
+import _ from 'lodash'
 import { Company, Deal, Product, Quote } from '../../src/server/models'
 import params from '../../params'
 import { printBench } from './utils'
@@ -7,6 +8,7 @@ import { printBench } from './utils'
 export const getIds = xs => xs.map(x => x._id)
 
 export const fetchData = (cb) => {
+    printBench("connecting...")
   mongobless.connect(params.db, (err) => {
     printBench("connected")
     if (err) throw err
@@ -40,13 +42,33 @@ export const fetchData = (cb) => {
   const getProducts = (data, done) => {
     Product.findAll({
       _id: {
-        $in: data.deals.map(x => x.productId)
+        $in: _.chain(data.deals).map('productId').uniq().value()
       }
     }, (err, products) => {
       done(err, {...data, products})
     })
   }
 
+  const getQuote = (product, done) => {
+    Quote.collection.find({
+      productId: product._id,
+      date: { $lte: new Date() }
+    }).sort({date: -1}).limit(1).nextObject(done)
+  }
+
+  const getQuotes = (data, done) => {
+    printBench("fetching quotes...")
+    async.map(data.products, getQuote, (err, quotes) => {
+      printBench("quotes fetched !")
+      done(err, { ...data, quotes })
+    })
+  }
+}
+
+
+
+
+/*
   const getQuotes = (data, done) => {
     Quote.findAll({
       productId: { $in: getIds(data.products) },
@@ -55,4 +77,4 @@ export const fetchData = (cb) => {
       done(err, {...data, quotes})
     })
   }
-}
+  */
