@@ -2,18 +2,22 @@ import React, {Component, PropTypes} from 'react';
 import { connect } from 'react-redux';
 import {visibleNotesSelector} from '../../selectors/notes';
 import {notesActions} from '../../actions/notes';
-import {personsActions} from '../../actions/persons'
-import {companiesActions} from '../../actions/companies'
-import {missionsActions} from '../../actions/missions'
+import {personsActions} from '../../actions/persons';
+import {companiesActions} from '../../actions/companies';
+import {missionsActions} from '../../actions/missions';
 import {Content} from '../../components/layout';
 import {AvatarView, Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
-import {ItemNote} from '../notes'
+import {AddButton} from '../../components/notes/widgets';
+import {ItemNote} from '../notes';
 import routes from '../../routes';
 import Masonry from 'react-masonry-component';
 
 const sortMenu = [
+<<<<<<< HEAD
+=======
   {key: 'content', label: 'Sort Alphabeticaly'},
+>>>>>>> 351a9fe1c6d2c8225cd10c43d00150f7c0331d01
   {key: 'createdAt', label: 'Sort by creation date'},
   {key: 'updatedAt', label: 'Sort by updated date'},
 ];
@@ -84,6 +88,8 @@ class NotesList extends Component {
           options={options}>
             {listNotes(notes, persons, companies, missions)}
         </Masonry>
+        
+        <AddButton title="Add a note" />
       </Content>
     )
   }

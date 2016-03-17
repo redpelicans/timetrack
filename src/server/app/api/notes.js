@@ -18,7 +18,7 @@ export function init(app, resources){
   app.post('/notes', function(req, res, next){
     const note = req.body.note;
     async.waterfall([
-      create.bind(null, note, req.user), 
+      create.bind(null, note, req.user),
       loadOne,
     ], (err, note) => {
       if(err)return next(err);
@@ -35,8 +35,8 @@ export function init(app, resources){
     updates.authorId = req.user._id;
     const id = ObjectId(req.body.note._id);
     async.waterfall([
-      loadOne.bind(null, id), 
-      update.bind(null, updates), 
+      loadOne.bind(null, id),
+      update.bind(null, updates),
       (previous, cb) => loadOne(previous._id, (err, person) => cb(err, previous, person)),
     ], (err, previous, note) => {
       if(err) return next(err);
@@ -47,9 +47,9 @@ export function init(app, resources){
   });
 
   app.delete('/note/:id', function(req, res, next){
-    let id = ObjectId(req.params.id); 
+    let id = ObjectId(req.params.id);
     async.waterfall([
-      del.bind(null, id), 
+      del.bind(null, id),
       findOne
     ], (err, note) => {
       if(err)return next(err);
@@ -82,6 +82,8 @@ function loadOne(id, cb){
 function create(note, user, cb){
   let newNote = fromJson(note) ;
   newNote.authorId = user._id;
+  newNote.entityId = newNote.entityId || user._id;
+  newNote.entityType = newNote.entityType || 'person';
   newNote.createdAt = new Date();
   Note.collection.insertOne(newNote, (err, _) => {
     return cb(err, newNote._id)
@@ -89,7 +91,7 @@ function create(note, user, cb){
 }
 
 function update(updates, previousNote, cb){
-  updates.updatedAt = new Date(); 
+  updates.updatedAt = new Date();
   Note.collection.updateOne({_id: previousNote._id}, {$set: updates}, (err) => {
     return cb(err, previousNote)
   })
@@ -111,5 +113,3 @@ function fromJson(json){
   if(json.entityId) res.entityId = ObjectId(json.entityId);
   return res;
 }
-
-

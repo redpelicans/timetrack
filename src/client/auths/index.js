@@ -3,6 +3,7 @@ import routes from '../routes';
 import personAuthManager from './person';
 import companyAuthManager from './company';
 import missionAuthManager from './mission';
+import notesAuthManager from './notes';
 
 
 export default function registerAuthManager(store){
@@ -27,6 +28,6 @@ export default function registerAuthManager(store){
     },
   }
 
-  return AuthManager([ personAuthManager, companyAuthManager, missionAuthManager ], {loginStore});
+  return AuthManager([ personAuthManager, companyAuthManager, missionAuthManager, notesAuthManager ], {loginStore});
 }
 
