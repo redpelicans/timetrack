@@ -529,7 +529,7 @@ export class ItemNote extends Component {
     const md = new Remarkable();
     const text = {__html: md.render(note.get('content'))};
 
-    const entityType = note.get('entityType');
+    const entityType = note.get('entityType') || 'other';
     const type = entityType === 'mission' ? 'company' : entityType;
     const entityId = note.get('entityId');
     const authorEntity = persons && persons.get(note.get('authorId'));
@@ -754,8 +754,9 @@ export class ItemNote extends Component {
     }
 
     const footer = () => {
-      const entity = getEntity();
-      if (!entity) return;
+      const entity = getEntity() || authorEntity;
+      if (!entity) return
+      const etype = type === 'other' ? 'person' : type
       return (
         <div style={styles.footer}>
           <div style={styles.left}>
@@ -764,7 +765,7 @@ export class ItemNote extends Component {
             <div>
               <strong>
                 <a href="#"
-                  onClick={this.handleViewEntity.bind(null, type, entity.get('_id'))}>
+                  onClick={this.handleViewEntity.bind(null, etype, entity.get('_id'))}>
                   {entity.get('name')}
                 </a>
               </strong>
@@ -821,7 +822,9 @@ export class ItemNote extends Component {
 
 ItemNote.PropTypes = {
   note: PropTypes.object.isRequired,
-  persons: PropTypes.object.isRequired
+  persons: PropTypes.object.isRequired,
+  companies: PropTypes.object.isRequired,
+  missions: PropTypes.object.isRequired,
 }
 
 export default connect(notesSelector)(Notes);

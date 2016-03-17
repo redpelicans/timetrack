@@ -24,6 +24,32 @@ function filterAndSortNotes(notes, entity){
   return notes.data.filter(note => note.get('entityId') === entity.get('_id'));
 }
 
+export const newNoteSelector = createSelector(
+  persons,
+  companies,
+  missions,
+  (persons, companies, missions) => {
+    return {
+      persons,
+      companies,
+      missions,
+    }
+  }
+)
+
+export const editNoteSelector = createSelector(
+  persons,
+  companies,
+  missions,
+  (persons, companies, missions) => {
+    return {
+      persons,
+      companies,
+      missions,
+    }
+  }
+)
+
 export const allNotesSelector = createSelector(
   notes,
   persons,
@@ -48,7 +74,7 @@ export const visibleNotesSelector = createSelector(
   missions,
   (notes, persons, companies, missions) => {
     return {
-      notes: getVisibleNotes(notes.data, notes.filter),
+      notes: getVisibleNotes(notes.data, notes.filter, notes.sortCond),
       filter: notes.filter,
       sortCond: notes.sortCond,
       persons,
@@ -58,8 +84,23 @@ export const visibleNotesSelector = createSelector(
   }
 )
 
-const getVisibleNotes = (notes, filter) => {
-  return notes.filter(filterForSearch(filter))
+const getVisibleNotes = (notes, filter, sort) => {
+  return notes
+    .toSetSeq()
+    .filter(filterForSearch(filter))
+    .sort( (a,b) => sortByCond(a, b, sort.by, sort.order));
+}
+
+function sortByCond(a, b, attr, order) {
+  return order === 'asc' ? sortBy(a, b, attr) : sortBy(b, a, attr);
+}
+
+function sortBy(a, b, attr) {
+<<<<<<< HEAD
+=======
+  if(attr === 'content') return a.get(attr).localeCompare(b.get(attr));
+>>>>>>> 351a9fe1c6d2c8225cd10c43d00150f7c0331d01
+  return a.get(attr) < b.get(attr) ? 1 : -1;
 }
 
 const filterForSearch = (filter) => {
