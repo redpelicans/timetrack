@@ -14,10 +14,6 @@ import routes from '../../routes';
 import Masonry from 'react-masonry-component';
 
 const sortMenu = [
-<<<<<<< HEAD
-=======
-  {key: 'content', label: 'Sort Alphabeticaly'},
->>>>>>> 351a9fe1c6d2c8225cd10c43d00150f7c0331d01
   {key: 'createdAt', label: 'Sort by creation date'},
   {key: 'updatedAt', label: 'Sort by updated date'},
 ];
@@ -88,7 +84,7 @@ class NotesList extends Component {
           options={options}>
             {listNotes(notes, persons, companies, missions)}
         </Masonry>
-        
+
         <AddButton title="Add a note" />
       </Content>
     )

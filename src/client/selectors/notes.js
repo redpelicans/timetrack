@@ -96,10 +96,6 @@ function sortByCond(a, b, attr, order) {
 }
 
 function sortBy(a, b, attr) {
-<<<<<<< HEAD
-=======
-  if(attr === 'content') return a.get(attr).localeCompare(b.get(attr));
->>>>>>> 351a9fe1c6d2c8225cd10c43d00150f7c0331d01
   return a.get(attr) < b.get(attr) ? 1 : -1;
 }
 
