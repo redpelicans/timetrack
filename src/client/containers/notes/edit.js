@@ -97,7 +97,7 @@ class NewNote extends Component {
     })
 
     const assigneesIds = this.noteForm.field('/note/assigneesIds')
-    assigneesIds.setSchemaValue('domainValue', entitiesToDomain(persons))
+    assigneesIds.setSchemaValue('domainValue', entitiesToDomain(persons.filter(getWorkersFilter)))
   }
 
   render () {
@@ -224,6 +224,9 @@ EditContent.propTypes = {
   cancelBtn: PropTypes.element.isRequired,
   noteForm:   PropTypes.object.isRequired,
 }
+
+
+const getWorkersFilter = p => p.get('type') === 'worker'
 
 function entitiesToDomain(xs) {
   if (!xs) return []
