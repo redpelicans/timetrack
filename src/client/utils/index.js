@@ -28,7 +28,7 @@ export function checkStatus(res) {
 
 export function requestJson(uri, dispatch, getState, {verb='get', header='Runtime Error', body, message='Check your backend server'} = {}){
   let  promise;
-  const {login: {appJwt, sessionId}} = getState();
+  //const {login: {appJwt, sessionId}} = getState();
   const absoluteUri = window.location ? window.location.origin + uri : uri;
 
   dispatch(startLoading());
@@ -36,20 +36,21 @@ export function requestJson(uri, dispatch, getState, {verb='get', header='Runtim
   if(!body)
     promise = fetchJson(absoluteUri, { 
       method: verb,
-      headers:{
-        'X-Token-Access': appJwt,
-        'X-SessionId': sessionId,
-      },
+      credentials: 'same-origin',
+      // headers:{
+      //   'X-Token-Access': appJwt,
+      //   'X-SessionId': sessionId,
+      // },
     });
   else
     promise = fetchJson(absoluteUri, {
       method: verb,
-      //credentials: 'same-origin',
+      credentials: 'same-origin',
       headers:{
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'X-Token-Access': appJwt,
-        'X-SessionId': sessionId,
+        // 'X-Token-Access': appJwt,
+        // 'X-SessionId': sessionId,
       },
       body: JSON.stringify(body||{})
     });

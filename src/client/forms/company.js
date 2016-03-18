@@ -42,6 +42,7 @@ export default function company(document){
       new Field('color', {
         label: "Preferred Color",
         domainValue: colors,
+        checkDomainValue: false,
         defaultValue: rndColor(),
       }),
     ]),

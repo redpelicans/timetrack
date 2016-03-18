@@ -4,6 +4,7 @@ import rights from '../rights';
 import debug from 'debug';
 import _ from 'lodash';
 import async from 'async';
+import {default as cookieParser}  from 'socket.io-cookie';
 
 const logerror = debug('timetrack:error')
   , loginfo = debug('timetrack:info');
@@ -18,21 +19,20 @@ class Register {
     return this.connections[socket.id];
   }
 
-  add(socket, token, sessionId, cb){
-    if(!token)return setImmediate(cb, 'Wrong token');
-    Person.getFromToken(token, this.options.secretKey, (err, user) => {
-      if(err)cb(err);
-      this.connections[socket.id] = {token, sessionId, socket, user};
-      cb(null, this.connections[socket.id]);
-    });
+  add(user, socket, token, sessionId){
+    this.connections[socket.id] = {token, sessionId, socket, user, createdAt: new Date()};
   }
 
   remove(socket){
     const subscription = this.get(socket);
-    if(!subscription)return console.error("Cannot find subscription");
-    if(!subscription.user)return;
+    if(!subscription) return logerror("Cannot find socketio subscription");
+    if(!subscription.user) return;
     loginfo(`User ${subscription.user.fullName()} disconnected from socket.io.`);
     delete this.connections[socket.id];
+  }
+
+  getAllUsers(){
+    return _.map(this.connections, con => _.pick(con, 'user', 'sessionId', 'createdAt'));
   }
 
   getAuthorizedRegistrations(right, cb){
@@ -54,23 +54,60 @@ class Register {
 }
 
 class Dispatcher extends EventEmitter{
-  constructor(){
+  constructor(registrations){
     super();
+    this.registrations = registrations;
   }
 }
 
-
-
 class Server{
-  constructor(io, register){
+  constructor(io, register, {secretKey}){
     this.io = io;
+    this.secretKey = secretKey;
     this.subscriptions = register;
     this.init();
   }
 
   init(){
+    this.io.use(cookieParser);
+    this.io.use((socket, next) => {
+      const token = socket.handshake.query.tokenAccess;
+      const cookie = socket.request.headers.cookie.timetrackToken;
+      console.log(cookie)
+      if(!token){
+        logerror("Try to connect to socketio without token !!!");
+        return next(new Error("Socket.io: Unauthorized access"));
+      }
+      Person.getFromToken(token, this.secretKey, (err, user) => {
+        if(err){
+          logerror(err);
+          return next(new Error("Socket.io: Unauthorized access"));
+        }
+        if(!user){
+          logerror("Try to connect to socketio with an unknown user!");
+          return next(new Error("Unknown user"));
+        }
+        if(!user.hasSomeRoles(['admin', 'access'])){
+          logerror("Try to connect to socketio with wrong roles!");
+          return next(new Error("Socket.io: Unauthorized access"));
+        }
+        loginfo(`User '${user.fullName()}' logged via socketIO`);
+
+        const sessionId = socket.handshake.query.sessionId;
+        this.subscriptions.add(user, socket, token, sessionId);
+        socket.request.user = user;
+        next();
+      });
+    });
+
     this.io.on('connection', socket => {
-      loginfo("Socket.IO connection");
+      socket.on('error', (msg) => {
+        logerror(msg);
+      });
+
+      //loginfo("Socket.IO connection");
+      socket.emit('loggedIn', { user: JSON.stringify(socket.request.user) });
+
       socket.on('message', (msg, cb) => {
         switch(msg.type){
           case 'ping':
@@ -84,48 +121,19 @@ class Server{
         }
       })
       socket.on('disconnect', () => this.subscriptions.remove(socket) );
-      // TODO: socket.emit doesn't work from client, use socket.send instead !!!
-      // this.registerCallback('ping', ping, socket);
-      // this.registerCallback('login', login, socket);
-      // this.registerCallback('logout', logout, socket);
-    });
-  }
-
-  ping(socket, data, cb){
-    const subscription = this.subscriptions.get(socket);
-    if(subscription){
-      return cb({type: 'pong'}) 
-    }else{
-      this.subscriptions.add(socket, data.token, data.sessionId, (err, subscription) => {
-        if(err) return cb({status: 'error', error: err});
-        loginfo(`User ${subscription.user.fullName()} connected from socket.io.`);
-        cb({type: 'pong'}) 
-      });
-    }
-  }
-
-  login(socket, data, cb){
-    this.subscriptions.add(socket, data.token, data.sessionId, (err, subscription) => {
-      if(err) return cb({status: 'error', error: err});
-      loginfo(`User ${subscription.user.fullName()} connected from socket.io.`);
-      cb({status: 'ok'});
     });
   }
 
   logout(socket){
+    loginfo(`User ${socket.request.user.fullName()} logout from socket.io.`);
     this.subscriptions.remove(socket);
   }
-
-  registerCallback(name, fct, socket){
-    socket.on(name, fct.bind(this, socket));
-  }
-
 
   broadcast(event, conf){
     const server = this;
     return function(data, params){
       server.subscriptions.getAuthorizedRegistrations(conf.right, (err, registrations) => {
-        if(err) console.error(err);
+        if(err) logerror(err);
         if(!conf.callback) return server.emit(event, data, registrations, params);
         conf.callback(event, registrations, server.emit.bind(server), data, params);
       });
@@ -135,7 +143,7 @@ class Server{
   emit(event, data, registrations, {sessionId} = {}){
     _.each(registrations, registration => {
       if(!sessionId || sessionId !== registration.sessionId){
-        console.log("emit '" + event + "' to " + registration.user.fullName());
+        loginfo("emit '" + event + "' to " + registration.user.fullName());
         registration.socket.emit(event, data)
       }
     });
@@ -150,8 +158,8 @@ class Server{
 
 export default function Reactor(io, events, options){
   const register = new Register(options);
-  const server = new Server(io, register);
-  const dispatcher = new Dispatcher();
+  const server = new Server(io, register, options);
+  const dispatcher = new Dispatcher(register);
   server.registerEvents(events, dispatcher);
   return dispatcher;
 }

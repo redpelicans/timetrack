@@ -1,6 +1,5 @@
 import {requestJson} from '../utils';
-
-export const colors = [ '#d73d32', '#CD4436', '#4285f4', '#67ae3f', '#d61a7f', '#ff4080' ];
+import colors from '../utils/colors';
 
 export const avatarTypes = [
   {key: 'color', value: 'Color Picker'}, 

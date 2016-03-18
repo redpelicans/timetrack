@@ -23,9 +23,12 @@ import routesManager from '../../client/routes';
 import moment from 'moment';
 import momentLocalizer from 'react-widgets/lib/localizers/moment';
 momentLocalizer(moment);
+import debug from 'debug';
+const logerror = debug('timetrack:error')
+  , loginfo = debug('timetrack:info');
 
 function loadCompanies(getState){
-  return requestJson('/api/companies', new Function(), getState, {message: 'Cannot load companies, check your backend server'})
+  return requestJson('/api/companies', undefined, getState, {message: 'Cannot load companies, check your backend server'})
 }
 
 function configureStore(user, token, cb){
@@ -46,7 +49,7 @@ function configureStore(user, token, cb){
 function configureRoutes(store, authManager){
 
   function onEnter(nextState, replace){
-    console.log("===> ENTER ROUTE: " + this.path)
+    loginfo("===> ENTER ROUTE: " + this.path)
     const state = store.getState();
     if(this.isAuthRequired() && !state.login.user) return replace(routesManager.login.path, null, {nextRouteName: this.fullName}); 
     if(!authManager.isAuthorized(this)) return replace(routesManager.unauthorized.path); 
@@ -84,7 +87,7 @@ function findUser(secretKey){
     if(!token)return next();
     Person.getFromToken(token, secretKey, (err, user) => {
       if(err){
-        console.log(`Person.getFromToken: ${err.toString()}`);
+        //console.log(`Person.getFromToken: ${err.toString()}`);
         return res.status(401).send("Unauthorized access");
       }
       if(!user)return next();
@@ -99,10 +102,10 @@ function findUser(secretKey){
 export function init(app, resources, params){
   global.window = { location: { origin: params.server.url } };
   app.get('*', findUser(params.secretKey), function(req, res){
-    console.log(`Isomorphic login of: ${req.user ? req.user.fullName() : 'an unknown user'}`); 
+    loginfo(req.user ? `Isomorphic login of user '${req.user.fullName()}'` : 'Isomorphic login of an unknown user'); 
     configureStore(req.user, req.token, (err, store, companies) => {
       if (err){
-        console.log(err.stack);
+        logerror(err.stack);
         return res.status(500)
       }
 
@@ -110,8 +113,8 @@ export function init(app, resources, params){
       const routes = configureRoutes(store, authManager);
       match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {
         if (error) {
-          console.log(error);
-          console.log(error.stack);
+          logerror(error);
+          logerror(error.stack);
           res.status(500)
         } else if (redirectLocation) {
           res.redirect(302, redirectLocation.pathname + redirectLocation.search);

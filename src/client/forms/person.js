@@ -1,8 +1,8 @@
 import {Formo, Field, FieldGroup, MultiField} from 'formo';
 import _ from 'lodash';
-import {colors, rndColor, avatarTypes} from './helpers';
-
-export {colors, avatarTypes};
+import {rndColor, avatarTypes} from './helpers';
+import colors from '../utils/colors';
+export {avatarTypes};
 
 const types = [
   {key: 'contact', value: 'Contact'},

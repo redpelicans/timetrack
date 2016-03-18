@@ -27,7 +27,6 @@ let logerror = debug('timetrack:error')
 export function start(params, resources, cb) {
   let app = express()
     , httpServer = http.createServer(app)
-    //, io = socketIO(httpServer)
     , io = require('socket.io')(httpServer)
     , reactor = Reactor(io, events, {secretKey: params.secretKey});
 
@@ -83,6 +82,10 @@ export function start(params, resources, cb) {
     initLogout(app, resources, params);
 
     // require auth 
+    //
+    app.get('/activeusers', findUser(params.secretKey), function(req, res, next){
+      res.json(resources.reactor.registrations.getAllUsers());
+    });
 
     app.get('/user', findUser(params.secretKey), function(req, res, next){
       res.json(req.user);

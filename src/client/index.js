@@ -3,19 +3,17 @@ import {render} from 'react-dom';
 import {Route, IndexRoute, browserHistory as history } from 'react-router';
 import Root from './containers/root';
 import App from './containers/app';
-import {loggedIn} from './actions/login';
+import {logUser} from './actions/login';
 import {sitemapActions} from './actions/sitemap';
 import registerAuthManager from './auths';
 import routesManager from './routes';
 import boot from './boot';
-import {registerSocketIO}from './socketIO';
 import moment from 'moment';
 import momentLocalizer from 'react-widgets/lib/localizers/moment';
 momentLocalizer(moment);
 import configureStore from './store/configureStore';
 
 const store = configureStore();
-registerSocketIO(store);
 const authManager = registerAuthManager(store);
 
 import 'react-widgets/lib/less/react-widgets.less';
@@ -60,7 +58,7 @@ const routes = (
 boot().then( ({user, jwt}={}) => {
   console.log("End of boot process.")
   console.log("Rendering react App...")
-  if(user) store.dispatch(loggedIn(user, jwt));
+  if(user) store.dispatch(logUser(user, jwt));
   render(<Root store={store} routes={routes} history={history} authManager={authManager}/>, document.getElementById("timetrackApp"));
 })
 // .catch( (err) => {
