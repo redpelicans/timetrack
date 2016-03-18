@@ -71,14 +71,14 @@ class Server{
   init(){
     this.io.use(cookieParser);
     this.io.use((socket, next) => {
-      const token = socket.handshake.query.tokenAccess;
+      //const token = socket.handshake.query.tokenAccess;
       const cookie = socket.request.headers.cookie.timetrackToken;
-      console.log(cookie)
-      if(!token){
+      //console.log(cookie)
+      if(!cookie){
         logerror("Try to connect to socketio without token !!!");
         return next(new Error("Socket.io: Unauthorized access"));
       }
-      Person.getFromToken(token, this.secretKey, (err, user) => {
+      Person.getFromToken(cookie, this.secretKey, (err, user) => {
         if(err){
           logerror(err);
           return next(new Error("Socket.io: Unauthorized access"));
@@ -94,7 +94,7 @@ class Server{
         loginfo(`User '${user.fullName()}' logged via socketIO`);
 
         const sessionId = socket.handshake.query.sessionId;
-        this.subscriptions.add(user, socket, token, sessionId);
+        this.subscriptions.add(user, socket, cookie, sessionId);
         socket.request.user = user;
         next();
       });

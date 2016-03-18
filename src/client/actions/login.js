@@ -10,21 +10,21 @@ import {socketIOActions} from './socketIO';
 export const USER_LOGGED_IN = 'USER_LOGGED_IN';
 export const USER_LOGOUT = 'USER_LOGOUT';
 
-export function loggedIn(user, appJwt, sessionId=uuid.v4()){
+export function loggedIn(user, sessionId=uuid.v4()){
   // TODO
-  if(typeof document !== 'undefined') document.cookie = `timetrackToken=${appJwt}`;
+  //if(typeof document !== 'undefined') document.cookie = `timetrackToken=${appJwt}`;
   return{
     type: USER_LOGGED_IN,
     user: Immutable.fromJS(Maker(user)),
     sessionId,
-    appJwt,
+    //appJwt,
   };
 }
-export function logUser(user, appJwt){
+export function logUser(user){
   return (dispatch, getState) => {
     const sessionId = uuid.v4();
-    dispatch(loggedIn(user, appJwt, sessionId));
-    dispatch(socketIOActions.connect(appJwt, sessionId));
+    dispatch(loggedIn(user, sessionId));
+    dispatch(socketIOActions.connect(sessionId));
   }
 }
 
@@ -33,10 +33,10 @@ export function loginRequest(googleUser, nextRouteName){
     const id_token = googleUser.getAuthResponse().id_token;
     const body = { id_token};
     const message = 'Check your user parameters';
-    const request = requestJson(`/login`, dispatch, getState, {verb: 'POST', body: body, header: 'Authentification Error', message: message});
+    const request = requestJson(`/login`, {dispatch, verb: 'POST', body: body, header: 'Authentification Error', message: message});
     request.then( res => {
-      localStorage.setItem('access_token', res.token);
-      dispatch(logUser(Maker(res.user), res.token));
+      //localStorage.setItem('access_token', res.token);
+      dispatch(logUser(Maker(res.user)));
       dispatch(routeActions.replace(nextRouteName || routes.defaultRoute));
     });
   }
@@ -44,7 +44,7 @@ export function loginRequest(googleUser, nextRouteName){
 
 export function logout(){
   return (dispatch, getState) => {
-    localStorage.removeItem('access_token');
+    //localStorage.removeItem('access_token');
     if(typeof document !== 'undefined') document.cookie = "timetrackToken=";
     const state = getState();
     dispatch({type: USER_LOGOUT});

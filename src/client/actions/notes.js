@@ -6,6 +6,15 @@ export const NOTES_LOADED = 'NOTES_LOADED';
 export const NOTE_DELETED = 'NOTE_DELETED';
 export const NOTE_UPDATED = 'NOTE_UPDATED';
 export const NOTE_CREATED = 'NOTE_CREATED';
+export const FILTER_NOTES = 'FILTER_NOTES';
+export const ALL_LOADED   = 'ALL_LOADED';
+export const SORT_NOTES   = 'SORT_NOTES';
+
+export function allDataLoaded() {
+  return {
+    type: ALL_LOADED
+  }
+}
 
 export function createCompleted(note){
   return {
@@ -30,16 +39,18 @@ export function updateCompleted(previous, note){
 
 export function createNote(note, entity){
   return (dispatch, getState) => {
-    note.entityId = entity._id;
-    note.entityType = entity.typeName;
-    requestJson('/api/notes', dispatch, getState, {verb: 'post', body: {note}, message: 'Cannot create a note, check your backend server'})
+    if (entity) {
+      note.entityId = entity._id;
+      note.entityType = entity.typeName;
+    }
+    requestJson('/api/notes', {dispatch, verb: 'post', body: {note}, message: 'Cannot create a note, check your backend server'})
       .then( note => dispatch(createCompleted(note)));
   }
 }
 
 export function deleteNote(note){
   return (dispatch, getState) => {
-    requestJson(`/api/note/${note._id}`, dispatch, getState, {verb: 'delete', message: 'Cannot delete note, check your backend server'})
+    requestJson(`/api/note/${note._id}`, {dispatch, verb: 'delete', message: 'Cannot delete note, check your backend server'})
       .then( res => dispatch(deleteCompleted(note)));
   }
 }
@@ -47,7 +58,7 @@ export function deleteNote(note){
 export function updateNote(previous, updates){
   return (dispatch, getState) => {
     const next = {...previous, ...updates};
-    requestJson('/api/note', dispatch, getState, {verb: 'put', body: {note: next}, message: 'Cannot update note, check your backend server'})
+    requestJson('/api/note', {dispatch, verb: 'put', body: {note: next}, message: 'Cannot update note, check your backend server'})
       .then( note => dispatch(updateCompleted(previous, note)));
   }
 }
@@ -67,8 +78,22 @@ export function loadNotes({forceReload=false, ids} = {}){
 
     if(!doRequest) return;
 
-    requestJson('/api/notes', dispatch, getState, {message: 'Cannot load notes, check your backend server'})
+    requestJson('/api/notes', {dispatch, message: 'Cannot load notes, check your backend server'})
       .then( notes => dispatch(notesLoaded(notes)));
+  }
+}
+
+export function filterNotes(filter) {
+  return {
+    type: FILTER_NOTES,
+    filter,
+  }
+}
+
+export function sortNotes(by) {
+  return {
+    type: SORT_NOTES,
+    by,
   }
 }
 
@@ -77,6 +102,8 @@ export const notesActions = {
   create: createNote,
   update: updateNote,
   delete: deleteNote,
+  filter: filterNotes,
+  sort: sortNotes,
   createCompleted,
   updateCompleted,
   deleteCompleted,

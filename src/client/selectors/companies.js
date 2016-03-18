@@ -52,7 +52,7 @@ export const viewCompanySelector = createSelector(
   }
 )
 
-function filterCompanies(companies, filter, sortCond, filterPreferred){
+function filterCompanies(companies, filter, sortCond, filterPreferred) {
   return companies.toSetSeq();
 }
 
@@ -76,7 +76,7 @@ export const visibleCompaniesSelector = createSelector(
 )
 
 
-function filterAndSort(companies, filter, sort, filterPreferred){
+function filterAndSort(companies, filter, sort, filterPreferred) {
   return companies
     .toSetSeq()
     .filter(filterForSearch(filter))
@@ -84,33 +84,33 @@ function filterAndSort(companies, filter, sort, filterPreferred){
     .sort( (a,b) => sortByCond(a, b, sort.by, sort.order));
 }
 
-function sortByCond(a, b, attr, order){
+function sortByCond(a, b, attr, order) {
   return order === 'asc' ? sortBy(a, b, attr) : sortBy(b, a, attr);
 }
 
-function sortBy(a, b, attr){
+function sortBy(a, b, attr) {
   if( a.get(attr) === b.get(attr) ) return attr !== 'name' ? sortByCond(a,b, 'name', 'desc') : 0;
   if(attr != 'name') return a.get(attr) < b.get(attr) ? 1 : -1;
   return a.get(attr) >= b.get(attr) ? 1 : -1;
 }
 
-function filterForPreferred(filter){
+function filterForPreferred(filter) {
   return p => filter ? p.get('preferred') : true;
 }
 
-function filterForSearch(filter=''){
-  return  c => {
+function filterForSearch(filter='') {
+  return c => {
     const name = c.get('name') || '';
     return name.toLowerCase().indexOf(filter) !== -1;
   }
 }
 
-function filterForSearch(filter=''){
-  function filterByName(key, name){
+function filterForSearch(filter='') {
+  function filterByName(key, name) {
     return name.indexOf(key) !== -1;
   }
 
-  function filterByTag(key, tags){
+  function filterByTag(key, tags) {
     const tag = key.slice(1);
     if(!tag) return true;
     return tags.indexOf(tag) !== -1;

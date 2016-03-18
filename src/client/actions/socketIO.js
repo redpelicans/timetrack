@@ -16,9 +16,9 @@ export function connected(socket){
   }
 }
 
-export function connect(token, sessionId){
+export function connect(sessionId){
   return (dispatch) => {
-    const socket = socketIO.connect({query: `tokenAccess=${token}&sessionId=${sessionId}`});
+    const socket = socketIO.connect({query: `sessionId=${sessionId}`});
     let commError = false;
 
     socket.on('disconnect', () => {

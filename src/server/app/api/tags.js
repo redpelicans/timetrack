@@ -10,12 +10,19 @@ export function init(app, resources){
       if(err)return next(err);
       const htags = {};
       for(let company of data.companies){ 
-        for(let tag of company.tags) htags[tag] = tag; 
+        for(let tag of company.tags){
+          if(!htags[tag]) htags[tag] = 1;
+          else  htags[tag]++;
+        }
       }
       for(let person of data.persons){ 
-        for(let tag of person.tags) htags[tag] = tag; 
+        for(let tag of person.tags){
+          if(!htags[tag]) htags[tag] = 1;
+          else  htags[tag]++;
+        }
       }
-      res.json(_.values(htags).sort());
+      console.log(_.map(htags, (count, tag) => [tag, count]));
+      res.json(_.map(htags, (count, tag) => [tag, count]));
     })
   });
 

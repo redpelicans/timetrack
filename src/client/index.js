@@ -55,18 +55,15 @@ const routes = (
   </Route>
 );
 
-boot().then( ({user, jwt}={}) => {
+boot().then( user => {
   console.log("End of boot process.")
   console.log("Rendering react App...")
-  if(user) store.dispatch(logUser(user, jwt));
+  if(user) store.dispatch(logUser(user));
   render(<Root store={store} routes={routes} history={history} authManager={authManager}/>, document.getElementById("timetrackApp"));
 })
-// .catch( (err) => {
-//   console.log(err)
-//   const elt = document.getElementById("bootmessage");
-//   elt.className="alert alert-danger boot-error";
-//   elt.innerText = 'Runtime error, check your backend';
-// });
+.catch( (err) => {
+  console.log("====>>>> " + err)
+});
 
 
 

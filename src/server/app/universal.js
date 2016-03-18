@@ -27,8 +27,8 @@ import debug from 'debug';
 const logerror = debug('timetrack:error')
   , loginfo = debug('timetrack:info');
 
-function loadCompanies(getState){
-  return requestJson('/api/companies', undefined, getState, {message: 'Cannot load companies, check your backend server'})
+function loadCompanies(token){
+  return requestJson('/api/companies', {token, message: 'Cannot isoload companies, check your backend server'})
 }
 
 function configureStore(user, token, cb){
@@ -37,7 +37,7 @@ function configureStore(user, token, cb){
   user.name = user.fullName(); // TODO: move it server side
   initialState = rootReducer(initialState, loggedIn(JSON.parse(JSON.stringify(user)), token));
   const getState = () => initialState;
-  loadCompanies(getState)
+  loadCompanies(token)
     .then(companies => {
       initialState = rootReducer(initialState, companiesLoaded(companies));
       const store = createStore(rootReducer, initialState, applyMiddleware(thunk));

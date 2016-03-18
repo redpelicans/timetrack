@@ -26,36 +26,40 @@ export function checkStatus(res) {
   }
 }
 
-export function requestJson(uri, dispatch, getState, {verb='get', header='Runtime Error', body, message='Check your backend server'} = {}){
+export function requestJson(uri, {dispatch=new Function(), getState, token, verb='get', header='Runtime Error', body, message='Check your backend server'} = {}){
   let  promise;
   //const {login: {appJwt, sessionId}} = getState();
   const absoluteUri = window.location ? window.location.origin + uri : uri;
+  const options = {
+    method: verb,
+    credentials: 'same-origin',
+    // headers:{
+    //   'X-Token-Access': appJwt,
+    //   'X-SessionId': sessionId,
+    // },
+  }
+
+  // isomorphic request
+  if(token) {
+    options.headers = {
+      Cookie: `timetrackToken=${token};`
+    }
+  }
 
   dispatch(startLoading());
 
-  if(!body)
-    promise = fetchJson(absoluteUri, { 
-      method: verb,
-      credentials: 'same-origin',
-      // headers:{
-      //   'X-Token-Access': appJwt,
-      //   'X-SessionId': sessionId,
-      // },
-    });
-  else
-    promise = fetchJson(absoluteUri, {
-      method: verb,
-      credentials: 'same-origin',
-      headers:{
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        // 'X-Token-Access': appJwt,
-        // 'X-SessionId': sessionId,
-      },
-      body: JSON.stringify(body||{})
-    });
+  if(!body) promise = fetchJson(absoluteUri, options);
+  else{
+    options.body = JSON.stringify(body||{});
+    options.headers = {
+      ...options.headers, 
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+    promise = fetchJson(absoluteUri, options);
+  }
 
-   promise
+  return promise
     .then(res => {
       dispatch(stopLoading());
       return res;
@@ -74,8 +78,6 @@ export function requestJson(uri, dispatch, getState, {verb='get', header='Runtim
           dispatch(alert({ header, message }));
       }
    });
-
-   return promise;
 }
 
 export function fetchJson(...params){

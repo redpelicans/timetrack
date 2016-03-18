@@ -200,7 +200,7 @@ export const GoBack = ({history, goBack, isLoading}) => {
   else {
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-arrow-left m-r-1"/>
+        <i className="iconButton fa fa-arrow-left m-r-2"/>
       </a>
     )
   }

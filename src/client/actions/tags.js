@@ -12,7 +12,7 @@ function tagsLoaded(tags){
 
 export function loadTags(){
   return (dispatch, getState) => {
-    requestJson('/api/tags', dispatch, getState, {message: 'Cannot load tags, check your backend server'})
+    requestJson('/api/tags', {dispatch, message: 'Cannot load tags, check your backend server'})
       .then( tags => dispatch(tagsLoaded(tags)));
   }
 }
