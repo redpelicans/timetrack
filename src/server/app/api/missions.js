@@ -8,7 +8,7 @@ import checkRights  from '../../middleware/check_rights';
 export function init(app, resources) {
   app.get('/missions', (req, res, next) => {
     async.waterfall([
-      loadAll, 
+      loadAll,
     ], (err, missions) => {
       if (err) return next(err);
       res.json(_.map(missions, m => Maker(m)));
@@ -19,7 +19,7 @@ export function init(app, resources) {
     const mission = req.body.mission;
     const noteContent = req.body.mission.note;
     async.waterfall([
-      create.bind(null, mission), 
+      create.bind(null, mission),
       loadOne,
       Note.create.bind(Note, noteContent, req.user),
     ], (err, mission, note) => {
@@ -35,8 +35,8 @@ export function init(app, resources) {
     const updates = fromJson(req.body.mission);
     const id = ObjectId(req.body.mission._id);
     async.waterfall([
-      loadOne.bind(null, id), 
-      update.bind(null, updates), 
+      loadOne.bind(null, id),
+      update.bind(null, updates),
       (previous, cb) => loadOne(previous._id, (err, mission) => cb(err, previous, mission)),
     ], (err, previous, mission) => {
       if(err)return next(err);
@@ -47,9 +47,9 @@ export function init(app, resources) {
   });
 
   app.delete('/mission/:id', checkRights('mission.delete'), function(req, res, next){
-    let id = ObjectId(req.params.id); 
+    let id = ObjectId(req.params.id);
     async.waterfall([
-      del.bind(null, id), 
+      del.bind(null, id),
       Note.deleteForOneEntity,  // TODO: should emit note.delete
       findOne
     ], (err, mission) => {
@@ -107,18 +107,18 @@ function del(id, cb){
 }
 
 function fromJson(json){
-  //console.log(json);
-  let attrs = ['name', 'note', 'status', 'timesheetUnit', 'allowWeekends'];
+  let attrs = ['name', 'note', 'status', 'timesheetUnit', 'allowWeekends', 'billedTarget'];
   let res = _.pick(json, attrs);
   if(res.status !== 'closed')res.status='open';
   if(json.startDate)res.startDate = moment(json.startDate).toDate();
   if(json.endDate)res.endDate = moment(json.endDate).toDate();
+  res.partnerId = json.partnerId ? ObjectId(json.partnerId) : undefined
   res.clientId = json.clientId ? ObjectId(json.clientId) : undefined;
   res.managerId = json.managerId ? ObjectId(json.managerId) : undefined;
   if(json.workerIds){
     res.workerIds = _.chain(json.workerIds).compact().map( ObjectId ).value();
   }
-  //res.updatedAt = new Date(); 
+  //res.updatedAt = new Date();
   return res;
 }
 
