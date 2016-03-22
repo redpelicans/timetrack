@@ -76,10 +76,13 @@ export class NewMission extends Component {
     const workerIdsField = this.missionForm.field('workerIds')
     const partnerIdField = this.missionForm.field('partnerId')
 
+    let partnersDomainValue = entitiesDomain(partners)
+    partnersDomainValue.unshift({key: undefined, value: "<No Partner>"})
+
     clientIdField.setSchemaValue('domainValue', entitiesDomain(clients))
     managerIdField.setSchemaValue('domainValue', entitiesDomain(workers))
     workerIdsField.setSchemaValue('domainValue', entitiesDomain(workers))
-    partnerIdField.setSchemaValue('domainValue', entitiesDomain(partners))
+    partnerIdField.setSchemaValue('domainValue', partnersDomainValue)
 
     dispatch(companiesActions.load()) //load only clients
     dispatch(personsActions.load()) //load only workers
@@ -179,10 +182,13 @@ class EditMission extends Component {
    const workerIdsField = this.missionForm.field('workerIds')
    const partnerIdField = this.missionForm.field('partnerId')
 
+   let partnersDomainValue = entitiesDomain(partners)
+   partnersDomainValue.unshift({key: undefined, value: "<No Partner>"})
+
    clientIdField.setSchemaValue('domainValue', entitiesDomain(clients))
    managerIdField.setSchemaValue('domainValue', entitiesDomain(workers))
    workerIdsField.setSchemaValue('domainValue', entitiesDomain(workers))
-   partnerIdField.setSchemaValue('domainValue', entitiesDomain(partners))
+   partnerIdField.setSchemaValue('domainValue', partnersDomainValue)
 
    dispatch(companiesActions.load())
    dispatch(personsActions.load())

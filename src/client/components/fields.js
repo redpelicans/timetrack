@@ -82,7 +82,8 @@ export class FileField extends BaseField {
     reader.onloadend = () => {
       const img = new Image()
       img.onload = () => {
-          const data = resizeImage.resize(img, 100, 100, resizeImage.PNG);
+          const ratio = Math.min(32 / img.width, 32 / img.width)
+          const data = resizeImage.resize(img, img.width * ratio, img.height * ratio, resizeImage.PNG);
           this.props.field.setValue(data)
       }
       img.src = reader.result
