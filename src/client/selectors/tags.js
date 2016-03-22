@@ -6,7 +6,7 @@ export const tagsSelector = createSelector(
   tags,
   tags => {
     return {
-      tags: tags.map(tag => {return {key: tag, value: tag}}).toJS(),
+      tags: tags.map(([tag, count]) => {return {key: tag, value: tag}}).toJS(),
     }
   }
 )
