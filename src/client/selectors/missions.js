@@ -12,8 +12,7 @@ const missionId = state => state.routing.location.state && state.routing.locatio
 const clientId = state => state.routing.location.state && state.routing.location.state.clientId
 
 const name = x => x.get('name')
-const getClientsFilter = c => c.get('type') === 'client' || c.get('type') === 'partner'
-const getWorkersFilter = p => p.get('type') === 'worker'
+const byType = type => x => x.get('type') === type
 
 export const editMissionSelector = createSelector(
   missionId,
@@ -23,9 +22,10 @@ export const editMissionSelector = createSelector(
   clientId,
   (missionId, missions, companies, persons, clientId) => {
     return {
-      mission: missions.get(missionId),
-      workers: persons.filter(getWorkersFilter).sortBy(name),
-      clients: companies.filter(getClientsFilter).sortBy(name),
+      mission:  missions.get(missionId),
+      partners: companies.filter(byType('partner')).sortBy(name),
+      clients:  companies.filter(byType('client')).sortBy(name),
+      workers:  persons.filter(byType('worker')).sortBy(name),
       clientId
     }
   }
@@ -37,8 +37,9 @@ export const newMissionSelector = createSelector(
   clientId,
   (companies, persons, clientId) => {
     return {
-      clients: companies.filter(getClientsFilter).sortBy(name),
-      workers: persons.filter(getWorkersFilter).sortBy(name),
+      partners: companies.filter(byType('partner')).sortBy(name),
+      clients:  companies.filter(byType('client')).sortBy(name),
+      workers:  persons.filter(byType('worker')).sortBy(name),
       clientId
     }
   }
@@ -54,7 +55,7 @@ export const viewMissionSelector = createSelector(
     const mission = missions.get(missionId)
     const isLoading = !!pendingRequests
 
-    if (mission) { 
+    if (mission) {
       return {
         mission,
         client: companies.get(mission.get('clientId')),
@@ -115,5 +116,3 @@ function filterForSearch(filter='', companies){
     return name.toLowerCase().indexOf(filter) !== -1;
   }
 }
-
-

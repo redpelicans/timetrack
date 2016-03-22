@@ -89,6 +89,7 @@
     "request": "^2.65.0",
     "require-dot-file": "^0.4.0",
     "reselect": "^2.0.2",
+    "resize-image": "0.0.4",
     "serve-favicon": "^2.3.0",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",
