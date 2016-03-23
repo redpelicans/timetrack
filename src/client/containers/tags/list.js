@@ -8,7 +8,7 @@ import {tagListSelector} from '../../selectors/tags'
 //import {tagsActions} from '../../actions/tags'
 import {Content} from '../../components/layout';
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon, Filter} from '../../components/widgets';
-//import TagList from '../../components/tags/tagList'
+import TagList from '../../components/tags/tagList'
 
 class ListTagsApp extends Component {
 
@@ -16,14 +16,14 @@ class ListTagsApp extends Component {
   //none for now
   }
 
-  /*onDetail = (label) => {
-    console.log('routes.tags.detail = ', routes.tags.detail)
-    this.props.dispatch(pushRoute(routes.tags.detail, {label}))
-  }*/
+  onDetail = (label) => {
+    console.log('clicked on function onDetail()')
+    //console.log('routes.tags.detail = ', routes.tags.detail)
+    //this.props.dispatch(pushRoute(routes.tags.detail, {label}))
+  }
 
   render() {
     const {tagList} = this.props
-    console.log('dans container Tags, tagList = ', tagList)
     return (
         <Content>
           <Header>
@@ -32,12 +32,10 @@ class ListTagsApp extends Component {
               <Title title='Tags' />
             </HeaderLeft>
           </Header>
-          <div>Ceci est la page de tags</div>
+          <TagList tagList={tagList} onDetail={this.onDetail} />
         </Content>
     )
   }
 }
 
 export default connect(tagListSelector)(ListTagsApp)
-        
-          //<TagList tags={tags} onDetail={this.onDetail} />
