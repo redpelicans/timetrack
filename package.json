@@ -70,6 +70,7 @@
     "morgan": "^1.6.1",
     "njwt": "^0.2.3",
     "react": "^0.14.0",
+    "react-addons-css-transition-group": "^0.14.7",
     "react-file-input": "^0.2.5",
     "react-masonry-component": "^4.0.0",
     "react-mixin": "^3.0.1",
