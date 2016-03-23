@@ -21,7 +21,6 @@ export function init(app, resources){
           else  htags[tag]++;
         }
       }
-      console.log(_.map(htags, (count, tag) => [tag, count]));
       res.json(_.map(htags, (count, tag) => [tag, count]));
     })
   });

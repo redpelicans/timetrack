@@ -30,7 +30,7 @@ export function deleteCompleted(note){
   }
 }
 
-export function updateCompleted(previous, note){
+export function updateCompleted(note){
   return {
     type: NOTE_UPDATED,
     note: Immutable.fromJS(Maker(note)),
@@ -59,7 +59,7 @@ export function updateNote(previous, updates){
   return (dispatch, getState) => {
     const next = {...previous, ...updates};
     requestJson('/api/note', {dispatch, verb: 'put', body: {note: next}, message: 'Cannot update note, check your backend server'})
-      .then( note => dispatch(updateCompleted(previous, note)));
+      .then( note => dispatch(updateCompleted(note)));
   }
 }
 

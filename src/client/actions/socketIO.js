@@ -63,7 +63,7 @@ export function connect(sessionId){
     }
 
     function updatePerson(data){
-      dispatch(personsActions.updateCompleted(data.previous, data.current));
+      dispatch(personsActions.updateCompleted(data.current));
     }
 
     function updateCompany(data){
@@ -72,11 +72,11 @@ export function connect(sessionId){
     }
 
     function updateNote(data){
-      dispatch(notesActions.updateCompleted(data.previous, data.current));
+      dispatch(notesActions.updateCompleted(data.current));
     }
 
     function updateMission(data){
-      dispatch(missionsActions.updateCompleted(data.previous, data.current));
+      dispatch(missionsActions.updateCompleted(data.current));
     }
 
   }
