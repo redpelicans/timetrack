@@ -116,7 +116,7 @@ class NewNote extends Component {
         entityIdField.setValue(undefined)
       }
 
-      entityIdField.setSchemaValue('domainValue', domain)
+      entityIdField.setSchemaValue('domainValue', _.sortBy(domain, 'value'))
       entityIdField.setSchemaValue('required', !!state.value)
       entityIdField.setSchemaValue('label', label)
 
