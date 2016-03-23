@@ -102,8 +102,6 @@ class NewNote extends Component {
       const domain = entitiesToDomain(entities)
 
       entityIdField.setSchemaValue('domainValue', domain)
-      // entityIdField.setValue(undefined) // How to do this ?
-      entityIdField.setSchemaValue('label', 'Test')
 
       this.setState({
         canSubmit: state.canSubmit,
@@ -171,6 +169,7 @@ class EditContent extends Component {
               <HeaderRight>
                 {this.props.submitBtn}
                 {this.props.cancelBtn}
+                <ResetBtn obj={this.props.noteForm} />
               </HeaderRight>
             </Header>
 
@@ -185,11 +184,13 @@ class EditContent extends Component {
                       <DateField field={this.props.noteForm.field('dueDate')} />
                     </div>
                     <div className="col-md-6">
-                      <div className="col-md-6">
-                        <InputField field={this.props.noteForm.field('/notification/delay')} />
-                      </div>
-                      <div className="col-md-6">
-                        <DropdownField field={this.props.noteForm.field('/notification/unit')} />
+                      <div className="row">
+                        <div className="col-md-6">
+                          <InputField field={this.props.noteForm.field('/notification/delay')} />
+                        </div>
+                        <div className="col-md-6">
+                          <DropdownField field={this.props.noteForm.field('/notification/unit')} />
+                        </div>
                       </div>
                     </div>
                   </div>

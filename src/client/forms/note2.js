@@ -29,6 +29,7 @@ export default function note(document){
     new Field('content', {
       label: "Note content",
       type: 'text',
+      required: true,
     }),
     new Field('assigneesIds', {
       label: "Assignees",
