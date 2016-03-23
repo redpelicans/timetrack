@@ -2,7 +2,9 @@ import {Person} from '../models';
 
 export default function findUser(secretKey){
   return function(req, res, next) {
-    const cookie = req.headers['x-token-access'];
+    //const token = req.headers['x-token-access'];
+    const cookie = req.cookies.timetrackToken;
+    //console.log(req.cookies)
     if(!cookie) return res.status(401).json({message: "Unauthorized access"});
     const sessionId = req.headers['x-sessionid'];
     req.sessionId = sessionId;

@@ -1,22 +1,36 @@
-import {Formo, Field, FieldGroup} from 'formo';
-import _ from 'lodash';
+import {Formo, Field, FieldGroup} from 'formo'
+import _ from 'lodash'
 
 const units = [
   {key: 'day', value: 'Day'},
   {key: 'hour', value: 'Hour'},
-];
+]
 
 const allowWeekendsDomain = [
   {key: true, value: 'Allow'},
   {key: false, value: 'Do not Allow'},
-];
+]
 
+const billedTarget = [
+  {key: 'partner', value: "Partner"},
+  {key: 'client', value: "Client"},
+]
 
 export default function company(document){
   return new Formo([
     new Field('clientId', {
       label: 'Client',
       checkDomainValue: false,
+      required: true
+    }),
+    new Field('partnerId', {
+      label: 'Partner',
+      checkDomainValue: false,
+    }),
+    new Field('billedTarget', {
+      label: "Billed Target",
+      domainValue: billedTarget,
+      defaultValue: 'client',
       required: true
     }),
     new Field('managerId', {

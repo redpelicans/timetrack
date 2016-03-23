@@ -3,7 +3,7 @@ import React, {Component, PropTypes} from 'react';
 import classNames from 'classnames';
 import FileInput from 'react-file-input';
 import Remarkable from 'remarkable';
-import {colors} from '../forms/company';
+import colors from '../utils/colors';
 import ReactTooltip from 'react-tooltip';
 
 export const AvatarView = ({obj, size, label}) => {
@@ -31,7 +31,6 @@ AvatarView.propTypes = {
 
 export class Avatar extends Component {
   rndColor() {
-    let colors = ['#d73d32', '#7e3794', '#4285f4', '#67ae3f', '#d61a7f', '#ff4080'];
     let index = Math.floor(Math.random()*colors.length);
     return colors[ index ];
   }

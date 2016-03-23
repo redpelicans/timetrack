@@ -1,4 +1,5 @@
 import Immutable from 'immutable';
+import _ from 'lodash';
 
 import { TAGS_LOADED } from '../actions/tags';
 

@@ -1,46 +1,47 @@
-import React, {Component, PropTypes} from 'react';
-import classNames from 'classnames';
-import Select from 'react-select';
-import FileInput from 'react-file-input';
-import Remarkable from 'remarkable';
-import Combobox from 'react-widgets/lib/Combobox';
-import DropdownList from 'react-widgets/lib/DropdownList';
-import Multiselect from 'react-widgets/lib/Multiselect';
-import DateTimePicker from 'react-widgets/lib/DateTimePicker';
-import {colors} from '../forms/company';
-import {Avatar, TextLabel} from './widgets';
+import React, {Component, PropTypes} from 'react'
+import resizeImage from 'resize-image'
+import classNames from 'classnames'
+import Select from 'react-select'
+import FileInput from 'react-file-input'
+import Remarkable from 'remarkable'
+import Combobox from 'react-widgets/lib/Combobox'
+import DropdownList from 'react-widgets/lib/DropdownList'
+import Multiselect from 'react-widgets/lib/Multiselect'
+import DateTimePicker from 'react-widgets/lib/DateTimePicker'
+import {colors} from '../forms/company'
+import {Avatar, TextLabel} from './widgets'
 
 export class BaseField extends Component{
   state = {field: undefined}
 
   componentWillUnmount(){
-    this.props.field.state.offValue( this.subscribeFct );
+    this.props.field.state.offValue( this.subscribeFct )
   }
 
   componentWillMount(){
-    this.subscribeFct =  v => this.setState({field: v});
-    this.props.field.state.onValue( this.subscribeFct );
+    this.subscribeFct =  v => this.setState({field: v})
+    this.props.field.state.onValue( this.subscribeFct )
   }
 
   handleChange = (e) => {
-    this.props.field.setValue( e.target.value );
+    this.props.field.setValue( e.target.value )
   }
 
   message = () => {
-    if(this.state.field && this.state.field.get('error')) return this.state.field.get('error');
-    if(this.state.field && this.state.field.get('isLoading')) return 'Loading ...';
+    if(this.state.field && this.state.field.get('error')) return this.state.field.get('error')
+    if(this.state.field && this.state.field.get('isLoading')) return 'Loading ...'
   }
 
   hasError = () => {
-    return this.state.field && this.state.field.get('error');
+    return this.state.field && this.state.field.get('error')
   }
 
   shouldComponentUpdate(nextProps, nextState){
-    return this.state.field != nextState.field;
+    return this.state.field != nextState.field
   }
 
-  fieldsetClassNames = () => classNames( "form-group", { 'has-error': this.hasError() });
-  inputClassNames = () => classNames( 'tm input form-control', { 'form-control-error': this.hasError() });
+  fieldsetClassNames = () => classNames( "form-group", { 'has-error': this.hasError() })
+  inputClassNames = () => classNames( 'tm input form-control', { 'form-control-error': this.hasError() })
 }
 
 BaseField.propTypes = {
@@ -50,9 +51,9 @@ BaseField.propTypes = {
 export class InputField extends BaseField {
 
   render(){
-    if(!this.state.field)return false;
-    const field = this.props.field;
-    const labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l-1"/></a> : "";
+    if(!this.state.field) return false
+    const field = this.props.field
+    const labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l-1"/></a> : ""
 
     return(
       <fieldset className={this.fieldsetClassNames()}>
@@ -75,19 +76,26 @@ InputField.propTypes = {
 export class FileField extends BaseField {
 
   handleChange = (e) => {
-    this.props.onFilenameChange(e.target.value);
-    const file = e.target.files[0];
-    const reader = new FileReader();
+    this.props.onFilenameChange(e.target.value)
+    const file = e.target.files[0]
+    const reader = new FileReader()
     reader.onloadend = () => {
-      this.props.field.setValue( reader.result );
+      const img = new Image()
+      img.onload = () => {
+          const ratio = Math.min(32 / img.width, 32 / img.width)
+          const data = resizeImage.resize(img, img.width * ratio, img.height * ratio, resizeImage.PNG);
+          this.props.field.setValue(data)
+      }
+      img.src = reader.result
+      this.props.field.setValue( reader.result )
     }
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file)
   }
 
   render(){
-    if(!this.state.field)return false;
+    if(!this.state.field)return false
 
-    const field = this.props.field;
+    const field = this.props.field
 
     const style={
       display: 'block',
@@ -117,21 +125,21 @@ FileField.propTypes = {
 }
 
 export class MarkdownEditField extends BaseField {
-  state = { mode: 'write' };
+  state = { mode: 'write' }
 
   handleClick = (mode, e) => {
-    e.preventDefault();
-    this.setState({mode: mode});
+    e.preventDefault()
+    this.setState({mode: mode})
   }
 
   shouldComponentUpdate(nextProps, nextState){
     return this.state.field != nextState.field ||
-      this.state.mode != nextState.mode;
+      this.state.mode != nextState.mode
   }
 
   render(){
-    if(!this.state.field)return false;
-    let field = this.props.field;
+    if(!this.state.field)return false
+    let field = this.props.field
 
     let styles = {
       reader:{
@@ -155,9 +163,9 @@ export class MarkdownEditField extends BaseField {
     const reader = () => {
       const classes = classNames( ' form-control', {
         'form-control-focus': this.props.focused,
-      });
-      const md = new Remarkable();
-      const text = {__html: md.render(this.state.field.get('value'))};
+      })
+      const md = new Remarkable()
+      const text = {__html: md.render(this.state.field.get('value'))}
 
       return <div style={styles.reader} className={classes} id={field.label} dangerouslySetInnerHTML={text}/>
     }
@@ -167,7 +175,7 @@ export class MarkdownEditField extends BaseField {
       const classes = classNames( 'tm input form-control', {
         'form-control-error': this.hasError(),
         'form-control-focus': this.props.focused,
-      });
+      })
 
       return <textarea
         style={styles.writer}
@@ -179,7 +187,7 @@ export class MarkdownEditField extends BaseField {
         onChange={this.handleChange}/>
     }
 
-    let widget = this.state.mode === 'write' ? writer() : reader();
+    let widget = this.state.mode === 'write' ? writer() : reader()
 
     return(
       <fieldset className={this.fieldsetClassNames()}>
@@ -209,10 +217,10 @@ MarkdownEditField.propTypes = {
 export class TextAreaField extends BaseField {
   render(){
     // avoid to render without a state
-    if(!this.state.field)return false;
+    if(!this.state.field)return false
 
-    let field = this.props.field;
-    let labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l-1"/></a> : "";
+    let field = this.props.field
+    let labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l-1"/></a> : ""
 
     let styles = {
       textarea: {
@@ -240,27 +248,27 @@ TextAreaField.propTypes = {
 
 export class BaseSelectField extends BaseField{
   handleChange = (value) => {
-    this.props.field.setValue( value );
+    this.props.field.setValue( value )
   }
 
   shouldComponentUpdate(nextProps, nextState){
-    //return this.state.field != nextState.field;
-    return true;
+    //return this.state.field != nextState.field
+    return true
   }
 
   componentWillMount(){
     this.subscribeFct =  v => {
-      const state = {field: v};
+      const state = {field: v}
       if(v.get('domainValue')){
-        const domainValue = _.map(v.get('domainValue').toJS(), ({key, value}) => {return {label:value, value:key}} );
-        state.domainValue = domainValue;
+        const domainValue = _.map(v.get('domainValue').toJS(), ({key, value}) => {return {label:value, value:key}} )
+        state.domainValue = domainValue
       }
-      this.setState(state);
-    };
-    this.props.field.state.onValue( this.subscribeFct );
+      this.setState(state)
+    }
+    this.props.field.state.onValue( this.subscribeFct )
   }
 
-  selectClassNames = () => classNames( 'tm select form-control', { 'form-control-error': this.hasError() });
+  selectClassNames = () => classNames( 'tm select form-control', { 'form-control-error': this.hasError() })
 }
 
 BaseSelectField.propTypes = {
@@ -269,24 +277,24 @@ BaseSelectField.propTypes = {
 
 export class DropdownField extends BaseSelectField{
   handleChange = (value) => {
-    this.props.field.setValue( value.key );
+    this.props.field.setValue( value.key )
   }
 
   componentWillMount(){
     this.subscribeFct =  v => {
-      const state = {field: v};
-      if(v.get('domainValue')) state.domainValue = v.get('domainValue').toJS();
-      this.setState(state);
-    };
-    this.props.field.state.onValue( this.subscribeFct );
+      const state = {field: v}
+      if(v.get('domainValue')) state.domainValue = v.get('domainValue').toJS()
+      this.setState(state)
+    }
+    this.props.field.state.onValue( this.subscribeFct )
   }
 
   render(){
-    if(!this.state.field) return false;
-    let field = this.props.field;
+    if(!this.state.field) return false
+    let field = this.props.field
 
     if(this.state.field.get('disabled')){
-      const keyValue = _.find(this.state.domainValue, x => x.key === this.state.field.get("value"));
+      const keyValue = _.find(this.state.domainValue, x => x.key === this.state.field.get("value"))
       return <TextLabel label={field.label} value={keyValue && keyValue.value}/>
     }else{
       return(
@@ -314,24 +322,24 @@ DropdownField.propTypes = {
 
 export class MultiSelectField2 extends BaseSelectField{
   handleChange = (values) => {
-    this.props.field.setValue( _.map(values, v => v.key) );
+    this.props.field.setValue( _.map(values, v => v.key) )
   }
 
   componentWillMount(){
     this.subscribeFct =  v => {
-      const state = {field: v};
-      if(v.get('domainValue')) state.domainValue = v.get('domainValue').toJS();
-      this.setState(state);
-    };
-    this.props.field.state.onValue( this.subscribeFct );
+      const state = {field: v}
+      if(v.get('domainValue')) state.domainValue = v.get('domainValue').toJS()
+      this.setState(state)
+    }
+    this.props.field.state.onValue( this.subscribeFct )
   }
 
   render(){
-    if(!this.state.field) return false;
-    let field = this.props.field;
+    if(!this.state.field) return false
+    let field = this.props.field
 
     if(this.state.field.get('disabled')){
-      const keyValue = _.find(this.state.domainValue, x => x.value === this.state.field.get("value"));
+      const keyValue = _.find(this.state.domainValue, x => x.value === this.state.field.get("value"))
       return <TextLabel label={field.label} value={keyValue && keyValue.label}/>
     }else{
       const props = {
@@ -343,9 +351,9 @@ export class MultiSelectField2 extends BaseSelectField{
         id: field.key,
         caseSensitive: false,
         onChange: this.handleChange
-      };
+      }
 
-      const multiselect = React.createElement( Multiselect, props );
+      const multiselect = React.createElement( Multiselect, props )
       return(
         <fieldset className={this.fieldsetClassNames()}>
           <label htmlFor={field.key}>{field.label}</label>
@@ -363,25 +371,25 @@ MultiSelectField2.propTypes = {
 
 export class ComboboxField extends BaseSelectField{
   handleChange = (value) => {
-    const data = _.isString(value) ? value : value.key;
-    this.props.field.setValue( data );
+    const data = _.isString(value) ? value : value.key
+    this.props.field.setValue( data )
   }
 
   componentWillMount(){
     this.subscribeFct =  v => {
-      const state = {field: v};
-      if(v.get('domainValue')) state.domainValue = v.get('domainValue').toJS();
-      this.setState(state);
-    };
+      const state = {field: v}
+      if(v.get('domainValue')) state.domainValue = v.get('domainValue').toJS()
+      this.setState(state)
+    }
 
-    this.props.field.state.onValue( this.subscribeFct );
+    this.props.field.state.onValue( this.subscribeFct )
   }
 
   render(){
-    if(!this.state.field) return false;
-    let field = this.props.field;
+    if(!this.state.field) return false
+    let field = this.props.field
     if(this.state.field.get('disabled')){
-      const keyValue = _.find(this.state.domainValue, x => x.value === this.state.field.get("value"));
+      const keyValue = _.find(this.state.domainValue, x => x.value === this.state.field.get("value"))
       return <TextLabel label={field.label} value={keyValue && keyValue.label}/>
     }else{
       return(
@@ -410,11 +418,11 @@ ComboboxField.propTypes = {
 
 export class SelectField extends BaseSelectField {
   render(){
-    if(!this.state.field)return false;
-    let field = this.props.field;
+    if(!this.state.field)return false
+    let field = this.props.field
 
     if(this.state.field.get('disabled')){
-      const keyValue = _.find(this.state.domainValue, x => x.value === this.state.field.get("value"));
+      const keyValue = _.find(this.state.domainValue, x => x.value === this.state.field.get("value"))
       return <TextLabel label={field.label} value={keyValue && keyValue.label}/>
     }else{
       return(
@@ -443,7 +451,7 @@ const ColorItem = ({item}) => {
     width: '100%',
     height: '2rem',
   }
-  return <div style={style}/>;
+  return <div style={style}/>
 }
 
 ColorItem.propTypes = {
@@ -453,16 +461,16 @@ ColorItem.propTypes = {
 export class SelectColorField extends BaseSelectField {
 
   handleChange = (value) => {
-    this.props.field.setValue( value.key );
+    this.props.field.setValue( value.key )
   }
 
   render(){
-    if(!this.state.field)return false;
-    let field = this.props.field;
+    if(!this.state.field)return false
+    let field = this.props.field
 
     let options = _.map(this.props.options, color => {
-      return { key: color, value: color};
-    });
+      return { key: color, value: color}
+    })
 
     return(
       <fieldset className={this.fieldsetClassNames()}>
@@ -490,18 +498,18 @@ SelectColorField.propTypes = {
 export class MultiSelectField extends BaseSelectField{
 
   handleChange = (value) => {
-    this.props.field.setValue( value && value.split(',') || [] );
+    this.props.field.setValue( value && value.split(',') || [] )
   }
 
   render(){
-    if(!this.state.field) return false;
-    let field = this.props.field;
+    if(!this.state.field) return false
+    let field = this.props.field
 
     if(this.state.field.get('disabled')){
-      const keyValue = _.find(this.state.domainValue, x => x.key === this.state.field.get('value'));
+      const keyValue = _.find(this.state.domainValue, x => x.key === this.state.field.get('value'))
       return <TextLabel label={field.label} value={keyValue && keyValue.value}/>
     }else{
-      const value = this.state.field.get('value');
+      const value = this.state.field.get('value')
       return(
         <fieldset className={this.fieldsetClassNames()}>
           <label htmlFor={field.key}>{field.label}</label>
@@ -529,16 +537,16 @@ export class AvatarViewField extends Component{
   state = {name: 'Red Pelicans'}
 
   componentWillUnmount(){
-    this.unsubscribe();
+    this.unsubscribe()
   }
 
   componentWillMount(){
     this.unsubscribe = this.props.obj.onValue( state => {
-      let name;
+      let name
       if(this.props.type === 'company')
-        name = state.name.value;
+        name = state.name.value
       else
-        name = [state.firstName.value, state.lastName.value].join(' ');
+        name = [state.firstName.value, state.lastName.value].join(' ')
       this.setState({
         type: state.avatar.type.value,
         name: name,
@@ -546,23 +554,23 @@ export class AvatarViewField extends Component{
         url: state.avatar.url.error ? undefined :  state.avatar.url.value,
         src: state.avatar.src.value,
       })
-    });
+    })
   }
 
   getAvatarType(){
-    const defaultAvatar = <div className="m-r-1"><Avatar name={this.state.name} color={this.state.color}/></div>;
+    const defaultAvatar = <div className="m-r-1"><Avatar name={this.state.name} color={this.state.color}/></div>
     switch(this.state.type){
       case 'url':
-        return this.state.url ? <div className="m-r-1"> <Avatar src={this.state.url}/></div> : defaultAvatar;
+        return this.state.url ? <div className="m-r-1"> <Avatar src={this.state.url}/></div> : defaultAvatar
       case 'src':
-        return this.state.src ? <div className="m-r-1"><Avatar src={this.state.src}/></div> : defaultAvatar;
+        return this.state.src ? <div className="m-r-1"><Avatar src={this.state.src}/></div> : defaultAvatar
       default:
-        return defaultAvatar;
+        return defaultAvatar
     }
   }
 
   render(){
-    return this.getAvatarType();
+    return this.getAvatarType()
   }
 }
 
@@ -572,36 +580,36 @@ AvatarViewField.propTypes = {
 }
 
 export class AvatarChooserField extends Component{
-  state = {type: this.props.field.defaultValue};
+  state = {type: this.props.field.defaultValue}
 
   handleFilenameChange = (filename) => {
-    this.setState({filename: filename});
+    this.setState({filename: filename})
   }
 
   componentWillUnmount(){
-    this.unsubscribe();
+    this.unsubscribe()
   }
 
   componentDidMount(){
-    this.colorField = <SelectColorField options={colors} field={this.props.field.field('color')}/>;
-    this.logoUrlField = <InputField field={this.props.field.field('url')} isUrl={true}/>;
-    this.logoFileField = <FileField filename={this.state.filename} onFilenameChange={this.handleFilenameChange} field={this.props.field.field('src')}/>;
+    this.colorField = <SelectColorField options={colors} field={this.props.field.field('color')}/>
+    this.logoUrlField = <InputField field={this.props.field.field('url')} isUrl={true}/>
+    this.logoFileField = <FileField filename={this.state.filename} onFilenameChange={this.handleFilenameChange} field={this.props.field.field('src')}/>
 
     this.unsubscribe = this.props.field.onValue( v => {
       this.setState({
         type: v.type.value,
-      });
-    });
+      })
+    })
   }
 
   getField(){
     switch(this.state.type){
       case 'url':
-        return this.logoUrlField;
+        return this.logoUrlField
       case 'src':
-        return this.logoFileField;
+        return this.logoFileField
       default:
-        return this.colorField;
+        return this.colorField
     }
   }
 
@@ -624,33 +632,33 @@ AvatarChooserField.propTypes = {
 }
 
 export class StarField extends Component{
-  state = undefined;
+  state = undefined
 
   componentWillUnmount(){
-    if(this.unsubscribe) this.unsubscribe();
+    if(this.unsubscribe) this.unsubscribe()
   }
 
   componentDidMount(){
     this.unsubscribe = this.props.field.onValue( v => {
-      this.setState({preferred: v.value});
-    });
+      this.setState({preferred: v.value})
+    })
   }
 
   handleChange = (e) => {
-    this.props.field.setValue( !this.state.preferred );
-    e.preventDefault();
+    this.props.field.setValue( !this.state.preferred )
+    e.preventDefault()
   }
 
   render(){
-    if(!this.state) return false;
-    let field = this.props.field;
-    let preferred = this.state.preferred;
+    if(!this.state) return false
+    let field = this.props.field
+    let preferred = this.state.preferred
 
     let style={
       display: 'block',
       color: preferred ? '#00BCD4' : 'grey',
       fontSize: '1.5rem',
-    };
+    }
 
     return (
       <fieldset className="form-group">
@@ -669,27 +677,27 @@ StarField.propTypes = {
 
 export class DateField extends BaseField{
   handleChange = (date) => {
-    this.props.field.setValue( date );
+    this.props.field.setValue( date )
   }
 
   shouldComponentUpdate(nextProps, nextState){
     return this.state.field != nextState.field
       || this.props.maxDate != nextProps.maxDate
-      || this.props.minDate != nextProps.minDate;
+      || this.props.minDate != nextProps.minDate
   }
 
   render(){
-    if(!this.state.field)return false;
-    const field = this.props.field;
-    const labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l-1"/></a> : "";
+    if(!this.state.field)return false
+    const field = this.props.field
+    const labelUrl = this.props.isUrl ? <a href={this.state.field.get('value')}><i className="fa fa-external-link p-l-1"/></a> : ""
     const props = {
       value: this.state.field.get('value'),
       onChange: this.handleChange,
       time: false,
-    };
-    if(this.props.minDate) props.min = this.props.minDate;
-    if(this.props.maxDate) props.max = this.props.maxDate;
-    const Picker = React.createElement(DateTimePicker, props);
+    }
+    if(this.props.minDate) props.min = this.props.minDate
+    if(this.props.maxDate) props.max = this.props.maxDate
+    const Picker = React.createElement(DateTimePicker, props)
 
     return(
       <fieldset className={this.fieldsetClassNames()}>
@@ -712,20 +720,20 @@ DateField.propTypes = {
 }
 
 export class PeriodField extends Component{
-  state = {};
+  state = {}
 
   componentWillUnmount(){
-    this.unsubscribe1();
-    this.unsubscribe2();
+    this.unsubscribe1()
+    this.unsubscribe2()
   }
 
   componentWillMount(){
     this.unsubscribe1 = this.props.startDate.onValue( state => {
       this.setState({startDate: state.value})
-    });
+    })
     this.unsubscribe2 = this.props.endDate.onValue( state => {
       this.setState({endDate: state.value})
-    });
+    })
   }
 
   render(){

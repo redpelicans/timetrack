@@ -5,17 +5,24 @@ import {Person} from '../models';
 import {ObjectId} from '../helpers';
 import request from 'request';
 import njwt from 'njwt';
+import debug from 'debug';
+const logerror = debug('timetrack:error')
+  , loginfo = debug('timetrack:info');
 
 const TOKENINFO = "https://www.googleapis.com/oauth2/v3/tokeninfo";
 
 export function init(app, resources, params){
   app.post('/login', function(req, res, next){
     let id_token = req.body.id_token;
-    if(!id_token) setImmediate(next, new Error("Cannot login without a token!"));
+    if(!id_token) return setImmediate(next, new Error("Cannot login without a token!"));
     async.waterfall([checkGoogleUser.bind(null, id_token), loadUser, updateAvatar], (err, user) => {
       if(err)return next(err);
       const expirationDate = moment().add(params.sessionDuration || 8 , 'hours').toDate();
       const token = getToken(user, params.secretKey, expirationDate);
+      loginfo(`User '${user.fullName()}' logged`);
+      res.cookie('timetrackToken', token, {expires:expirationDate});
+      // TODO
+      //res.cookie('timetrackToken', token, {expires:expirationDate, httpOnly: true, secure: true});
       res.json({ user, token });
     });
   });

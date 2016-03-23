@@ -43,14 +43,14 @@ export function createNote(note, entity){
       note.entityId = entity._id;
       note.entityType = entity.typeName;
     }
-    requestJson('/api/notes', dispatch, getState, {verb: 'post', body: {note}, message: 'Cannot create a note, check your backend server'})
+    requestJson('/api/notes', {dispatch, verb: 'post', body: {note}, message: 'Cannot create a note, check your backend server'})
       .then( note => dispatch(createCompleted(note)));
   }
 }
 
 export function deleteNote(note){
   return (dispatch, getState) => {
-    requestJson(`/api/note/${note._id}`, dispatch, getState, {verb: 'delete', message: 'Cannot delete note, check your backend server'})
+    requestJson(`/api/note/${note._id}`, {dispatch, verb: 'delete', message: 'Cannot delete note, check your backend server'})
       .then( res => dispatch(deleteCompleted(note)));
   }
 }
@@ -58,7 +58,7 @@ export function deleteNote(note){
 export function updateNote(previous, updates){
   return (dispatch, getState) => {
     const next = {...previous, ...updates};
-    requestJson('/api/note', dispatch, getState, {verb: 'put', body: {note: next}, message: 'Cannot update note, check your backend server'})
+    requestJson('/api/note', {dispatch, verb: 'put', body: {note: next}, message: 'Cannot update note, check your backend server'})
       .then( note => dispatch(updateCompleted(previous, note)));
   }
 }
@@ -78,7 +78,7 @@ export function loadNotes({forceReload=false, ids} = {}){
 
     if(!doRequest) return;
 
-    requestJson('/api/notes', dispatch, getState, {message: 'Cannot load notes, check your backend server'})
+    requestJson('/api/notes', {dispatch, message: 'Cannot load notes, check your backend server'})
       .then( notes => dispatch(notesLoaded(notes)));
   }
 }

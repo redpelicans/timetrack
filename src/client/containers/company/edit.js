@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React, {Component, PropTypes} from 'react';
 import { connect } from 'react-redux';
 import Immutable from 'immutable';
-import companyForm, {colors, avatarTypes} from '../../forms/company';
+import companyForm, {avatarTypes} from '../../forms/company';
 import {Content} from '../../components/layout';
 import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../components/widgets';
 import {Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets';

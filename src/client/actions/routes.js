@@ -15,11 +15,8 @@ export function replaceRoute(nameOrRoute){
 
 export function pushRoute(nameOrRoute, context){
   return dispatch => {
-    console.log("pushRoute1")
     if(!nameOrRoute) return router.replace(routes.defaultRoute.path);
-    console.log("pushRoute2")
     const route = _.isString(nameOrRoute) ? routes.getRoute(nameOrRoute) : nameOrRoute;
-    console.log(route)
     if(!route) errors.alert({header: "Client error", message: `Unknown route name: ${nameOrRoute}`});
     dispatch(router.push({pathname: route.path, state: context}));
     //browserHistory.push({pathname: route.path, state: context});

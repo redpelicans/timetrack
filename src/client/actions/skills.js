@@ -12,7 +12,7 @@ function skillsLoaded(skills){
 
 export function loadSkills(){
   return (dispatch, getState) => {
-    requestJson('/api/skills', dispatch, getState, {message: 'Cannot load skills, check your backend server'})
+    requestJson('/api/skills', {dispatch, message: 'Cannot load skills, check your backend server'})
       .then( skills => dispatch(skillsLoaded(skills)));
   }
 }

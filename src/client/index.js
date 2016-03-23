@@ -3,19 +3,17 @@ import {render} from 'react-dom';
 import {Route, IndexRoute, browserHistory as history } from 'react-router';
 import Root from './containers/root';
 import App from './containers/app';
-import {loggedIn} from './actions/login';
+import {logUser} from './actions/login';
 import {sitemapActions} from './actions/sitemap';
 import registerAuthManager from './auths';
 import routesManager from './routes';
 import boot from './boot';
-import {registerSocketIO}from './socketIO';
 import moment from 'moment';
 import momentLocalizer from 'react-widgets/lib/localizers/moment';
 momentLocalizer(moment);
 import configureStore from './store/configureStore';
 
 const store = configureStore();
-registerSocketIO(store);
 const authManager = registerAuthManager(store);
 
 import 'react-widgets/lib/less/react-widgets.less';
@@ -57,18 +55,15 @@ const routes = (
   </Route>
 );
 
-boot().then( ({user, jwt}={}) => {
+boot().then( user => {
   console.log("End of boot process.")
   console.log("Rendering react App...")
-  if(user) store.dispatch(loggedIn(user, jwt));
+  if(user) store.dispatch(logUser(user));
   render(<Root store={store} routes={routes} history={history} authManager={authManager}/>, document.getElementById("timetrackApp"));
 })
-// .catch( (err) => {
-//   console.log(err)
-//   const elt = document.getElementById("bootmessage");
-//   elt.className="alert alert-danger boot-error";
-//   elt.innerText = 'Runtime error, check your backend';
-// });
+.catch( (err) => {
+  console.log("====>>>> " + err)
+});
 
 
 
