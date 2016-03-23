@@ -107,10 +107,10 @@ export class FileField extends BaseField {
         <label htmlFor={field.key}>
           {field.label}
         </label>
-        <FileInput 
-          className={this.inputClassNames()} 
-          id={field.key} 
-          placeholder={this.props.filename || field.label} 
+        <FileInput
+          className={this.inputClassNames()}
+          id={field.key}
+          placeholder={this.props.filename || field.label}
           onChange={this.handleChange}/>
         <small className="text-muted control-label">{this.message()}</small>
       </fieldset>
@@ -160,8 +160,8 @@ export class MarkdownEditField extends BaseField {
       }
     }
 
-    const reader = () => { 
-      const classes = classNames( ' form-control', { 
+    const reader = () => {
+      const classes = classNames( ' form-control', {
         'form-control-focus': this.props.focused,
       })
       const md = new Remarkable()
@@ -172,18 +172,18 @@ export class MarkdownEditField extends BaseField {
 
 
     const writer = () => {
-      const classes = classNames( 'tm input form-control', { 
+      const classes = classNames( 'tm input form-control', {
         'form-control-error': this.hasError(),
         'form-control-focus': this.props.focused,
       })
 
-      return <textarea 
-        style={styles.writer} 
-        className={classes} 
-        id={field.key} 
-        type={field.htmlType()} 
-        value={this.state.field.get('value')} 
-        placeholder={field.label} 
+      return <textarea
+        style={styles.writer}
+        className={classes}
+        id={field.key}
+        type={field.htmlType()}
+        value={this.state.field.get('value')}
+        placeholder={field.label}
         onChange={this.handleChange}/>
     }
 
@@ -295,18 +295,19 @@ export class DropdownField extends BaseSelectField{
 
     if(this.state.field.get('disabled')){
       const keyValue = _.find(this.state.domainValue, x => x.key === this.state.field.get("value"))
-      return <TextLabel label={field.label} value={keyValue && keyValue.value}/>
+      return <TextLabel label={this.state.field.get('label')} value={keyValue && keyValue.value}/>
     }else{
       return(
         <fieldset className={this.fieldsetClassNames()}>
-          <label htmlFor={field.key}>{field.label}</label>
-          <DropdownList 
+          <label htmlFor={field.key}>{this.state.field.get('label')}</label>
+          <DropdownList
             placeholder={field.label}
             valueField={'key'}
             textField={'value'}
-            data={this.state.domainValue}  
-            defaultValue={this.state.field.get('value')} 
-            id={field.key} 
+            data={this.state.domainValue}
+            //defaultValue={this.state.field.get('value')}
+            value={this.state.field.get('value')}
+            id={field.key}
             caseSensitive={false}
             onChange={this.handleChange}/>
           <small className="text-muted control-label">{this.message()}</small>
@@ -346,9 +347,9 @@ export class MultiSelectField2 extends BaseSelectField{
         placeholder: field.label,
         valueField: 'key',
         textField: 'value',
-        data: this.state.domainValue,  
-        value: this.state.field.get('value') && this.state.field.get('value').toJS() || [], 
-        id: field.key, 
+        data: this.state.domainValue,
+        value: this.state.field.get('value') && this.state.field.get('value').toJS() || [],
+        id: field.key,
         caseSensitive: false,
         onChange: this.handleChange
       }
@@ -395,14 +396,14 @@ export class ComboboxField extends BaseSelectField{
       return(
         <fieldset className={this.fieldsetClassNames()}>
           <label htmlFor={field.key}>{field.label}</label>
-          <Combobox 
+          <Combobox
             placeholder={field.label}
             valueField={'key'}
             textField={'value'}
             suggest={true}
-            data={this.state.domainValue}  
-            defaultValue={this.state.field.get('value')} 
-            id={field.key} 
+            data={this.state.domainValue}
+            defaultValue={this.state.field.get('value')}
+            id={field.key}
             caseSensitive={false}
             onChange={this.handleChange}/>
           <small className="text-muted control-label">{this.message()}</small>
@@ -428,10 +429,10 @@ export class SelectField extends BaseSelectField {
       return(
         <fieldset className={this.fieldsetClassNames()}>
           <label htmlFor={field.key}>{field.label}</label>
-          <Select 
-            options={this.state.domainValue}  
-            value={this.state.field.get('value')} 
-            id={field.key} 
+          <Select
+            options={this.state.domainValue}
+            value={this.state.field.get('value')}
+            id={field.key}
             clearable={false}
             onChange={this.handleChange}/>
           <small className="text-muted control-label">{this.message()}</small>
@@ -475,14 +476,14 @@ export class SelectColorField extends BaseSelectField {
     return(
       <fieldset className={this.fieldsetClassNames()}>
         <label htmlFor={field.key}>{field.label}</label>
-        <DropdownList 
+        <DropdownList
           valueField='key'
           textField='value'
-          data={options}  
+          data={options}
           valueComponent={ColorItem}
           itemComponent={ColorItem}
-          value={this.state.field.get('value')} 
-          id={field.key} 
+          value={this.state.field.get('value')}
+          id={field.key}
           onChange={this.handleChange}/>
         <small className="text-muted control-label">{this.message()}</small>
       </fieldset>
@@ -513,10 +514,10 @@ export class MultiSelectField extends BaseSelectField{
       return(
         <fieldset className={this.fieldsetClassNames()}>
           <label htmlFor={field.key}>{field.label}</label>
-          <Select 
-            options={this.state.domainValue}  
-            value={value && value.toJS()} 
-            id={field.key} 
+          <Select
+            options={this.state.domainValue}
+            value={value && value.toJS()}
+            id={field.key}
             clearable={false}
             allowCreate={this.props.allowCreate}
             multi={true}
@@ -681,7 +682,7 @@ export class DateField extends BaseField{
   }
 
   shouldComponentUpdate(nextProps, nextState){
-    return this.state.field != nextState.field 
+    return this.state.field != nextState.field
       || this.props.maxDate != nextProps.maxDate
       || this.props.minDate != nextProps.minDate
   }

@@ -13,7 +13,7 @@ const initialState = {
   data: Immutable.Map(),
   filter: '',
   sortCond: {
-     by: 'content',
+     by: 'createdAt',
      order: 'asc'
   },
 }

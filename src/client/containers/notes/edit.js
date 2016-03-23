@@ -12,13 +12,14 @@ import sitemap from '../../routes'
 import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../components/widgets'
 import {AvatarView, Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets'
 import {DateField, MultiSelectField2, MarkdownEditField, InputField, DropdownField} from '../../components/fields'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 import noteForm from '../../forms/note2'
 import {newNoteSelector, editNoteSelector} from '../../selectors/notes'
 
 class NewNote extends Component {
 
-  state = {forceLeave: false};
+  state = {forceLeave: false, type: undefined};
 
   static contextTypes = {
     history: PropTypes.object.isRequired,
@@ -58,29 +59,37 @@ class NewNote extends Component {
   componentWillUnmount() {
     if (this.unsubscribeSubmit) this.unsubscribeSubmit()
     if (this.unsubscribeState) this.unsubscribeState()
-    if (this.unsubscribeEntity) this.unsubscribeEntity()
+    if (this.unsubscribeEntity) this.unsubscribeEntityType()
+    if (this.unsubscribeEntityId) this.unsubscribeEntityId()
+  }
+
+  onSubmit = () => {
+    return this.noteForm.onSubmit( (state, document) => {
+      dispatch(notesActions.create(document.note, document.entity))
+      this.goBack(true)
+    })
   }
 
   componentWillMount() {
     const { dispatch, getState, persons, companies, missions } = this.props
 
-    this.noteForm = noteForm()
+    this.noteForm = (this.props.note)
+      ? noteForm(this.props.note.toJS())
+      : noteForm()
 
-    this.unsubscribeSubmit = this.noteForm.onSubmit( (state, document) => {
-      dispatch(notesActions.create(document.note, document.entity))
-      this.goBack(true)
-    })
+    this.unsubscribeSubmit = this.onSubmit()
 
-    this.unsubscribeState = this.noteForm.field('note').onValue( state => {
+    this.unsubscribeState = this.noteForm.onValue( state => {
       this.setState({
         canSubmit: state.canSubmit,
         hasBeenModified: state.hasBeenModified,
       })
     })
 
-    const entityIdField = this.noteForm.field('/entity/_id')
+    const entityIdField = this.noteForm.field('entityId')
+    const entityTypeField = this.noteForm.field('entityType')
 
-    this.unsubscribeEntity = this.noteForm.field('/entity/typeName').onValue( state => {
+    this.unsubscribeEntityType = entityTypeField.onValue( state => {
       const entities = (type) => {
         switch (type) {
           case 'company': return companies;
@@ -89,15 +98,33 @@ class NewNote extends Component {
           default:        return undefined;
         }
       }(state.value)
-      entityIdField.setSchemaValue('domainValue', entitiesToDomain(entities))
-      this.setState({
-        canSubmit: state.canSubmit,
-        hasBeenModified: state.hasBeenModified,
-      })
+
+      const label = (type) => {
+        switch (type) {
+          case 'company': return 'Company';
+          case 'mission': return 'Mission';
+          case 'person':  return 'Person';
+          default:        return 'Entity';
+        }
+      }(state.value)
+
+      const domain = entitiesToDomain(entities)
+
+      entityIdField.disabled(!state.value)
+
+      if (this.state.type) {
+        entityIdField.setValue(undefined)
+      }
+
+      entityIdField.setSchemaValue('domainValue', domain)
+      entityIdField.setSchemaValue('required', !!state.value)
+      entityIdField.setSchemaValue('label', label)
+
+      this.setState({type: state.value})
     })
 
-    const assigneesIds = this.noteForm.field('/note/assigneesIds')
-    assigneesIds.setSchemaValue('domainValue', entitiesToDomain(persons))
+    const assigneesIds = this.noteForm.field('assigneesIds')
+    assigneesIds.setSchemaValue('domainValue', entitiesToDomain(persons.filter(getWorkersFilter)))
   }
 
   render () {
@@ -120,8 +147,15 @@ class EditNote extends NewNote {
     super(props)
   }
 
+  onSubmit = () => {
+    return this.noteForm.onSubmit( (state, document) => {
+      this.props.dispatch(notesActions.update(this.props.note.toJS(), document))
+      this.goBack(true)
+    })
+  }
+
   render() {
-    let submitBtn = <AddBtn onSubmit={this.handleSubmit} canSubmit={this.state.canSubmit}/>;
+    let submitBtn = <UpdateBtn onSubmit={this.handleSubmit} canSubmit={this.state.canSubmit && this.state.hasBeenModified}/>;
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>;
 
     return (
@@ -136,28 +170,7 @@ class EditNote extends NewNote {
 }
 
 class EditContent extends Component {
-  state = {hideOption: undefined}
-
-  handleToggle = (e) => {
-    e.preventDefault()
-    const option  = this.state.hideOption === undefined ? 'true' : this.state.hideOption
-    this.setState({
-      hideOption: !option,
-    })
-  }
-
   render() {
-
-    const getClass = (option) => {
-      if (option === undefined) {
-        return 'hidden row'
-      } else {
-        return (!option ? 'animated fadeIn' : 'animated fadeOut') + ' row'
-      }
-    }
-
-    const animClass = getClass(this.state.hideOption)
-
     return (
       <Content>
         <div className="row">
@@ -170,45 +183,45 @@ class EditContent extends Component {
               <HeaderRight>
                 {this.props.submitBtn}
                 {this.props.cancelBtn}
+                <ResetBtn obj={this.props.noteForm} />
               </HeaderRight>
             </Header>
 
             <div className="col-md-12">
               <Form>
-                <div className="row m-b-1">
-                  <MarkdownEditField field={this.props.noteForm.field('/note/content')} />
-                    <a href="#" onClick={this.handleToggle}>
-                      <i className="fa fa-lg fa-cog"></i> More
-                    </a>
+                <div className="row">
+                  <MarkdownEditField field={this.props.noteForm.field('content')} />
                 </div>
-                <div className={animClass}>
+                <ToggleBox icon="fa fa-lg fa-cog" text="More">
                   <div className="row">
                     <div className="col-md-6">
-                      <DateField field={this.props.noteForm.field('/note/dueDate')} />
+                      <DateField field={this.props.noteForm.field('dueDate')} />
                     </div>
                     <div className="col-md-6">
-                      <div className="col-md-6">
-                        <InputField field={this.props.noteForm.field('/note/notification/delay')} />
-                      </div>
-                      <div className="col-md-6">
-                        <DropdownField field={this.props.noteForm.field('/note/notification/unit')} />
+                      <div className="row">
+                        <div className="col-md-6">
+                          <InputField field={this.props.noteForm.field('/notification/delay')} />
+                        </div>
+                        <div className="col-md-6">
+                          <DropdownField field={this.props.noteForm.field('/notification/unit')} />
+                        </div>
                       </div>
                     </div>
                   </div>
                   <div className="row">
                     <div className="col-md-12">
-                      <MultiSelectField2 field={this.props.noteForm.field('/note/assigneesIds')} />
+                      <MultiSelectField2 field={this.props.noteForm.field('/assigneesIds')} />
                     </div>
                   </div>
                   <div className="row">
                     <div className="col-md-6">
-                      <DropdownField field={this.props.noteForm.field('/entity/typeName')} />
+                      <DropdownField field={this.props.noteForm.field('entityType')} />
                     </div>
                     <div className="col-md-6">
-                      <DropdownField field={this.props.noteForm.field('/entity/_id')} />
+                      <DropdownField field={this.props.noteForm.field('entityId')} />
                     </div>
                   </div>
-                </div>
+                </ToggleBox>
               </Form>
             </div>
           </div>
@@ -224,6 +237,48 @@ EditContent.propTypes = {
   cancelBtn: PropTypes.element.isRequired,
   noteForm:   PropTypes.object.isRequired,
 }
+
+class ToggleBox extends Component {
+  state = {hide: undefined};
+
+  handleClick = (e) => {
+    e.preventDefault()
+    const option  = this.state.hide === undefined ? 'true' : this.state.hide
+    this.setState({
+      hide: !option,
+    })
+  }
+
+  render() {
+    const {children, icon, text} = this.props
+
+    const styles = {
+      text: {
+        marginLeft: '4px',
+      },
+      box: {
+        marginTop: '10px',
+      }
+    }
+
+    const optionPanel = this.state.hide === undefined || this.state.hide
+      ? undefined
+      : <div style={styles.box} key="togglebox">{children}</div>
+
+    return (
+        <div className="row">
+          <a href="#" onClick={this.handleClick}>
+            <i className={icon}></i><span style={styles.text}>{text}</span>
+          </a>
+          <ReactCSSTransitionGroup transitionName="togglebox" transitionEnterTimeout={400} transitionLeaveTimeout={400}>
+            {optionPanel}
+          </ReactCSSTransitionGroup>
+        </div>
+    )
+  }
+}
+
+const getWorkersFilter = p => p.get('type') === 'worker'
 
 function entitiesToDomain(xs) {
   if (!xs) return []

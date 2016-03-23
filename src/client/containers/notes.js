@@ -666,9 +666,10 @@ export class ItemNote extends Component {
 
     const avatar = (entity) => {
       if(!entity)return <div/>
+      const etype = type === 'other' ? 'person' : type
       return (
         <div style={styles.avatar}>
-          <a href="#" onClick={this.handleViewEntity.bind(null, type, entity.get('_id'))}>
+          <a href="#" onClick={this.handleViewEntity.bind(null, etype, entity.get('_id'))}>
             <AvatarView obj={entity} size={34} />
           </a>
         </div>
@@ -735,7 +736,8 @@ export class ItemNote extends Component {
 
       const handleEdit = (e) => {
         e.preventDefault()
-        this.setState({modalIsOpen: true});
+        // this.setState({modalIsOpen: true});
+        this.context.dispatch(pushRoute(routes.notes.edit, {noteId: note.get('_id')}));
       }
       const handleDelete = (e) => {
         e.preventDefault()
