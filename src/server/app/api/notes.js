@@ -1,4 +1,5 @@
 import async from 'async';
+import moment from 'moment';
 import _ from 'lodash';
 import {Note} from '../../models';
 import {ObjectId} from '../../helpers';
@@ -81,10 +82,10 @@ function loadOne(id, cb){
 
 function create(note, user, cb){
   let newNote = fromJson(note) ;
-  newNote.authorId = user._id;
-  newNote.entityId = newNote.entityId || user._id;
-  newNote.entityType = newNote.entityType || 'person';
-  newNote.createdAt = new Date();
+  newNote.authorId   = user._id;
+  newNote.entityId   = newNote.entityId || user._id;
+  newNote.entityType = newNote.entityType;
+  newNote.createdAt  = new Date();
   Note.collection.insertOne(newNote, (err, _) => {
     return cb(err, newNote._id)
   })
@@ -104,12 +105,13 @@ function del(id, cb){
 }
 
 function Maker(obj){
-  return obj;
+  return obj
 }
 
 function fromJson(json){
-  let attrs = ['content', 'entityType'];
-  let res = _.pick(json, attrs);
-  if(json.entityId) res.entityId = ObjectId(json.entityId);
-  return res;
+  let attrs = ['content', 'entityType', 'dueDate', 'assigneesIds', 'notification', 'status']
+  let res = _.pick(json, attrs)
+  if (json.dueDate) res.dueDate = moment(json.dueDate).toDate()
+  if (json.entityId) res.entityId = ObjectId(json.entityId)
+  return res
 }

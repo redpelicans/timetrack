@@ -191,6 +191,10 @@ hr {
 }
 
 .rw-state-focus > .rw-input {
+  color: @text-color;
+}
+
+.rw-state-focus > .rw-input:hover {
   color: @form-background-color;
 }
 
@@ -417,4 +421,22 @@ button:hover {
 
 .hidden {
   display: none;
+}
+
+.togglebox-enter {
+  opacity: 0.001;
+}
+
+.togglebox-enter.togglebox-enter-active {
+  opacity: 1;
+  transition: opacity 400ms ease-in;
+}
+
+.togglebox-leave {
+  opacity: 1;
+}
+
+.togglebox-leave.togglebox-leave-active {
+  opacity: 0.001;
+  transition: opacity 400ms ease-in;
 }

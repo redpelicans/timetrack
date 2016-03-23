@@ -112,5 +112,6 @@ export const notesActions = {
 function Maker(obj){
   obj.createdAt = moment(obj.createdAt);
   if(obj.updatedAt) obj.updatedAt = moment(obj.updatedAt);
+  if(obj.dueDate) obj.dueDate = moment(obj.dueDate).toDate();
   return obj;
 }

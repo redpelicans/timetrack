@@ -37,6 +37,10 @@ class NotesList extends Component {
     this.props.dispatch(notesActions.filter(''))
   }
 
+  handleRefresh = () => {
+    this.props.dispatch(notesActions.load({forceReload: true}))
+  }
+
   handleSearchFilter = (filter) => {
     this.props.dispatch(notesActions.filter(filter))
     // Masonry hack for reloading layout on search
@@ -77,6 +81,7 @@ class NotesList extends Component {
           <HeaderRight>
             <Filter filter={filter} onReset={this.handleResetFilter} onChange={this.handleSearchFilter}/>
             <Sort sortMenu={sortMenu} sortCond={sortCond} onClick={this.handleSort}/>
+            <Refresh onClick={this.handleRefresh} />
           </HeaderRight>
         </Header>
         <Masonry

@@ -736,7 +736,8 @@ export class ItemNote extends Component {
 
       const handleEdit = (e) => {
         e.preventDefault()
-        this.setState({modalIsOpen: true});
+        // this.setState({modalIsOpen: true});
+        this.context.dispatch(pushRoute(routes.notes.edit, {noteId: note.get('_id')}));
       }
       const handleDelete = (e) => {
         e.preventDefault()

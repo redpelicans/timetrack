@@ -6,6 +6,7 @@ const entity = (state, props) => props.entity;
 const persons = state => state.persons.data;
 const companies = state => state.companies.data;
 const missions = state => state.missions.data;
+const noteId = state => state.routing.location.state && state.routing.location.state.noteId
 
 export const notesSelector = createSelector(
   entity,
@@ -41,11 +42,14 @@ export const editNoteSelector = createSelector(
   persons,
   companies,
   missions,
-  (persons, companies, missions) => {
+  notes,
+  noteId,
+  (persons, companies, missions, notes, noteId) => {
     return {
       persons,
       companies,
       missions,
+      note: notes.data.find(item => item.get('_id') === noteId)
     }
   }
 )
