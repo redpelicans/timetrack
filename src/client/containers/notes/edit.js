@@ -19,7 +19,7 @@ import {newNoteSelector, editNoteSelector} from '../../selectors/notes'
 
 class NewNote extends Component {
 
-  state = {forceLeave: false};
+  state = {forceLeave: false, type: undefined};
 
   static contextTypes = {
     history: PropTypes.object.isRequired,
@@ -99,14 +99,28 @@ class NewNote extends Component {
         }
       }(state.value)
 
+      const label = (type) => {
+        switch (type) {
+          case 'company': return 'Company';
+          case 'mission': return 'Mission';
+          case 'person':  return 'Person';
+          default:        return 'Entity';
+        }
+      }(state.value)
+
       const domain = entitiesToDomain(entities)
 
-      entityIdField.setSchemaValue('domainValue', domain)
+      entityIdField.disabled(!state.value)
 
-      this.setState({
-        canSubmit: state.canSubmit,
-        hasBeenModified: state.hasBeenModified,
-      })
+      if (this.state.type) {
+        entityIdField.setValue(undefined)
+      }
+
+      entityIdField.setSchemaValue('domainValue', domain)
+      entityIdField.setSchemaValue('required', !!state.value)
+      entityIdField.setSchemaValue('label', label)
+
+      this.setState({type: state.value})
     })
 
     const assigneesIds = this.noteForm.field('assigneesIds')
