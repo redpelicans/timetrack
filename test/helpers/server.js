@@ -66,8 +66,8 @@ function createDBLoader(data, cb){
 export function configureStore(reducer, initialState, types){
   const sessionId = 1
   const appJwt = getToken(params.user._id, params.secretKey, params.duration)
-  const loginState = {login: {appJwt, sessionId}}
-  const state = {...initialState, ...loginState}
+  const loginState = {login: {appJwt, sessionId, forceCookie: true}}
+  const state = {...initialState, ...loginState }
   return createStore( reducer, state, applyMiddleware(myMiddleware(types), thunk))
 }
 

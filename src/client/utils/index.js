@@ -28,7 +28,6 @@ export function checkStatus(res) {
 
 export function requestJson(uri, {dispatch=new Function(), getState, token, verb='get', header='Runtime Error', body, message='Check your backend server'} = {}){
   let  promise;
-  //const {login: {appJwt, sessionId}} = getState();
   const absoluteUri = window.location ? window.location.origin + uri : uri;
   const options = {
     method: verb,
@@ -39,6 +38,10 @@ export function requestJson(uri, {dispatch=new Function(), getState, token, verb
     // },
   }
 
+  // test context
+   const {login: {appJwt, sessionId, forceCookie}} = getState ? getState() : {login: {}};
+   if(forceCookie) token = appJwt; 
+  
   // isomorphic request
   if(token) {
     options.headers = {

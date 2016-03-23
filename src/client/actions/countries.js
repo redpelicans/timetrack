@@ -12,7 +12,7 @@ function countriesLoaded(countries){
 
 export function loadCountries(){
   return (dispatch, getState) => {
-    requestJson('/api/countries', {dispatch, message: 'Cannot load countries, check your backend server'})
+    requestJson('/api/countries', {dispatch, getState, message: 'Cannot load countries, check your backend server'})
       .then( countries => dispatch(countriesLoaded(countries)));
   }
 }
