@@ -35,7 +35,7 @@
     "extend": "^3.0.0",
     "faker": "^3.0.1",
     "fbjs": "^0.3.1",
-    "formo": "*",
+    "formo": "1.7.0",
     "gulp-autoprefixer": "^3.0.1",
     "gulp-chmod": "^1.2.0",
     "gulp-clone": "^1.0.0",

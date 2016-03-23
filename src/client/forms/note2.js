@@ -12,7 +12,7 @@ export default function note(document){
       type: 'text',
       defaultValue: 'person',
       domainValue: [
-        {key: undefined, value: 'None'},
+        {key: undefined, value: '<None>'},
         {key: 'company', value: 'Company'},
         {key: 'mission', value: 'Mission'},
         {key: 'person', value: 'Person'}

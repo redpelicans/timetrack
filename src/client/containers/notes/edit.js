@@ -99,16 +99,27 @@ class NewNote extends Component {
         }
       }(state.value)
 
+      const label = (type) => {
+        switch (type) {
+          case 'company': return 'Company';
+          case 'mission': return 'Mission';
+          case 'person':  return 'Person';
+          default:        return 'Entity';
+        }
+      }(state.value)
+
       const domain = entitiesToDomain(entities)
 
+      entityIdField.disabled(!state.value)
       entityIdField.setSchemaValue('domainValue', domain)
-      // entityIdField.setValue(undefined) // How to do this ?
-      entityIdField.setSchemaValue('label', 'Test')
+      entityIdField.setValue(undefined)
+      entityIdField.setSchemaValue('label', label)
 
-      this.setState({
-        canSubmit: state.canSubmit,
-        hasBeenModified: state.hasBeenModified,
-      })
+      // ????
+      // this.setState({
+      //   canSubmit: state.canSubmit,
+      //   hasBeenModified: state.hasBeenModified,
+      // })
     })
 
     const assigneesIds = this.noteForm.field('assigneesIds')
