@@ -2,6 +2,8 @@ import {requestJson} from '../utils';
 import Immutable from 'immutable';
 
 export const TAGS_LOADED = 'TAGS_LOADED';
+export const TAG_DETAILS_LOADED = 'TAG_DETAILS_LOADED'
+
 
 function tagsLoaded(tags){
   return{

@@ -25,6 +25,17 @@ export function init(app, resources){
     })
   });
 
+  app.get('/tag/:label', function(req, res, next) {
+    let label = req.params.label
+    if (!label) return res.json([])
+    async.parallel({companies: companiesWithTag(label), persons: personsWithTag(label)}, (err, data) => {
+      if (err) return next(err)
+      //console.log('res = ', [...data.companies, ...data.persons])
+      res.json([...data.companies, ...data.persons])
+    })
+  })
+
+
 }
 
 function companies(cb){
@@ -33,4 +44,22 @@ function companies(cb){
 
 function persons(cb){
   Person.findAll({isDeleted: {$ne: true}, 'tags': {$exists: true}}, {'tags': 1}, cb);
+}
+
+function companiesWithTag(tag){
+  return cb => {
+    Company.findAll({isDeleted: {$ne: true}, tags: tag}, {_id: 1}, (err, companies) =>{
+      if(err)return cb(err);
+      return cb(null, _.map(companies, company => { return {entityId: company._id, entityType: 'company'}}))
+    });
+  }
+}
+
+function personsWithTag(tag){
+  return cb => {
+    Person.findAll({isDeleted: {$ne: true}, tags: tag}, {_id: 1}, (err, persons) => {
+      if(err)return cb(err);
+      return cb(null, _.map(persons, person => { return {entityId: person._id, entityType: 'person'}}))
+    });
+  }
 }
