@@ -24,7 +24,7 @@ class ViewTagApp extends Component {
   }
 
   render() {
-    const {label, tag, isLoading} = this.props
+    const {label, tag, isLoading, companies, persons} = this.props
     console.log('tag dans container VIEW = ', tag)
     return (
       <Content>
@@ -34,7 +34,7 @@ class ViewTagApp extends Component {
             <Title title={label}/>
           </HeaderLeft>
         </Header>
-        <Entities label={label} tag={tag}/>
+        <Entities label={label} tag={tag} companies={companies} persons={persons} />
       </Content>
     )
   }
