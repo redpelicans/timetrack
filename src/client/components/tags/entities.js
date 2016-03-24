@@ -1,7 +1,7 @@
 import React, {PropTypes} from 'react'
 import _ from 'lodash'
 
-import {Edit as EditPerson, Delete as DeletePerson, Preview as PersonPreview} from '../person/widgets'
+import {PersonPreview} from './widgets'
 import {Preview as CompanyPreview} from '../company/widgets'
 
 let i = 0
@@ -9,13 +9,12 @@ let i = 0
 const Entities = ({tag, companies, persons}) => {
   
   const list = _.map(tag, (entity) => {
-    const person = persons.get(entity.entityId)
+
     if (entity.entityType === 'person') {
+      const person = persons.get(entity.entityId)
+      const company = companies.get(person.get('companyId'))
       return (
-        <PersonPreview person={person} key={i++}>
-          <EditPerson person={person}/>
-          <DeletePerson person={person}/>
-        </PersonPreview>
+        <PersonPreview person={person} company={company} key={i++} />
       )
     }
     else {

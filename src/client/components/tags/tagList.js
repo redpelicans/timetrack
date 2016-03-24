@@ -7,20 +7,19 @@ const TagItem = ({tag, onDetail}) => {
       display: 'flex',
       flexDirection: 'row',
       flexGrow: '1',
-      margin: '5px 5px 5px 5px',
+      margin: '0px 10px',
+      padding: '10px 5px',
       fontFamily: 'Roboto, Helvetica Neue, Helvetica, Arial, sans-serif',
       fontSize: '24px',
-    },
-    button: {
       backgroundColor: 'transparent',
       border: 'none',
     },
     name: {
-      margin: '0px 10px 0px 0px',
+      margin: '0px 5px 0px 0px',
       color: '#999',
     },
     occurrences: {
-      margin: '0px 0px 0px 10px',
+      margin: '0px 0px 0px 5px',
       color: '#337ab7',
     },
   }
@@ -29,13 +28,12 @@ const TagItem = ({tag, onDetail}) => {
     e.preventDefault()
     onDetail(tag[0])
   }
+    //<div style={styles.tagContainer}>
   return (
-    <div style={styles.tagContainer}>
-      <button style={styles.button} onClick={handleDetails}>
+      <button style={styles.tagContainer} onClick={handleDetails}>
         <div style={styles.name}>{tag[0]}</div>
         <div style={styles.occurrences}>{tag[1]}</div>
       </button>
-    </div>
   )
 }
 
