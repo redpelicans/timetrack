@@ -4,12 +4,13 @@ import {pushRoute} from '../../actions/routes'
 
 import routes from '../../routes'
 import {routeActions} from '../../actions/routes'
-import {tagListSelector} from '../../selectors/tags'
+import {viewTagSelector} from '../../selectors/tags'
 import {personsActions} from '../../actions/persons'
 import {companiesActions} from '../../actions/companies'
 import {Content} from '../../components/layout'
 import Entities from '../../components/tags/entities'
 import {Header, HeaderLeft, GoBack, HeaderRight, Title, TitleIcon, Filter} from '../../components/widgets';
+
 class ViewTagApp extends Component {
 
   componentWillMount() {
@@ -39,5 +40,4 @@ class ViewTagApp extends Component {
   }
 }
 
-export default connect(tagListSelector)(ViewTagApp)
-//<div>Welcome to Tag view page, label is {label}</div>
+export default connect(viewTagSelector)(ViewTagApp)

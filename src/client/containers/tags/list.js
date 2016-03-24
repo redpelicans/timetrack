@@ -3,7 +3,7 @@ import {connect} from 'react-redux'
 import {pushRoute} from '../../actions/routes'
 
 import routes from '../../routes'
-import {tagListSelector} from '../../selectors/tags'
+import {listTagSelector} from '../../selectors/tags'
 import {personsActions} from '../../actions/persons'
 import {companiesActions} from '../../actions/companies'
 import {Content} from '../../components/layout';
@@ -38,4 +38,4 @@ class ListTagsApp extends Component {
   }
 }
 
-export default connect(tagListSelector)(ListTagsApp)
+export default connect(listTagSelector)(ListTagsApp)

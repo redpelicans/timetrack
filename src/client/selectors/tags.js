@@ -16,14 +16,23 @@ export const tagsSelector = createSelector(
   }
 )
 
-export const tagListSelector = createSelector(
+export const listTagSelector = createSelector(
+  persons, 
+  companies,
+  (persons, companies) => {
+    return {
+      tagList: formatTagList(persons, companies),
+    }
+  }
+)
+
+export const viewTagSelector = createSelector(
   persons, 
   companies,
   label,
   pendingRequests,
   (persons, companies, label, pendingRequests) => {
     return {
-      tagList: formatTagList(persons, companies),
       tag: formatTag(label, persons, companies),
       label,
       isLoading: !!pendingRequests,
@@ -50,7 +59,6 @@ function formatTagList(persons, companies) {
   
   return sortedArray
 }
-
 
 function formatTag(label, persons, companies) {
   let res = persons.filter(person => person.get('tags') && person.get('tags').size).reduce((res, person) => {
