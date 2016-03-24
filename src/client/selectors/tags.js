@@ -4,6 +4,7 @@ import _ from 'lodash';
 const tags = state => state.tags.data;
 const persons = state => state.persons.data
 const companies = state => state.companies.data
+const label = state => state.routing.location.state && state.routing.location.state.label
 
 export const tagsSelector = createSelector(
   tags,
@@ -17,7 +18,8 @@ export const tagsSelector = createSelector(
 export const tagListSelector = createSelector(
   persons, 
   companies,
-  (persons, companies) => {
+  label,
+  (persons, companies, label) => {
     let res = persons.filter(person => person.get('tags') && person.get('tags').size).reduce((res, person) => {
       person.get('tags').forEach(tag => res[tag] ? res[tag]++ : res[tag] = 1);
       return res;
@@ -35,7 +37,8 @@ export const tagListSelector = createSelector(
     })
 
     return {
-      tagList: sortedArray
+      tagList: sortedArray,
+      label,
     }
   }
 )

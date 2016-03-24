@@ -1,11 +1,11 @@
-
 import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {pushRoute} from '../../actions/routes'
 
 import routes from '../../routes'
 import {tagListSelector} from '../../selectors/tags'
-//import {tagsActions} from '../../actions/tags'
+import {personsActions} from '../../actions/persons'
+import {companiesActions} from '../../actions/companies'
 import {Content} from '../../components/layout';
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon, Filter} from '../../components/widgets';
 import TagList from '../../components/tags/tagList'
@@ -13,13 +13,16 @@ import TagList from '../../components/tags/tagList'
 class ListTagsApp extends Component {
 
   componentWillMount = () => {
-  //none for now
+    const {dispatch} = this.props
+    dispatch(personsActions.load())
+    dispatch(companiesActions.load())
   }
 
   onDetail = (label) => {
-    console.log('clicked on function onDetail()')
-    //console.log('routes.tags.detail = ', routes.tags.detail)
-    //this.props.dispatch(pushRoute(routes.tags.detail, {label}))
+    //console.log('clicked on function onDetail()')
+    console.log('dans list container, label = ', label)
+    console.log('routes.tags.view = ', routes.tags.view)
+    this.props.dispatch(pushRoute(routes.tags.view, {label}))
   }
 
   render() {

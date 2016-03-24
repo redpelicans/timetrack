@@ -1,5 +1,6 @@
-import ListTagsApp from '../containers/tags/list.js';
-import {Route, RouteManager} from 'kontrolo';
+import ListTagsApp from '../containers/tags/list.js'
+import ViewTagApp from '../containers/tags/view.js'
+import {Route, RouteManager} from 'kontrolo'
 
 const routes = RouteManager([
   Route({
@@ -12,6 +13,12 @@ const routes = RouteManager([
     iconName: 'tags',
     authRequired: true,
   }),
-], {name: 'tags'});
+  Route({
+    name: 'view',
+    path: '/tags/view',
+    topic: 'tags',
+    component: ViewTagApp,
+  }),
+], {name: 'tags'})
 
-export default routes;
+export default routes
