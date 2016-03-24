@@ -25,7 +25,6 @@ class ViewTagApp extends Component {
 
   render() {
     const {label, tag, isLoading, companies, persons} = this.props
-    console.log('tag dans container VIEW = ', tag)
     return (
       <Content>
         <Header>

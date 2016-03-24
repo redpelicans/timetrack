@@ -32,8 +32,6 @@ export const viewTagSelector = createSelector(
   label,
   pendingRequests,
   (persons, companies, label, pendingRequests) => {
-    console.log('dans SSSSselector, persons = ', persons.toJS())
-    console.log('dans SSSSselector, companies = ', companies.toJS())
     return {
       persons,
       companies,
