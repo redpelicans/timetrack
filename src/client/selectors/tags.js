@@ -5,6 +5,7 @@ const tags = state => state.tags.data;
 const persons = state => state.persons.data
 const companies = state => state.companies.data
 const label = state => state.routing.location.state && state.routing.location.state.label
+const pendingRequests = state => state.pendingRequests
 
 export const tagsSelector = createSelector(
   tags,
@@ -19,11 +20,13 @@ export const tagListSelector = createSelector(
   persons, 
   companies,
   label,
-  (persons, companies, label) => {
+  pendingRequests,
+  (persons, companies, label, pendingRequests) => {
     return {
       tagList: formatTagList(persons, companies),
       tag: formatTag(label, persons, companies),
       label,
+      isLoading: !!pendingRequests,
     }
   }
 )
