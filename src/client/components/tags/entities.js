@@ -1,8 +1,7 @@
 import React, {PropTypes} from 'react'
 import _ from 'lodash'
 
-import {PersonPreview} from './widgets'
-import {Preview as CompanyPreview} from '../company/widgets'
+import {PersonPreview, CompanyPreview} from './widgets'
 
 let i = 0
 
