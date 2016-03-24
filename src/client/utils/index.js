@@ -29,25 +29,21 @@ export function checkStatus(res) {
 export function requestJson(uri, {dispatch=new Function(), getState, token, verb='get', header='Runtime Error', body, message='Check your backend server'} = {}){
   let  promise;
   const absoluteUri = window.location ? window.location.origin + uri : uri;
-  const options = {
-    method: verb,
-    credentials: 'same-origin',
-    // headers:{
-    //   'X-Token-Access': appJwt,
-    //   'X-SessionId': sessionId,
-    // },
-  }
-
-  // test context
+  // care with test context
    const {login: {appJwt, sessionId, forceCookie}} = getState ? getState() : {login: {}};
    if(forceCookie) token = appJwt; 
   
-  // isomorphic request
-  if(token) {
-    options.headers = {
-      Cookie: `timetrackToken=${token};`
-    }
+  const options = {
+    method: verb,
+    credentials: 'same-origin',
+    headers:{
+    //   'X-Token-Access': appJwt,
+    'X-SessionId': sessionId,
+    },
   }
+
+  // isomorphic request
+  if(token) options.headers.Cookie = `timetrackToken=${token};`;
 
   dispatch(startLoading());
 
