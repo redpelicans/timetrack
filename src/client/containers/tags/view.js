@@ -33,10 +33,17 @@ class ViewTagApp extends Component {
             <Title title={label}/>
           </HeaderLeft>
         </Header>
-        <Entities label={label} tag={tag} companies={companies} persons={persons} />
+        <Entities tag={tag} companies={companies} persons={persons} />
       </Content>
     )
   }
+}
+
+ViewTagApp.propTypes = {
+  label: PropTypes.string,
+  tag: PropTypes.array.isRequired,
+  companies: PropTypes.object.isRequired,
+  persons: PropTypes.object.isRequired,
 }
 
 export default connect(viewTagSelector)(ViewTagApp)

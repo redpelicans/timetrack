@@ -59,4 +59,14 @@ const TagList = ({tagList, onDetail}) => {
   )
 }
 
+TagItem.propTypes = {
+  tag: PropTypes.array.isRequired,
+  onDetail: PropTypes.func.isRequired,
+}
+
+TagList.propTypes = {
+  tagList: PropTypes.array.isRequired,
+  onDetail: PropTypes.func.isRequired,
+}
+
 export default TagList

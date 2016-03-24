@@ -38,4 +38,8 @@ class ListTagsApp extends Component {
   }
 }
 
+ListTagsApp.propTypes = {
+  tagList: PropTypes.array.isRequired,
+}
+
 export default connect(listTagSelector)(ListTagsApp)

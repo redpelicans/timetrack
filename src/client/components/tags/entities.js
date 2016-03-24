@@ -6,7 +6,7 @@ import {Preview as CompanyPreview} from '../company/widgets'
 
 let i = 0
 
-const Entities = ({label, tag, companies, persons}) => {
+const Entities = ({tag, companies, persons}) => {
   
   const list = _.map(tag, (entity) => {
     const person = persons.get(entity.entityId)
@@ -32,6 +32,12 @@ const Entities = ({label, tag, companies, persons}) => {
   return (
     <div>{list}</div>
   )
+}
+
+Entities.propTypes = {
+  tag: PropTypes.array.isRequired,
+  companies: PropTypes.object.isRequired,
+  persons: PropTypes.object.isRequired,
 }
 
 export default Entities
