@@ -19,9 +19,6 @@ class ListTagsApp extends Component {
   }
 
   onDetail = (label) => {
-    //console.log('clicked on function onDetail()')
-    console.log('dans list container, label = ', label)
-    console.log('routes.tags.view = ', routes.tags.view)
     this.props.dispatch(pushRoute(routes.tags.view, {label}))
   }
 

@@ -55,9 +55,7 @@ const TagList = ({tagList, onDetail}) => {
     )
   })
   return (
-    <div style={styles.tagListContainer}>
-    {list}
-    </div>
+    <div style={styles.tagListContainer}>{list}</div>
   )
 }
 
