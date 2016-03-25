@@ -1,17 +1,19 @@
-import {Route, RouteManager} from 'kontrolo';
-import NotFound from '../containers/notfound';
-import LoginApp from '../containers/login';
-import UnAuthorized from '../components/unauthorized';
-import personRoutes from './person';
-import companyRoutes from './company';
-import missionRoutes from './mission';
-import notesRoutes from './notes';
+import {Route, RouteManager} from 'kontrolo'
+import NotFound from '../containers/notfound'
+import LoginApp from '../containers/login'
+import UnAuthorized from '../components/unauthorized'
+import personRoutes from './person'
+import companyRoutes from './company'
+import missionRoutes from './mission'
+import notesRoutes from './notes'
+import agendaRoutes from './agenda'
 
 const routes = RouteManager([
   personRoutes,
   companyRoutes,
   missionRoutes,
   notesRoutes,
+  agendaRoutes,
   Route({
     name: 'notfound',
     path: '/notfound',
@@ -29,5 +31,4 @@ const routes = RouteManager([
   }),
 ]);
 
-export const TOTO=1;
 export default routes;
