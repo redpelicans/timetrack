@@ -2,6 +2,8 @@ import React, {PropTypes} from 'react'
 import _ from 'lodash'
 
 import {PersonPreview, CompanyPreview} from './widgets'
+//import {Preview as PersonPreview} from '../../components/person/widgets';
+//import {Preview as CompanyPreview} from '../../components/company/widgets';
 
 let i = 0
 
@@ -13,7 +15,7 @@ const Entities = ({tag, companies, persons}) => {
       const person = persons.get(entity.entityId)
       const company = companies.get(person.get('companyId'))
       return (
-        <PersonPreview person={person} company={company} key={i++} />
+        <PersonPreview person={person} company={company} entity={entity} key={i++} />
       )
     }
     else {

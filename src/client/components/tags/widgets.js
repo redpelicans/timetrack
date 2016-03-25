@@ -42,6 +42,14 @@ export class PersonPreview extends Component {
       return <div style={styles.company} className="p-r-1"> <a href="#" onClick={this.handleViewCompany}>{company.get('name')}</a> </div> ;
     }
 
+    const entityIcon = () => {
+      return (
+        <a href="#" onClick={this.handleViewPerson}>
+        <i className="iconButton-small iconButton fa m-r-1 fa-users" />
+        </a>
+      )
+    }
+
     const styles = {
       container:{
         display: 'flex',
@@ -88,8 +96,8 @@ export class PersonPreview extends Component {
       },
     };
 
-    const person = this.props.person;
-    const avatar = <AvatarView obj={person}/>;
+    const {person, entity} = this.props
+    const avatar = <AvatarView obj={person}/>
     const isNew = () =>{
       if(person.get('isNew')) return <NewLabel/>
         if(person.get('isUpdated')) return <UpdatedLabel/>
@@ -125,23 +133,24 @@ export class PersonPreview extends Component {
 
     return (
       <div style={styles.container}>
-        <div style={styles.containerLeft}>
-          <div className="p-r-1">
-            <a href="#" onClick={this.handleViewPerson}>{avatar}</a>
-          </div>
-          <div style={styles.isnew}>
-            {isNew()}
-          </div>
-          <div style={styles.names}>
-            <div style={styles.name} className="p-r-1">
-              {personView()}
-            </div>
-            {companyView()}
-          </div>
-          <div className="p-r-1" style={styles.tags}>
-            {tags()}
-          </div>
-        </div>
+      <div style={styles.containerLeft}>
+      <div className="p-r-1">
+      <a href="#" onClick={this.handleViewPerson}>{avatar}</a>
+      {entityIcon()}
+      </div>
+      <div style={styles.isnew}>
+      {isNew()}
+      </div>
+      <div style={styles.names}>
+      <div style={styles.name} className="p-r-1">
+      {personView()}
+      </div>
+      {companyView()}
+      </div>
+      <div className="p-r-1" style={styles.tags}>
+      {tags()}
+      </div>
+      </div>
       </div>
     );
   }
@@ -150,6 +159,7 @@ export class PersonPreview extends Component {
 PersonPreview.propTypes = {
   person:   PropTypes.object.isRequired,
   company:  PropTypes.object,
+  entity:   PropTypes.object.isRequired,
   children: PropTypes.node
 }
 
@@ -157,26 +167,15 @@ PersonPreview.propTypes = {
 
 @authable
 export class CompanyPreview extends Component {
-  //state = {showActions: false}
 
   shouldComponentUpdate(nextProps, nextState){
-    return this.props.company !== nextProps.company /*||*/
-      //this.state.showActions !== nextState.showActions;
+    return this.props.company !== nextProps.company
   }
 
   handleView = (e) => {
     e.preventDefault();
     this.context.dispatch(pushRoute(routes.company.view,  {companyId: this.props.company.get('_id')}));
   }
-
-  /*handleMouseEnter = (e) => {
-    this.setState({showActions: true})
-  }
-
-  handleMouseLeave = (e) => {
-    this.setState({showActions: false})
-  }*/
-
 
   render() {
     function amount(value){
@@ -193,7 +192,7 @@ export class CompanyPreview extends Component {
           <span>{name[type]}: {amount(company[type] || 0 )}</span>
           </div>
         )
-      }else{
+      } else {
         return <div style={styles[type]}/>
       }
     }
@@ -240,11 +239,6 @@ export class CompanyPreview extends Component {
         color: '#cfd2da',
         padding: '.3rem',
       },
-      /*preferred:{
-        position: 'absolute',
-        bottom: '3px',
-        left: '3rem',
-      },*/
     };
 
     const {company, workers} = this.props
@@ -279,38 +273,40 @@ export class CompanyPreview extends Component {
       if(this.context.authManager.company.isAuthorized('view')) return  <a href="#" onClick={this.handleView}>{avatar}</a>;
       else return {avatar}
     }
+
+    const entityIcon = () => {
+      return (
+        <a href="#" style={styles.icon} onClick={this.handleView}>
+        <i className="iconButton-small iconButton fa m-r-1 fa-building-o" />
+        </a>
+      )
+    }
+
     const companyNameView = () => {
       if(this.context.authManager.company.isAuthorized('view')) return  <a href="#" onClick={this.handleView}>{company.get('name')}</a>;
       else return <span>{company.get('name')}</span>
     }
 
-    /*const actions = () => {
-      if(!this.state.showActions) return <div/>;
-      return(
-        <div style={styles.containerRight} href="#">
-        </div>
-      )
-    }*/
-
     return (
       <div style={styles.container}>
-        <div style={styles.containerLeft}>
-          <div className="p-r-1">
-            {avatarView()}
-          </div>
-          <div style={styles.isnew}>
-            {isNew()}
-          </div>
-          <div className="p-r-1">
-            {companyNameView()}
-          </div>
-          <div className="p-r-1">
-            {billAmounts(company)}
-          </div>
-          <div className="p-r-1">
-            {tags()}
-          </div>
-        </div>
+      <div style={styles.containerLeft}>
+      <div className="p-r-1">
+      {avatarView()}
+      {entityIcon()}
+      </div>
+      <div style={styles.isnew}>
+      {isNew()}
+      </div>
+      <div className="p-r-1">
+      {companyNameView()}
+      </div>
+      <div className="p-r-1">
+      {billAmounts(company)}
+      </div>
+      <div className="p-r-1">
+      {tags()}
+      </div>
+      </div>
       </div>
     )
   }
