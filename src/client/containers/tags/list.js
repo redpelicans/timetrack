@@ -4,6 +4,7 @@ import {pushRoute} from '../../actions/routes'
 
 import routes from '../../routes'
 import {listTagSelector} from '../../selectors/tags'
+import {tagListActions} from '../../actions/tagList'
 import {personsActions} from '../../actions/persons'
 import {companiesActions} from '../../actions/companies'
 import {Content} from '../../components/layout';
@@ -22,8 +23,17 @@ class ListTagsApp extends Component {
     this.props.dispatch(pushRoute(routes.tags.view, {label}))
   }
 
+  handleSearchFilter = (filter) => {
+    console.log('FFfilter =', filter)
+    this.props.dispatch(tagListActions.filter(filter))
+  }
+
+  handleResetFilter = (filter) => {
+    this.props.dispatch(tagListActions.filter(""))
+  }
+
   render() {
-    const {tagList} = this.props
+    const {tagList, filter} = this.props
     return (
         <Content>
           <Header>
@@ -31,6 +41,9 @@ class ListTagsApp extends Component {
               <TitleIcon icon={routes.tags.list.iconName} />
               <Title title='Tags' />
             </HeaderLeft>
+            <HeaderRight>
+              <Filter filter={filter} onReset={this.handleResetFilter} onChange={this.handleSearchFilter} />
+            </HeaderRight>
           </Header>
           <TagList tagList={tagList} onDetail={this.onDetail} />
         </Content>
@@ -40,6 +53,7 @@ class ListTagsApp extends Component {
 
 ListTagsApp.propTypes = {
   tagList: PropTypes.array.isRequired,
+  filter: PropTypes.string.isRequired,
 }
 
 export default connect(listTagSelector)(ListTagsApp)

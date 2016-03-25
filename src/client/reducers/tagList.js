@@ -2,20 +2,21 @@ import Immutable from 'immutable';
 import _ from 'lodash';
 
 import {
-  TAGS_LOADED,
-} from '../actions/tags';
+  FILTER_TAGS,
+} from '../actions/tagList';
 
 const initialState = {
-  data: Immutable.List(),
+  filter: '',
 }
 
 export default function tagsReducer(state = initialState, action) {
   switch(action.type){
-    case TAGS_LOADED:
+    case FILTER_TAGS:
       return {
-        data: action.tags
+        ...state,
+        filter: action.filter,
       }
     default: 
-      return state;
+      return state
   }
 }
