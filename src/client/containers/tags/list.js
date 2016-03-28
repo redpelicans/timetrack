@@ -3,7 +3,7 @@ import {connect} from 'react-redux'
 import {pushRoute} from '../../actions/routes'
 
 import routes from '../../routes'
-import {listTagSelector} from '../../selectors/tags'
+import {visibleTagsSelector} from '../../selectors/tags'
 import {tagListActions} from '../../actions/tagList'
 import {personsActions} from '../../actions/persons'
 import {companiesActions} from '../../actions/companies'
@@ -28,7 +28,7 @@ class ListTagsApp extends Component {
     this.props.dispatch(tagListActions.filter(filter))
   }
 
-  handleResetFilter = (filter) => {
+  handleResetFilter = () => {
     this.props.dispatch(tagListActions.filter(""))
   }
 
@@ -56,4 +56,4 @@ ListTagsApp.propTypes = {
   filter: PropTypes.string.isRequired,
 }
 
-export default connect(listTagSelector)(ListTagsApp)
+export default connect(visibleTagsSelector)(ListTagsApp)

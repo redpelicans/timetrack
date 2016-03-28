@@ -9,7 +9,7 @@ const initialState = {
   filter: '',
 }
 
-export default function tagsReducer(state = initialState, action) {
+export default function tagListReducer(state = initialState, action) {
   switch(action.type){
     case FILTER_TAGS:
       return {

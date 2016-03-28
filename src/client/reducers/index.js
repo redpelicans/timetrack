@@ -11,6 +11,7 @@ import pendingRequests from './loading'
 import cities from './cities'
 import countries from './countries'
 import tags from './tags'
+import tagList from './tagList'
 import notes from './notes'
 import skills from './skills'
 
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
   , cities
   , countries
   , tags
+  , tagList
   , notes
   , skills
   , pendingRequests

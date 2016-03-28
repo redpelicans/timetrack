@@ -6,6 +6,7 @@ const persons = state => state.persons.data
 const companies = state => state.companies.data
 const label = state => state.routing.location.state && state.routing.location.state.label
 const pendingRequests = state => state.pendingRequests
+const filter = state => state.tagList.filter
 
 export const tagsSelector = createSelector(
   tags,
@@ -16,12 +17,14 @@ export const tagsSelector = createSelector(
   }
 )
 
-export const listTagSelector = createSelector(
+export const visibleTagsSelector = createSelector(
   persons, 
   companies,
-  (persons, companies) => {
+  filter,
+  (persons, companies, filter) => {
     return {
       tagList: formatTagList(persons, companies),
+      filter
     }
   }
 )
