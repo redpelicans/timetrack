@@ -12,6 +12,6 @@ const routes = RouteManager([
     iconName: 'calendar',
     authRequired: true
   })
-], {name: 'agenda'});
+], {name: 'agenda'})
 
 export default routes;

@@ -71,7 +71,7 @@ export function togglePreferred(person){
   return (dispatch, getState) => {
     const body = { id: person._id , preferred: !person.preferred};
     const message = 'Cannot toggle preferred status, check your backend server';
-    const request = requestJson(`/api/people/preferred`, {dispatch, verb: 'post', body, message});
+    const request = requestJson(`/api/people/preferred`, {dispatch, getState, verb: 'post', body, message});
 
     request.then( res => {
       const state = getState();
@@ -95,7 +95,7 @@ export function loadPersons({forceReload=false, ids=[]} = {}){
 
     const url = '/api/people';
     dispatch({type: LOAD_PERSONS});
-    requestJson(url, {dispatch, message: 'Cannot load persons, check your backend server'})
+    requestJson(url, {dispatch, getState, message: 'Cannot load persons, check your backend server'})
       .then( persons => {
         dispatch(personsLoaded(persons));
       });
@@ -105,14 +105,14 @@ export function loadPersons({forceReload=false, ids=[]} = {}){
 export function deletePerson(person){
   return (dispatch, getState) => {
     const id = person._id;
-    requestJson(`/api/person/${id}`, {dispatch, verb: 'delete', message: 'Cannot delete person, check your backend server'})
+    requestJson(`/api/person/${id}`, {dispatch, getState, verb: 'delete', message: 'Cannot delete person, check your backend server'})
       .then( res => dispatch(deleteCompleted(person)) );
   }
 }
 
 export function updatePerson(previous, updates){
   return (dispatch, getState) => {
-    requestJson('/api/person', {dispatch, verb: 'put', body: {person: _.assign({}, previous, updates)}, message: 'Cannot update person, check your backend server'})
+    requestJson('/api/person', {dispatch, getState, verb: 'put', body: {person: _.assign({}, previous, updates)}, message: 'Cannot update person, check your backend server'})
       .then( person => {
         dispatch(updateCompleted(person));
       });
@@ -121,7 +121,7 @@ export function updatePerson(previous, updates){
 
 export function createPerson(person){
   return (dispatch, getState) => {
-    requestJson('/api/people', {dispatch, verb: 'post', body: {person: person}, message: 'Cannot create person, check your backend server'})
+    requestJson('/api/people', {dispatch, getState, verb: 'post', body: {person: person}, message: 'Cannot create person, check your backend server'})
       .then( person => {
         dispatch(createCompleted(person));
       });
@@ -140,7 +140,7 @@ export function updateTags(person, tags){
   return (dispatch, getState) => {
     let body = { _id: person._id, tags }
     const message = 'Cannot update tags, check your backend server'
-    let request = requestJson('/api/people/tags', {dispatch, verb: 'post', body: body, message: message})
+    let request = requestJson('/api/people/tags', {dispatch, getState, verb: 'post', body: body, message: message})
 
     request.then(person => dispatch(updateTagsCompleted(Maker(person))))
   }

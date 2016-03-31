@@ -65,7 +65,7 @@ export function loadMissions({forceReload=false, ids=[]} = {}){
 
     const url = '/api/missions';
     dispatch({type: LOAD_MISSIONS});
-    requestJson(url, {dispatch, message: 'Cannot load missions, check your backend server'})
+    requestJson(url, {dispatch, getState, message: 'Cannot load missions, check your backend server'})
       .then( missions => {
         dispatch(missionsLoaded(missions));
       });
@@ -75,14 +75,14 @@ export function loadMissions({forceReload=false, ids=[]} = {}){
 export function deleteMission(mission){
   return (dispatch, getState) => {
     const id = mission._id;
-    requestJson(`/api/mission/${id}`, {dispatch, verb: 'delete', message: 'Cannot delete mission, check your backend server'})
+    requestJson(`/api/mission/${id}`, {dispatch, getState, verb: 'delete', message: 'Cannot delete mission, check your backend server'})
       .then( res => dispatch(deleteCompleted(mission)) );
   }
 }
 
 export function updateMission(previous, updates){
   return (dispatch, getState) => {
-    requestJson('/api/mission', {dispatch, verb: 'put', body: {mission: _.assign({}, previous, updates)}, message: 'Cannot update mission, check your backend server'})
+    requestJson('/api/mission', {dispatch, getState, verb: 'put', body: {mission: _.assign({}, previous, updates)}, message: 'Cannot update mission, check your backend server'})
       .then( mission => {
         dispatch(updateCompleted(mission));
       });
@@ -91,7 +91,7 @@ export function updateMission(previous, updates){
 
 export function createMission(mission){
   return (dispatch, getState) => {
-    requestJson('/api/missions', {dispatch, verb: 'post', body: {mission}, message: 'Cannot create mission, check your backend server'})
+    requestJson('/api/missions', {dispatch, getState, verb: 'post', body: {mission}, message: 'Cannot create mission, check your backend server'})
       .then( mission => dispatch(createCompleted(mission)));
   }
 }

@@ -9,7 +9,7 @@ const routes = RouteManager([
     topic: 'notes',
     label: 'Notes',
     component: ListNotesApp,
-    isMenu: 4,
+    isMenu: 5,
     iconName: 'newspaper-o',
     authRequired: true
   }),

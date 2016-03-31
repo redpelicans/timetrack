@@ -13,6 +13,8 @@ import countries from './countries'
 import tags from './tags'
 import notes from './notes'
 import skills from './skills'
+import events from './events'
+import agenda from './agenda'
 
 const rootReducer = combineReducers({
     routing
@@ -28,6 +30,8 @@ const rootReducer = combineReducers({
   , tags
   , notes
   , skills
+  , agenda
+  , events
   , pendingRequests
 })
 

@@ -8,7 +8,7 @@ import Combobox from 'react-widgets/lib/Combobox'
 import DropdownList from 'react-widgets/lib/DropdownList'
 import Multiselect from 'react-widgets/lib/Multiselect'
 import DateTimePicker from 'react-widgets/lib/DateTimePicker'
-import {colors} from '../forms/company'
+import colors from '../utils/colors';
 import {Avatar, TextLabel} from './widgets'
 
 export class BaseField extends Component{

@@ -12,7 +12,7 @@ function citiesLoaded(cities){
 
 export function loadCities(){
   return (dispatch, getState) => {
-    requestJson('/api/cities', {dispatch, message: 'Cannot load cities, check your backend server'})
+    requestJson('/api/cities', {dispatch, getState, message: 'Cannot load cities, check your backend server'})
       .then( cities => dispatch(citiesLoaded(cities)));
   }
 }

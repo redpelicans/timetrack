@@ -71,7 +71,7 @@ export function togglePreferred(company){
   return (dispatch, getState) => {
     const body = { id: company._id , preferred: !company.preferred};
     const message = 'Cannot toggle preferred status, check your backend server';
-    const request = requestJson(`/api/companies/preferred`, {dispatch, verb: 'post', body, message});
+    const request = requestJson(`/api/companies/preferred`, {dispatch, getState, verb: 'post', body, message});
 
     request.then( res => {
       const state = getState();
@@ -102,7 +102,7 @@ export function loadCompanies({forceReload=false, ids=[]} = {}){
 
     const url = '/api/companies';
     dispatch({type: LOAD_COMPANIES});
-    requestJson(url, {dispatch, message: 'Cannot load companies, check your backend server'})
+    requestJson(url, {dispatch, getState, message: 'Cannot load companies, check your backend server'})
       .then( companies => {
         dispatch(companiesLoaded(companies));
       });
@@ -112,14 +112,14 @@ export function loadCompanies({forceReload=false, ids=[]} = {}){
 export function deleteCompany(company){
   return (dispatch, getState) => {
     const id = company._id;
-    requestJson(`/api/company/${id}`, {dispatch, verb: 'delete', message: 'Cannot delete company, check your backend server'})
+    requestJson(`/api/company/${id}`, {dispatch, getState, verb: 'delete', message: 'Cannot delete company, check your backend server'})
       .then( res => dispatch(deleteCompleted(company)) );
   }
 }
 
 export function updateCompany(previous, updates){
   return (dispatch, getState) => {
-    requestJson('/api/company', {dispatch, verb: 'put', body: {company: {...previous, ...updates}}, message: 'Cannot update company, check your backend server'})
+    requestJson('/api/company', {dispatch, getState, verb: 'put', body: {company: {...previous, ...updates}}, message: 'Cannot update company, check your backend server'})
       .then( company => {
         dispatch(updateCompleted(company));
       });
@@ -128,7 +128,7 @@ export function updateCompany(previous, updates){
 
 export function createCompany(company){
   return (dispatch, getState) => {
-    requestJson('/api/companies', {dispatch, verb: 'post', body: {company: company}, message: 'Cannot create company, check your backend server'})
+    requestJson('/api/companies', {dispatch, getState, verb: 'post', body: {company: company}, message: 'Cannot create company, check your backend server'})
       .then( company => {
         dispatch(createCompleted(company));
       });
@@ -147,7 +147,7 @@ export function updateTags(company, tags){
   return (dispatch, getState) => {
     let body = { _id: company._id , tags};
     const message = 'Cannot update tags, check your backend server';
-    let request = requestJson(`/api/companies/tags`, {dispatch, verb: 'post', body: body, message: message});
+    let request = requestJson(`/api/companies/tags`, {dispatch, getState, verb: 'post', body: body, message: message});
 
     request.then( company => dispatch(updateTagsCompleted(company)));
   }
