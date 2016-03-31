@@ -1,17 +1,17 @@
-import ListAgendaApp from '../containers/agenda/list';
-import {Route, RouteManager} from 'kontrolo';
+import {Route, RouteManager} from 'kontrolo'
+import AgendaApp from '../containers/agenda.js'
 
 const routes = RouteManager([
   Route({
-    name: 'list',
+    name: 'calendar',
     path: '/agenda',
-    topic:'agenda',
-    label: 'Agenda', 
-    component: ListAgendaApp,
-    isMenu: 4,
+    topic: 'agenda',
+    label: 'Agenda',
+    component: AgendaApp,
+    isMenu: 5,
     iconName: 'calendar',
     authRequired: true
-  }),
-], {name: 'agenda'});
+  })
+], {name: 'agenda'})
 
 export default routes;
