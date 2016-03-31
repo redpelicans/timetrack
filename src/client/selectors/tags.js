@@ -7,6 +7,7 @@ const companies = state => state.companies.data
 const label = state => state.routing.location.state && state.routing.location.state.label
 const pendingRequests = state => state.pendingRequests
 const filterSelector = state => state.tagList.filter
+const sortCondSelector = state => state.persons.sortCond
 
 export const tagsSelector = createSelector(
   tags,
@@ -21,11 +22,12 @@ export const visibleTagsSelector = createSelector(
   persons, 
   companies,
   filterSelector,
-  (persons, companies, filter) => {
-    console.log('dans selectoRR, tagList = ', formatTagList(persons, companies))
+  sortCondSelector,
+  (persons, companies, filter, sortCond) => {
     return {
-      tagList: formatTagList(persons, companies, filter), /*filterAndSort(persons, companies, filter)*/
+      tagList: formatTagList(persons, companies, filter, sortCond),
       filter,
+      sortCond,
     }
   }
 )
@@ -46,42 +48,7 @@ export const viewTagSelector = createSelector(
   }
 )
 
-function filterAndSort(persons, companies, filter) {
-  let tagList = formatTagList(persons, companies) 
-  console.log('dans filterAndSort, filter = ', filter)
-    let filteredList = _.filter(tagList, (tag/*, filter='', persons, companies*/) => {
-    console.log('dans filterAndSort, tagList = ', tagList)
-    console.log('dans filterAndSort, tag = ', tag)
-      console.log('filter dans filter() = ', filter)
-    if (!filter) {return tag}
-    //console.log('filter type = ', typeof filter)
-    //console.log('filter.length = ', filter.length)
-    const keys = _.chain(filter.split(' ')).compact().map(key => key.toLowerCase()).value()
-    return _.every(keys, (key/*, tag, persons, companies*/) => {
-      if (tag.entityType === 'person') {
-        const personName = persons.get(tag.entityId).get('name').toLowerCase()
-        return personName.indexOf(key) !== -1
-      } else {
-        const companyName = companies.get(tag.entityId)
-        return companyName.indexOf(key) !== -1
-      }   
-    })
-  })
-  console.log('FILtered LIst = ', filteredList)
-  return filteredList
- //return tagList
-    //.sort( (a,b) => sortByCond(a, b, sort.by, sort.order));
-}
-
-/*function isFilterInTags(filter, entity) {
-  //entity.get('tags')
-  console.log('entity.get(tags) = ', entity.get('tags'))
-  return entity.get('tags').find((tag) => {
-    return tag.indexOf(filter)
-  })
-}*/
-
-function formatTagList(persons, companies, filter='') {
+function formatTagList(persons, companies, filter='', sort) {
   let res = persons.filter(person => person.get('tags') && person.get('tags').size).reduce((res, person) => {
     person.get('tags').forEach(tag => (res[tag] ? res[tag]++ : res[tag] = 1))
     return res
@@ -97,10 +64,36 @@ function formatTagList(persons, companies, filter='') {
   const filteredArray = _.filter(tagArray, (tag) => {
     return tag[0].toLowerCase().indexOf(filter) !== -1
   })
-  const sortedArray = filteredArray.sort((a, b) => {
-    return b[1] - a[1]
-  })
+  const sortedArray = sortArray(filteredArray, sort.by, sort.order)
+ console.log('sortedArray = ', sortedArray) 
   return sortedArray
+}
+
+function sortArray(array, attr, order) {
+  array = array.slice(0)
+  if (attr === 'occurrences') {
+    if (order === 'desc') return array.sort((a, b) => b[1] - a[1])
+    else return array.sort((a, b) => a[1] - b[1]) 
+  }
+  else if (attr === 'name') {
+    console.log('tab = ', array)
+    if (order === 'desc') {
+      console.log('sort alpha ordre descendant')
+      return (
+        array.sort((a, b) => {
+          return b[0].toLowerCase() > a[0].toLowerCase()
+        })
+      )
+    }
+    else {
+      console.log('sort alpha ordre ascendant')
+      return (
+        array.sort((a, b) => {
+          return a[0].toLowerCase() > b[0].toLowerCase()
+        })
+      )
+    }
+  }
 }
 
 function formatTag(label, persons, companies) {

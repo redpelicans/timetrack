@@ -1,7 +1,8 @@
-import {requestJson} from '../utils';
-import Immutable from 'immutable';
+import {requestJson} from '../utils'
+import Immutable from 'immutable'
 
-export const FILTER_TAGS = 'FILTER_TAGS';
+export const FILTER_TAGS = 'FILTER_TAGS'
+export const SORT_PERSONS = 'SORT_PERSONS'
 
 export function filter(filter) {
   return {
@@ -10,6 +11,14 @@ export function filter(filter) {
   }
 }
 
+export function sort(by){
+  return {
+    type: SORT_PERSONS,
+    by
+  }
+}
+
 export const tagListActions = { 
   filter,
+  sort,
 }
