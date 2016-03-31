@@ -13,6 +13,7 @@ export function init(mainApp, resources, params) {
   require('./countries').init(app, resources);
   require('./tags').init(app, resources);
   require('./notes').init(app, resources);
+  require('./events').init(app, resources);
 
   return app;
 }

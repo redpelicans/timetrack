@@ -6,12 +6,14 @@ import personRoutes from './person';
 import companyRoutes from './company';
 import missionRoutes from './mission';
 import notesRoutes from './notes';
+import AgendaRoutes from './agenda';
 
 const routes = RouteManager([
   personRoutes,
   companyRoutes,
   missionRoutes,
   notesRoutes,
+  AgendaRoutes,
   Route({
     name: 'notfound',
     path: '/notfound',
