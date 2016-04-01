@@ -7,7 +7,7 @@ import moment from 'moment'
 import {Content} from '../../components/layout'
 import {Refresh, Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets'
 import routes from '../../routes'
-
+import AgendaApp from '../../components/agenda'
 
 class App extends Component {
 
@@ -23,7 +23,7 @@ class App extends Component {
 
   render(){
     const {agenda, events, isLoading} = this.props;
-    console.log(events.toJS())
+    // console.log(events.toJS())
     return (
       <Content>
         <Header>
@@ -35,6 +35,9 @@ class App extends Component {
             <Refresh onClick={this.handleRefresh}/>
           </HeaderRight>
         </Header>
+
+        <AgendaApp events={events.toJS()}/>
+
       </Content>
     )
   }

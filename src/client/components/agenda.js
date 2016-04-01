@@ -125,6 +125,8 @@ class AgendaApp extends CalendarBase {
     const Container     = this.container('Container')
     const CellComponent = this.composeCell(ClickyCell, styles.Cell)
 
+    const {events}      = this.props
+
     return (
       <Calendar styles={styles}>
         <Header>
@@ -140,16 +142,5 @@ class AgendaApp extends CalendarBase {
     )
   }
 }
-////////////////////////////////////////////////////////////////////////////////
-const Wrapper = () =>
-  <div style={{margin: "0 auto", width: "100%"}}>
-    <div style={{float: "left", width: "150px", height: "calc(100vh - 55px)", backgroundColor: "black"}}>
-      content
-    </div>
-    <div style={{float: "left", width: "calc(100% - 150px)", height: "calc(100vh - 55px)"}}>
-      <AgendaApp />
-    </div>
-  </div>
-////////////////////////////////////////////////////////////////////////////////
-export default Wrapper
-////////////////////////////////////////////////////////////////////////////////
+
+export default AgendaApp

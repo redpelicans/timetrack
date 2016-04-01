@@ -109,7 +109,7 @@ class CalendarBase extends Component {
       const style = styles[e.type.displayName]
       return cloneElement(e, {date: this.state.date, style, styles})
     })
-    return <StyleRoot style={{height: "100%", width: "100%"}}>{childrenWithProps}</StyleRoot>
+    return <StyleRoot style={{width: "100%", height:"100%"}}>{childrenWithProps}</StyleRoot>
   }
 
   container = (name) => {
