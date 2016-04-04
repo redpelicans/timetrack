@@ -7,6 +7,7 @@ import {personsActions} from '../../actions/persons';
 import {companiesActions} from '../../actions/companies';
 import {visiblePersonsSelector} from '../../selectors/persons.js'
 import routes from '../../routes';
+import Masonry from 'react-masonry-component'
 
 const sortMenu = [
   {key: 'name', label: 'Sort Alphabeticaly'},
@@ -93,9 +94,9 @@ const List = ({persons, companies}) => {
 
   const data = persons.map(person => {
     return (
-      <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
+      <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}>
         <Preview
-          person={person} 
+          person={person}
           company={companies.get(person.get('companyId'))} >
             <Edit person={person}/>
             <Delete person={person}/>
@@ -104,9 +105,14 @@ const List = ({persons, companies}) => {
     )
   });
 
+const options = {
+  transitionDuration: 0,
+}
   return (
     <div className="row" style={styles.container}>
-      {data}
+      <Masonry options={options}>
+        {data}
+      </Masonry>
     </div>
   )
 }

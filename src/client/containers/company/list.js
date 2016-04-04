@@ -7,6 +7,7 @@ import {AvatarView, Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLab
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
 import {Edit, Preferred, Delete, AddButton, Preview} from '../../components/company/widgets';
 import routes from '../../routes';
+import Masonry from 'react-masonry-component'
 
 const sortMenu = [
   {key: 'name', label: 'Sort Alphabeticaly'},
@@ -105,9 +106,14 @@ const List = ({companies, persons}) => {
     )
   });
 
+  const options = {
+    transitionDuration: 0,
+  }
   return (
     <div className="row" style={styles.container}>
-      {data}
+      <Masonry options={options}>
+        {data}
+      </Masonry>
     </div>
   )
 }
