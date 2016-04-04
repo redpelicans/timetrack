@@ -69,6 +69,7 @@
     "mongobless": "^2.0.3",
     "morgan": "^1.6.1",
     "njwt": "^0.2.3",
+    "ramda": "^0.20.1",
     "react": "^0.14.0",
     "react-addons-css-transition-group": "^0.14.7",
     "react-file-input": "^0.2.5",
