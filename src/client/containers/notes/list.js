@@ -1,3 +1,4 @@
+import R from 'ramda'
 import React, {Component, PropTypes} from 'react';
 import { connect } from 'react-redux';
 import {visibleNotesSelector} from '../../selectors/notes';
@@ -33,22 +34,16 @@ class NotesList extends Component {
     this.props.dispatch(notesActions.sort(mode))
   }
 
-  handleResetFilter = () => {
-    this.props.dispatch(notesActions.filter(''))
-  }
-
   handleRefresh = () => {
     this.props.dispatch(notesActions.load({forceReload: true}))
   }
 
   handleSearchFilter = (filter) => {
     this.props.dispatch(notesActions.filter(filter))
-    // Masonry hack for reloading layout on search
-    this.masonry.layout()
   }
+  handleResetFilter = () => this.handleSearchFilter('')
 
   render() {
-
     const {notes, persons, companies, missions, filter, sortCond} = this.props
 
     if (!notes || !persons || !companies || !missions) return <div />
@@ -70,7 +65,6 @@ class NotesList extends Component {
       transitionDuration: 0,
       gutter: 10,
     }
-
     return (
       <Content>
         <Header>
@@ -84,9 +78,7 @@ class NotesList extends Component {
             <Refresh onClick={this.handleRefresh} />
           </HeaderRight>
         </Header>
-        <Masonry
-          ref={function(c) {if (c != null) this.masonry = c.masonry;}.bind(this)}
-          options={options}>
+        <Masonry options={options}>
             {listNotes(notes, persons, companies, missions)}
         </Masonry>
 
