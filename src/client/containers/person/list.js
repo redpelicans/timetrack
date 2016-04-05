@@ -87,13 +87,14 @@ const List = ({persons, companies}) => {
       marginRight: 'auto',
     },
     item: {
-      height: '80px',
+      padding: '12px'
+      //height: '80px',
     }
   }
 
   const data = persons.map((person, i) => {
     return (
-      <div key={i} className="col-md-6 tm list-item x-list-item" style={styles.item}>
+      <div key={i} className="tm list-item x-list-item" style={styles.item}>
         <Preview
           person={person}
           company={companies.get(person.get('companyId'))} >

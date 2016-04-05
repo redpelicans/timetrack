@@ -62,7 +62,7 @@ export const Preferred = authable(({person, active}, {authManager, dispatch}) =>
     dispatch(personsActions.togglePreferred(person.toJS()));
   }
 
-  const classnames = classNames("iconButton star fa fa-star-o m-r-1", {
+  const classnames = classNames("iconButton star fa fa-star-o", {
     preferred: person.get('preferred'),
   });
 
@@ -153,7 +153,6 @@ export class Preview extends Component {
   }
 
   render() {
-    console.log("render Person")
     const {authManager, dispatch} = this.context;
     function phone(person){
       if(!person.phones || !person.phones.length) return '';
@@ -185,6 +184,9 @@ export class Preview extends Component {
         justifyContent: 'right',
         alignItems: 'center',
         padding: '5px',
+        position: 'absolute',
+        top: '10px',
+        right: '0px',
       },
       names:{
         display: 'flex',
@@ -212,9 +214,7 @@ export class Preview extends Component {
         padding: '.3rem',
       },
       preferred:{
-        position: 'absolute',
-        bottom: '3px',
-        left: '3rem',
+        paddingRight: '15px',
       },
 
     };
@@ -266,14 +266,14 @@ export class Preview extends Component {
     return (
       <div style={styles.container} onMouseOver={this.handleMouseEnter} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
         <div style={styles.containerLeft}>
-          <div className="p-r-1">
-            <a href="#" onClick={this.handleViewPerson}>{avatar}</a>
-          </div>
+            <div>
+              <a href="#" onClick={this.handleViewPerson}>{avatar}</a>
+            </div>
+            <div style={styles.preferred}>
+              <Preferred person={person} active={true}/>
+            </div>
           <div style={styles.isnew}>
             {isNew()}
-          </div>
-           <div style={styles.preferred}>
-            <Preferred person={person} active={true}/>
           </div>
           <div style={styles.names}>
             <div style={styles.name} className="p-r-1">
