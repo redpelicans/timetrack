@@ -104,10 +104,10 @@ class List extends Component {
       }
     }
 
-    const data = this.props.missions.map(mission => {
+    const data = this.props.missions.map((mission, i) => {
       const workers = this.props.persons.filter(person => mission.get('workerIds').indexOf(person.get('_id')) !== -1);
       return (
-        <div key={mission.get('_id')} className="col-md-6 tm list-item" style={styles.item}>
+        <div key={i} className="col-md-6 tm list-item x-list-item" style={styles.item}>
           <Preview
             mission={mission}
             workers={workers}
@@ -125,11 +125,9 @@ class List extends Component {
       transitionDuration: 0,
     }
     return (
-      <div className="row" style={styles.container}>
-        <Masonry options={options}>
-          {data}
-        </Masonry>
-      </div>
+      <Masonry style={styles.container} options={options}>
+        {data}
+      </Masonry>
     )
   }
 

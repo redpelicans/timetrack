@@ -799,7 +799,7 @@ export class ItemNote extends Component {
     }
 
     return (
-        <div className="list-note-item" onMouseOver={this.handleMouseOver} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+        <div className="x-list-item" onMouseOver={this.handleMouseOver} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
             <div className="form-control" style={styles.container}>
               <div style={styles.note}>
                 <div ref={note.get('_id')} style={styles.content} dangerouslySetInnerHTML={text}/>

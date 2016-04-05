@@ -81,20 +81,19 @@ const List = ({persons, companies}) => {
   if(!persons || !companies) return false;
 
   const styles={
-    container:{
+    container: {
       marginTop: '50px',
-      //marginBottom: '50px',
       marginLeft: 'auto',
       marginRight: 'auto',
     },
-    item:{
+    item: {
       height: '80px',
     }
   }
 
-  const data = persons.map(person => {
+  const data = persons.map((person, i) => {
     return (
-      <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}>
+      <div key={i} className="col-md-6 tm list-item x-list-item" style={styles.item}>
         <Preview
           person={person}
           company={companies.get(person.get('companyId'))} >
@@ -109,11 +108,9 @@ const options = {
   transitionDuration: 0,
 }
   return (
-    <div className="row" style={styles.container}>
-      <Masonry options={options}>
-        {data}
-      </Masonry>
-    </div>
+    <Masonry style={styles.container} options={options}>
+      {data}
+    </Masonry>
   )
 }
 

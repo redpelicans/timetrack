@@ -97,10 +97,10 @@ const List = ({companies, persons}) => {
 
   const getFilterPersonsByCompanyId = companyId => person => person.get('companyId') == companyId
 
-  const data = companies.map(company => {
+  const data = companies.map((company, i) => {
     const workers = persons.filter(getFilterPersonsByCompanyId(company.get('_id')))
     return (
-      <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}>
+      <div key={i} className="col-md-6 tm list-item x-list-item" style={styles.item}>
         <Preview workers={workers} company={company} />
       </div>
     )
@@ -110,11 +110,9 @@ const List = ({companies, persons}) => {
     transitionDuration: 0,
   }
   return (
-    <div className="row" style={styles.container}>
-      <Masonry options={options}>
-        {data}
-      </Masonry>
-    </div>
+    <Masonry style={styles.container} options={options}>
+      {data}
+    </Masonry>
   )
 }
 
