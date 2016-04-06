@@ -405,6 +405,29 @@ CancelBtn.propTypes = {
   size:       PropTypes.string
 }
 
+export const DeleteBtn = ({onDelete, label, size}) => {
+  const handleChange = (e) => {
+    onDelete();
+    e.preventDefault();
+  }
+
+  const classnames = classNames("btn btn-danger m-l-1", {
+    'btn-sm': size === 'small',
+    'btn-lg': size === 'large',
+  });
+
+  return (
+    <button type="button" className={classnames} onClick={handleChange}>{label || 'Delete'}</button>
+  )
+}
+
+CancelBtn.propTypes = {
+  onCancel:   PropTypes.func.isRequired,
+  label:      PropTypes.string,
+  size:       PropTypes.string
+}
+
+
 export const ResetBtn = ({obj, label, size}) => {
   const handleChange = (e) => {
     obj.reset();

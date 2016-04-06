@@ -7,7 +7,7 @@ import sitemap from '../../routes'
 import eventForm from '../../forms/event'
 import {eventsActions} from '../../actions/events'
 import {goBack, replaceRoute} from '../../actions/routes'
-import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../components/widgets'
+import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, DeleteBtn} from '../../components/widgets'
 import {AvatarView, Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets'
 import {newEventSelector, editEventSelector} from '../../selectors/events'
 import {PeriodField, MultiSelectField2, MarkdownEditField, InputField, DropdownField} from '../../components/fields'
@@ -124,6 +124,13 @@ New.propTypes = {
 
 
 class Edit extends EventBase {
+  handleDelete = () => {
+    const answer = confirm(`Are you sure to delete this event`);
+    if(answer){
+      this.props.dispatch(eventsActions.delete(this.props.event.toJS()));
+      this.goBack(true);
+    }
+  }
 
   componentWillUnmount(){
     if(this.unsubscribeSubmit) this.unsubscribeSubmit()
@@ -156,6 +163,7 @@ class Edit extends EventBase {
     if(!this.eventForm) return false
     let submitBtn = <UpdateBtn onSubmit={this.handleSubmit} canSubmit={this.state.canSubmit && this.state.hasBeenModified}/>
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>
+    let deleteBtn = <DeleteBtn onDelete={this.handleDelete}/>
 
     return (
       <div>
@@ -163,6 +171,7 @@ class Edit extends EventBase {
           title={"Edit Event"}
           submitBtn={submitBtn}
           cancelBtn={cancelBtn}
+          deleteBtn={deleteBtn}
           goBack={this.goBack}
           eventDocument={this.eventDocument}
           eventForm={this.eventForm}/>
@@ -182,7 +191,7 @@ class EditForm extends Component {
   //editMode = !!this.props.eventDocument
 
   render(){
-    const {eventForm, eventDocument, goBack, title, submitBtn, cancelBtn} = this.props
+    const {eventForm, eventDocument, goBack, title, submitBtn, cancelBtn, deleteBtn} = this.props
     const fake = Immutable.fromJS(_.pick(eventDocument, 'createdAt', 'updatedAt'))
     const styles = {
       time: {
@@ -206,7 +215,7 @@ class EditForm extends Component {
               <HeaderRight>
                 {submitBtn}
                 {cancelBtn}
-                <ResetBtn obj={eventForm}/>
+                {deleteBtn ? deleteBtn : <ResetBtn obj={eventForm}/>}
               </HeaderRight>
             </Header>
 
@@ -259,7 +268,8 @@ EditForm.propTypes = {
   title:              PropTypes.string.isRequired,
   goBack:             PropTypes.func.isRequired,
   submitBtn:          PropTypes.element.isRequired,
-  cancelBtn:          PropTypes.element.isRequired,
+  cancelBtn:          PropTypes.element,
+  deleteBtn:          PropTypes.element,
   eventForm:        PropTypes.object.isRequired,
   eventDocument:    PropTypes.object,
 }

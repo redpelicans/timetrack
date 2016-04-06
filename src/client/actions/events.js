@@ -61,10 +61,26 @@ export function updateCompleted(event){
   }
 }
 
+export function deleteEvent(event){
+  return (dispatch, getState) => {
+    const id = event._id;
+    requestJson(`/api/event/${id}`, {dispatch, getState, verb: 'delete', message: 'Cannot delete event, check your backend server'})
+      .then( res => dispatch(deleteCompleted(event)) );
+  }
+}
+
+export function deleteCompleted(event){
+  return {
+    type: EVENT_DELETED,
+    id: event._id
+  }
+}
+
 export const eventsActions = {
   load: loadEvents,
   create: createEvent,
   update: updateEvent,
+  delete: deleteEvent,
 }
 
 function Maker(obj){
