@@ -96,27 +96,31 @@ class List extends Component {
       container:{
         marginTop: '50px',
         //marginBottom: '50px',
-        marginLeft: 'auto',
-        marginRight: 'auto',
+        //marginLeft: 'auto',
+        //marginRight: 'auto',
       },
       item:{
-        height: '80px',
+        //height: '180px',
+        padding: '5px',
+        margin: '0px',
       }
     }
 
     const data = this.props.missions.map((mission, i) => {
       const workers = this.props.persons.filter(person => mission.get('workerIds').indexOf(person.get('_id')) !== -1);
       return (
-        <div key={i} className="col-md-6 tm list-item x-list-item" style={styles.item}>
-          <Preview
-            mission={mission}
-            workers={workers}
-            company={this.props.companies.get(mission.get('clientId'))}
-            manager={this.props.persons.get(mission.get('managerId'))} >
-              <Closed mission={mission}/>
-              <Edit mission={mission}/>
-              <Delete mission={mission}/>
-          </Preview>
+        <div key={i} className="x-list-item" style={styles.item}>
+          <div className="form-control" style={{height: '100%'}}>
+            <Preview
+              mission={mission}
+              workers={workers}
+              company={this.props.companies.get(mission.get('clientId'))}
+              manager={this.props.persons.get(mission.get('managerId'))} >
+                <Closed mission={mission}/>
+                <Edit mission={mission}/>
+                <Delete mission={mission}/>
+            </Preview>
+          </div>
         </div>
       )
     });

@@ -204,6 +204,7 @@ export class Preview extends Component {
         right: '0.1rem',
       },
       tags:{
+        zIndex: 1,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',

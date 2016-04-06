@@ -83,24 +83,24 @@ const List = ({persons, companies}) => {
   const styles={
     container: {
       marginTop: '50px',
-      marginLeft: 'auto',
-      marginRight: 'auto',
     },
     item: {
-      padding: '12px'
-      //height: '80px',
+      margin: '0px',
+      padding: '5px',
     }
   }
 
   const data = persons.map((person, i) => {
     return (
-      <div key={i} className="tm list-item x-list-item" style={styles.item}>
-        <Preview
-          person={person}
-          company={companies.get(person.get('companyId'))} >
-            <Edit person={person}/>
-            <Delete person={person}/>
-        </Preview>
+      <div key={i} className="x-list-item" style={styles.item}>
+        <div className="form-control" style={{height: '100%'}}>
+          <Preview
+            person={person}
+            company={companies.get(person.get('companyId'))} >
+              <Edit person={person}/>
+              <Delete person={person}/>
+          </Preview>
+        </div>
       </div>
     )
   });

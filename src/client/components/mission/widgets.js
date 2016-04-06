@@ -221,10 +221,13 @@ export class Preview extends Component {
         padding: '5px',
       },
       containerRight:{
-        display: 'flex',
-        justifyContent: 'right',
-        alignItems: 'center',
-        padding: '5px',
+        //display: 'flex',
+        //justifyContent: 'right',
+        //alignItems: 'center',
+        //padding: '5px',
+        top: '12px',
+        right: '0px',
+        position: 'absolute',
       },
       names:{
         display: 'flex',
@@ -243,7 +246,7 @@ export class Preview extends Component {
       },
       manager:{
         position: 'absolute',
-        bottom: '3px',
+        bottom: '20%',
         left: '3rem',
       },
       workers:{
