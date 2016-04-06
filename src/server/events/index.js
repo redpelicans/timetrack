@@ -13,6 +13,10 @@ const events = {
   'mission.delete': { right: 'mission.view' },
   'mission.update': { right: 'mission.view' },
 
+  'event.new': { right: 'event.view' },
+  'event.delete': { right: 'event.view' },
+  'event.update': { right: 'event.view' },
+
   ...note,
 }
 

@@ -3,6 +3,7 @@ import moment from 'moment'
 
 import {
   AGENDA_PERIOD_CHANGED, 
+  AGENDA_FILTER_CHANGED, 
 } from '../actions/agenda';
 
 const initialMode = 'month';
@@ -13,12 +14,18 @@ const initialState = {
   allowWeekends: false,
   from: moment().startOf(initialMode), 
   to: moment().endOf(initialMode),
-  persons: undefined,
-  missions: undefined,
+  workerIds: [],
+  missionIds: [],
 };
 
 export default function agendaReducer(state = initialState, action) {
   switch(action.type){
+    case AGENDA_FILTER_CHANGED:
+      return {
+        ...state,
+        missionIds: action.missionIds,
+        workerIds: action.workerIds,
+      }
     case AGENDA_PERIOD_CHANGED:
       return {
         ...state,

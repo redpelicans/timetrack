@@ -5,6 +5,56 @@ import FileInput from 'react-file-input';
 import Remarkable from 'remarkable';
 import colors from '../utils/colors';
 import ReactTooltip from 'react-tooltip';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+
+export class ToggleBox extends Component {
+  state = { hidden: true }
+
+  componentWillMount(){
+    const {hidden} = this.props
+    this.setState({hidden})
+  }
+
+  handleClick = (e) => {
+    e.preventDefault()
+    this.setState({ hidden: !this.state.hidden })
+  }
+
+  render() {
+    const {children, label} = this.props
+
+    const styles = {
+      link:{
+        cursor: 'pointer',
+      },
+      text: {
+        marginLeft: '4px',
+      },
+      box: {
+        marginTop: '10px',
+      }
+    }
+
+    const panel = this.state.hidden ? undefined : <div style={styles.box} key="togglebox">{children}</div>
+
+    return (
+        <div>
+          <div style={styles.link} onClick={this.handleClick}>
+            <i className={this.state.hidden ? "fa fa-caret-right" : "fa fa-caret-down"}/>
+            <span style={styles.text}>{(this.state.hidden ? 'Show ' : 'Hide ') + label}</span>
+        </div>
+        <ReactCSSTransitionGroup transitionName="togglebox" transitionEnterTimeout={400} transitionLeaveTimeout={400}>
+          {panel}
+        </ReactCSSTransitionGroup>
+      </div>
+    )
+  }
+}
+
+ToggleBox.PropTypes = {
+  hide: PropTypes.bool,
+}
+
 
 export const AvatarView = ({obj, size, label}) => {
   if(!obj || !obj.get('avatar')) return <div className="m-r-1"><Avatar size={size} name={"?"}/></div>;

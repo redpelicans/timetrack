@@ -13,5 +13,11 @@ const rights = {
   'mission.new': { roles: ['admin'] },
   'mission.delete': { roles: ['admin'] },
   'mission.update': { roles: ['admin'] },
+
+  'event.view': { roles: [] },
+  'event.new': { roles: ['admin'] },
+  'event.delete': { roles: ['admin'] },
+  'event.update': { roles: ['admin'] },
 }
+
 export default rights;

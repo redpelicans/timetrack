@@ -6,6 +6,7 @@ import {personsActions} from './persons';
 import {companiesActions} from './companies';
 import {missionsActions} from './missions';
 import {notesActions} from './notes';
+import {eventsActions} from './events';
 import {alert} from './errors';
 
 
@@ -52,6 +53,11 @@ export function connect(sessionId){
       registerAction('note.new', notesActions.createCompleted);
       registerAction('note.delete', notesActions.deleteCompleted);
       register('note.update', updateNote);
+
+      registerAction('event.new', eventsActions.createCompleted);
+      registerAction('event.delete', eventsActions.deleteCompleted);
+      register('event.update', updateEvent);
+
     });
 
     function registerAction(name, action){
@@ -73,6 +79,10 @@ export function connect(sessionId){
 
     function updateNote(data){
       dispatch(notesActions.updateCompleted(data.current));
+    }
+
+    function updateEvent(data){
+      dispatch(eventsActions.updateCompleted(data.current));
     }
 
     function updateMission(data){

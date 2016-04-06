@@ -6,6 +6,7 @@ import _ from 'lodash';
 
 export const AGENDA_LOADED = 'AGENDA_LOADED';
 export const AGENDA_PERIOD_CHANGED = 'AGENDA_PERIOD_CHANGED';
+export const AGENDA_FILTER_CHANGED = 'AGENDA_FILTER_CHANGED';
 
 function agendaLoaded(from, to){
   return {
@@ -19,6 +20,14 @@ export function loadAgenda(from, to, {persons, missions, forceReload=false, ids=
   return (dispatch, getState) => {
     dispatch(eventsActions.load(from, to));
     dispatch({ type: AGENDA_PERIOD_CHANGED, from, to });
+  }
+}
+
+export function changeFilter(filter){
+  return {
+    type: AGENDA_FILTER_CHANGED,
+    missionIds: filter.missionIds,
+    workerIds: filter.workerIds,
   }
 }
 
@@ -60,4 +69,5 @@ export const agendaActions = {
   gotoToday,
   addPeriod,
   subtractPeriod,
+  changeFilter,
 }

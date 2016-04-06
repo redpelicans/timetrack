@@ -10,7 +10,7 @@ import {pushRoute} from '../actions/routes';
 import routes from '../routes';
 
 @Radium
-class Calendar extends Component{
+class Agenda extends Component{
   state = { 
     firstSelectedDate: undefined,
     lastSelectedDate: undefined,
@@ -35,31 +35,22 @@ class Calendar extends Component{
     const {firstSelectedDate, lastSelectedDate} = this.state;
     const currentDate = date ? moment(date) : moment();
 
-    const style = {
-      height: "calc(100% - 100px)",
-      minHeight: '100px',
-      width: '100%',
-    }
-
     return (
-      <div style={style}>
-        <Month 
-          date={currentDate} 
-          events={events}
-          persons={persons}
-          missions={missions}
-          firstSelectedDate={firstSelectedDate} 
-          lastSelectedDate={lastSelectedDate} 
-          events={events}
-          onMouseDown={this.handleMouseDown}
-          onMouseUp={this.handleMouseUp}
-          onMouseEnter={this.handleMouseEnter}/>
-      </div>
+      <Month 
+        date={currentDate} 
+        events={events}
+        persons={persons}
+        missions={missions}
+        firstSelectedDate={firstSelectedDate} 
+        lastSelectedDate={lastSelectedDate} 
+        onMouseDown={this.handleMouseDown}
+        onMouseUp={this.handleMouseUp}
+        onMouseEnter={this.handleMouseEnter}/>
     )
   }
 }
 
-Calendar.propTypes = {
+Agenda.propTypes = {
   date: PropTypes.object,
   viewMode: PropTypes.string,
   events: PropTypes.object,
@@ -70,18 +61,24 @@ Calendar.propTypes = {
 const Month = Radium(({date, events, persons, missions, firstSelectedDate, lastSelectedDate, onMouseDown, onMouseUp, onMouseEnter}) => {
   const styles = {
     days: {
+      flexShrink: 1,
+      flexGrow: 1,
+      flexBasis: "20%",
       display: "flex",
       flexDirection: "row",
       flexWrap: "wrap",
       alignItems: 'stretch',
-      height: '95%',
-      '@media (maxWidth: 600px)': {
+      '@media (maxWidth: 800px)': {
         flexDirection: "column"
       }
     },
     container:{
-      height: '100%',
-    }
+      flexGrow: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      marginTop: '15px',
+      marginBottom: '15px',
+    },
   }
 
   const betweenDates = (date, first, last) => {
@@ -113,10 +110,10 @@ const Month = Radium(({date, events, persons, missions, firstSelectedDate, lastS
 
   return (
     <div style={styles.container}>
-      <WeekDays/>
-      <div style={styles.days}>
-        {days()}
-      </div>
+     <WeekDays/>
+     <div style={styles.days}>
+      {days()}
+     </div>
     </div>
   )
 })
@@ -136,10 +133,11 @@ Month.propTypes = {
 const WeekDays = () => {
   const styles = {
     container:{
+      flexShrink: 0,
       display: "flex",
       flexDirection: "row",
       flexWrap: "nowrap",
-      '@media (maxWidth: 600px)': {
+      '@media (maxWidth: 800px)': {
         flexDirection: "column"
       },
     },
@@ -147,7 +145,7 @@ const WeekDays = () => {
       flexBasis: "14.2857%",
       overflow: "hidden",
       textOverflow: "ellipsis",
-      '@media (maxWidth: 600px)': {
+      '@media (maxWidth: 800px)': {
         display: "none"
       }
     }
@@ -167,18 +165,27 @@ const WeekDays = () => {
 
 //@Radium
 class Day extends Component{
-  shouldComponentUpdate(nextProps){
-    // TODO
-    return true
-    //return nextProps.selected !== this.props.selected &&
 
+  shouldComponentUpdate(nextProps){
+    const diff = (pevents, nevents) => {
+      const hp = pevents.reduce( (res, e) => { res[e.get('_id')] = e; return res }, {})
+      const np = nevents.reduce( (res, e) => { res[e.get('_id')] = e; return res }, {})
+      return _.some(hp, e => hp[e.get('_id')] !== np[e.get('_id')] )
+    }
+    const key = dmy(this.props.date)
+    const previous = this.props.events.get(key) || Immutable.List()
+    const next = nextProps.events.get(key) || Immutable.List()
+    return nextProps.selected !== this.props.selected ||
+      previous.size !== next.size ||
+      diff(previous, next)
   }
 
   render(){
-    console.log("render day")
+    console.log('render day')
     const {date, events, persons, missions, inBound, selected, onMouseEnter, onMouseDown, onMouseUp} = this.props;
     const style = {
       flexBasis: "14.2857%",
+      minHeight: '75px',
       overflow: "hidden",
       backgroundColor: selected ? "#637D93" : "#434857" ,
       border:  "1px solid #68696C",
@@ -368,4 +375,4 @@ WeekNumber.propTypes = {
   date: PropTypes.object.isRequired,
 }
 
-export default Calendar;
+export default Agenda;

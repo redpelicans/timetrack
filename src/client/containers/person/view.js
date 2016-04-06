@@ -3,12 +3,13 @@ import moment from 'moment';
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux'
 import {routeActions} from '../../actions/routes'
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../../components/widgets';
+import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
 import {Edit, Preferred, Delete} from '../../components/person/widgets';
 import {Edit as EditMission, Preview as MissionPreview, Closed as ClosedMission} from '../../components/mission/widgets';
 import {Content} from '../../components/layout';
 import {viewPersonSelector} from '../../selectors/persons'
 import {personsActions} from '../../actions/persons'
+import {agendaActions} from '../../actions/agenda'
 import {companiesActions} from '../../actions/companies'
 import {missionsActions} from '../../actions/missions'
 import sitemap from '../../routes';
@@ -40,9 +41,20 @@ class ViewPerson extends Component {
     this.props.dispatch(routeActions.goBack())
   }
 
+  handleClick = () => {
+    this.props.dispatch(agendaActions.changeFilter({missionIds: [], workerIds: [this.props.person.get('_id')]}))
+    this.props.dispatch(routeActions.push(sitemap.agenda.view))
+  }
+
   render(){
     const {person, company, missions, companies, persons, isLoading, dispatch} = this.props
     if(!person) return false;
+
+    const calendar = () => {
+      if(person.get('type') !== 'worker') return <div/>
+      return <div className="m-r-1"><IconButton name={'calendar'} label={'View Calendar'} onClick={this.handleClick}/></div>
+    }
+
     return (
       <Content>
         <Header obj={person}>
@@ -53,6 +65,7 @@ class ViewPerson extends Component {
             <Preferred person={person} active={true}/>
           </HeaderLeft>
           <HeaderRight>
+            {calendar()}
             <Edit person={person}/>
             <Delete person={person} postAction={this.goBack}/>
           </HeaderRight>

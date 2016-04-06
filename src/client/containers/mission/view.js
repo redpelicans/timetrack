@@ -4,17 +4,20 @@ import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux'
 import DateTimePicker from 'react-widgets/lib/DateTimePicker';
 import {Content} from '../../components/layout';
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText} from '../../components/widgets';
+import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
 import {Edit as EditPerson, Preview as PersonPreview} from '../../components/person/widgets';
 import {Edit as EditCompany, Preview as CompanyPreview} from '../../components/company/widgets';
 import {Edit, Delete, OpenClose} from '../../components/mission/widgets';
 import {missionsActions} from '../../actions/missions';
 import {personsActions} from '../../actions/persons';
 import {companiesActions} from '../../actions/companies';
-import {replace, goBack} from '../../actions/routes'
+import {agendaActions} from '../../actions/agenda';
+import {replaceRoute, goBack} from '../../actions/routes'
 import sitemap from '../../routes';
 import Notes from '../../containers/notes';
 import {viewMissionSelector} from '../../selectors/missions'
+import routes from '../../routes';
+import {pushRoute} from '../../actions/routes';
 
 class ViewMission extends Component {
 
@@ -22,9 +25,14 @@ class ViewMission extends Component {
     this.props.dispatch(goBack())
   }
 
+  handleClick = () => {
+    this.props.dispatch(agendaActions.changeFilter({missionIds: [this.props.mission.get('_id')], workerIds: []}))
+    this.props.dispatch(pushRoute(routes.agenda.view))
+  }
+
   componentWillMount() {
     const {dispatch, mission} = this.props
-    if(!mission) { dispatch(replace(sitemap.mission.list)) ; return }
+    if(!mission) { dispatch(replaceRoute(sitemap.mission.list)) ; return }
 
     dispatch(missionsActions.load({ids: [mission.get('_id')]}))
     dispatch(companiesActions.load({ids: [mission.get('clientId')]}))
@@ -46,6 +54,7 @@ class ViewMission extends Component {
             <Title title={mission.get('name')}/>
           </HeaderLeft>
           <HeaderRight>
+            <div className="m-r-1"><IconButton name={'calendar'} label={'View Calendar'} onClick={this.handleClick}/></div>
             <Edit mission={mission}/>
             <OpenClose mission={mission}/>
             <Delete mission={mission} postAction={this.goBack}/>

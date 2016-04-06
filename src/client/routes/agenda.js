@@ -3,7 +3,7 @@ import AgendaApp from '../containers/agenda/view.js'
 
 const routes = RouteManager([
   Route({
-    name: 'list',
+    name: 'view',
     path: '/agenda',
     topic: 'agenda',
     label: 'Agenda',

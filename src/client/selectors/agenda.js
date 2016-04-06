@@ -18,11 +18,14 @@ export const agendaSelector = createSelector(
   missions,
   pendingRequests,
   (agenda, events, persons, missions, pendingRequests) => {
+    console.log("====> Agenda selectors")
+    console.log(filteredEvents(agenda, events).toJS())
     return {
       agenda,
-      events: currentEvents(agenda, events),
+      events: filteredEvents(agenda, events),
       workers:  persons.filter(byType('worker')),
       missions,
+      persons,
       isLoading: !!pendingRequests
     }
   }
@@ -38,10 +41,16 @@ const eventsDays = event => {
   return days;
 }
 
-const currentEvents = (agenda, events) => {
+const filteredEvents = (agenda, events) => {
   return events
     .filter(event => {
       return event.get('startDate') <= agenda.to && event.get('endDate') >= agenda.from
+    })
+    .filter(event => {
+      return agenda.workerIds.length === 0 || agenda.workerIds.indexOf(event.get('workerId')) !== -1
+    })
+    .filter(event => {
+      return agenda.missionIds.length === 0 || agenda.missionIds.indexOf(event.get('missionId')) !== -1
     })
     .reduce((res, event) => {
       eventsDays(event).forEach( day => {

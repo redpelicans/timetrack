@@ -11,22 +11,25 @@ export const EVENT_UPDATED = 'EVENT_UPDATED';
 export const EVENT_DELETED = 'EVENT_DELETED';
 
 
-function eventsLoaded(events){
+function eventsLoaded(from, to, events){
   return {
     type: EVENTS_LOADED,
     events: Immutable.fromJS(_.reduce(events, (res, p) => { res[p._id] = Maker(p); return res}, {})),
-    //events: Immutable.fromJS(_.map(events, Maker)),
   }
 }
 
 export function loadEvents(from, to, {persons, missions} = {}){
   return (dispatch, getState) => {
     const state = getState();
-    const url = `/api/events?from=${dmy(from)}&to=${dmy(to)}`;
+    const rfrom = from.clone().startOf('month');
+    const rto = to.clone().endOf('month');
 
+    //if(datesCached(state, rfrom, fto)) return;
+
+    const url = `/api/events?from=${dmy(rfrom)}&to=${dmy(rto)}`;
     requestJson(url, {dispatch, getState, message: 'Cannot load events, check your backend server'})
       .then( events => {
-        dispatch(eventsLoaded(events));
+        dispatch(eventsLoaded(rfrom, rto, events));
       });
   }
 }
@@ -81,6 +84,9 @@ export const eventsActions = {
   create: createEvent,
   update: updateEvent,
   delete: deleteEvent,
+  createCompleted,
+  deleteCompleted,
+  updateCompleted
 }
 
 function Maker(obj){
