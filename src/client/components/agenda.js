@@ -167,16 +167,18 @@ const WeekDays = () => {
 class Day extends Component{
 
   shouldComponentUpdate(nextProps){
-    const diff = (pevents, nevents) => {
-      const hp = pevents.reduce( (res, e) => { res[e.get('_id')] = e; return res }, {})
-      const np = nevents.reduce( (res, e) => { res[e.get('_id')] = e; return res }, {})
-      return _.some(hp, e => hp[e.get('_id')] !== np[e.get('_id')] )
+    const diff = (previsous, next) => {
+      const hp = previsous.reduce( (res, e) => { res[e.get('_id')] = e; return res }, {})
+      const np = next.reduce( (res, e) => { res[e.get('_id')] = e; return res }, {})
+      return _.some(np, e => hp[e.get('_id')] !== np[e.get('_id')] )
     }
     const key = dmy(this.props.date)
     const previous = this.props.events.get(key) || Immutable.List()
     const next = nextProps.events.get(key) || Immutable.List()
-    return nextProps.selected !== this.props.selected ||
-      previous.size !== next.size ||
+
+    return nextProps.selected !== this.props.selected || 
+      previous.size !== next.size || 
+      next.size && nextProps.persons !== this.props.persons ||
       diff(previous, next)
   }
 

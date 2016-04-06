@@ -71,7 +71,7 @@ class App extends Component {
   }
 
   render(){
-    const {agenda, events, isLoading, workers, missions} = this.props;
+    const {agenda, events, isLoading, persons, missions} = this.props;
 
     return (
         <Content>
@@ -93,7 +93,7 @@ class App extends Component {
             viewMode={agenda.viewMode} 
             date={agenda.from} 
             events={events}
-            persons={workers}
+            persons={persons}
             missions={missions}
             onPeriodSelection={this.handlePeriodSelection}/>
         </Content>
@@ -107,6 +107,7 @@ App.propTypes = {
   events: PropTypes.object.isRequired,
   workers: PropTypes.object.isRequired,
   missions: PropTypes.object.isRequired,
+  persons: PropTypes.object.isRequired,
 }
 
 class Content extends Component {

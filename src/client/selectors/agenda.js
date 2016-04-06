@@ -18,8 +18,6 @@ export const agendaSelector = createSelector(
   missions,
   pendingRequests,
   (agenda, events, persons, missions, pendingRequests) => {
-    console.log("====> Agenda selectors")
-    console.log(filteredEvents(agenda, events).toJS())
     return {
       agenda,
       events: filteredEvents(agenda, events),
