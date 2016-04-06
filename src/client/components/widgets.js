@@ -427,6 +427,32 @@ ResetBtn.propTypes = {
   size:   PropTypes.string
 }
 
+
+export const IconButton = ({name, onClick, label}) => {
+  const handleChange = (e) => {
+    onClick();
+    e.preventDefault();
+  }
+
+  const style={
+    fontSize: '1.5rem',
+  }
+
+  return (
+    <div className="m-l-1">
+      <a data-tip={label} href="#" onClick={handleChange}>
+        <i style={style} className={`iconButton fa fa-${name}`}/>
+      </a>
+      {label && <ReactTooltip effect="solid" />}
+    </div>
+  )
+}
+
+IconButton.PropTypes = {
+  onClick: PropTypes.func.isRequired,
+  name: PropTypes.string.isRequired,
+} 
+
 export const Refresh =({onClick}) => {
   const handleChange = (e) => {
     onClick();

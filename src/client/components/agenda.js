@@ -1,146 +1,371 @@
-import React,{Component} from 'react'
-import Radium from 'radium'
+import React,{Component, PropTypes,  cloneElement} from 'react'
+import _ from 'lodash'
+import Immutable from 'immutable'
+import moment from 'moment'
+import Radium, {StyleRoot} from 'radium'
+import {dmy} from '../utils';
+import {AvatarView} from './widgets';
+import {authable} from './authmanager';
+import {pushRoute} from '../actions/routes';
+import routes from '../routes';
 
-import CalendarBase,{CalendarGrid, WeekDays} from './calendarkit'
-////////////////////////////////////////////////////////////////////////////////
-// Cells
-
-// Awesome Clicky cell
-class ClickyCell extends Component {
-
-  state = {click: false}
-
-  header = ({id, date}) =>
-    <div>{id}</div>
-
-  content = ({id, date}) =>
-    <div>{date.date()}</div>
-
-  handleClick = ({id, date}) => (e) => {
-    this.setState({click: !this.state.click})
+@Radium
+class Calendar extends Component{
+  state = { 
+    firstSelectedDate: undefined,
+    lastSelectedDate: undefined,
   }
 
-  render () {
-    const { id, date } = this.props
+  handleMouseDown = (date) => {
+    this.setState({firstSelectedDate: date, lastSelectedDate: date});
+  }
+
+  handleMouseUp = (date) => {
+    this.setState({lastSelectedDate: date});
+    if(this.state.firstSelectedDate <= this.state.lastSelectedDate) return this.props.onPeriodSelection(this.state.firstSelectedDate, this.state.lastSelectedDate);
+    this.props.onPeriodSelection(this.state.lastSelectedDate, this.state.firstSelectedDate);
+  }
+
+  handleMouseEnter = (date) => {
+    if(this.state.firstSelectedDate)this.setState({lastSelectedDate: date});
+  }
+
+  render(){
+    const {date, viewMode='month', events, persons, missions} = this.props;
+    const {firstSelectedDate, lastSelectedDate} = this.state;
+    const currentDate = date ? moment(date) : moment();
+
+    const style = {
+      height: "calc(100% - 100px)",
+      minHeight: '100px',
+      width: '100%',
+    }
+
     return (
-      <div
-        style={{
-          height: "100%",
-          backgroundColor: "#434857",
-          border: this.state.click ? "1px solid firebrick": "1px solid dodgerblue",
-        }}
-        onClick={this.handleClick(this.props)}
-      >
-        {this.header(this.props)}
-        {this.content(this.props)}
+      <div style={style}>
+        <Month 
+          date={currentDate} 
+          events={events}
+          persons={persons}
+          missions={missions}
+          firstSelectedDate={firstSelectedDate} 
+          lastSelectedDate={lastSelectedDate} 
+          events={events}
+          onMouseDown={this.handleMouseDown}
+          onMouseUp={this.handleMouseUp}
+          onMouseEnter={this.handleMouseEnter}/>
       </div>
     )
   }
 }
 
-// Mini agenda cell
-const MiniCell = ({id, date}) =>
-  <div onClick={(e) => { alert(date.date()) }}>
-    {date.date()}
-  </div>
+Calendar.propTypes = {
+  date: PropTypes.object,
+  viewMode: PropTypes.string,
+  events: PropTypes.object,
+  persons: PropTypes.object,
+  missions: PropTypes.object,
+}
 
-// POC Pokemon - pokepoc ;)
-const PokeCell = ({id, date}) => {
-  const styles = { width: "100%" }
+const Month = Radium(({date, events, persons, missions, firstSelectedDate, lastSelectedDate, onMouseDown, onMouseUp, onMouseEnter}) => {
+  const styles = {
+    days: {
+      display: "flex",
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignItems: 'stretch',
+      height: '95%',
+      '@media (maxWidth: 600px)': {
+        flexDirection: "column"
+      }
+    },
+    container:{
+      height: '100%',
+    }
+  }
+
+  const betweenDates = (date, first, last) => {
+    if(first <= last) return date >= first && date <= last
+    return date >= last && date <= first
+  }
+
+  const days = () => {
+    const first = date.clone().startOf('month');
+    const last = date.clone().endOf('month');
+    const current = first.clone().subtract(first.day() + 1, 'days');
+    const cells = _.times(35, (id) => {
+      current.add(1, 'day');
+      const key = dmy(current);
+      return <Day 
+        key={key} 
+        inBound={current >= first && current <= last} 
+        selected={betweenDates(current, firstSelectedDate, lastSelectedDate)} 
+        date={current.clone()}
+        events={events}
+        persons={persons}
+        missions={missions}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
+        onMouseEnter={onMouseEnter}/>
+    })
+    return cells
+  }
+
   return (
-    <img style={styles} src={`http://pokeapi.co/media/sprites/pokemon/${date.date()}.png`} />
+    <div style={styles.container}>
+      <WeekDays/>
+      <div style={styles.days}>
+        {days()}
+      </div>
+    </div>
+  )
+})
+
+Month.propTypes = {
+  date: PropTypes.object.isRequired,
+  events: PropTypes.object,
+  persons: PropTypes.object,
+  missions: PropTypes.object,
+  firstSelectedDate: PropTypes.object,
+  lastSelectedDate: PropTypes.object,
+  onMouseDown: PropTypes.func,
+  onMouseUp: PropTypes.func,
+  onMouseEnter: PropTypes.func,
+}
+
+const WeekDays = () => {
+  const styles = {
+    container:{
+      display: "flex",
+      flexDirection: "row",
+      flexWrap: "nowrap",
+      '@media (maxWidth: 600px)': {
+        flexDirection: "column"
+      },
+    },
+    day: {
+      flexBasis: "14.2857%",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      '@media (maxWidth: 600px)': {
+        display: "none"
+      }
+    }
+  }
+
+  const days = _.map(moment.weekdaysShort(), (day, i) => {
+    return <span key={i} style={styles.day}>{day}</span>
+  })
+
+  return (
+    <div style={styles.container}>
+      {days}
+    </div>
   )
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Agenda Stateless Functionnal Components <3
-const _Month = ({date, style}) =>
-  <span style={[style]}>{date.format('MMMM')}</span>
-const Month = Radium(_Month)
 
-const _Year = ({date, style}) =>
-  <span style={style}>{date.format('YYYY')}</span>
-const Year = Radium(_Year)
+//@Radium
+class Day extends Component{
+  shouldComponentUpdate(nextProps){
+    // TODO
+    return true
+    //return nextProps.selected !== this.props.selected &&
 
-const _PrevMonth = (props) =>
-  <button {...props}>{'<<<'}</button>
-const PrevMonth = Radium(_PrevMonth)
+  }
 
-const _NextMonth = (props) =>
-  <button {...props}>{'>>>'}</button>
-const NextMonth = Radium(_NextMonth)
-
-const _Today = (props) =>
-  <button {...props}>{'today'}</button>
-const Today = Radium(_Today)
-
-////////////////////////////////////////////////////////////////////////////////
-// AgendaApp
-class AgendaApp extends CalendarBase {
-
-  render () {
-    // public
-    // - state { today, date } // State
-    // - Calendar              // Component
-    // - composeCell           // function
-    // - prevMonth             // function
-    // - nextMonth             // function
-    // - today                 // function
-
-    const styles = {
-      Cell: {
-        height: "20%",
-      },
-      Header: {
-        height: "70px",
-      },
-      CalendarGrid: {
-        height: "calc(100% - 70px)",
-        '@media (max-width: 480px)': {
-          flexDirection: "column"
-        }
-      },
-      _Month: {
-        display: "inline-block",
-        textAlign: "center",
-        width: "100px"
-      },
-      _Year: {
-        display: "inline-block",
-        width: "50px"
-      },
-      _WeekDays: {
-        week: {
-          '@media (max-width: 480px)': {
-            display: "none"
-          }
-        },
-        day: {
-        }
-      }
+  render(){
+    console.log("render day")
+    const {date, events, persons, missions, inBound, selected, onMouseEnter, onMouseDown, onMouseUp} = this.props;
+    const style = {
+      flexBasis: "14.2857%",
+      overflow: "hidden",
+      backgroundColor: selected ? "#637D93" : "#434857" ,
+      border:  "1px solid #68696C",
     }
 
-    const Calendar      = this.Calendar
-    const Header        = this.container('Header')
-    const Container     = this.container('Container')
-    const CellComponent = this.composeCell(ClickyCell, styles.Cell)
+    const handleMouseDown = (e) => {
+      e.preventDefault();
+      onMouseDown(date);
+    }
 
-    const {events}      = this.props
+    const handleMouseUp = (e) => {
+      e.preventDefault();
+      onMouseUp(date);
+    }
+
+    const handleMouseEnter = (e) => {
+      e.preventDefault();
+      onMouseEnter(date);
+    }
+
+    const key = dmy(this.props.date);
 
     return (
-      <Calendar styles={styles}>
-        <Header>
-          <Today onClick={this.reset} />
-          <PrevMonth onClick={this.prevMonth} />
-          <Month />
-          <Year />
-          <NextMonth onClick={this.nextMonth} />
-          <WeekDays />
-        </Header>
-        <CalendarGrid CellComponent={CellComponent} />
-      </Calendar>
+      <div style={style} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseEnter={handleMouseEnter}>
+        <DayHeader date={date} inBound={inBound}/>
+        <DayComponent 
+          date={date} 
+          persons={persons}
+          missions={missions}
+          events={events.get(key)}/>
+      </div>
+
     )
   }
 }
 
-export default AgendaApp
+Day.propTypes = {
+  date: PropTypes.object.isRequired,
+  events: PropTypes.object.isRequired,
+  persons: PropTypes.object.isRequired,
+  missions: PropTypes.object.isRequired,
+  inBound: PropTypes.bool.isRequired,
+}
+
+const DayHeader = ({date, inBound}) => {
+  const styles={
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    justifyContent: 'space-between',
+  }
+
+  return (
+    <div style={styles}>
+      <DayOfMonth date={date} inBound={inBound}/>
+      <WeekNumber date={date}/>
+    </div>
+  )
+}
+
+DayHeader.propTypes = {
+  date: PropTypes.object.isRequired,
+  inBound: PropTypes.bool.isRequired,
+}
+
+const DayComponent = ({date, events, persons, missions}) => {
+  const style={
+    height: '100%',
+  }
+  const dayEvents = events && events.map(event => <Event persons={persons} missions={missions} event={event} key={event.get('_id')}/> );
+
+  return (
+    <div style={style}>
+      {dayEvents}
+    </div>
+  )
+}
+
+DayComponent.propTypes = {
+  date: PropTypes.object.isRequired,
+  events: PropTypes.object,
+  persons: PropTypes.object,
+  missions: PropTypes.object,
+}
+
+const Event = authable(({event, persons, missions}, {authManager, dispatch}) => {
+  const person = persons.get(event.get('workerId'))
+  if(!person)return <div/>;
+
+  const styles = {
+    container: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'left',
+      padding: '5px',
+      margin: '5px',
+      //backgroundColor: person.get('avatar').get('color'),
+    }
+  }
+
+  const personView = () => {
+    const onClick = (worker, e) => {
+      e.preventDefault();
+      dispatch(pushRoute(routes.person.view, {personId: person.get('_id')}));
+    }
+
+   if(authManager.person.isAuthorized('view')){
+     return (
+       <a href="#" onMouseDown={onClick.bind(null, person)}>
+        <AvatarView  obj={person} size={24} label={`Worker ${person.get('name')}`}/>
+      </a>
+     )
+   }else{
+     return  <AvatarView  obj={person} size={24} label={`Worker ${person.get('name')}`}/>
+   }
+  }
+
+  const label = () => {
+    const onClick = (event, e) => {
+      e.preventDefault();
+      dispatch(pushRoute(routes.event.edit, {eventId: event.get('_id')}));
+    }
+
+    if(authManager.event.isAuthorized('edit')){
+      return (
+        <a href="#" onMouseDown={onClick.bind(null, event)}>
+          {event.get('type')}
+        </a>
+      )
+    }else{
+      return <span>{event.get('type')}</span>
+    }
+  }
+
+  return (
+    <div style={styles.container}>
+      <div>{personView()}</div>
+      <div>{label()}</div>
+    </div>
+  )
+})
+
+DayComponent.propTypes = {
+  event: PropTypes.object,
+  persons: PropTypes.object,
+  missions: PropTypes.object,
+}
+
+
+const DayOfMonth = ({date, inBound}) => {
+  const style={
+    fontSize: '0.9em',
+    margin: '5px',
+  }
+  if(!inBound) style.color = 'grey';
+
+  return (
+    <div style={style}>{date.format("D")}</div>
+  )
+}
+
+DayOfMonth.propTypes = {
+  date: PropTypes.object.isRequired,
+}
+
+const WeekNumber = ({date}) => {
+  const style={
+    fontSize: '0.9em',
+    padding: '.2rem',
+    margin: '1px',
+    color: '#cfd2da',
+    backgroundColor: '#0275d8',
+    display: 'inline-block',
+    textAlign: 'center',
+    verticalAlign: 'baseline',
+    borderRadius: '.25rem',
+  }
+
+  if(date.day() !== 1) return <div/>
+
+  return (
+    <div style={style}>{date.format("w")}</div>
+  )
+}
+
+WeekNumber.propTypes = {
+  date: PropTypes.object.isRequired,
+}
+
+export default Calendar;

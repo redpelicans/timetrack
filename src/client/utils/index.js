@@ -83,3 +83,4 @@ export function fetchJson(...params){
   return fetch(...params).then(checkStatus).then(parseJSON);
 }
 
+export function dmy(date){ return date && date.format("DDMMYY")}

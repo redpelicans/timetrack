@@ -1,10 +1,15 @@
+import Immutable from 'immutable';
+import moment from 'moment';
 import {createSelector} from 'reselect'
+import {dmy} from '../utils'
 
 const agenda = state => state.agenda
 const events = state => state.events.data
 const persons = state => state.persons.data
 const missions = state => state.missions.data
 const pendingRequests = state => state.pendingRequests
+
+const byType = type => x => x.get('type') === type
 
 export const agendaSelector = createSelector(
   agenda,
@@ -15,10 +20,34 @@ export const agendaSelector = createSelector(
   (agenda, events, persons, missions, pendingRequests) => {
     return {
       agenda,
-      events,
-      persons,
+      events: currentEvents(agenda, events),
+      workers:  persons.filter(byType('worker')),
       missions,
       isLoading: !!pendingRequests
     }
   }
 )
+
+const eventsDays = event => {
+  let day = moment(event.get('startDate')).clone();
+  const days = [];
+  while(day < event.get('endDate')){
+    days.push(day.clone());
+    day.add(1, 'day');
+  }
+  return days;
+}
+
+const currentEvents = (agenda, events) => {
+  return events
+    .filter(event => {
+      return event.get('startDate') <= agenda.to && event.get('endDate') >= agenda.from
+    })
+    .reduce((res, event) => {
+      eventsDays(event).forEach( day => {
+        const key = dmy(day);
+        res = res.get(key) ? res.update(key, v => v.push(event)) : res.set(key, Immutable.fromJS([event]));
+      });
+      return res;
+    }, Immutable.Map());
+}

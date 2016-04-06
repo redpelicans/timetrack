@@ -11,8 +11,6 @@ export const MISSION_UPDATED = 'MISSION_UPDATED';
 export const MISSION_DELETED = 'MISSION_DELETED';
 export const MISSION_CREATED = 'MISSION_CREATED';
 
-export function createCompleted(){
-}
 
 export function deleteCompleted(mission){
   return {
@@ -111,8 +109,8 @@ export const missionsActions = {
 function Maker(obj){
   if(obj.createdAt) obj.createdAt = moment(obj.createdAt || new Date(1967, 9, 1));
   if(obj.updatedAt) obj.updatedAt = moment(obj.updatedAt || new Date(1967, 9, 1));
-  if(obj.startDate)obj.startDate = moment(obj.startDate).toDate();
-  if(obj.endDate)obj.endDate = moment(obj.endDate).toDate();
+  if(obj.startDate) obj.startDate = moment(obj.startDate).toDate();
+  if(obj.endDate) obj.endDate = moment(obj.endDate).toDate();
   obj.typeName = "mission";
   return obj;
 }

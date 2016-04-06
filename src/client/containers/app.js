@@ -1,4 +1,6 @@
 import React, {Component, PropTypes} from 'react';
+import {StyleRoot} from 'radium';
+import globalStyles from '../styles';
 import ReactToastr from 'react-toastr';
 import { connect } from 'react-redux';
 import {logout} from '../actions/login';
@@ -60,9 +62,13 @@ class App extends Component {
         top: '100px',
         right: '12px'
       },
+      content: {
+        height: '100%',
+      }
     }
+
     return (
-      <div>
+      <StyleRoot style={globalStyles}>
         <AppNav 
           user={user}
           onGoHome={this.handleGoHome}
@@ -70,8 +76,8 @@ class App extends Component {
           onViewPerson={this.handleViewPerson}
           gotoRoute={this.handleGotoRoute}
           currentTopic={currentTopic}/>
-        <div className="m-t-70 container-fluid">
-          <div className="row m-t">
+        <div style={styles.content} className="m-t-70 container-fluid">
+          <div style={styles.content} className="row m-t">
             {this.props.children}
           </div>
           <ToastContainer 
@@ -79,7 +85,7 @@ class App extends Component {
             ref="container" 
             toastMessageFactory={ToastMessageFactory} />
         </div>
-      </div>
+      </StyleRoot>
     )
   }
 }
@@ -159,11 +165,11 @@ const AppNav = ({user, onGoHome, onLogout, onViewPerson, currentTopic, gotoRoute
     },
     logo:{
       color: "#cd4436",
-    }
+    },
   }
 
   return (
-    <div >
+    <div>
       <div className="m-t-70 collapse hidden-md-up bg-inverse p-a" id="collapsingNavbar">
           <ul className="nav nav-pills nav-stacked">
             {menu2()}

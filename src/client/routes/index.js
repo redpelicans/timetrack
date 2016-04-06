@@ -7,6 +7,7 @@ import companyRoutes from './company'
 import missionRoutes from './mission'
 import notesRoutes from './notes'
 import agendaRoutes from './agenda'
+import eventRoutes from './event'
 
 const routes = RouteManager([
   personRoutes,
@@ -14,6 +15,7 @@ const routes = RouteManager([
   missionRoutes,
   notesRoutes,
   agendaRoutes,
+  eventRoutes,
   Route({
     name: 'notfound',
     path: '/notfound',

@@ -10,10 +10,9 @@ export default class Root extends Component {
     return (
       <Provider store={store}>
         <AuthManager manager={authManager}>
-          <div>
-          <Router history={history} routes={routes} />
-            <DevTools />
-          </div>
+          <Router history={history} routes={routes}>
+            {/*<DevTools />*/}
+          </Router>
         </AuthManager>
       </Provider>
     )
