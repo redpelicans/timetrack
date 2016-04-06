@@ -31,16 +31,14 @@ class Agenda extends Component{
   }
 
   render(){
-    const {date, viewMode='month', events, persons, missions} = this.props;
+    const {date, viewMode='month', ...others} = this.props;
     const {firstSelectedDate, lastSelectedDate} = this.state;
     const currentDate = date ? moment(date) : moment();
 
     return (
       <Month 
         date={currentDate} 
-        events={events}
-        persons={persons}
-        missions={missions}
+        {...others}
         firstSelectedDate={firstSelectedDate} 
         lastSelectedDate={lastSelectedDate} 
         onMouseDown={this.handleMouseDown}
@@ -52,13 +50,11 @@ class Agenda extends Component{
 
 Agenda.propTypes = {
   date: PropTypes.object,
+  dayComponent: PropTypes.func.isRequired,
   viewMode: PropTypes.string,
-  events: PropTypes.object,
-  persons: PropTypes.object,
-  missions: PropTypes.object,
 }
 
-const Month = Radium(({date, events, persons, missions, firstSelectedDate, lastSelectedDate, onMouseDown, onMouseUp, onMouseEnter}) => {
+const Month = Radium(({date, firstSelectedDate, lastSelectedDate, ...others}) => {
   const styles = {
     days: {
       flexShrink: 1,
@@ -98,12 +94,7 @@ const Month = Radium(({date, events, persons, missions, firstSelectedDate, lastS
         inBound={current >= first && current <= last} 
         selected={betweenDates(current, firstSelectedDate, lastSelectedDate)} 
         date={current.clone()}
-        events={events}
-        persons={persons}
-        missions={missions}
-        onMouseDown={onMouseDown}
-        onMouseUp={onMouseUp}
-        onMouseEnter={onMouseEnter}/>
+        {...others}/>
     })
     return cells
   }
@@ -120,14 +111,8 @@ const Month = Radium(({date, events, persons, missions, firstSelectedDate, lastS
 
 Month.propTypes = {
   date: PropTypes.object.isRequired,
-  events: PropTypes.object,
-  persons: PropTypes.object,
-  missions: PropTypes.object,
   firstSelectedDate: PropTypes.object,
   lastSelectedDate: PropTypes.object,
-  onMouseDown: PropTypes.func,
-  onMouseUp: PropTypes.func,
-  onMouseEnter: PropTypes.func,
 }
 
 const WeekDays = () => {
@@ -164,72 +149,50 @@ const WeekDays = () => {
 
 
 //@Radium
-class Day extends Component{
-
-  shouldComponentUpdate(nextProps){
-    const diff = (previsous, next) => {
-      const hp = previsous.reduce( (res, e) => { res[e.get('_id')] = e; return res }, {})
-      const np = next.reduce( (res, e) => { res[e.get('_id')] = e; return res }, {})
-      return _.some(np, e => hp[e.get('_id')] !== np[e.get('_id')] )
-    }
-    const key = dmy(this.props.date)
-    const previous = this.props.events.get(key) || Immutable.List()
-    const next = nextProps.events.get(key) || Immutable.List()
-
-    return nextProps.selected !== this.props.selected || 
-      previous.size !== next.size || 
-      next.size && nextProps.persons !== this.props.persons ||
-      diff(previous, next)
+const Day = ({date, inBound, selected, onMouseEnter, onMouseDown, onMouseUp, dayComponent, ...others}) => {
+  const style = {
+    flexBasis: "14.2857%",
+    minHeight: '75px',
+    overflow: "hidden",
+    backgroundColor: selected ? "#637D93" : "#434857" ,
+    border:  "1px solid #68696C",
   }
 
-  render(){
-    console.log('render day')
-    const {date, events, persons, missions, inBound, selected, onMouseEnter, onMouseDown, onMouseUp} = this.props;
-    const style = {
-      flexBasis: "14.2857%",
-      minHeight: '75px',
-      overflow: "hidden",
-      backgroundColor: selected ? "#637D93" : "#434857" ,
-      border:  "1px solid #68696C",
-    }
-
-    const handleMouseDown = (e) => {
-      e.preventDefault();
-      onMouseDown(date);
-    }
-
-    const handleMouseUp = (e) => {
-      e.preventDefault();
-      onMouseUp(date);
-    }
-
-    const handleMouseEnter = (e) => {
-      e.preventDefault();
-      onMouseEnter(date);
-    }
-
-    const key = dmy(this.props.date);
-
-    return (
-      <div style={style} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseEnter={handleMouseEnter}>
-        <DayHeader date={date} inBound={inBound}/>
-        <DayComponent 
-          date={date} 
-          persons={persons}
-          missions={missions}
-          events={events.get(key)}/>
-      </div>
-
-    )
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    onMouseDown(date);
   }
+
+  const handleMouseUp = (e) => {
+    e.preventDefault();
+    onMouseUp(date);
+  }
+
+  const handleMouseEnter = (e) => {
+    e.preventDefault();
+    onMouseEnter(date);
+  }
+
+  const key = dmy(date);
+  const DayComponent = dayComponent;
+
+  console.log("render day")
+  return (
+    <div style={style} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseEnter={handleMouseEnter}>
+      <DayHeader date={date} inBound={inBound}/>
+      <DayComponent date={date} {...others}/>
+    </div>
+  )
 }
 
 Day.propTypes = {
   date: PropTypes.object.isRequired,
-  events: PropTypes.object.isRequired,
-  persons: PropTypes.object.isRequired,
-  missions: PropTypes.object.isRequired,
   inBound: PropTypes.bool.isRequired,
+  selected: PropTypes.bool.isRequired,
+  onMouseDown: PropTypes.func.isRequired,
+  onMouseUp: PropTypes.func.isRequired,
+  onMouseEnter: PropTypes.func.isRequired,
+  dayComponent: PropTypes.func.isRequired,
 }
 
 const DayHeader = ({date, inBound}) => {
@@ -252,90 +215,6 @@ DayHeader.propTypes = {
   date: PropTypes.object.isRequired,
   inBound: PropTypes.bool.isRequired,
 }
-
-const DayComponent = ({date, events, persons, missions}) => {
-  const style={
-    height: '100%',
-  }
-  const dayEvents = events && events.map(event => <Event persons={persons} missions={missions} event={event} key={event.get('_id')}/> );
-
-  return (
-    <div style={style}>
-      {dayEvents}
-    </div>
-  )
-}
-
-DayComponent.propTypes = {
-  date: PropTypes.object.isRequired,
-  events: PropTypes.object,
-  persons: PropTypes.object,
-  missions: PropTypes.object,
-}
-
-const Event = authable(({event, persons, missions}, {authManager, dispatch}) => {
-  const person = persons.get(event.get('workerId'))
-  if(!person)return <div/>;
-
-  const styles = {
-    container: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'left',
-      padding: '5px',
-      margin: '5px',
-      //backgroundColor: person.get('avatar').get('color'),
-    }
-  }
-
-  const personView = () => {
-    const onClick = (worker, e) => {
-      e.preventDefault();
-      dispatch(pushRoute(routes.person.view, {personId: person.get('_id')}));
-    }
-
-   if(authManager.person.isAuthorized('view')){
-     return (
-       <a href="#" onMouseDown={onClick.bind(null, person)}>
-        <AvatarView  obj={person} size={24} label={`Worker ${person.get('name')}`}/>
-      </a>
-     )
-   }else{
-     return  <AvatarView  obj={person} size={24} label={`Worker ${person.get('name')}`}/>
-   }
-  }
-
-  const label = () => {
-    const onClick = (event, e) => {
-      e.preventDefault();
-      dispatch(pushRoute(routes.event.edit, {eventId: event.get('_id')}));
-    }
-
-    if(authManager.event.isAuthorized('edit')){
-      return (
-        <a href="#" onMouseDown={onClick.bind(null, event)}>
-          {event.get('type')}
-        </a>
-      )
-    }else{
-      return <span>{event.get('type')}</span>
-    }
-  }
-
-  return (
-    <div style={styles.container}>
-      <div>{personView()}</div>
-      <div>{label()}</div>
-    </div>
-  )
-})
-
-DayComponent.propTypes = {
-  event: PropTypes.object,
-  persons: PropTypes.object,
-  missions: PropTypes.object,
-}
-
 
 const DayOfMonth = ({date, inBound}) => {
   const style={

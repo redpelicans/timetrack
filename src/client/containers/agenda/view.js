@@ -15,6 +15,10 @@ import Multiselect from 'react-widgets/lib/Multiselect'
 import agendaForm from '../../forms/agenda'
 import {MultiSelectField2} from '../../components/fields'
 
+import {AvatarView} from '../../components/widgets';
+import {authable} from '../../components/authmanager';
+import {dmy} from '../../utils';
+
 class App extends Component {
 
 
@@ -95,6 +99,7 @@ class App extends Component {
             events={events}
             persons={persons}
             missions={missions}
+            dayComponent={DayComponent}
             onPeriodSelection={this.handlePeriodSelection}/>
         </Content>
     )
@@ -108,6 +113,108 @@ App.propTypes = {
   workers: PropTypes.object.isRequired,
   missions: PropTypes.object.isRequired,
   persons: PropTypes.object.isRequired,
+}
+
+class DayComponent extends Component{
+  shouldComponentUpdate(nextProps){
+    const diff = (previsous, next) => {
+      const hp = previsous.reduce( (res, e) => { res[e.get('_id')] = e; return res }, {})
+      const np = next.reduce( (res, e) => { res[e.get('_id')] = e; return res }, {})
+      return _.some(np, e => hp[e.get('_id')] !== np[e.get('_id')] )
+    }
+    const key = dmy(this.props.date)
+    const previous = this.props.events.get(key) || Immutable.List()
+    const next = nextProps.events.get(key) || Immutable.List()
+
+    return previous.size !== next.size || 
+      next.size && nextProps.persons !== this.props.persons ||
+      diff(previous, next)
+  }
+
+  render(){
+    console.log('render dayComponent')
+    const {date, events, persons} = this.props
+    const key = dmy(date)
+    const localEvents = events.get(key) || Immutable.List()
+    const style={
+      height: '100%',
+    }
+    const dayEvents = localEvents.map(event => <Event persons={persons}  event={event} key={event.get('_id')}/> )
+
+    return (
+      <div style={style}>
+        {dayEvents}
+      </div>
+    )
+  }
+}
+
+DayComponent.propTypes = {
+  date: PropTypes.object.isRequired,
+  events: PropTypes.object,
+  persons: PropTypes.object,
+}
+
+const Event = authable(({event, persons}, {authManager, dispatch}) => {
+  const person = persons.get(event.get('workerId'))
+
+  if(!person)return <div/>;
+
+  const styles = {
+    container: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'left',
+      padding: '5px',
+      margin: '5px',
+    }
+  }
+
+  const personView = () => {
+    const onClick = (worker, e) => {
+      e.preventDefault();
+      dispatch(pushRoute(routes.person.view, {personId: person.get('_id')}));
+    }
+
+   if(authManager.person.isAuthorized('view')){
+     return (
+       <a href="#" onMouseDown={onClick.bind(null, person)}>
+        <AvatarView  obj={person} size={24} label={`Worker ${person.get('name')}`}/>
+      </a>
+     )
+   }else{
+     return  <AvatarView  obj={person} size={24} label={`Worker ${person.get('name')}`}/>
+   }
+  }
+
+  const label = () => {
+    const onClick = (event, e) => {
+      e.preventDefault();
+      dispatch(pushRoute(routes.event.edit, {eventId: event.get('_id')}));
+    }
+
+    if(authManager.event.isAuthorized('edit')){
+      return (
+        <a href="#" onMouseDown={onClick.bind(null, event)}>
+          {event.get('type')}
+        </a>
+      )
+    }else{
+      return <span>{event.get('type')}</span>
+    }
+  }
+
+  return (
+    <div style={styles.container}>
+      <div>{personView()}</div>
+      <div>{label()}</div>
+    </div>
+  )
+})
+
+Event.propTypes = {
+  event: PropTypes.object,
+  persons: PropTypes.object,
 }
 
 class Content extends Component {
