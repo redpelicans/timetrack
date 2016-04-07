@@ -40,9 +40,11 @@ const eventsDays = event => {
 }
 
 const filteredEvents = (agenda, events) => {
+  const from = agenda.from.clone().subtract(10, 'days')
+  const to = agenda.to.clone().add(10, 'days')
   return events
     .filter(event => {
-      return event.get('startDate') <= agenda.to && event.get('endDate') >= agenda.from
+      return event.get('startDate') <= to && event.get('endDate') >= from
     })
     .filter(event => {
       return agenda.workerIds.length === 0 || agenda.workerIds.indexOf(event.get('workerId')) !== -1

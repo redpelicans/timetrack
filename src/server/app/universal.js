@@ -101,6 +101,7 @@ function findUser(secretKey){
 
 export function init(app, resources, params){
   global.window = { location: { origin: params.server.url } };
+  global.navigator = {userAgent: 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2454.85 Safari/537.36'};
   app.get('*', findUser(params.secretKey), function(req, res){
     loginfo(req.user ? `Isomorphic login of user '${req.user.fullName()}'` : 'Isomorphic login of an unknown user'); 
     configureStore(req.user, req.token, (err, store, companies) => {

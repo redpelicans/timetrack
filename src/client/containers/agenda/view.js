@@ -14,13 +14,12 @@ import Agenda from '../../components/agenda'
 import Multiselect from 'react-widgets/lib/Multiselect'
 import agendaForm from '../../forms/agenda'
 import {MultiSelectField2} from '../../components/fields'
-
 import {AvatarView} from '../../components/widgets';
 import {authable} from '../../components/authmanager';
 import {dmy} from '../../utils';
+import globalStyle from '../../styles';
 
 class App extends Component {
-
 
   componentWillUnmount(){
     if(this.unsubscribeState) this.unsubscribeState()
@@ -94,6 +93,7 @@ class App extends Component {
             <ControlPanel form={this.agendaForm}/>
           </ToggleBox>
           <Agenda 
+            style={globalStyle.agenda}
             viewMode={agenda.viewMode} 
             date={agenda.from} 
             events={events}

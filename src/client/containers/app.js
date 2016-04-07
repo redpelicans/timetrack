@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import {StyleRoot} from 'radium';
-import globalStyles from '../styles';
+import globalStyle from '../styles';
 import ReactToastr from 'react-toastr';
 import { connect } from 'react-redux';
 import {logout} from '../actions/login';
@@ -68,7 +68,7 @@ class App extends Component {
     }
 
     return (
-      <StyleRoot style={globalStyles}>
+      <StyleRoot style={globalStyle.base}>
         <AppNav 
           user={user}
           onGoHome={this.handleGoHome}

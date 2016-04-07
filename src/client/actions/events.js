@@ -20,9 +20,9 @@ function eventsLoaded(from, to, events){
 
 export function loadEvents(from, to, {persons, missions} = {}){
   return (dispatch, getState) => {
-    const state = getState();
-    const rfrom = from.clone().startOf('month');
-    const rto = to.clone().endOf('month');
+    //const state = getState();
+    const rfrom = from.clone().startOf('month').subtract(10, 'days');
+    const rto = to.clone().endOf('month').add(10, 'days');
 
     //if(datesCached(state, rfrom, fto)) return;
 
