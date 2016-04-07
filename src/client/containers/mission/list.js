@@ -95,12 +95,8 @@ class List extends Component {
     const styles={
       container:{
         marginTop: '50px',
-        //marginBottom: '50px',
-        //marginLeft: 'auto',
-        //marginRight: 'auto',
       },
       item:{
-        //height: '180px',
         padding: '5px',
         margin: '0px',
       }

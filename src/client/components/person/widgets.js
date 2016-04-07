@@ -217,11 +217,13 @@ export class Preview extends Component {
       preferred:{
         paddingRight: '15px',
       },
-
+      avatar: {
+        paddingRight: '10px',
+      },
     };
 
     const person = this.props.person;
-    const avatar = <AvatarView obj={person}/>;
+    const avatar = <AvatarView style={styles.avatar} obj={person}/>;
     const isNew = () =>{
       if(person.get('isNew')) return <NewLabel/>
       if(person.get('isUpdated')) return <UpdatedLabel/>

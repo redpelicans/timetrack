@@ -579,7 +579,7 @@ export class ItemNote extends Component {
       },
       avatar:{
         paddingBottom: '10px',
-        paddingRight: '5px',
+        paddingRight: '24px',
       },
       author:{
         display: 'inline-block',

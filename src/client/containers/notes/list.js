@@ -7,7 +7,7 @@ import {personsActions} from '../../actions/persons';
 import {companiesActions} from '../../actions/companies';
 import {missionsActions} from '../../actions/missions';
 import {Content} from '../../components/layout';
-import {AvatarView, Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
+import {Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
 import {AddButton} from '../../components/notes/widgets';
 import {ItemNote} from '../notes';

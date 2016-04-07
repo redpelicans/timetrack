@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import {visibleCompaniesSelector} from '../../selectors/companies';
 import {companiesActions} from '../../actions/companies';
 import {Content} from '../../components/layout';
-import {AvatarView, Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
+import {Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
 import {Edit, Preferred, Delete, AddButton, Preview} from '../../components/company/widgets';
 import routes from '../../routes';

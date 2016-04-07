@@ -56,18 +56,18 @@ ToggleBox.PropTypes = {
 }
 
 
-export const AvatarView = ({obj, size, label}) => {
+export const AvatarView = ({obj, size, label, style}) => {
   if(!obj || !obj.get('avatar')) return <div className="m-r-1"><Avatar size={size} name={"?"}/></div>;
 
   const avatar = obj.get('avatar').toJS();
   const tooltip = label || obj.get('name');
-  const defaultAvatar = <div className="m-r-1"><Avatar size={size} label={tooltip} name={obj.get('name')} color={avatar.color}/></div>;
+  const defaultAvatar = <div style={style}><Avatar size={size} label={tooltip} name={obj.get('name')} color={avatar.color}/></div>;
 
   switch(avatar.type){
     case 'url':
-      return avatar.url ? <div className="m-r-1"><Avatar size={size} label={tooltip} src={avatar.url}/></div> : defaultAvatar;
+      return avatar.url ? <div style={style}><Avatar size={size} label={tooltip} src={avatar.url}/></div> : defaultAvatar;
     case 'src':
-      return avatar.src ? <div className="m-r-1"><Avatar size={size} label={tooltip} src={avatar.src}/></div> : defaultAvatar;
+      return avatar.src ? <div style={style}><Avatar size={size} label={tooltip} src={avatar.src}/></div> : defaultAvatar;
     default:
       return defaultAvatar;
   }

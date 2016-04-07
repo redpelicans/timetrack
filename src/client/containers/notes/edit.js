@@ -10,7 +10,7 @@ import {notesActions} from '../../actions/notes'
 import {Content} from '../../components/layout'
 import sitemap from '../../routes'
 import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../components/widgets'
-import {AvatarView, Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets'
+import {Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets'
 import {DateField, MultiSelectField2, MarkdownEditField, InputField, DropdownField} from '../../components/fields'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 

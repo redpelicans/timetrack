@@ -8,7 +8,7 @@ import {missionsActions} from '../../actions/missions';
 import ReactTooltip from 'react-tooltip'
 
 export const Closed = ({mission}) => {
-  if(mission.get('isClosed')) return <i className="iconButton fa fa-lock m-r-1"/>;
+  if(mission.get('isClosed')) return <i className="iconButton fa fa-lock"/>;
   else return <div/>
 }
 
@@ -27,11 +27,11 @@ export const Edit = authable(({mission}, {authManager, dispatch}) => {
   if(authManager.mission.isAuthorized('edit', {mission})){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-pencil m-r-1"/>
+        <i className="iconButton fa fa-pencil"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-pencil m-r-1"/>
+    return <i className="iconButton disable fa fa-pencil"/>
   }
 })
 
@@ -52,11 +52,11 @@ export const Close = authable(({mission, postAction}, {authManager, dispatch}) =
   if(authManager.mission.isAuthorized('close', {mission})){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-lock m-r-1"/>
+        <i className="iconButton fa fa-lock"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-lock m-r-1"/>
+    return <i className="iconButton disable fa fa-lock"/>
   }
 })
 
@@ -87,11 +87,11 @@ export const Open = authable(({mission, postAction}, {authManager, dispatch}) =>
   if(authManager.mission.isAuthorized('open', {mission})){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-unlock m-r-1"/>
+        <i className="iconButton fa fa-unlock"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-unlock m-r-1"/>
+    return <i className="iconButton disable fa fa-unlock"/>
   }
 })
 
@@ -115,11 +115,11 @@ export const Delete = authable(({mission, postAction}, {authManager, dispatch}) 
   if(authManager.mission.isAuthorized('delete', {mission})){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-trash m-r-1"/>
+        <i className="iconButton fa fa-trash"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-trash m-r-1"/>
+    return <i className="iconButton disable fa fa-trash"/>
   }
 })
 
@@ -204,30 +204,24 @@ export class Preview extends Component {
     const companyView = () => {
       const company = this.props.company;
       if(!company) return '';
-      return <div style={styles.company} className="p-r-1"> <a href="#" onClick={this.handleViewCompany}>{company.get('name')}</a> </div> ;
+      return <div style={styles.company}> <a href="#" onClick={this.handleViewCompany}>{company.get('name')}</a> </div> ;
     }
 
     const styles = {
       container:{
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center',
         height: '100%',
+        alignItems: 'center',
       },
       containerLeft:{
+        flex: '0.9',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'left',
         padding: '5px',
       },
       containerRight:{
-        //display: 'flex',
-        //justifyContent: 'right',
-        //alignItems: 'center',
-        //padding: '5px',
-        top: '12px',
-        right: '0px',
-        position: 'absolute',
+        width: '20px',
       },
       names:{
         display: 'flex',
@@ -251,21 +245,24 @@ export class Preview extends Component {
       },
       workers:{
         display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: 'flex-start',
+        alignContent: 'flex-start',
         flexWrap: 'wrap',
       },
       worker:{
         color: '#cfd2da',
-        padding: '.3rem',
-      }
-
+        marginLeft: '4px',
+        marginTop: '4px',
+      },
+      avatar: {
+        paddingRight: '10px',
+      },
     };
 
     const mission = this.props.mission;
     const company = this.props.company;
     const workers = this.props.workers;
-    const avatar = <AvatarView obj={company}/>;
+    const avatar = <AvatarView style={styles.avatar} obj={company}/>;
 
     const isNew = () =>{
       if(mission.get('isUpdated')) return <UpdatedLabel/>
@@ -291,9 +288,11 @@ export class Preview extends Component {
 
       return workers.map(worker => {
         return (
-          <a key={worker.get('_id')} href="#" onClick={onClick.bind(null, worker)}>
-            <AvatarView  obj={worker} size={24} label={`Worker ${worker.get('name')}`}/>
-          </a>
+          <div style={styles.worker}>
+            <a key={worker.get('_id')} href="#" onClick={onClick.bind(null, worker)}>
+              <AvatarView obj={worker} size={24} label={`Worker ${worker.get('name')}`}/>
+            </a>
+          </div>
         )
       }).toSetSeq();
     }
@@ -315,7 +314,7 @@ export class Preview extends Component {
     const actions = () => {
       if(!this.state.showActions) return <div/>;
       return(
-        <div style={styles.containerRight} href="#">
+        <div href="#">
           {this.props.children}
         </div>
       )
@@ -339,11 +338,13 @@ export class Preview extends Component {
             </div>
             {companyView()}
           </div>
-          <div className="p-r-1" style={styles.workers}>
+          <div style={styles.workers}>
             {workersView()}
           </div>
         </div>
-        {actions()}
+        <div style={styles.containerRight}>
+          {actions()}
+        </div>
       </div>
     );
   }
@@ -354,5 +355,5 @@ Preview.propTypes = {
   company:  PropTypes.object.isRequired,
   workers:  PropTypes.object.isRequired,
   manager:  PropTypes.object,
-  children: PropTypes.node
+  children: PropTypes.node,
 }

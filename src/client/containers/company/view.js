@@ -53,7 +53,7 @@ class CompanyView extends Component {
         <Header obj={company}>
           <HeaderLeft>
             <GoBack goBack={this.goBack} isLoading={isLoading}/>
-            <AvatarView obj={company}/>
+            <AvatarView style={{paddingRight: '10px'}} obj={company}/>
             <Title title={company.get('name')}/>
             <Preferred active={true} company={company}/>
           </HeaderLeft>
@@ -65,10 +65,10 @@ class CompanyView extends Component {
             <Delete workers={workers} company={company} postAction={this.goBack}/>
           </HeaderRight>
         </Header>
-        <Card 
-          company={company} 
-          missions={missions} 
-          tagsField={this.tagsField} 
+        <Card
+          company={company}
+          missions={missions}
+          tagsField={this.tagsField}
           persons={persons}
           workers={workers}
         />
@@ -121,15 +121,15 @@ const Card = ({company, persons, workers, missions, tagsField}) =>  {
         <TextLabel label="Country" value={company.getIn(['address', 'country'])}/>
       </div>
       <div className="col-md-12">
-        <Persons 
-          label="Contacts" 
-          persons={workers} 
+        <Persons
+          label="Contacts"
+          persons={workers}
           company={company}/>
       </div>
       <div className="col-md-12">
-        <Missions 
-          label="Missions" 
-          persons={persons} 
+        <Missions
+          label="Missions"
+          persons={persons}
           company={company}
           missions={missions}/>
       </div>
@@ -165,9 +165,9 @@ const Missions = ({label, missions, company, persons}) => {
   const data = missions.sort( (a,b) => b.get('startDate') > a.get('startDate') ).map(mission =>{
       const workers = persons.filter(person => mission.get('workerIds').indexOf(person.get('_id')) !== -1);
       return (
-        <div key={mission.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <MissionPreview 
-            mission={mission} 
+        <div key={mission.get('_id')} className="col-md-6 tm list-item" style={styles.item}>
+          <MissionPreview
+            mission={mission}
             manager={persons.get(mission.get('managerId'))}
             workers={workers}
             company={company}>
@@ -212,7 +212,7 @@ const Persons = ({label, company, persons}) => {
     .sortBy(person => person.get('name'))
     .map( person => {
       return (
-        <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
+        <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}>
           <PersonPreview person={person}>
             <LeaveCompany company={company} person={person}/>
             <EditPerson person={person}/>

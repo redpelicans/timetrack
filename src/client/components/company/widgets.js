@@ -214,10 +214,13 @@ export class Preview extends Component {
         bottom: '3px',
         left: '3rem',
       },
+      avatar: {
+        paddingRight: '10px',
+      },
     };
 
     const {company, workers} = this.props
-    const avatar = <AvatarView obj={company}/>
+    const avatar = <AvatarView style={styles.avatar} obj={company}/>
 
     const isNew = () =>{
       if(company.get('isNew')) return <NewLabel/>

@@ -262,7 +262,10 @@ export default class EditContent extends Component {
         fontStyle: 'italic',
         display: 'block',
         float: 'right',
-      }
+      },
+      avatar: {
+        paddingRight: '10px',
+      },
     }
     const note = () => {
       if(this.editMode)return

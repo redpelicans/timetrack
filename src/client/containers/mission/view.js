@@ -50,7 +50,7 @@ class ViewMission extends Component {
         <Header obj={mission}>
           <HeaderLeft>
             <GoBack goBack={this.goBack} isLoading={isLoading}/>
-            <AvatarView obj={client}/>
+            <AvatarView style={{paddingRight: '10px'}} obj={client}/>
             <Title title={mission.get('name')}/>
           </HeaderLeft>
           <HeaderRight>
@@ -60,8 +60,8 @@ class ViewMission extends Component {
             <Delete mission={mission} postAction={this.goBack}/>
           </HeaderRight>
         </Header>
-        <Card 
-          mission={mission} 
+        <Card
+          mission={mission}
           client={client}
           manager={manager}
           workers={workers}  />
@@ -107,9 +107,9 @@ const Card = ({mission, client, manager, workers}) =>  {
         <Manager label="Manager" manager={manager}/>
       </div>
       <div className="col-md-12">
-        <Workers 
-          label="Workers" 
-          workers={workers} 
+        <Workers
+          label="Workers"
+          workers={workers}
           mission={mission}/>
       </div>
       <div className="col-md-12">
@@ -161,7 +161,7 @@ const Client = ({label, client, workers}) => {
     <fieldset className="form-group">
       <label> {label} </label>
       <div className="row" style={styles.container}>
-        <div className="col-md-12 tm list-item" style={styles.item}> 
+        <div className="col-md-12 tm list-item" style={styles.item}>
           <CompanyPreview workers={workers} company={client}>
             <EditCompany company={client}/>
           </CompanyPreview>
@@ -194,7 +194,7 @@ const Manager = ({label, manager}) => {
     <fieldset className="form-group">
       <label> {label} </label>
       <div className="row" style={styles.container}>
-        <div className="col-md-12 tm list-item" style={styles.item}> 
+        <div className="col-md-12 tm list-item" style={styles.item}>
           <PersonPreview person={manager}>
             <EditPerson person={manager}/>
           </PersonPreview>
@@ -227,7 +227,7 @@ const Workers = ({label, workers, mission}) => {
     .sortBy( person => person.get('name') )
     .map( person => {
       return (
-        <div key={person.get('_id')} className={className} style={styles.item}> 
+        <div key={person.get('_id')} className={className} style={styles.item}>
           <PersonPreview person={person}>
             <EditPerson person={person}/>
           </PersonPreview>
