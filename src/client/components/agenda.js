@@ -60,7 +60,7 @@ Agenda.propTypes = {
 
 const Month = Radium(({date, firstSelectedDate, lastSelectedDate, style, ...others}) => {
   const styles = {
-    // globalStyle.agenda.month
+    // style.agenda.month
     days: {
       flexShrink: 1,
       flexGrow: 1,
@@ -73,7 +73,7 @@ const Month = Radium(({date, firstSelectedDate, lastSelectedDate, style, ...othe
         flexDirection: "column"
       }
     },
-    // globalStyle.agenda.base
+    // style.agenda.base
     container:{
       flexGrow: 1,
       display: 'flex',
@@ -95,6 +95,7 @@ const Month = Radium(({date, firstSelectedDate, lastSelectedDate, style, ...othe
       const key = dmy(current);
       return <Day 
         key={key} 
+        index={id} 
         style={style}
         inBound={current >= first && current <= last} 
         selected={betweenDates(current, firstSelectedDate, lastSelectedDate)} 
@@ -132,6 +133,7 @@ const WeekDays = Radium(({style}) => {
         flexDirection: "column"
       },
     },
+    // style.weekday
     day: {
       flexBasis: "14.2857%",
       overflow: "hidden",
@@ -157,14 +159,16 @@ WeekDays.propTypes = {
   style: PropTypes.object,
 }
 
-const Day = Radium(({date, inBound, selected, onMouseEnter, onMouseDown, onMouseUp, dayComponent, style, ...others}) => {
+const Day = Radium(({date, index, inBound, selected, onMouseEnter, onMouseDown, onMouseUp, dayComponent, style, ...others}) => {
   const styles = {
+    // style.agenda.day
     container:{
       flexBasis: "14.2857%",
       minHeight: '75px',
       overflow: "hidden",
       backgroundColor: "#434857" ,
-      border:  "1px solid #68696C",
+      borderStyle:  "solid",
+      borderColor:  "#68696C",
     }
   }
 
@@ -188,8 +192,16 @@ const Day = Radium(({date, inBound, selected, onMouseEnter, onMouseDown, onMouse
 
   const selectedStyle = style.selectedDay || { backgroundColor: "#637D93"}
 
+  const bs = style.day.borderWidth || '1px'
+  const borderStyle = () => {
+    if(index === 28) return {borderWidth: [bs, bs, bs, bs].join(" ")}
+    if(!(index%7)) return {borderWidth: [bs, bs, '0px', bs].join(" ")}
+    if(index > 28) return {borderWidth: [bs, bs, bs, '0px'].join(" ")}
+    return {borderWidth: [bs, bs, '0px', '0px'].join(" ")}
+  }
+
   return (
-    <div style={[styles.container, style.day, selected && selectedStyle]} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseEnter={handleMouseEnter}>
+    <div style={[styles.container, style.day, selected && selectedStyle,  borderStyle()]} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseEnter={handleMouseEnter}>
       <DayHeader style={style} date={date} inBound={inBound}/>
       <DayComponent date={date} {...others}/>
     </div>
@@ -198,6 +210,7 @@ const Day = Radium(({date, inBound, selected, onMouseEnter, onMouseDown, onMouse
 
 Day.propTypes = {
   date: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired,
   inBound: PropTypes.bool.isRequired,
   selected: PropTypes.bool.isRequired,
   onMouseDown: PropTypes.func.isRequired,
@@ -237,6 +250,7 @@ DayHeader.propTypes = {
 }
 
 const DayOfMonth = Radium(({date, inBound, style}) => {
+  // style.agenda.dayOfMonth
   const styles={
     fontSize: '0.9em',
     margin: '5px',
@@ -254,6 +268,7 @@ DayOfMonth.propTypes = {
 }
 
 const WeekNumber = Radium(({date, style}) => {
+  // style.agenda.weekNumber
   const styles={
     fontSize: '0.9em',
     padding: '.2rem',
