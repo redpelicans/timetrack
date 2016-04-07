@@ -64,13 +64,14 @@ const Month = Radium(({date, firstSelectedDate, lastSelectedDate, style, ...othe
     days: {
       flexShrink: 1,
       flexGrow: 1,
-      flexBasis: "20%",
+      //flexBasis: "20%",
       display: "flex",
       flexDirection: "row",
       flexWrap: "wrap",
       alignItems: 'stretch',
       '@media (max-width: 800px)': {
-        flexDirection: "column"
+        flexDirection: "column",
+        flexWrap: "nowrap",
       }
     },
     // style.agenda.base
@@ -130,17 +131,18 @@ const WeekDays = Radium(({style}) => {
       flexDirection: "row",
       flexWrap: "nowrap",
       '@media (max-width: 800px)': {
-        flexDirection: "column"
+        //flexDirection: "column",
+        display: "none",
       },
     },
-    // style.weekday
+    //style.weekday
     day: {
       flexBasis: "14.2857%",
       overflow: "hidden",
       textOverflow: "ellipsis",
-      '@media (max-width: 800px)': {
-        display: "none"
-      }
+      // '@media (max-width: 800px)': {
+      //   display: "none"
+      // }
     }
   }
 
@@ -169,6 +171,10 @@ const Day = Radium(({date, index, inBound, selected, onMouseEnter, onMouseDown, 
       backgroundColor: "#434857" ,
       borderStyle:  "solid",
       borderColor:  "#68696C",
+      '@media (max-width: 800px)': {
+        flexShrink: 0,
+      }
+
     }
   }
 
