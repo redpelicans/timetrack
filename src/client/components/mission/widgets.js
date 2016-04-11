@@ -286,10 +286,10 @@ export class Preview extends Component {
 
       if(!workers) return <div/>;
 
-      return workers.map(worker => {
+      return workers.map((worker, i) => {
         return (
-          <div style={styles.worker}>
-            <a key={worker.get('_id')} href="#" onClick={onClick.bind(null, worker)}>
+          <div key={i} style={styles.worker}>
+            <a href="#" onClick={onClick.bind(null, worker)}>
               <AvatarView obj={worker} size={24} label={`Worker ${worker.get('name')}`}/>
             </a>
           </div>
