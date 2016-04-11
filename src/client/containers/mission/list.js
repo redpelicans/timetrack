@@ -40,7 +40,7 @@ class MissionList extends Component {
   }
 
   handleResetFilter = (filter) => {
-    this.props.dispatch(missionsActions.filter(""))
+    this.props.dispatch(missionsActions.filter(''))
   }
 
   render(){
