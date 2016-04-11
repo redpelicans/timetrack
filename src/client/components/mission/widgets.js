@@ -199,7 +199,6 @@ export class Preview extends Component {
   }
 
   render() {
-    console.log("render Mission")
     const {authManager, dispatch} = this.context;
     const companyView = () => {
       const company = this.props.company;
@@ -210,20 +209,23 @@ export class Preview extends Component {
     const styles = {
       container:{
         display: 'flex',
-        justifyContent: 'space-between',
         height: '100%',
         alignItems: 'center',
       },
       containerLeft:{
-        flex: '0.9',
+        flex: 0.9,
         display: 'flex',
         alignItems: 'center',
         padding: '5px',
+        flexGrow: 1.8,
       },
       containerRight:{
-        width: '20px',
+        width: '18px',
+        paddingLeft: '5px',
       },
       names:{
+        paddingLeft: '10px',
+        paddingRight: '10px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
@@ -238,10 +240,15 @@ export class Preview extends Component {
         bottom: '0',
         right: '0.1rem',
       },
+      mainAvatar: {
+        display: 'flex',
+        paddingTop: '12px',
+        paddingBottom: '12px',
+      },
       manager:{
-        position: 'absolute',
-        bottom: '20%',
-        left: '3rem',
+        position: 'relative',
+        right: '18px',
+        top: '28px',
       },
       workers:{
         display: 'flex',
@@ -323,17 +330,15 @@ export class Preview extends Component {
     return (
       <div style={styles.container} onMouseOver={this.handleMouseEnter} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
         <div style={styles.containerLeft}>
-          <div className="p-r-1">
+          <div style={styles.mainAvatar}>
             <a href="#" onClick={this.handleViewMission}>{avatar}</a>
+            <div style={styles.manager}> {manager()} </div>
           </div>
           <div style={styles.isnew}>
             {isNew()}
           </div>
-          <div style={styles.manager}>
-            {manager()}
-          </div>
           <div style={styles.names}>
-            <div style={styles.name} className="p-r-1">
+            <div style={styles.name}>
               {missionView()}
             </div>
             {companyView()}
