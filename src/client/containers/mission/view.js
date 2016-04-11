@@ -54,10 +54,9 @@ class ViewMission extends Component {
             <Title title={mission.get('name')}/>
           </HeaderLeft>
           <HeaderRight>
-            <div className="m-r-1"><IconButton name={'calendar'} label={'View Calendar'} onClick={this.handleClick}/></div>
-            <Edit mission={mission}/>
-            <OpenClose mission={mission}/>
-            <Delete mission={mission} postAction={this.goBack}/>
+            <div className="m-r-1"><Edit mission={mission}/></div>
+            <div className="m-r-1"><OpenClose mission={mission}/></div>
+            <div className="m-r-1"><Delete mission={mission} postAction={this.goBack}/></div>
           </HeaderRight>
         </Header>
         <Card
@@ -93,11 +92,11 @@ const Card = ({mission, client, manager, workers}) =>  {
 
       <div className="col-md-2 "/>
       <div className="col-md-3 ">
-        <Date label="Start Date" date={mission.get("startDate")}/>
+        <Date label="Start Date" date={mission.get('startDate')}/>
       </div>
       <div className="col-md-2 "/>
       <div className="col-md-3 ">
-        <Date label="End Date" date={mission.get("endDate")}/>
+        <Date label="End Date" date={mission.get('endDate')}/>
       </div>
       <div className="col-md-2 "/>
       <div className="col-md-6 ">
@@ -222,7 +221,7 @@ const Workers = ({label, workers, mission}) => {
     }
   };
 
-  const className = workers.size > 1 ? "col-md-6 tm list-item" : "col-md-12 tm list-item";
+  const className = workers.size > 1 ? 'col-md-6 tm list-item' : 'col-md-12 tm list-item';
   const data = _.chain(workers.toArray())
     .sortBy( person => person.get('name') )
     .map( person => {
