@@ -26,7 +26,7 @@ export class NewMission extends Component {
   }
 
   routerWillLeave = nextLocation => {
-    if(!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving new mission?"
+    if(!this.state.forceLeave && this.state.hasBeenModified) return 'Are you sure you want to leave the page without saving new mission?'
     return true
   }
 
@@ -77,7 +77,7 @@ export class NewMission extends Component {
     const partnerIdField = this.missionForm.field('partnerId')
 
     let partnersDomainValue = entitiesDomain(partners)
-    partnersDomainValue.unshift({key: undefined, value: "<No Partner>"})
+    partnersDomainValue.unshift({key: undefined, value: '<No Partner>'})
 
     clientIdField.setSchemaValue('domainValue', entitiesDomain(clients))
     managerIdField.setSchemaValue('domainValue', entitiesDomain(workers))
@@ -125,7 +125,7 @@ class EditMission extends Component {
   };
 
   routerWillLeave = nextLocation => {
-    if(!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving updates?"
+    if(!this.state.forceLeave && this.state.hasBeenModified) return 'Are you sure you want to leave the page without saving updates?'
     return true
   }
 
@@ -183,7 +183,7 @@ class EditMission extends Component {
    const partnerIdField = this.missionForm.field('partnerId')
 
    let partnersDomainValue = entitiesDomain(partners)
-   partnersDomainValue.unshift({key: undefined, value: "<No Partner>"})
+   partnersDomainValue.unshift({key: undefined, value: '<No Partner>'})
 
    clientIdField.setSchemaValue('domainValue', entitiesDomain(clients))
    managerIdField.setSchemaValue('domainValue', entitiesDomain(workers))
@@ -286,7 +286,7 @@ export default class EditContent extends Component {
             <Header obj={fake}>
               <HeaderLeft>
                 <GoBack goBack={this.props.goBack}/>
-                <AvatarView obj={this.state.client}/>
+                <div className="m-r-1"><AvatarView obj={this.state.client}/></div>
                 <Title title={this.props.title}/>
               </HeaderLeft>
               <HeaderRight>

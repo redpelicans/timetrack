@@ -260,7 +260,7 @@ class EditNote extends Component{
     const avatar = (person) => {
       if(!person)return <div/>
       return (
-        <div>
+        <div className="p-r-1">
           <a href="#" onClick={this.handleViewAuthor.bind(null, person)}>
             <AvatarView obj={person} size={24} label={`Wrote by ${person.get('name')}`}/>
           </a>
@@ -272,7 +272,7 @@ class EditNote extends Component{
       const createdAt = this.props.note ? this.props.note.get('createdAt') : moment();
       return (
         <div style={styles.time} >
-          {createdAt.format("dddd, MMMM Do YYYY")}
+          {createdAt.format('dddd, MMMM Do YYYY')}
         </div>
       )
     }
@@ -386,7 +386,7 @@ export class ViewNote extends Component {
     const avatar = (person) => {
       if(!person)return <div/>
       return (
-        <div>
+        <div className="p-r-1">
           <a href="#" onClick={this.handleViewAuthor.bind(null, person)}>
             <AvatarView obj={person} size={24} label={`Wrote by ${person.get('name')}`}/>
           </a>
@@ -397,7 +397,7 @@ export class ViewNote extends Component {
     const time = () =>{
       return (
         <div style={styles.time} >
-          {note.get('createdAt').format("dddd, MMMM Do YYYY")}
+          {note.get('createdAt').format('dddd, MMMM Do YYYY')}
         </div>
       )
     }
@@ -659,7 +659,7 @@ export class ItemNote extends Component {
     const time = () =>{
       return (
         <div style={styles.time} >
-          {note.get('createdAt').format("dddd, MMMM Do YYYY")}
+          {note.get('createdAt').format('dddd, MMMM Do YYYY')}
         </div>
       )
     }
@@ -678,16 +678,16 @@ export class ItemNote extends Component {
 
     const entityIcon = () => {
       const className = () => {
-        const base = "iconButton-small iconButton fa m-r-1"
+        const base = 'iconButton-small iconButton fa m-r-1'
         switch(entityType) {
           case 'person':
-            return base+" fa-users"
+            return base + ' fa-users'
           case 'mission':
-            return base+" fa-shopping-cart"
+            return base + ' fa-shopping-cart'
           case 'company':
-            return base+" fa-building-o"
+            return base + ' fa-building-o'
           default:
-            return base+" fa-bolt"
+            return base + ' fa-bolt'
         }
       }
       return (

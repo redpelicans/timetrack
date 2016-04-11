@@ -27,7 +27,7 @@ class NewNote extends Component {
   }
 
   routerWillLeave = nextLocation => {
-    if (!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving new mission?"
+    if (!this.state.forceLeave && this.state.hasBeenModified) return 'Are you sure you want to leave the page without saving new mission?'
   }
 
   goBack = (forceLeave) => {
