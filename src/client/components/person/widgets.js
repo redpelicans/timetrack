@@ -18,11 +18,11 @@ export const Edit = authable(({person}, {authManager, dispatch}) => {
   if(authManager.person.isAuthorized('edit')){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-pencil m-r-1"/>
+        <i className="iconButton fa fa-pencil"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-pencil m-r-1"/>
+    return <i className="iconButton disable fa fa-pencil"/>
   }
 })
 
@@ -43,11 +43,11 @@ export const Delete = authable(({person, postAction}, {authManager, dispatch}) =
   if(authManager.person.isAuthorized('delete')){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-trash m-r-1"/>
+        <i className="iconButton fa fa-trash"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-trash m-r-1"/>
+    return <i className="iconButton disable fa fa-trash"/>
   }
 })
 
@@ -62,7 +62,7 @@ export const Preferred = authable(({person, active}, {authManager, dispatch}) =>
     dispatch(personsActions.togglePreferred(person.toJS()));
   }
 
-  const classnames = classNames("iconButton star fa fa-star-o", {
+  const classnames = classNames('iconButton star fa fa-star-o', {
     preferred: person.get('preferred'),
   });
 
@@ -169,24 +169,19 @@ export class Preview extends Component {
     const styles = {
       container:{
         display: 'flex',
-        justifyContent: 'space-between',
         alignItems: 'center',
         height: '100%',
       },
       containerLeft:{
+        flex: 0.9,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'left',
         padding: '5px',
+        flexGrow: 1.8,
       },
       containerRight:{
-        display: 'flex',
-        justifyContent: 'right',
-        alignItems: 'center',
-        padding: '5px',
-        position: 'absolute',
-        top: '10px',
-        right: '0px',
+        width: '18px',
+        paddingLeft: '5px',
       },
       names:{
         display: 'flex',
@@ -215,7 +210,9 @@ export class Preview extends Component {
         padding: '.3rem',
       },
       preferred:{
-        paddingRight: '15px',
+        position: 'relative',
+        right: '18px',
+        top: '24px',
       },
       avatar: {
         paddingRight: '10px',
@@ -242,7 +239,7 @@ export class Preview extends Component {
 
       return _.map(person.get('tags').toJS(), v => {
         return (
-          <span key={v} style={styles.label} className="label label-primary m-r-1">
+          <span key={v} style={styles.label} className="label label-primary">
             <a href="#" onClick={onClick.bind(null, v)}>{v}</a>
           </span>
         )
@@ -258,10 +255,9 @@ export class Preview extends Component {
     }
 
     const actions = () => {
-      if(!this.state.showActions) return <div/>;
       return(
         <div style={styles.containerRight} href="#">
-          {this.props.children}
+          {this.state.showActions ? this.props.children : <div/>}
         </div>
       )
     }

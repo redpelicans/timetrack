@@ -23,7 +23,7 @@ class NewPerson extends Component {
   }
 
   routerWillLeave = nextLocation => {
-    if(!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving new person?"
+    if(!this.state.forceLeave && this.state.hasBeenModified) return 'Are you sure you want to leave the page without saving new person?'
     return true
   }
 
@@ -93,10 +93,10 @@ class NewPerson extends Component {
 
     return (
       <div>
-        <EditContent 
+        <EditContent
           userCompanyId={userCompanyId}
           companies={companies}
-          title={"Add a Person"} 
+          title={"Add a Person"}
           submitBtn={submitBtn}
           cancelBtn={cancelBtn}
           goBack={this.goBack}
@@ -126,7 +126,7 @@ class EditPerson extends Component {
   }
 
   routerWillLeave = nextLocation => {
-    if(!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving updates?"
+    if(!this.state.forceLeave && this.state.hasBeenModified) return 'Are you sure you want to leave the page without saving updates?'
     return true
   }
 
@@ -201,14 +201,14 @@ class EditPerson extends Component {
 
     return (
       <div>
-        <EditContent 
+        <EditContent
           userCompanyId={userCompanyId}
           companies={companies}
-          title={"Edit Person"} 
+          title={"Edit Person"}
           submitBtn={submitBtn}
           cancelBtn={cancelBtn}
           goBack={this.goBack}
-          personDocument={this.personDocument} 
+          personDocument={this.personDocument}
           personForm={this.personForm}/>
       </div>
     )
@@ -441,4 +441,3 @@ function  companiesDomain(companies){
 
 export const NewPersonApp = connect(newPersonSelector)(NewPerson)
 export const EditPersonApp = connect(editPersonSelector)(EditPerson)
-

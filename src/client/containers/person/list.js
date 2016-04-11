@@ -40,7 +40,7 @@ class PersonList extends Component {
   }
 
   handleResetFilter = (filter) => {
-    this.props.dispatch(personsActions.filter(""))
+    this.props.dispatch(personsActions.filter(''))
   }
 
   render(){
@@ -93,7 +93,7 @@ const List = ({persons, companies}) => {
   const data = persons.map((person, i) => {
     return (
       <div key={i} className="x-list-item" style={styles.item}>
-        <div className="form-control" style={{height: '100%'}}>
+        <div className="form-control" style={{height: '100%', minHeight: '64px'}}>
           <Preview
             person={person}
             company={companies.get(person.get('companyId'))} >

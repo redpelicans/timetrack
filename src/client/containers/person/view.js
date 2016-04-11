@@ -68,6 +68,8 @@ class ViewPerson extends Component {
             {calendar()}
             <Edit person={person}/>
             <Delete person={person} postAction={this.goBack}/>
+            <div className="m-r-1"><Edit person={person}/></div>
+            <div className="m-r-1"><Delete person={person} postAction={this.goBack}/></div>
           </HeaderRight>
         </Header>
 
@@ -121,7 +123,7 @@ const Card = ({person, company, companies, persons, missions, tagsField, dispatc
   });
 
   const birthdate = () => {
-    const date = person.get('birthdate') ? moment(person.get('birthdate')).format('DD/MM/YY') : "";
+    const date = person.get('birthdate') ? moment(person.get('birthdate')).format('DD/MM/YY') : '';
     return (
       <div className="col-md-2">
         <TextLabel label="Birth Date" value={date}/>
