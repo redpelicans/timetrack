@@ -87,11 +87,10 @@ const List = ({companies, persons}) => {
   const styles={
     container:{
       marginTop: '50px',
-      marginLeft: 'auto',
-      marginRight: 'auto',
     },
     item:{
-      height: '80px',
+      margin: '0px',
+      padding: '5px',
     }
   }
 
@@ -100,8 +99,10 @@ const List = ({companies, persons}) => {
   const data = companies.map((company, i) => {
     const workers = persons.filter(getFilterPersonsByCompanyId(company.get('_id')))
     return (
-      <div key={i} className="col-md-6 tm list-item x-list-item" style={styles.item}>
-        <Preview workers={workers} company={company} />
+      <div key={i} className="x-list-item" style={styles.item}>
+        <div className="form-control" style={{height: '100%', minHeight: '64px'}}>
+          <Preview workers={workers} company={company} />
+        </div>
       </div>
     )
   });
