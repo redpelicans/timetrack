@@ -177,6 +177,7 @@ export class Preview extends Component {
 
     const styles = {
       container:{
+        flex: 1,
         display: 'flex',
         alignItems: 'center',
         height: '100%',

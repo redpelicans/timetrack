@@ -85,13 +85,19 @@ const List = ({companies, persons}) => {
   if(!companies) return false;
 
   const styles={
-    container:{
+    container: {
       marginTop: '50px',
     },
-    item:{
+    item: {
       margin: '0px',
       padding: '5px',
-    }
+    },
+    subItem: {
+      height: '100%',
+      minHeight: '72px',
+      alignItems: 'center',
+      display: 'flex',
+    },
   }
 
   const getFilterPersonsByCompanyId = companyId => person => person.get('companyId') == companyId
@@ -100,7 +106,7 @@ const List = ({companies, persons}) => {
     const workers = persons.filter(getFilterPersonsByCompanyId(company.get('_id')))
     return (
       <div key={i} className="x-list-item" style={styles.item}>
-        <div className="form-control" style={{height: '100%', minHeight: '64px'}}>
+        <div className="form-control" style={styles.subItem}>
           <Preview workers={workers} company={company} />
         </div>
       </div>
