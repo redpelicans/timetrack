@@ -167,49 +167,50 @@ export class Preview extends Component {
     }
 
     const styles = {
-      container:{
+      container: {
         display: 'flex',
         alignItems: 'center',
         height: '100%',
       },
-      containerLeft:{
+      containerLeft: {
         flex: 0.9,
         display: 'flex',
         alignItems: 'center',
         padding: '5px',
         flexGrow: 1.8,
       },
-      containerRight:{
+      containerRight: {
+        zIndex: 2,
         width: '18px',
         paddingLeft: '5px',
       },
-      names:{
+      names: {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
       },
-      name:{
+      name: {
       },
-      company:{
+      company: {
         fontStyle: 'italic',
       },
-      isnew:{
+      isnew: {
         position: 'absolute',
         bottom: '0',
         right: '0.1rem',
       },
-      tags:{
+      tags: {
         zIndex: 1,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         flexWrap: 'wrap',
       },
-      label:{
+      label: {
         color: '#cfd2da',
         padding: '.3rem',
       },
-      preferred:{
+      preferred: {
         position: 'relative',
         right: '18px',
         top: '24px',

@@ -212,30 +212,31 @@ export class Preview extends Component {
         height: '100%',
         alignItems: 'center',
       },
-      containerLeft:{
+      containerLeft: {
         flex: 0.9,
         display: 'flex',
         alignItems: 'center',
         padding: '5px',
         flexGrow: 1.8,
       },
-      containerRight:{
+      containerRight: {
+        zIndex: 2,
         width: '18px',
         paddingLeft: '5px',
       },
-      names:{
+      names: {
         paddingLeft: '10px',
         paddingRight: '10px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
       },
-      name:{
+      name: {
       },
-      company:{
+      company: {
         fontStyle: 'italic',
       },
-      isnew:{
+      isnew: {
         position: 'absolute',
         bottom: '0',
         right: '0.1rem',
@@ -245,18 +246,18 @@ export class Preview extends Component {
         paddingTop: '12px',
         paddingBottom: '12px',
       },
-      manager:{
+      manager: {
         position: 'relative',
         right: '18px',
         top: '28px',
       },
-      workers:{
+      workers: {
         display: 'flex',
         justifyContent: 'flex-start',
         alignContent: 'flex-start',
         flexWrap: 'wrap',
       },
-      worker:{
+      worker: {
         color: '#cfd2da',
         marginLeft: '4px',
         marginTop: '4px',
