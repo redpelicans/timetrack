@@ -14,10 +14,10 @@ import Agenda from '../../components/agenda'
 import Multiselect from 'react-widgets/lib/Multiselect'
 import agendaForm from '../../forms/agenda'
 import {MultiSelectField2} from '../../components/fields'
-import {AvatarView} from '../../components/widgets';
-import {authable} from '../../components/authmanager';
-import {dmy} from '../../utils';
-import globalStyle from '../../styles';
+import {AvatarView} from '../../components/widgets'
+import {authable} from '../../components/authmanager'
+import {dmy} from '../../utils'
+import globalStyle from '../../styles'
 
 class App extends Component {
 
@@ -52,7 +52,7 @@ class App extends Component {
     const missionValues = entitiesDomain(missions)
     missionIdsField.setSchemaValue('domainValue', missionValues)
   }
-  
+
   componentWillReceiveProps(nextProps){
     if(this.props.persons !== nextProps.persons || this.props.missions != nextProps.missions) this.initDomainValues(nextProps)
   }
@@ -92,10 +92,10 @@ class App extends Component {
           <ToggleBox hidden={true} label="filter">
             <ControlPanel form={this.agendaForm}/>
           </ToggleBox>
-          <Agenda 
+          <Agenda
             style={globalStyle.agenda}
-            viewMode={agenda.viewMode} 
-            date={agenda.from} 
+            viewMode={agenda.viewMode}
+            date={agenda.from}
             events={events}
             persons={persons}
             missions={missions}
@@ -126,7 +126,7 @@ class DayComponent extends Component{
     const previous = this.props.events.get(key) || Immutable.List()
     const next = nextProps.events.get(key) || Immutable.List()
 
-    return previous.size !== next.size || 
+    return previous.size !== next.size ||
       next.size && nextProps.persons !== this.props.persons ||
       diff(previous, next)
   }
@@ -206,7 +206,7 @@ const Event = authable(({event, persons}, {authManager, dispatch}) => {
 
   return (
     <div style={styles.container}>
-      <div>{personView()}</div>
+      <div className="m-r-1">{personView()}</div>
       <div>{label()}</div>
     </div>
   )
@@ -234,8 +234,8 @@ class Content extends Component {
 }
 const DateTitle = ({date}) => {
   const style = {
-    display: "inline-block",
-    textAlign: "center",
+    display: 'inline-block',
+    textAlign: 'center',
     //width: "100px"
   }
 
@@ -276,7 +276,7 @@ ControlPanel.propTypes = {
 function  entitiesDomain(entities){
   if(!entities) return []
   const res = entities.toSetSeq().map(v => {
-    return {key: v.get('_id'), value: v.get('name')} 
+    return {key: v.get('_id'), value: v.get('name')}
   });
   return res.toJS().sort( (a, b) => a.value > b.value );
 }
