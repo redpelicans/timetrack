@@ -52,7 +52,7 @@ class ViewPerson extends Component {
 
     const calendar = () => {
       if(person.get('type') !== 'worker') return <div/>
-      return <div className="m-r-1"><IconButton name={'calendar'} label={'View Calendar'} onClick={this.handleClick}/></div>
+      return <IconButton name={'calendar'} label={'View Calendar'} onClick={this.handleClick}/>
     }
 
     return (
@@ -65,9 +65,7 @@ class ViewPerson extends Component {
             <Preferred person={person} active={true}/>
           </HeaderLeft>
           <HeaderRight>
-            {calendar()}
-            <Edit person={person}/>
-            <Delete person={person} postAction={this.goBack}/>
+            <div className="m-r-1">{calendar()}</div>
             <div className="m-r-1"><Edit person={person}/></div>
             <div className="m-r-1"><Delete person={person} postAction={this.goBack}/></div>
           </HeaderRight>
