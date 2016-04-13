@@ -8,7 +8,7 @@ import {skillsActions} from '../../actions/skills'
 import {companiesActions} from '../../actions/companies'
 import {goBack, replace} from '../../actions/routes'
 import {Content} from '../../components/layout'
-import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, Header, HeaderLeft, HeaderRight, GoBack, Title} from '../../components/widgets'
+import {FadeIn, Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, Header, HeaderLeft, HeaderRight, GoBack, Title} from '../../components/widgets'
 import {StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, MultiSelectField, DropdownField} from '../../components/fields'
 import TagsField from '../tags'
 import {PhonesField} from '../../components/phone'
@@ -92,16 +92,14 @@ class NewPerson extends Component {
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>
 
     return (
-      <div>
-        <EditContent
-          userCompanyId={userCompanyId}
-          companies={companies}
-          title={"Add a Person"}
-          submitBtn={submitBtn}
-          cancelBtn={cancelBtn}
-          goBack={this.goBack}
-          personForm={this.personForm}/>
-      </div>
+      <EditContent
+        userCompanyId={userCompanyId}
+        companies={companies}
+        title={"Add a Person"}
+        submitBtn={submitBtn}
+        cancelBtn={cancelBtn}
+        goBack={this.goBack}
+        personForm={this.personForm}/>
     )
   }
 }
@@ -200,17 +198,15 @@ class EditPerson extends Component {
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>
 
     return (
-      <div>
-        <EditContent
-          userCompanyId={userCompanyId}
-          companies={companies}
-          title={"Edit Person"}
-          submitBtn={submitBtn}
-          cancelBtn={cancelBtn}
-          goBack={this.goBack}
-          personDocument={this.personDocument}
-          personForm={this.personForm}/>
-      </div>
+      <EditContent
+        userCompanyId={userCompanyId}
+        companies={companies}
+        title={"Edit Person"}
+        submitBtn={submitBtn}
+        cancelBtn={cancelBtn}
+        goBack={this.goBack}
+        personDocument={this.personDocument}
+        personForm={this.personForm}/>
     )
   }
 }
@@ -317,49 +313,51 @@ class EditContent extends Component {
 
           </div>
           <div className="col-md-12 m-b"/>
-          <div className="col-md-12">
-            <Form>
-              <div className="row">
-                <div className="col-md-3">
-                  <DropdownField field={person.field('prefix')}/>
+          <FadeIn>
+            <div className="col-md-12">
+              <Form>
+                <div className="row">
+                  <div className="col-md-3">
+                    <DropdownField field={person.field('prefix')}/>
+                  </div>
+                  <div className="col-md-4">
+                    <InputField field={person.field('firstName')}/>
+                  </div>
+                  <div className="col-md-4">
+                    <InputField field={person.field('lastName')}/>
+                  </div>
+                  <div className="col-md-1">
+                    <StarField field={person.field('preferred')}/>
+                  </div>
                 </div>
-                <div className="col-md-4">
-                  <InputField field={person.field('firstName')}/>
+                <div className="row">
+                  <div className="col-md-3">
+                    <DropdownField field={person.field('type')}/>
+                  </div>
+                  <div className="col-md-6">
+                    <InputField field={person.field('email')}/>
+                  </div>
+                  <div className="col-md-3">
+                    <DropdownField field={person.field('jobType')}/>
+                  </div>
+                  <div className="col-md-12">
+                    <DropdownField field={companyField}/>
+                  </div>
+                  <div className="col-md-12">
+                    <PhonesField field={person.field('phones')} />
+                  </div>
+                  {tags()}
+                  {skills()}
+                  {roles()}
+                  <AvatarChooser person={person}/>
+                  <div className="col-md-12">
+                    <MarkdownEditField field={person.field('jobDescription')}/>
+                  </div>
+                  {note()}
                 </div>
-                <div className="col-md-4">
-                  <InputField field={person.field('lastName')}/>
-                </div>
-                <div className="col-md-1">
-                  <StarField field={person.field('preferred')}/>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-md-3">
-                  <DropdownField field={person.field('type')}/>
-                </div>
-                <div className="col-md-6">
-                  <InputField field={person.field('email')}/>
-                </div>
-                <div className="col-md-3">
-                  <DropdownField field={person.field('jobType')}/>
-                </div>
-                <div className="col-md-12">
-                  <DropdownField field={companyField}/>
-                </div>
-                <div className="col-md-12">
-                  <PhonesField field={person.field('phones')} />
-                </div>
-                {tags()}
-                {skills()}
-                {roles()}
-                <AvatarChooser person={person}/>
-                <div className="col-md-12">
-                  <MarkdownEditField field={person.field('jobDescription')}/>
-                </div>
-                {note()}
-              </div>
-            </Form>
-          </div>
+              </Form>
+            </div>
+          </FadeIn>
         </div>
       </Content>
     )

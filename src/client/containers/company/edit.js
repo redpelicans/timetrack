@@ -5,7 +5,7 @@ import Immutable from 'immutable';
 import companyForm, {avatarTypes} from '../../forms/company';
 import {Content} from '../../components/layout';
 import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../components/widgets';
-import {Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets';
+import {FadeIn, Header, HeaderLeft, HeaderRight, GoBack, Title} from '../../components/widgets';
 import {ComboboxField, StarField, AvatarChooserField, AvatarViewField, MarkdownEditField, InputField, DropdownField} from '../../components/fields';
 import CityField from '../cities';
 import CountryField from '../countries';
@@ -23,7 +23,7 @@ class NewCompany extends Component {
   }
 
   routerWillLeave = nextLocation => {
-    if(!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving new company?";
+    if(!this.state.forceLeave && this.state.hasBeenModified) return 'Are you sure you want to leave the page without saving new company?';
     return true;
   }
 
@@ -79,14 +79,12 @@ class NewCompany extends Component {
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>;
 
     return (
-      <div>
-        <EditContent 
-          title={"Add a Company"} 
-          submitBtn={submitBtn}
-          cancelBtn={cancelBtn}
-          goBack={this.goBack}
-          companyForm={this.companyForm}/>
-      </div>
+      <EditContent
+        title={"Add a Company"}
+        submitBtn={submitBtn}
+        cancelBtn={cancelBtn}
+        goBack={this.goBack}
+        companyForm={this.companyForm}/>
     )
   }
 }
@@ -108,7 +106,7 @@ class EditCompany extends Component {
   }
 
   routerWillLeave = nextLocation => {
-    if(!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving updates?";
+    if(!this.state.forceLeave && this.state.hasBeenModified) return 'Are you sure you want to leave the page without saving updates?';
     return true;
   }
 
@@ -170,15 +168,13 @@ class EditCompany extends Component {
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>;
 
     return (
-      <div>
-        <EditContent 
-          title={"Edit Company"} 
-          submitBtn={submitBtn}
-          cancelBtn={cancelBtn}
-          goBack={this.goBack}
-          companyDocument={this.companyDocument} 
-          companyForm={this.companyForm}/>
-      </div>
+      <EditContent
+        title={"Edit Company"}
+        submitBtn={submitBtn}
+        cancelBtn={cancelBtn}
+        goBack={this.goBack}
+        companyDocument={this.companyDocument}
+        companyForm={this.companyForm}/>
     )
   }
 }
@@ -246,41 +242,43 @@ class EditContent extends Component {
 
           </div>
           <div className="col-md-12 m-b"/>
-          <div className="col-md-12">
-            <Form>
-              <div className="row">
-                <div className="col-md-9">
-                  <InputField field={this.props.companyForm.field('name')}/>
+          <FadeIn>
+            <div className="col-md-12">
+              <Form>
+                <div className="row">
+                  <div className="col-md-9">
+                    <InputField field={this.props.companyForm.field('name')}/>
+                  </div>
+                  <div className="col-md-1">
+                    <StarField field={this.props.companyForm.field('preferred')}/>
+                  </div>
+                  <div className="col-md-2">
+                    <DropdownField field={this.props.companyForm.field('type')}/>
+                  </div>
+                  <div className="col-md-12">
+                    <AvatarChooserField field={this.props.companyForm.field('avatar')}/>
+                  </div>
+                  <div className="col-md-12">
+                    <InputField field={this.props.companyForm.field('website')} isUrl={true}/>
+                  </div>
+                  <div className="col-md-12">
+                    <InputField field={this.props.companyForm.field('address/street')}/>
+                  </div>
+                  <div className="col-md-4">
+                    <InputField field={this.props.companyForm.field('address/zipcode')}/>
+                  </div>
+                  <div className="col-md-4">
+                    <CityField field={this.props.companyForm.field('address/city')}/>
+                  </div>
+                  <div className="col-md-4">
+                    <CountryField field={this.props.companyForm.field('address/country')}/>
+                  </div>
+                  {tags()}
+                  {note()}
                 </div>
-                <div className="col-md-1">
-                  <StarField field={this.props.companyForm.field('preferred')}/>
-                </div>
-                <div className="col-md-2">
-                  <DropdownField field={this.props.companyForm.field('type')}/>
-                </div>
-                <div className="col-md-12">
-                  <AvatarChooserField field={this.props.companyForm.field('avatar')}/>
-                </div>
-                <div className="col-md-12">
-                  <InputField field={this.props.companyForm.field('website')} isUrl={true}/>
-                </div>
-                <div className="col-md-12">
-                  <InputField field={this.props.companyForm.field('address/street')}/>
-                </div>
-                <div className="col-md-4">
-                  <InputField field={this.props.companyForm.field('address/zipcode')}/>
-                </div>
-                <div className="col-md-4">
-                  <CityField field={this.props.companyForm.field('address/city')}/>
-                </div>
-                <div className="col-md-4">
-                  <CountryField field={this.props.companyForm.field('address/country')}/>
-                </div>
-                {tags()}
-                {note()}
-              </div>
-            </Form>
-          </div>
+              </Form>
+            </div>
+          </FadeIn>
         </div>
       </Content>
     )

@@ -4,7 +4,7 @@ import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux'
 import DateTimePicker from 'react-widgets/lib/DateTimePicker';
 import {Content} from '../../components/layout';
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
+import {FadeIn, Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
 import {Edit as EditPerson, Preview as PersonPreview} from '../../components/person/widgets';
 import {Edit as EditCompany, Preview as CompanyPreview} from '../../components/company/widgets';
 import {Edit, Delete, OpenClose} from '../../components/mission/widgets';
@@ -59,11 +59,13 @@ class ViewMission extends Component {
             <div className="m-r-1"><Delete mission={mission} postAction={this.goBack}/></div>
           </HeaderRight>
         </Header>
-        <Card
-          mission={mission}
-          client={client}
-          manager={manager}
-          workers={workers}  />
+        <FadeIn>
+          <Card
+            mission={mission}
+            client={client}
+            manager={manager}
+            workers={workers}  />
+        </FadeIn>
       </Content>
     )
   }

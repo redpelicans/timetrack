@@ -9,7 +9,7 @@ import {personsActions} from '../../actions/persons'
 import {notesActions} from '../../actions/notes'
 import {Content} from '../../components/layout'
 import sitemap from '../../routes'
-import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../components/widgets'
+import {FadeIn, Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../components/widgets'
 import {Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets'
 import {DateField, MultiSelectField2, MarkdownEditField, InputField, DropdownField} from '../../components/fields'
 
@@ -186,41 +186,43 @@ class EditContent extends Component {
               </HeaderRight>
             </Header>
 
-            <div className="col-md-12">
-              <Form>
-                <div className="row">
-                  <MarkdownEditField field={this.props.noteForm.field('content')} />
-                </div>
-                <div className="row">
-                  <div className="col-md-6">
-                    <DateField field={this.props.noteForm.field('dueDate')} />
+            <FadeIn>
+              <div className="col-md-12">
+                <Form>
+                  <div className="row">
+                    <MarkdownEditField field={this.props.noteForm.field('content')} />
                   </div>
-                  <div className="col-md-6">
-                    <div className="row">
-                      <div className="col-md-6">
-                        <InputField field={this.props.noteForm.field('/notification/delay')} />
-                      </div>
-                      <div className="col-md-6">
-                        <DropdownField field={this.props.noteForm.field('/notification/unit')} />
+                  <div className="row">
+                    <div className="col-md-6">
+                      <DateField field={this.props.noteForm.field('dueDate')} />
+                    </div>
+                    <div className="col-md-6">
+                      <div className="row">
+                        <div className="col-md-6">
+                          <InputField field={this.props.noteForm.field('/notification/delay')} />
+                        </div>
+                        <div className="col-md-6">
+                          <DropdownField field={this.props.noteForm.field('/notification/unit')} />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="row">
-                  <div className="col-md-12">
-                    <MultiSelectField2 field={this.props.noteForm.field('/assigneesIds')} />
+                  <div className="row">
+                    <div className="col-md-12">
+                      <MultiSelectField2 field={this.props.noteForm.field('/assigneesIds')} />
+                    </div>
                   </div>
-                </div>
-                <div className="row">
-                  <div className="col-md-6">
-                    <DropdownField field={this.props.noteForm.field('entityType')} />
+                  <div className="row">
+                    <div className="col-md-6">
+                      <DropdownField field={this.props.noteForm.field('entityType')} />
+                    </div>
+                    <div className="col-md-6">
+                      <DropdownField field={this.props.noteForm.field('entityId')} />
+                    </div>
                   </div>
-                  <div className="col-md-6">
-                    <DropdownField field={this.props.noteForm.field('entityId')} />
-                  </div>
-                </div>
-              </Form>
-            </div>
+                </Form>
+              </div>
+            </FadeIn>
           </div>
         </div>
       </Content>

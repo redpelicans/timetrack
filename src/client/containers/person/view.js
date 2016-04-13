@@ -3,7 +3,7 @@ import moment from 'moment';
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux'
 import {routeActions} from '../../actions/routes'
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
+import {FadeIn, Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
 import {Edit, Preferred, Delete} from '../../components/person/widgets';
 import {Edit as EditMission, Preview as MissionPreview, Closed as ClosedMission} from '../../components/mission/widgets';
 import {Content} from '../../components/layout';
@@ -71,15 +71,17 @@ class ViewPerson extends Component {
           </HeaderRight>
         </Header>
 
-        <Card
-          person={person}
-          missions={missions}
-          company={company}
-          persons={persons}
-          tagsField={this.tagsField}
-          companies={companies}
-          dispatch={dispatch}
-        />
+        <FadeIn>
+          <Card
+            person={person}
+            missions={missions}
+            company={company}
+            persons={persons}
+            tagsField={this.tagsField}
+            companies={companies}
+            dispatch={dispatch}
+          />
+      </FadeIn>
       </Content>
     )
   }
