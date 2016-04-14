@@ -5,7 +5,7 @@ import FileInput from 'react-file-input';
 import Remarkable from 'remarkable';
 import colors from '../utils/colors';
 import ReactTooltip from 'react-tooltip';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
 export class ToggleBox extends Component {
   state = { hidden: true }
@@ -56,18 +56,18 @@ ToggleBox.PropTypes = {
 }
 
 
-export const AvatarView = ({obj, size, label}) => {
+export const AvatarView = ({obj, size, label, style}) => {
   if(!obj || !obj.get('avatar')) return <div className="m-r-1"><Avatar size={size} name={"?"}/></div>;
 
   const avatar = obj.get('avatar').toJS();
   const tooltip = label || obj.get('name');
-  const defaultAvatar = <div className="m-r-1"><Avatar size={size} label={tooltip} name={obj.get('name')} color={avatar.color}/></div>;
+  const defaultAvatar = <div style={style}><Avatar size={size} label={tooltip} name={obj.get('name')} color={avatar.color}/></div>;
 
   switch(avatar.type){
     case 'url':
-      return avatar.url ? <div className="m-r-1"><Avatar size={size} label={tooltip} src={avatar.url}/></div> : defaultAvatar;
+      return avatar.url ? <div style={style}><Avatar size={size} label={tooltip} src={avatar.url}/></div> : defaultAvatar;
     case 'src':
-      return avatar.src ? <div className="m-r-1"><Avatar size={size} label={tooltip} src={avatar.src}/></div> : defaultAvatar;
+      return avatar.src ? <div style={style}><Avatar size={size} label={tooltip} src={avatar.src}/></div> : defaultAvatar;
     default:
       return defaultAvatar;
   }
@@ -152,7 +152,7 @@ export const UpdatedLabel = () => {
 
 export const TextLabel = ({label, value, url, onClick}) => {
   const labelUrl = () => {
-    if(!url && !onClick) return "";
+    if(!url && !onClick) return '';
     if(onClick) return <a href="#" onClick={onClick}><i className="fa fa-external-link p-l-1"/></a>;
     if(url) return <a href={url}><i className="fa fa-external-link p-l-1"/></a>;
   }
@@ -357,7 +357,7 @@ export const Header = ({obj, children}) => {
   }
 
   const time = () => {
-    if(!obj) return "";
+    if(!obj) return '';
     return (
       <div style={styles.time} >
         {timeLabels(obj)}
@@ -416,7 +416,7 @@ export const UpdateBtn = ({onSubmit, canSubmit, label, size}) => {
     e.preventDefault();
   }
 
-  const classnames = classNames("btn btn-primary m-l-1", {
+  const classnames = classNames('btn btn-primary m-l-1', {
     'btn-sm': size === 'small',
     'btn-lg': size === 'large',
   });
@@ -439,7 +439,7 @@ export const CancelBtn = ({onCancel, label, size}) => {
     e.preventDefault();
   }
 
-  const classnames = classNames("btn btn-warning m-l-1", {
+  const classnames = classNames('btn btn-warning m-l-1', {
     'btn-sm': size === 'small',
     'btn-lg': size === 'large',
   });
@@ -484,7 +484,7 @@ export const ResetBtn = ({obj, label, size}) => {
     e.preventDefault();
   }
 
-  const classnames = classNames("btn btn-danger m-l-1", {
+  const classnames = classNames('btn btn-danger m-l-1', {
     'btn-sm': size === 'small',
     'btn-lg': size === 'large',
   });
@@ -626,7 +626,7 @@ export const Sort = ({sortMenu, sortCond, onClick}) => {
 
   function getSortIcon(sortCond, item){
     if(item.key === sortCond.by){
-      const classnames = sortCond.order === "desc" ? "fa fa-sort-desc p-l-1" : "fa fa-sort-asc p-l-1";
+      const classnames = sortCond.order === 'desc' ? 'fa fa-sort-desc p-l-1' : 'fa fa-sort-asc p-l-1';
       return <i className={classnames}/>
     }
   }
@@ -667,11 +667,26 @@ Sort.propTypes = {
   onClick:  PropTypes.func.isRequired
 }
 
-export const TitleIcon =({icon, isLoading}) => {
+export const TitleIcon = ({icon, isLoading}) => {
   return isLoading ? <i className="fa fa-spinner fa-spin m-r-1"/> : <i className={`fa fa-${icon} m-r-1`}/>;
 }
 
 TitleIcon.propTypes = {
   icon:       PropTypes.string.isRequired,
   isLoading:  PropTypes.bool
+}
+
+export const FadeIn = ({children}) =>
+      <ReactCSSTransitionGroup
+          transitionName="fade-in"
+          transitionAppear={true}
+          transitionAppearTimeout={300}
+          transitionEnterTimeout={300}
+          transitionLeaveTimeout={300}
+      >
+        {children || <div/>}
+      </ReactCSSTransitionGroup>
+
+FadeIn.propTypes = {
+  children:   PropTypes.node,
 }

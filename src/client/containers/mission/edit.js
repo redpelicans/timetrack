@@ -9,7 +9,7 @@ import {companiesActions} from '../../actions/companies'
 import {personsActions} from '../../actions/persons'
 import {Content} from '../../components/layout'
 import sitemap from '../../routes'
-import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../components/widgets'
+import {FadeIn, Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../components/widgets'
 import {AvatarView, Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets'
 import {PeriodField, MultiSelectField2, MarkdownEditField, InputField, DropdownField} from '../../components/fields'
 import {newMissionSelector, editMissionSelector} from '../../selectors/missions'
@@ -26,7 +26,7 @@ export class NewMission extends Component {
   }
 
   routerWillLeave = nextLocation => {
-    if(!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving new mission?"
+    if(!this.state.forceLeave && this.state.hasBeenModified) return 'Are you sure you want to leave the page without saving new mission?'
     return true
   }
 
@@ -77,7 +77,7 @@ export class NewMission extends Component {
     const partnerIdField = this.missionForm.field('partnerId')
 
     let partnersDomainValue = entitiesDomain(partners)
-    partnersDomainValue.unshift({key: undefined, value: "<No Partner>"})
+    partnersDomainValue.unshift({key: undefined, value: '<No Partner>'})
 
     clientIdField.setSchemaValue('domainValue', entitiesDomain(clients))
     managerIdField.setSchemaValue('domainValue', entitiesDomain(workers))
@@ -97,15 +97,13 @@ export class NewMission extends Component {
 
 
     return (
-      <div>
-        <EditContent
-          title={"Add a Mission"}
-          submitBtn={submitBtn}
-          cancelBtn={cancelBtn}
-          goBack={this.goBack}
-          clients={clients}
-          missionForm={this.missionForm}/>
-      </div>
+      <EditContent
+        title={"Add a Mission"}
+        submitBtn={submitBtn}
+        cancelBtn={cancelBtn}
+        goBack={this.goBack}
+        clients={clients}
+        missionForm={this.missionForm}/>
     )
   }
 }
@@ -125,7 +123,7 @@ class EditMission extends Component {
   };
 
   routerWillLeave = nextLocation => {
-    if(!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving updates?"
+    if(!this.state.forceLeave && this.state.hasBeenModified) return 'Are you sure you want to leave the page without saving updates?'
     return true
   }
 
@@ -183,7 +181,7 @@ class EditMission extends Component {
    const partnerIdField = this.missionForm.field('partnerId')
 
    let partnersDomainValue = entitiesDomain(partners)
-   partnersDomainValue.unshift({key: undefined, value: "<No Partner>"})
+   partnersDomainValue.unshift({key: undefined, value: '<No Partner>'})
 
    clientIdField.setSchemaValue('domainValue', entitiesDomain(clients))
    managerIdField.setSchemaValue('domainValue', entitiesDomain(workers))
@@ -202,16 +200,14 @@ class EditMission extends Component {
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>
 
     return (
-      <div>
-        <EditContent
-          title={"Edit Mission"}
-          submitBtn={submitBtn}
-          cancelBtn={cancelBtn}
-          goBack={this.goBack}
-          clients={clients}
-          missionDocument={this.missionDocument}
-          missionForm={this.missionForm}/>
-      </div>
+      <EditContent
+        title={"Edit Mission"}
+        submitBtn={submitBtn}
+        cancelBtn={cancelBtn}
+        goBack={this.goBack}
+        clients={clients}
+        missionDocument={this.missionDocument}
+        missionForm={this.missionForm}/>
     )
   }
 }
@@ -262,7 +258,10 @@ export default class EditContent extends Component {
         fontStyle: 'italic',
         display: 'block',
         float: 'right',
-      }
+      },
+      avatar: {
+        paddingRight: '10px',
+      },
     }
     const note = () => {
       if(this.editMode)return
@@ -283,7 +282,7 @@ export default class EditContent extends Component {
             <Header obj={fake}>
               <HeaderLeft>
                 <GoBack goBack={this.props.goBack}/>
-                <AvatarView obj={this.state.client}/>
+                <div className="m-r-1"><AvatarView obj={this.state.client}/></div>
                 <Title title={this.props.title}/>
               </HeaderLeft>
               <HeaderRight>
@@ -295,50 +294,52 @@ export default class EditContent extends Component {
 
           </div>
           <div className="col-md-12 m-b"/>
-          <div className="col-md-12">
-            <Form>
-              <div className="row">
-                <div className="col-md-6">
-                  <DropdownField field={this.props.missionForm.field('clientId')}/>
+          <FadeIn>
+            <div className="col-md-12">
+              <Form>
+                <div className="row">
+                  <div className="col-md-6">
+                    <DropdownField field={this.props.missionForm.field('clientId')}/>
+                  </div>
+                  <div className="col-md-6">
+                    <DropdownField field={this.props.missionForm.field('partnerId')}/>
+                  </div>
                 </div>
-                <div className="col-md-6">
-                  <DropdownField field={this.props.missionForm.field('partnerId')}/>
-                </div>
-              </div>
 
-              <div className="row">
-                <div className="col-md-6">
-                  <DropdownField field={this.props.missionForm.field('billedTarget')}/>
+                <div className="row">
+                  <div className="col-md-6">
+                    <DropdownField field={this.props.missionForm.field('billedTarget')}/>
+                  </div>
+                  <div className="col-md-6">
+                    <DropdownField field={this.props.missionForm.field('managerId')}/>
+                  </div>
                 </div>
-                <div className="col-md-6">
-                  <DropdownField field={this.props.missionForm.field('managerId')}/>
-                </div>
-              </div>
 
-              <div className="row">
-                <div className="col-md-4">
-                  <InputField field={this.props.missionForm.field('name')}/>
+                <div className="row">
+                  <div className="col-md-4">
+                    <InputField field={this.props.missionForm.field('name')}/>
+                  </div>
+                  <div className="col-md-4">
+                    <PeriodField
+                      startDate={this.props.missionForm.field('startDate')}
+                      endDate={this.props.missionForm.field('endDate')} />
+                  </div>
+                  <div className="col-md-2">
+                    <DropdownField field={this.props.missionForm.field('timesheetUnit')}/>
+                  </div>
+                  <div className="col-md-2">
+                    <DropdownField field={this.props.missionForm.field('allowWeekends')}/>
+                  </div>
                 </div>
-                <div className="col-md-4">
-                  <PeriodField
-                    startDate={this.props.missionForm.field('startDate')}
-                    endDate={this.props.missionForm.field('endDate')} />
+                <div className="row">
+                  <div className="col-md-12">
+                    <MultiSelectField2 field={this.props.missionForm.field('workerIds')}/>
+                  </div>
                 </div>
-                <div className="col-md-2">
-                  <DropdownField field={this.props.missionForm.field('timesheetUnit')}/>
-                </div>
-                <div className="col-md-2">
-                  <DropdownField field={this.props.missionForm.field('allowWeekends')}/>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-md-12">
-                  <MultiSelectField2 field={this.props.missionForm.field('workerIds')}/>
-                </div>
-              </div>
-              {note()}
-            </Form>
-          </div>
+                {note()}
+              </Form>
+            </div>
+          </FadeIn>
         </div>
       </Content>
     )

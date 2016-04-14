@@ -3,7 +3,7 @@ import moment from 'moment';
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux'
 import {routeActions} from '../../actions/routes'
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
+import {FadeIn, Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
 import {Edit, Preferred, Delete} from '../../components/person/widgets';
 import {Edit as EditMission, Preview as MissionPreview, Closed as ClosedMission} from '../../components/mission/widgets';
 import {Content} from '../../components/layout';
@@ -52,7 +52,7 @@ class ViewPerson extends Component {
 
     const calendar = () => {
       if(person.get('type') !== 'worker') return <div/>
-      return <div className="m-r-1"><IconButton name={'calendar'} label={'View Calendar'} onClick={this.handleClick}/></div>
+      return <IconButton name={'calendar'} label={'View Calendar'} onClick={this.handleClick}/>
     }
 
     return (
@@ -60,26 +60,28 @@ class ViewPerson extends Component {
         <Header obj={person}>
           <HeaderLeft>
             <GoBack goBack={this.goBack} isLoading={isLoading}/>
-            <AvatarView obj={person}/>
+            <AvatarView style={{paddingRight: '10px'}} obj={person}/>
             <Title title={person.get('name')}/>
             <Preferred person={person} active={true}/>
           </HeaderLeft>
           <HeaderRight>
-            {calendar()}
-            <Edit person={person}/>
-            <Delete person={person} postAction={this.goBack}/>
+            <div className="m-r-1">{calendar()}</div>
+            <div className="m-r-1"><Edit person={person}/></div>
+            <div className="m-r-1"><Delete person={person} postAction={this.goBack}/></div>
           </HeaderRight>
         </Header>
 
-        <Card 
-          person={person} 
-          missions={missions} 
-          company={company} 
-          persons={persons} 
-          tagsField={this.tagsField} 
-          companies={companies}
-          dispatch={dispatch}
-        />
+        <FadeIn>
+          <Card
+            person={person}
+            missions={missions}
+            company={company}
+            persons={persons}
+            tagsField={this.tagsField}
+            companies={companies}
+            dispatch={dispatch}
+          />
+      </FadeIn>
       </Content>
     )
   }
@@ -121,7 +123,7 @@ const Card = ({person, company, companies, persons, missions, tagsField, dispatc
   });
 
   const birthdate = () => {
-    const date = person.get('birthdate') ? moment(person.get('birthdate')).format('DD/MM/YY') : "";
+    const date = person.get('birthdate') ? moment(person.get('birthdate')).format('DD/MM/YY') : '';
     return (
       <div className="col-md-2">
         <TextLabel label="Birth Date" value={date}/>
@@ -133,13 +135,13 @@ const Card = ({person, company, companies, persons, missions, tagsField, dispatc
     if(!company) return <div/>
     return (
       <div className="col-md-12">
-        <TextLabel 
-          label="Company" 
+        <TextLabel
+          label="Company"
           onClick={handleClick}
           value={company && company.get('name')}/>
       </div>
     )
-  }  
+  }
 
   const jobDescription = () => {
     if(!person.get('jobDescription')) return <div/>
@@ -221,19 +223,19 @@ const Card = ({person, company, companies, persons, missions, tagsField, dispatc
         {email()}
       </div>
       <div className="row">
-        {phones()} 
+        {phones()}
       </div>
       <div className="row">
-        {skills()} 
-        {roles()} 
+        {skills()}
+        {roles()}
       </div>
       <div className="row">
         {jobDescription()}
       </div>
       <div className="row">
         <div className="col-md-12">
-          <Missions 
-            label="Missions" 
+          <Missions
+            label="Missions"
             companies={companies}
             persons={persons}
             missions={missions}/>
@@ -281,9 +283,9 @@ const Missions = ({label, missions, companies, persons}) => {
     const company = companies.get(mission.get('clientId'));
     const workers = persons ? persons.filter(person => mission.get('workerIds').indexOf(person.get('_id')) !== -1) : null;
     return (
-      <div key={mission.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-        <MissionPreview 
-          mission={mission} 
+      <div key={mission.get('_id')} className="col-md-6 tm list-item" style={styles.item}>
+        <MissionPreview
+          mission={mission}
           manager={persons.get(mission.get('managerId'))}
           workers={workers}
           company={company}>

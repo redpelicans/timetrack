@@ -36,7 +36,7 @@ export const Preferred = authable(({company, active}, {authManager, dispatch}) =
     dispatch(companiesActions.togglePreferred(company.toJS()));
   }
 
-  const classnames = classNames("iconButton star fa fa-star-o m-r-1", {
+  const classnames = classNames('iconButton star fa fa-star-o m-r-1', {
     preferred: company.get('preferred'),
   });
 
@@ -176,48 +176,51 @@ export class Preview extends Component {
     }
 
     const styles = {
-      container:{
+      container: {
+        flex: 1,
         display: 'flex',
-        justifyContent: 'space-between',
         alignItems: 'center',
         height: '100%',
       },
-      containerLeft:{
+      containerLeft: {
+        flex: 0.9,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'left',
         padding: '5px',
+        flexGrow: 1.8,
       },
-      containerRight:{
-        display: 'flex',
-        justifyContent: 'right',
-        alignItems: 'center',
-        padding: '5px',
+      containerRight: {
+        zIndex: 2,
+        width: '18px',
+        paddingLeft: '5px',
       },
-      isnew:{
+      isnew: {
         position: 'absolute',
         bottom: '0',
         right: '0.1rem',
       },
-      tags:{
+      tags: {
+        zIndex: 1,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         flexWrap: 'wrap',
       },
-      label:{
+      label: {
         color: '#cfd2da',
         padding: '.3rem',
       },
-      preferred:{
-        position: 'absolute',
-        bottom: '3px',
-        left: '3rem',
+      preferred: {
+        position: 'relative',
+        right: '12px',
+        top: '24px',
+      },
+      avatar: {
       },
     };
 
     const {company, workers} = this.props
-    const avatar = <AvatarView obj={company}/>
+    const avatar = <AvatarView style={styles.avatar} obj={company}/>
 
     const isNew = () =>{
       if(company.get('isNew')) return <NewLabel/>
@@ -254,8 +257,8 @@ export class Preview extends Component {
     }
 
     const actions = () => {
-      if(!this.state.showActions) return <div/>;
-      return(
+      if(!this.state.showActions) return <div style={styles.containerRight}></div>;
+      return (
         <div style={styles.containerRight} href="#">
           <Edit company={company}/>
           <Delete workers={workers} company={company}/>
@@ -266,7 +269,7 @@ export class Preview extends Component {
     return (
       <div style={styles.container} onMouseOver={this.handleMouseEnter} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave} >
         <div style={styles.containerLeft}>
-          <div className="p-r-1">
+          <div>
             {avatarView()}
           </div>
            <div style={styles.preferred}>
@@ -275,13 +278,13 @@ export class Preview extends Component {
           <div style={styles.isnew}>
             {isNew()}
           </div>
-          <div className="p-r-1">
+          <div>
             {companyNameView()}
           </div>
           <div className="p-r-1">
             {billAmounts(company)}
           </div>
-          <div className="p-r-1">
+          <div>
             {tags()}
           </div>
         </div>

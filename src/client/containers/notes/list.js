@@ -6,7 +6,7 @@ import {personsActions} from '../../actions/persons';
 import {companiesActions} from '../../actions/companies';
 import {missionsActions} from '../../actions/missions';
 import {Content} from '../../components/layout';
-import {AvatarView, Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
+import {Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
 import {AddButton} from '../../components/notes/widgets';
 import {ItemNote} from '../notes';
@@ -33,22 +33,16 @@ class NotesList extends Component {
     this.props.dispatch(notesActions.sort(mode))
   }
 
-  handleResetFilter = () => {
-    this.props.dispatch(notesActions.filter(''))
-  }
-
   handleRefresh = () => {
     this.props.dispatch(notesActions.load({forceReload: true}))
   }
 
   handleSearchFilter = (filter) => {
     this.props.dispatch(notesActions.filter(filter))
-    // Masonry hack for reloading layout on search
-    this.masonry.layout()
   }
+  handleResetFilter = () => this.handleSearchFilter('')
 
   render() {
-
     const {notes, persons, companies, missions, filter, sortCond} = this.props
 
     if (!notes || !persons || !companies || !missions) return <div />
@@ -70,7 +64,6 @@ class NotesList extends Component {
       transitionDuration: 0,
       gutter: 10,
     }
-
     return (
       <Content>
         <Header>
@@ -84,9 +77,7 @@ class NotesList extends Component {
             <Refresh onClick={this.handleRefresh} />
           </HeaderRight>
         </Header>
-        <Masonry
-          ref={function(c) {if (c != null) this.masonry = c.masonry;}.bind(this)}
-          options={options}>
+        <Masonry options={options}>
             {listNotes(notes, persons, companies, missions)}
         </Masonry>
 

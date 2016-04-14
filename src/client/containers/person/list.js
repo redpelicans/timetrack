@@ -7,6 +7,7 @@ import {personsActions} from '../../actions/persons';
 import {companiesActions} from '../../actions/companies';
 import {visiblePersonsSelector} from '../../selectors/persons.js'
 import routes from '../../routes';
+import Masonry from 'react-masonry-component'
 
 const sortMenu = [
   {key: 'name', label: 'Sort Alphabeticaly'},
@@ -39,7 +40,7 @@ class PersonList extends Component {
   }
 
   handleResetFilter = (filter) => {
-    this.props.dispatch(personsActions.filter(""))
+    this.props.dispatch(personsActions.filter(''))
   }
 
   render(){
@@ -80,34 +81,37 @@ const List = ({persons, companies}) => {
   if(!persons || !companies) return false;
 
   const styles={
-    container:{
+    container: {
       marginTop: '50px',
-      //marginBottom: '50px',
-      marginLeft: 'auto',
-      marginRight: 'auto',
     },
-    item:{
-      height: '80px',
+    item: {
+      margin: '0px',
+      padding: '5px',
     }
   }
 
-  const data = persons.map(person => {
+  const data = persons.map((person, i) => {
     return (
-      <div key={person.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-        <Preview
-          person={person} 
-          company={companies.get(person.get('companyId'))} >
-            <Edit person={person}/>
-            <Delete person={person}/>
-        </Preview>
+      <div key={i} className="x-list-item" style={styles.item}>
+        <div className="form-control" style={{height: '100%', minHeight: '64px'}}>
+          <Preview
+            person={person}
+            company={companies.get(person.get('companyId'))} >
+              <Edit person={person}/>
+              <Delete person={person}/>
+          </Preview>
+        </div>
       </div>
     )
   });
 
+const options = {
+  transitionDuration: 0,
+}
   return (
-    <div className="row" style={styles.container}>
+    <Masonry style={styles.container} options={options}>
       {data}
-    </div>
+    </Masonry>
   )
 }
 

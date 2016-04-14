@@ -9,10 +9,9 @@ import {personsActions} from '../../actions/persons'
 import {notesActions} from '../../actions/notes'
 import {Content} from '../../components/layout'
 import sitemap from '../../routes'
-import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../components/widgets'
-import {AvatarView, Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets'
+import {FadeIn, Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../components/widgets'
+import {Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets'
 import {DateField, MultiSelectField2, MarkdownEditField, InputField, DropdownField} from '../../components/fields'
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 import noteForm from '../../forms/note2'
 import {newNoteSelector, editNoteSelector} from '../../selectors/notes'
@@ -27,7 +26,7 @@ class NewNote extends Component {
   }
 
   routerWillLeave = nextLocation => {
-    if (!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving new mission?"
+    if (!this.state.forceLeave && this.state.hasBeenModified) return 'Are you sure you want to leave the page without saving new mission?'
   }
 
   goBack = (forceLeave) => {
@@ -187,12 +186,12 @@ class EditContent extends Component {
               </HeaderRight>
             </Header>
 
-            <div className="col-md-12">
-              <Form>
-                <div className="row">
-                  <MarkdownEditField field={this.props.noteForm.field('content')} />
-                </div>
-                <ToggleBox icon="fa fa-lg fa-cog" text="More">
+            <FadeIn>
+              <div className="col-md-12">
+                <Form>
+                  <div className="row">
+                    <MarkdownEditField field={this.props.noteForm.field('content')} />
+                  </div>
                   <div className="row">
                     <div className="col-md-6">
                       <DateField field={this.props.noteForm.field('dueDate')} />
@@ -221,9 +220,9 @@ class EditContent extends Component {
                       <DropdownField field={this.props.noteForm.field('entityId')} />
                     </div>
                   </div>
-                </ToggleBox>
-              </Form>
-            </div>
+                </Form>
+              </div>
+            </FadeIn>
           </div>
         </div>
       </Content>
@@ -236,46 +235,6 @@ EditContent.propTypes = {
   submitBtn: PropTypes.element.isRequired,
   cancelBtn: PropTypes.element.isRequired,
   noteForm:   PropTypes.object.isRequired,
-}
-
-class ToggleBox extends Component {
-  state = {hide: undefined};
-
-  handleClick = (e) => {
-    e.preventDefault()
-    const option  = this.state.hide === undefined ? 'true' : this.state.hide
-    this.setState({
-      hide: !option,
-    })
-  }
-
-  render() {
-    const {children, icon, text} = this.props
-
-    const styles = {
-      text: {
-        marginLeft: '4px',
-      },
-      box: {
-        marginTop: '10px',
-      }
-    }
-
-    const optionPanel = this.state.hide === undefined || this.state.hide
-      ? undefined
-      : <div style={styles.box} key="togglebox">{children}</div>
-
-    return (
-        <div className="row">
-          <a href="#" onClick={this.handleClick}>
-            <i className={icon}></i><span style={styles.text}>{text}</span>
-          </a>
-          <ReactCSSTransitionGroup transitionName="togglebox" transitionEnterTimeout={400} transitionLeaveTimeout={400}>
-            {optionPanel}
-          </ReactCSSTransitionGroup>
-        </div>
-    )
-  }
 }
 
 const getWorkersFilter = p => p.get('type') === 'worker'

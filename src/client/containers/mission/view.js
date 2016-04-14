@@ -4,7 +4,7 @@ import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux'
 import DateTimePicker from 'react-widgets/lib/DateTimePicker';
 import {Content} from '../../components/layout';
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
+import {FadeIn, Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
 import {Edit as EditPerson, Preview as PersonPreview} from '../../components/person/widgets';
 import {Edit as EditCompany, Preview as CompanyPreview} from '../../components/company/widgets';
 import {Edit, Delete, OpenClose} from '../../components/mission/widgets';
@@ -50,21 +50,22 @@ class ViewMission extends Component {
         <Header obj={mission}>
           <HeaderLeft>
             <GoBack goBack={this.goBack} isLoading={isLoading}/>
-            <AvatarView obj={client}/>
+            <AvatarView style={{paddingRight: '10px'}} obj={client}/>
             <Title title={mission.get('name')}/>
           </HeaderLeft>
           <HeaderRight>
-            <div className="m-r-1"><IconButton name={'calendar'} label={'View Calendar'} onClick={this.handleClick}/></div>
-            <Edit mission={mission}/>
-            <OpenClose mission={mission}/>
-            <Delete mission={mission} postAction={this.goBack}/>
+            <div className="m-r-1"><Edit mission={mission}/></div>
+            <div className="m-r-1"><OpenClose mission={mission}/></div>
+            <div className="m-r-1"><Delete mission={mission} postAction={this.goBack}/></div>
           </HeaderRight>
         </Header>
-        <Card 
-          mission={mission} 
-          client={client}
-          manager={manager}
-          workers={workers}  />
+        <FadeIn>
+          <Card
+            mission={mission}
+            client={client}
+            manager={manager}
+            workers={workers}  />
+        </FadeIn>
       </Content>
     )
   }
@@ -93,11 +94,11 @@ const Card = ({mission, client, manager, workers}) =>  {
 
       <div className="col-md-2 "/>
       <div className="col-md-3 ">
-        <Date label="Start Date" date={mission.get("startDate")}/>
+        <Date label="Start Date" date={mission.get('startDate')}/>
       </div>
       <div className="col-md-2 "/>
       <div className="col-md-3 ">
-        <Date label="End Date" date={mission.get("endDate")}/>
+        <Date label="End Date" date={mission.get('endDate')}/>
       </div>
       <div className="col-md-2 "/>
       <div className="col-md-6 ">
@@ -107,9 +108,9 @@ const Card = ({mission, client, manager, workers}) =>  {
         <Manager label="Manager" manager={manager}/>
       </div>
       <div className="col-md-12">
-        <Workers 
-          label="Workers" 
-          workers={workers} 
+        <Workers
+          label="Workers"
+          workers={workers}
           mission={mission}/>
       </div>
       <div className="col-md-12">
@@ -161,7 +162,7 @@ const Client = ({label, client, workers}) => {
     <fieldset className="form-group">
       <label> {label} </label>
       <div className="row" style={styles.container}>
-        <div className="col-md-12 tm list-item" style={styles.item}> 
+        <div className="col-md-12 tm list-item" style={styles.item}>
           <CompanyPreview workers={workers} company={client}>
             <EditCompany company={client}/>
           </CompanyPreview>
@@ -194,7 +195,7 @@ const Manager = ({label, manager}) => {
     <fieldset className="form-group">
       <label> {label} </label>
       <div className="row" style={styles.container}>
-        <div className="col-md-12 tm list-item" style={styles.item}> 
+        <div className="col-md-12 tm list-item" style={styles.item}>
           <PersonPreview person={manager}>
             <EditPerson person={manager}/>
           </PersonPreview>
@@ -222,12 +223,12 @@ const Workers = ({label, workers, mission}) => {
     }
   };
 
-  const className = workers.size > 1 ? "col-md-6 tm list-item" : "col-md-12 tm list-item";
+  const className = workers.size > 1 ? 'col-md-6 tm list-item' : 'col-md-12 tm list-item';
   const data = _.chain(workers.toArray())
     .sortBy( person => person.get('name') )
     .map( person => {
       return (
-        <div key={person.get('_id')} className={className} style={styles.item}> 
+        <div key={person.get('_id')} className={className} style={styles.item}>
           <PersonPreview person={person}>
             <EditPerson person={person}/>
           </PersonPreview>

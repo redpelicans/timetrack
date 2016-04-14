@@ -9,6 +9,7 @@ import {AddButton, Preview, Closed, Edit, Delete} from '../../components/mission
 import {Sort, Filter, Refresh, Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets'
 import routes from '../../routes'
 import {visibleMissionsSelector} from '../../selectors/missions'
+import Masonry from 'react-masonry-component'
 
 const sortMenu = [
   {key: 'name', label: 'Sort Alphabeticaly'},
@@ -39,7 +40,7 @@ class MissionList extends Component {
   }
 
   handleResetFilter = (filter) => {
-    this.props.dispatch(missionsActions.filter(""))
+    this.props.dispatch(missionsActions.filter(''))
   }
 
   render(){
@@ -60,9 +61,9 @@ class MissionList extends Component {
           </HeaderRight>
         </Header>
 
-        <List 
-          missions={missions} 
-          persons={persons} 
+        <List
+          missions={missions}
+          persons={persons}
           companies={companies} />
 
         <AddButton title='Add a Mission'/>
@@ -83,7 +84,7 @@ MissionList.propTypes = {
 class List extends Component {
 
   shouldComponentUpdate(nextProps, nextState){
-    return this.props.missions !== nextProps.missions 
+    return this.props.missions !== nextProps.missions
       || this.props.companies !== nextProps.companies
       || this.props.persons !== nextProps.persons;
   }
@@ -94,36 +95,39 @@ class List extends Component {
     const styles={
       container:{
         marginTop: '50px',
-        //marginBottom: '50px',
-        marginLeft: 'auto',
-        marginRight: 'auto',
       },
       item:{
-        height: '80px',
+        padding: '5px',
+        margin: '0px',
       }
     }
 
-    const data = this.props.missions.map(mission => {
+    const data = this.props.missions.map((mission, i) => {
       const workers = this.props.persons.filter(person => mission.get('workerIds').indexOf(person.get('_id')) !== -1);
       return (
-        <div key={mission.get('_id')} className="col-md-6 tm list-item" style={styles.item}> 
-          <Preview
-            mission={mission} 
-            workers={workers}
-            company={this.props.companies.get(mission.get('clientId'))}
-            manager={this.props.persons.get(mission.get('managerId'))} >
-              <Closed mission={mission}/>
-              <Edit mission={mission}/>
-              <Delete mission={mission}/>
-          </Preview>
+        <div key={i} className="x-list-item" style={styles.item}>
+          <div className="form-control" style={{height: '100%'}}>
+            <Preview
+              mission={mission}
+              workers={workers}
+              company={this.props.companies.get(mission.get('clientId'))}
+              manager={this.props.persons.get(mission.get('managerId'))} >
+                <Closed mission={mission}/>
+                <Edit mission={mission}/>
+                <Delete mission={mission}/>
+            </Preview>
+          </div>
         </div>
       )
     });
 
+    const options = {
+      transitionDuration: 0,
+    }
     return (
-      <div className="row" style={styles.container}>
+      <Masonry style={styles.container} options={options}>
         {data}
-      </div>
+      </Masonry>
     )
   }
 

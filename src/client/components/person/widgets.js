@@ -18,11 +18,11 @@ export const Edit = authable(({person}, {authManager, dispatch}) => {
   if(authManager.person.isAuthorized('edit')){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-pencil m-r-1"/>
+        <i className="iconButton fa fa-pencil"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-pencil m-r-1"/>
+    return <i className="iconButton disable fa fa-pencil"/>
   }
 })
 
@@ -43,11 +43,11 @@ export const Delete = authable(({person, postAction}, {authManager, dispatch}) =
   if(authManager.person.isAuthorized('delete')){
     return (
       <a href="#" onClick={handleChange}>
-        <i className="iconButton fa fa-trash m-r-1"/>
+        <i className="iconButton fa fa-trash"/>
       </a>
     )
   }else{
-    return <i className="iconButton disable fa fa-trash m-r-1"/>
+    return <i className="iconButton disable fa fa-trash"/>
   }
 })
 
@@ -62,7 +62,7 @@ export const Preferred = authable(({person, active}, {authManager, dispatch}) =>
     dispatch(personsActions.togglePreferred(person.toJS()));
   }
 
-  const classnames = classNames("iconButton star fa fa-star-o m-r-1", {
+  const classnames = classNames('iconButton star fa fa-star-o', {
     preferred: person.get('preferred'),
   });
 
@@ -153,7 +153,6 @@ export class Preview extends Component {
   }
 
   render() {
-    console.log("render Person")
     const {authManager, dispatch} = this.context;
     function phone(person){
       if(!person.phones || !person.phones.length) return '';
@@ -168,59 +167,61 @@ export class Preview extends Component {
     }
 
     const styles = {
-      container:{
+      container: {
         display: 'flex',
-        justifyContent: 'space-between',
         alignItems: 'center',
         height: '100%',
       },
-      containerLeft:{
+      containerLeft: {
+        flex: 0.9,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'left',
         padding: '5px',
+        flexGrow: 1.8,
       },
-      containerRight:{
-        display: 'flex',
-        justifyContent: 'right',
-        alignItems: 'center',
-        padding: '5px',
+      containerRight: {
+        zIndex: 2,
+        width: '18px',
+        paddingLeft: '5px',
       },
-      names:{
+      names: {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
       },
-      name:{
+      name: {
       },
-      company:{
+      company: {
         fontStyle: 'italic',
       },
-      isnew:{
+      isnew: {
         position: 'absolute',
         bottom: '0',
         right: '0.1rem',
       },
-      tags:{
+      tags: {
+        zIndex: 1,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         flexWrap: 'wrap',
       },
-      label:{
+      label: {
         color: '#cfd2da',
         padding: '.3rem',
       },
-      preferred:{
-        position: 'absolute',
-        bottom: '3px',
-        left: '3rem',
+      preferred: {
+        position: 'relative',
+        right: '18px',
+        top: '24px',
       },
-
+      avatar: {
+        paddingRight: '10px',
+      },
     };
 
     const person = this.props.person;
-    const avatar = <AvatarView obj={person}/>;
+    const avatar = <AvatarView style={styles.avatar} obj={person}/>;
     const isNew = () =>{
       if(person.get('isNew')) return <NewLabel/>
       if(person.get('isUpdated')) return <UpdatedLabel/>
@@ -239,7 +240,7 @@ export class Preview extends Component {
 
       return _.map(person.get('tags').toJS(), v => {
         return (
-          <span key={v} style={styles.label} className="label label-primary m-r-1">
+          <span key={v} style={styles.label} className="label label-primary">
             <a href="#" onClick={onClick.bind(null, v)}>{v}</a>
           </span>
         )
@@ -255,10 +256,9 @@ export class Preview extends Component {
     }
 
     const actions = () => {
-      if(!this.state.showActions) return <div/>;
       return(
         <div style={styles.containerRight} href="#">
-          {this.props.children}
+          {this.state.showActions ? this.props.children : <div/>}
         </div>
       )
     }
@@ -266,14 +266,14 @@ export class Preview extends Component {
     return (
       <div style={styles.container} onMouseOver={this.handleMouseEnter} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
         <div style={styles.containerLeft}>
-          <div className="p-r-1">
-            <a href="#" onClick={this.handleViewPerson}>{avatar}</a>
-          </div>
+            <div>
+              <a href="#" onClick={this.handleViewPerson}>{avatar}</a>
+            </div>
+            <div style={styles.preferred}>
+              <Preferred person={person} active={true}/>
+            </div>
           <div style={styles.isnew}>
             {isNew()}
-          </div>
-           <div style={styles.preferred}>
-            <Preferred person={person} active={true}/>
           </div>
           <div style={styles.names}>
             <div style={styles.name} className="p-r-1">

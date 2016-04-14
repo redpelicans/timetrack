@@ -7,7 +7,7 @@ import sitemap from '../../routes'
 import eventForm from '../../forms/event'
 import {eventsActions} from '../../actions/events'
 import {goBack, replaceRoute} from '../../actions/routes'
-import {Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, DeleteBtn} from '../../components/widgets'
+import {FadeIn, Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, DeleteBtn} from '../../components/widgets'
 import {AvatarView, Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets'
 import {newEventSelector, editEventSelector} from '../../selectors/events'
 import {PeriodField, MultiSelectField2, MarkdownEditField, InputField, DropdownField} from '../../components/fields'
@@ -25,7 +25,7 @@ class Base extends Component {
   }
 
   routerWillLeave = nextLocation => {
-    if(!this.state.forceLeave && this.state.hasBeenModified) return "Are you sure you want to leave the page without saving updates?"
+    if(!this.state.forceLeave && this.state.hasBeenModified) return 'Are you sure you want to leave the page without saving updates?'
     return true
   }
 
@@ -62,7 +62,7 @@ class EventBase extends Base{
     missionValues.unshift({key: undefined, value: '<No Mission>'})
     missionIdField.setSchemaValue('domainValue', missionValues)
   }
-  
+
   componentWillReceiveProps(nextProps){
     this.initDomainValues(nextProps);
   }
@@ -93,7 +93,7 @@ class New extends EventBase {
     })
 
     this.initDomainValues(this.props)
-    
+
     dispatch(missionsActions.load())
     dispatch(personsActions.load())
   }
@@ -104,14 +104,12 @@ class New extends EventBase {
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>
 
     return (
-      <div>
-        <EditForm
-          title={"Add an Event"}
-          submitBtn={submitBtn}
-          cancelBtn={cancelBtn}
-          goBack={this.goBack}
-          eventForm={this.eventForm}/>
-      </div>
+      <EditForm
+        title={"Add an Event"}
+        submitBtn={submitBtn}
+        cancelBtn={cancelBtn}
+        goBack={this.goBack}
+        eventForm={this.eventForm}/>
     )
   }
 }
@@ -166,16 +164,14 @@ class Edit extends EventBase {
     let deleteBtn = <DeleteBtn onDelete={this.handleDelete}/>
 
     return (
-      <div>
-        <EditForm
-          title={"Edit Event"}
-          submitBtn={submitBtn}
-          cancelBtn={cancelBtn}
-          deleteBtn={deleteBtn}
-          goBack={this.goBack}
-          eventDocument={this.eventDocument}
-          eventForm={this.eventForm}/>
-      </div>
+      <EditForm
+        title={"Edit Event"}
+        submitBtn={submitBtn}
+        cancelBtn={cancelBtn}
+        deleteBtn={deleteBtn}
+        goBack={this.goBack}
+        eventDocument={this.eventDocument}
+        eventForm={this.eventForm}/>
     )
   }
 }
@@ -221,43 +217,45 @@ class EditForm extends Component {
 
           </div>
           <div className="col-md-12 m-b"/>
-          <div className="col-md-12">
-            <Form>
-              <div className="row">
-                <div className="col-md-8">
-                  <PeriodField
-                    startDate={eventForm.field('startDate')}
-                    endDate={eventForm.field('endDate')} />
+          <FadeIn>
+            <div className="col-md-12">
+              <Form>
+                <div className="row">
+                  <div className="col-md-8">
+                    <PeriodField
+                      startDate={eventForm.field('startDate')}
+                      endDate={eventForm.field('endDate')} />
+                  </div>
+                  <div className="col-md-2">
+                    <DropdownField field={eventForm.field('unit')}/>
+                  </div>
+                  <div className="col-md-2">
+                    <InputField field={eventForm.field('value')}/>
+                  </div>
                 </div>
-                <div className="col-md-2">
-                  <DropdownField field={eventForm.field('unit')}/>
-                </div>
-                <div className="col-md-2">
-                  <InputField field={eventForm.field('value')}/>
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-md-4">
-                  <DropdownField field={eventForm.field('workerId')}/>
-                </div>
-                <div className="col-md-4">
-                  <DropdownField field={eventForm.field('missionId')}/>
-                </div>
-                <div className="col-md-2">
-                  <DropdownField field={eventForm.field('type')}/>
-                </div>
-                <div className="col-md-2">
-                  <DropdownField field={eventForm.field('status')}/>
-                </div>
+                <div className="row">
+                  <div className="col-md-4">
+                    <DropdownField field={eventForm.field('workerId')}/>
+                  </div>
+                  <div className="col-md-4">
+                    <DropdownField field={eventForm.field('missionId')}/>
+                  </div>
+                  <div className="col-md-2">
+                    <DropdownField field={eventForm.field('type')}/>
+                  </div>
+                  <div className="col-md-2">
+                    <DropdownField field={eventForm.field('status')}/>
+                  </div>
 
-              </div>
-              <div className="row">
-                <div className="col-md-12">
-                  <MarkdownEditField field={eventForm.field('description')}/>
                 </div>
-              </div>
-            </Form>
-          </div>
+                <div className="row">
+                  <div className="col-md-12">
+                    <MarkdownEditField field={eventForm.field('description')}/>
+                  </div>
+                </div>
+              </Form>
+            </div>
+          </FadeIn>
         </div>
       </Content>
     )
@@ -277,7 +275,7 @@ EditForm.propTypes = {
 function  entitiesDomain(entities){
   if(!entities) return []
   const res = entities.toSetSeq().map(v => {
-    return {key: v.get('_id'), value: v.get('name')} 
+    return {key: v.get('_id'), value: v.get('name')}
   });
   return res.toJS().sort( (a, b) => a.value > b.value );
 }

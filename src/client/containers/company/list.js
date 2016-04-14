@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 import {visibleCompaniesSelector} from '../../selectors/companies';
 import {companiesActions} from '../../actions/companies';
 import {Content} from '../../components/layout';
-import {AvatarView, Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
+import {Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
 import {Edit, Preferred, Delete, AddButton, Preview} from '../../components/company/widgets';
 import routes from '../../routes';
+import Masonry from 'react-masonry-component'
 
 const sortMenu = [
   {key: 'name', label: 'Sort Alphabeticaly'},
@@ -84,31 +85,41 @@ const List = ({companies, persons}) => {
   if(!companies) return false;
 
   const styles={
-    container:{
+    container: {
       marginTop: '50px',
-      marginLeft: 'auto',
-      marginRight: 'auto',
     },
-    item:{
-      height: '80px',
-    }
+    item: {
+      margin: '0px',
+      padding: '5px',
+    },
+    subItem: {
+      height: '100%',
+      minHeight: '72px',
+      alignItems: 'center',
+      display: 'flex',
+    },
   }
 
   const getFilterPersonsByCompanyId = companyId => person => person.get('companyId') == companyId
 
-  const data = companies.map(company => {
+  const data = companies.map((company, i) => {
     const workers = persons.filter(getFilterPersonsByCompanyId(company.get('_id')))
     return (
-      <div key={company.get('_id')} className="col-md-6 tm list-item" style={styles.item}>
-        <Preview workers={workers} company={company} />
+      <div key={i} className="x-list-item" style={styles.item}>
+        <div className="form-control" style={styles.subItem}>
+          <Preview workers={workers} company={company} />
+        </div>
       </div>
     )
   });
 
+  const options = {
+    transitionDuration: 0,
+  }
   return (
-    <div className="row" style={styles.container}>
+    <Masonry style={styles.container} options={options}>
       {data}
-    </div>
+    </Masonry>
   )
 }
 
