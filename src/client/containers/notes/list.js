@@ -1,4 +1,3 @@
-import R from 'ramda'
 import React, {Component, PropTypes} from 'react';
 import { connect } from 'react-redux';
 import {visibleNotesSelector} from '../../selectors/notes';
