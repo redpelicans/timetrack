@@ -154,6 +154,8 @@ const Event = authable(Radium(({event, persons, missions}, {authManager, dispatc
   }
 
   const missionView = () => {
+    if(!mission)return
+
     const onClick = (mission, e) => {
       e.stopPropagation();
       dispatch(pushRoute(routes.mission.view, {missionId: mission.get('_id')}));
