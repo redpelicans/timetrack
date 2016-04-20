@@ -293,16 +293,17 @@ export class DropdownField extends BaseSelectField{
     if(!this.state.field) return false
     let field = this.props.field
 
-    if(this.state.field.get('disabled')){
-      const keyValue = _.find(this.state.domainValue, x => x.key === this.state.field.get("value"))
-      return <TextLabel label={this.state.field.get('label')} value={keyValue && keyValue.value}/>
-    }else{
+    // if(this.state.field.get('disabled')){
+    //   const keyValue = _.find(this.state.domainValue, x => x.key === this.state.field.get("value"))
+    //   return <TextLabel label={this.state.field.get('label')} value={keyValue && keyValue.value}/>
+    // }else{
       return(
         <fieldset className={this.fieldsetClassNames()}>
           <label htmlFor={field.key}>{this.state.field.get('label')}</label>
           <DropdownList
             placeholder={field.label}
             valueField={'key'}
+            disabled={this.state.field.get('disabled')}
             textField={'value'}
             data={this.state.domainValue}
             //defaultValue={this.state.field.get('value')}
@@ -313,7 +314,7 @@ export class DropdownField extends BaseSelectField{
           <small className="text-muted control-label">{this.message()}</small>
         </fieldset>
       )
-    }
+    //}
   }
 }
 

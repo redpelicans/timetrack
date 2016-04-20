@@ -4,7 +4,7 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {Content} from '../../components/layout'
 import sitemap from '../../routes'
-import eventForm from '../../forms/event'
+import eventForm, {statusDomainValue} from '../../forms/event'
 import {eventsActions} from '../../actions/events'
 import {goBack, replaceRoute} from '../../actions/routes'
 import {FadeIn, Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn, DeleteBtn} from '../../components/widgets'
@@ -13,6 +13,7 @@ import {newEventSelector, editEventSelector} from '../../selectors/events'
 import {PeriodField, MultiSelectField2, MarkdownEditField, InputField, DropdownField} from '../../components/fields'
 import {missionsActions} from '../../actions/missions'
 import {personsActions} from '../../actions/persons'
+import {authable} from '../../components/authmanager'
 
 class Base extends Component {
 
@@ -52,15 +53,55 @@ class Base extends Component {
 }
 
 class EventBase extends Base{
-  initDomainValues(props){
-    const {workers, missions} = props;
+  manageRules(){
+    const {missions, workers} = this.props;
+    const typeField = this.eventForm.field('type')
     const workerIdField = this.eventForm.field('workerId')
+    const missionIdField = this.eventForm.field('missionId')
+
+    missionIdField.onValue( state => {
+      const mission = missions.get(state.value)
+      if(!mission){
+        workerIdField.setSchemaValue('domainValue', entitiesDomain())
+      }else{
+        const workerIds = mission.get('workerIds')
+        workerIdField.setValue(undefined)
+        workerIdField.setSchemaValue('domainValue', entitiesDomain(workerIds.map(id => workers.get(id))))
+      }
+    })
+
+    typeField.onValue( state => {
+      switch(state.value){
+        case 'work':
+          missionIdField.disabled(false)
+          missionIdField.setSchemaValue('required', true)
+          workerIdField.setValue(undefined)
+          missionIdField.setValue(undefined)
+          return
+        default:
+          missionIdField.setSchemaValue('required', false)
+          missionIdField.disabled(true)
+          missionIdField.setValue(undefined)
+          workerIdField.setSchemaValue('domainValue', entitiesDomain(workers))
+      }
+    })
+  }
+
+  initDomainValues(){
+    const {workers, missions} = this.props;
+
+    const workerIdField = this.eventForm.field('workerId')
+    const missionIdField = this.eventForm.field('missionId')
+    const statusField = this.eventForm.field('status')
+
     workerIdField.setSchemaValue('domainValue', entitiesDomain(workers))
 
-    const missionIdField = this.eventForm.field('missionId')
     const missionValues = entitiesDomain(missions)
-    missionValues.unshift({key: undefined, value: '<No Mission>'})
+    //missionValues.unshift({key: undefined, value: '<No Mission>'})
     missionIdField.setSchemaValue('domainValue', missionValues)
+
+    if(this.context.authManager.event.isAuthorized('admin')) statusField.setSchemaValue('domainValue', statusDomainValue)
+    else statusField.setSchemaValue('domainValue', [{key: 'toBeValidated', value: 'ToBeValidated'}])
   }
 
   componentWillReceiveProps(nextProps){
@@ -69,6 +110,7 @@ class EventBase extends Base{
 
 }
 
+@authable
 class New extends EventBase {
 
   componentWillUnmount(){
@@ -92,7 +134,8 @@ class New extends EventBase {
       })
     })
 
-    this.initDomainValues(this.props)
+    this.initDomainValues()
+    this.manageRules()
 
     dispatch(missionsActions.load())
     dispatch(personsActions.load())
@@ -121,6 +164,7 @@ New.propTypes = {
 }
 
 
+@authable
 class Edit extends EventBase {
   handleDelete = () => {
     const answer = confirm(`Are you sure to delete this event`);
@@ -154,7 +198,8 @@ class Edit extends EventBase {
       })
     })
 
-    this.initDomainValues(this.props)
+    this.initDomainValues()
+    this.manageRules()
   }
 
   render(){
@@ -234,19 +279,18 @@ class EditForm extends Component {
                   </div>
                 </div>
                 <div className="row">
-                  <div className="col-md-4">
-                    <DropdownField field={eventForm.field('workerId')}/>
+                  <div className="col-md-2">
+                    <DropdownField field={eventForm.field('type')}/>
                   </div>
                   <div className="col-md-4">
                     <DropdownField field={eventForm.field('missionId')}/>
                   </div>
-                  <div className="col-md-2">
-                    <DropdownField field={eventForm.field('type')}/>
+                  <div className="col-md-4">
+                    <DropdownField field={eventForm.field('workerId')}/>
                   </div>
                   <div className="col-md-2">
                     <DropdownField field={eventForm.field('status')}/>
                   </div>
-
                 </div>
                 <div className="row">
                   <div className="col-md-12">

@@ -6,6 +6,13 @@ const units = [
   //{key: 'hour', value: 'Hour'},
 ]
 
+export const statusDomainValue = [
+  {key: 'cancelled', value: 'Cancelled'}, 
+  {key: 'locked', value: 'Locked'}, 
+  {key: 'toBeValidated', value: 'ToBeValidated'}, 
+  {key: 'validated', value: 'Validated'}, 
+]
+
 export default function event(document){
   return new Formo([
     new Field('workerId', {
@@ -42,12 +49,7 @@ export default function event(document){
     new Field('status', {
       label: "Status",
       defaultValue: 'toBeValidated',
-      domainValue: [
-        {key: 'cancelled', value: 'Cancelled'}, 
-        {key: 'locked', value: 'Locked'}, 
-        {key: 'toBeValidated', value: 'ToBeValidated'}, 
-        {key: 'validated', value: 'Validated'}, 
-      ],
+      domainValue: statusDomainValue,
       required: true
     }),
     new Field('unit', {

@@ -9,4 +9,8 @@ export default AuthManager([
     name: 'add',
     roles: ['admin'],
   }),
+  Auth({
+    name: 'admin',
+    roles: ['admin'],
+  }),
 ], {name: 'event'});
