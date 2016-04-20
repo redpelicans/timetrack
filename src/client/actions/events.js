@@ -21,15 +21,10 @@ function eventsLoaded(from, to, events){
 export function loadEvents(from, to, {persons, missions} = {}){
   return (dispatch, getState) => {
     //const state = getState();
-    const rfrom = from.clone().startOf('month').subtract(10, 'days');
-    const rto = to.clone().endOf('month').add(10, 'days');
-
-    //if(datesCached(state, rfrom, fto)) return;
-
-    const url = `/api/events?from=${dmy(rfrom)}&to=${dmy(rto)}`;
+    const url = `/api/events?from=${dmy(from)}&to=${dmy(to)}`;
     requestJson(url, {dispatch, getState, message: 'Cannot load events, check your backend server'})
       .then( events => {
-        dispatch(eventsLoaded(rfrom, rto, events));
+        dispatch(eventsLoaded(from, to, events));
       });
   }
 }

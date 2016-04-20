@@ -16,6 +16,7 @@ import agendaForm from '../../forms/agenda'
 import {MultiSelectField2} from '../../components/fields'
 import {AvatarView} from '../../components/widgets'
 import {authable} from '../../components/authmanager'
+import {Day} from '../../components/day'
 import {dmy} from '../../utils'
 import globalStyle from '../../styles'
 
@@ -26,7 +27,7 @@ class App extends Component {
   }
 
   componentWillMount() {
-    const {from, to, missionIds, workerIds} = this.props.agenda;
+    const {date, missionIds, workerIds} = this.props.agenda;
 
     this.agendaForm =  agendaForm({workerIds, missionIds})
 
@@ -38,7 +39,7 @@ class App extends Component {
 
     this.props.dispatch(missionsActions.load())
     this.props.dispatch(personsActions.load())
-    this.props.dispatch(agendaActions.load(from, to));
+    this.props.dispatch(agendaActions.load(date));
   }
 
   initDomainValues(props){
@@ -81,7 +82,7 @@ class App extends Component {
           <Header>
             <HeaderLeft>
               <TitleIcon isLoading={isLoading} icon={routes.agenda.view.iconName}/>
-              <DateTitle date={agenda.from}/>
+              <DateTitle date={agenda.date}/>
             </HeaderLeft>
             <HeaderRight>
               <IconButton onClick={this.handleSubtractPeriod} name={'arrow-left'} label={'previous month'}/>
@@ -95,11 +96,11 @@ class App extends Component {
           <Agenda
             style={globalStyle.agenda}
             viewMode={agenda.viewMode}
-            date={agenda.from}
+            date={agenda.date}
             events={events}
             persons={persons}
             missions={missions}
-            dayComponent={DayComponent}
+            dayComponent={Day}
             onPeriodSelection={this.handlePeriodSelection}/>
         </Content>
     )

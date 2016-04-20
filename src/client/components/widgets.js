@@ -6,6 +6,7 @@ import Remarkable from 'remarkable';
 import colors from '../utils/colors';
 import ReactTooltip from 'react-tooltip';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import {getInitials} from '../lib/person'
 
 export class ToggleBox extends Component {
   state = { hidden: true }
@@ -85,11 +86,6 @@ export class Avatar extends Component {
     return colors[ index ];
   }
 
-  getInitials(name=''){
-    let parts = name.split(' ').slice(0, 3);
-    return _.map(parts, part => part.substr(0,1).toUpperCase()).join('');
-  }
-
   render(){
     const size = this.props.size || 36;
     const styleSize = `${size}px`;
@@ -122,7 +118,7 @@ export class Avatar extends Component {
     }else{
       return (
         <div>
-          <div data-tip={this.props.label} style={initialsStyle}>{this.getInitials(this.props.name)}</div>
+          <div data-tip={this.props.label} style={initialsStyle}>{getInitials(this.props.name)}</div>
           <ReactTooltip effect="solid" />
         </div>
       )

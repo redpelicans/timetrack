@@ -12,8 +12,7 @@ const initialState = {
   viewMode: initialMode,
   defaultUnit: 'day',
   allowWeekends: false,
-  from: moment().startOf(initialMode), 
-  to: moment().endOf(initialMode),
+  date: moment().startOf(initialMode).startOf('day'),
   workerIds: [],
   missionIds: [],
 };
@@ -29,8 +28,7 @@ export default function agendaReducer(state = initialState, action) {
     case AGENDA_PERIOD_CHANGED:
       return {
         ...state,
-        from: action.from,
-        to: action.to,
+        date: action.date,
       }
     default: 
       return state;

@@ -37,6 +37,7 @@ AuthManager.contextTypes = {
 
 export const authable = (Component) => {
   Component.contextTypes = { 
+    ...Component.contextTypes,
     authManager: PropTypes.object,
     dispatch: PropTypes.func
   }
