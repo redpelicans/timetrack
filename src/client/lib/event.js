@@ -1,5 +1,7 @@
 import _ from 'lodash'
 import moment from 'moment'
+import Immutable from 'immutable'
+import {isAdmin, managedMissions, workedMissions} from './user'
 
 export const eventPeriod = event => {
   let day = moment(event.startDate).clone()
@@ -22,4 +24,19 @@ export const isWeekend = (date) => {
 
 export const isSunday = (date) => {
   return date.isoWeekday() === 7
+}
+
+export const authorizedWorkers = (user, workers, missions) => {
+  if(isAdmin(user)) return workers
+  return managedMissions(user, missions).reduce( (res, mission) =>{
+      mission.get('workerIds').forEach( id => res = res.set(id, workers.get(id)) )
+      return res
+    }, 
+    Immutable.Map().set(user.get("_id"), user) 
+  )
+}
+
+export const authorizedMissions = (user, workers, missions) => {
+  if(isAdmin(user)) return missions
+  return managedMissions(user, missions).merge(workedMissions(user, missions))
 }

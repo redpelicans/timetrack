@@ -2,8 +2,8 @@
 import moment  from 'moment';
 import mongobless, {ObjectId}  from 'mongobless';
 
-class NotFoundError extends Error{
-} 
+class NotFoundError extends Error {} 
+class Unauthorized extends Error {} 
 
 const FMT = 'DD/MM/YYYY'
 function dmy(date){
@@ -16,4 +16,4 @@ function getRandomInt(min, max){
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export {NotFoundError, dmy, FMT, getRandomInt, ObjectId};
+export {Unauthorized, NotFoundError, dmy, FMT, getRandomInt, ObjectId};

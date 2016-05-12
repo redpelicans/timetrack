@@ -2,6 +2,7 @@ import {requestJson} from '../utils';
 import Immutable from 'immutable';
 import moment from 'moment';
 import _ from 'lodash';
+import {logout} from './login'
 
 export const LOAD_PERSONS = 'LOAD_PERSONS';
 export const PERSONS_LOADED = 'PERSONS_LOADED';
@@ -14,13 +15,11 @@ export const PERSON_CREATED = 'PERSON_CREATED';
 export const PERSON_TOGGLE_PREFERRED_COMPLETED = 'PERSON_TOGGLE_PREFERRED_COMPLETED';
 export const PERSON_UPDATE_TAGS_COMPLETED = 'PERSON_UPDATE_TAGS_COMPLETED';
 
-export function createCompleted(){
-}
-
 export function deleteCompleted(person){
-  return {
-    type: PERSON_DELETED,
-    id: person._id
+  return (dispatch, getState) => {
+    const state = getState()
+    if(state.login.user.get('_id') === person._id) return dispatch(logout())
+    dispatch({ type: PERSON_DELETED, id: person._id })
   }
 }
 
@@ -110,6 +109,12 @@ export function deletePerson(person){
   }
 }
 
+export function leaveCompany(person, company){
+  return (dispatch) => {
+    dispatch(updatePerson(person, {companyId: undefined}))
+  }
+}
+
 export function updatePerson(previous, updates){
   return (dispatch, getState) => {
     requestJson('/api/person', {dispatch, getState, verb: 'put', body: {person: _.assign({}, previous, updates)}, message: 'Cannot update person, check your backend server'})
@@ -151,6 +156,7 @@ export const personsActions = {
   createCompleted,
   updateCompleted,
   deleteCompleted,
+  leaveCompany,
   load: loadPersons,
   create: createPerson,
   update: updatePerson,

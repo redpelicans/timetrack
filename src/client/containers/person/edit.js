@@ -349,7 +349,10 @@ class EditContent extends Component {
                   {tags()}
                   {skills()}
                   {roles()}
-                  <AvatarChooser person={person}/>
+                  <div className="col-md-12">
+                    <AvatarChooserField field={person.field('avatar')}/>
+                  </div>
+                  {/*<AvatarChooser person={person}/>*/}
                   <div className="col-md-12">
                     <MarkdownEditField field={person.field('jobDescription')}/>
                   </div>

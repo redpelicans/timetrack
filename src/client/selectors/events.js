@@ -2,14 +2,17 @@ import Immutable from 'immutable';
 import moment from 'moment';
 import {createSelector} from 'reselect'
 import {dmy} from '../utils'
+import {authorizedMissions, authorizedWorkers} from '../lib/event'
 
 const agenda = state => state.agenda
 const events = state => state.events.data
 const persons = state => state.persons.data
+const workers = state => state.persons.data.filter(byType('worker'))
 const missions = state => state.missions.data
 const from = state => state.routing.location.state && state.routing.location.state.from || moment()
 const to = state => state.routing.location.state && state.routing.location.state.to || moment()
 const eventId = state => state.routing.location.state && state.routing.location.state.eventId
+const user = state => state.login.user
 
 const byType = type => x => x.get('type') === type
 const calcValue = (from, to, agenda)  => to.diff(from, agenda.defaultUnit) + 1
@@ -23,16 +26,20 @@ const calcValueWithoutDaysOff = (from, to, agenda)  => {
   return diff;
 }
 
+
 export const editEventSelector = createSelector(
   eventId,
   events,
   agenda,
   missions,
-  persons,
-  (eventId, events, agenda, missions, persons) => {
+  workers,
+  user,
+  (eventId, events, agenda, missions, workers, user) => {
     return {
       missions,
-      workers:  persons.filter(byType('worker')),
+      workers,
+      authorizedWorkers: authorizedWorkers(user, workers, missions),
+      authorizedMissions: authorizedMissions(user, workers, missions),
       event: events.get(eventId),
     }
   }
@@ -43,11 +50,14 @@ export const newEventSelector = createSelector(
   to,
   agenda,
   missions,
-  persons,
-  (from, to, agenda, missions, persons) => {
+  workers,
+  user,
+  (from, to, agenda, missions, workers, user) => {
     return {
-      workers:  persons.filter(byType('worker')),
+      workers,
       missions,
+      authorizedWorkers: authorizedWorkers(user, workers, missions),
+      authorizedMissions: authorizedMissions(user, workers, missions),
       from,
       to,
       unit: agenda.defaultUnit,

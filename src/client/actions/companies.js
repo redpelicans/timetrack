@@ -153,6 +153,8 @@ export function updateTags(company, tags){
   }
 }
 
+
+
 export const companiesActions = {
   updateTags,
   createCompleted,

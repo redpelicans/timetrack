@@ -48,8 +48,8 @@ export function logout(){
     if(typeof document !== 'undefined') document.cookie = "timetrackToken=";
     const state = getState();
     dispatch({type: USER_LOGOUT});
-    dispatch(socketIOActions.disconnect());
     dispatch(routeActions.push(routes.login));
+    dispatch(socketIOActions.disconnect());
   }
 }
 

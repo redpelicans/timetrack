@@ -149,7 +149,7 @@ export class AddButton extends Component {
 
     const {title} = this.props
 
-    if(!authManager.mission.isAuthorized('add')){
+    if(!authManager.mission.isAuthorized('new')){
       return <div/>
     } else {
       return (

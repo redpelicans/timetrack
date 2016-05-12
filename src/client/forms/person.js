@@ -12,6 +12,7 @@ const types = [
 
 const roles = [
   {key: 'admin', value: 'Admin'},
+  {key: 'edit', value: 'Edit'},
   {key: 'access', value: 'Access'},
 ];
 

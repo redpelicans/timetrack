@@ -28,8 +28,9 @@ export default class Person {
     });
   }
 
-  hasSomeRoles(roles){
-    return !_.chain(roles).intersection(this.roles || []).isEmpty().value();
+  hasSomeRoles(roles=[]){
+    if(!roles.length) return true;
+    return !_.chain(roles).intersection(this.roles).isEmpty().value();
   }
 
   hasAllRoles(roles){
@@ -38,5 +39,13 @@ export default class Person {
 
   fullName(){
     return [this.firstName, this.lastName].join(' ');
+  }
+
+  isAdmin(){
+    return this.hasSomeRoles(['admin'])
+  }
+
+  isWorker(){
+    return this.type === 'worker'
   }
 };

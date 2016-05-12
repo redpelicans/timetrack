@@ -40,14 +40,16 @@ class Register {
       _.values(this.connections), 
       (registration, cb) => {
         Person.getFromToken(registration.token, this.options.secretKey, (err, user) => {
-          if(err)cb(null, null);
+          if(err) return cb(null, null);
+          if(!user) return cb(null, null);
           registration.user = user;
           cb(null, registration);
         });
       },
       (err, registrations) => {
         if(err) return cb(err);
-        cb(null, _.chain(registrations).compact().filter(r => r.user.hasAllRoles(rights[right])).value());
+        const roles = (rights[right] || {}).roles;
+        cb(null, _.chain(registrations).compact().filter(r => r.user.hasSomeRoles(roles)).value());
       }
     );
   }

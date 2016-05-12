@@ -15,7 +15,7 @@ export const Edit = authable(({person}, {authManager, dispatch}) => {
     dispatch(pushRoute(routes.person.edit, {personId: person.get('_id')}));
   }
 
-  if(authManager.person.isAuthorized('edit')){
+  if(authManager.person.isAuthorized('edit', {person})){
     return (
       <a href="#" onClick={handleChange}>
         <i className="iconButton fa fa-pencil"/>
@@ -40,7 +40,7 @@ export const Delete = authable(({person, postAction}, {authManager, dispatch}) =
     }
   }
 
-  if(authManager.person.isAuthorized('delete')){
+  if(authManager.person.isAuthorized('delete', {person})){
     return (
       <a href="#" onClick={handleChange}>
         <i className="iconButton fa fa-trash"/>

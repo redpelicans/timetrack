@@ -54,20 +54,19 @@ class Base extends Component {
 
 class EventBase extends Base{
   manageRules(){
-    const {missions, workers} = this.props;
+    const [workers, missions] = [this.props.authorizedWorkers, this.props.authorizedMissions] 
     const typeField = this.eventForm.field('type')
     const workerIdField = this.eventForm.field('workerId')
     const missionIdField = this.eventForm.field('missionId')
 
     missionIdField.onValue( state => {
       const mission = missions.get(state.value)
-      if(!mission){
-        workerIdField.setSchemaValue('domainValue', entitiesDomain())
-      }else{
-        const workerIds = mission.get('workerIds')
-        workerIdField.setValue(undefined)
-        workerIdField.setSchemaValue('domainValue', entitiesDomain(workerIds.map(id => workers.get(id))))
-      }
+      if(!mission) return
+      workerIdField.setSchemaValue('domainValue', entitiesDomain())
+      const workerIds = mission.get('workerIds')
+      workerIdField.setSchemaValue('domainValue', entitiesDomain(workerIds.map(id => workers.get(id))))
+      if(state.hasBeenModified) workerIdField.setValue(undefined)
+      else workerIdField.setValue(this.eventDocument.workerId)
     })
 
     typeField.onValue( state => {
@@ -75,20 +74,22 @@ class EventBase extends Base{
         case 'work':
           missionIdField.disabled(false)
           missionIdField.setSchemaValue('required', true)
-          workerIdField.setValue(undefined)
-          missionIdField.setValue(undefined)
+          if(state.hasBeenModified){
+            workerIdField.setValue(undefined)
+            missionIdField.setValue(undefined)
+          }
           return
         default:
+          missionIdField.setValue(undefined)
           missionIdField.setSchemaValue('required', false)
           missionIdField.disabled(true)
-          missionIdField.setValue(undefined)
           workerIdField.setSchemaValue('domainValue', entitiesDomain(workers))
       }
     })
   }
 
   initDomainValues(){
-    const {workers, missions} = this.props;
+    const [workers, missions] = [this.props.authorizedWorkers, this.props.authorizedMissions] 
 
     const workerIdField = this.eventForm.field('workerId')
     const missionIdField = this.eventForm.field('missionId')
@@ -161,6 +162,12 @@ New.propTypes = {
   dispatch: PropTypes.func.isRequired,
   from: PropTypes.object.isRequired,
   to: PropTypes.object.isRequired,
+  missions: PropTypes.object.isRequired,
+  workers: PropTypes.object.isRequired,
+  authorizedWorkers: PropTypes.object.isRequired,
+  authorizedMissions: PropTypes.object.isRequired,
+  unit: PropTypes.string.isRequired,
+  value: PropTypes.number.isRequired,
 }
 
 
@@ -223,8 +230,12 @@ class Edit extends EventBase {
 
 Edit.propTypes = {
   event: PropTypes.object,
-  missions: PropTypes.object,
-  workers: PropTypes.object,
+  missions: PropTypes.object.isRequired,
+  workers: PropTypes.object.isRequired,
+  authorizedWorkers: PropTypes.object.isRequired,
+  authorizedMissions: PropTypes.object.isRequired,
+  unit: PropTypes.string.isRequired,
+  value: PropTypes.number.isRequired,
   dispatch: PropTypes.func.isRequired,
 }
 

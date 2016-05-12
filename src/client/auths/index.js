@@ -1,5 +1,4 @@
 import {AuthManager, Auth} from 'kontrolo';
-import routes from '../routes';
 import personAuthManager from './person';
 import companyAuthManager from './company';
 import missionAuthManager from './mission';
@@ -7,28 +6,36 @@ import notesAuthManager from './notes';
 import eventAuthManager from './event';
 
 
-export default function registerAuthManager(store){
-  let user;
+export default function registerAuthManager({getState}, routes){
 
-  store.subscribe( () => {
-    const state = store.getState();
-    user = state.login.user;
-  });
+  const loginSelector = () => {
+    const {login: {user}} = getState()
+    return {
+      isLoggedIn(){
+        return !!user;
+      },
 
-  const loginStore = {
-    isLoggedIn(){
-      return !!user;
-    },
+      getUserRoles(){
+        return user ? user.get('roles').toJS() : [];
+      },
 
-    getUserRoles(){
-      return user ? user.get('roles').toJS() : [];
-    },
-
-    getUser(){
-      return user;
-    },
+      getUser(){
+        return user;
+      },
+    }
   }
 
-  return AuthManager([ personAuthManager, companyAuthManager, missionAuthManager, notesAuthManager, eventAuthManager ], {loginStore});
+  return AuthManager(
+    [ 
+      personAuthManager, 
+      companyAuthManager, 
+      missionAuthManager, 
+      notesAuthManager, 
+      eventAuthManager 
+    ], {
+      loginSelector,
+      getState,
+      routes
+    })
 }
 

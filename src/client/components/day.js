@@ -75,6 +75,8 @@ const WedgeEvent = Radium(() => {
     container: {
       width: '100%',
       height: '20px',
+      marginBottom: '2px',
+      marginTop: '2px',
      '@media (max-width: 800px)': {
         display: "none",
      }
@@ -185,7 +187,7 @@ const Event = authable(Radium(({event, persons, missions}, {authManager, dispatc
     }
 
     const name = event.type
-    if(authManager.event.isAuthorized('edit')){
+    if(authManager.event.isAuthorized('edit', {event, missions, persons})){
       return (
         <a href="#" onMouseDown={onClick.bind(null, event)}>
           {name}
@@ -201,7 +203,7 @@ const Event = authable(Radium(({event, persons, missions}, {authManager, dispatc
     dispatch(pushRoute(routes.event.edit, {eventId: event._id}));
   }
 
-  if(authManager.event.isAuthorized('edit')){
+  if(authManager.event.isAuthorized('edit', {event, missions, persons})){
     return (
       <div style={[styles.container, styles.pointer]} onMouseDown={onClick}>
         <div style={[styles.name, !event.firstOfWeek && styles.details]}>{personView()}</div>

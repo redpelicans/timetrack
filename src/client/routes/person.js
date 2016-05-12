@@ -2,6 +2,7 @@ import ListPersonApp from '../containers/person/list';
 import ViewPersonApp from '../containers/person/view';
 import {NewPersonApp, EditPersonApp} from '../containers/person/edit';
 import {Route, RouteManager} from 'kontrolo';
+import {isAdmin, isWorker} from '../lib/user'
 
 const routes = RouteManager([
   Route({
@@ -19,14 +20,24 @@ const routes = RouteManager([
     path: '/person/new',
     topic:'people',
     component: NewPersonApp,
-    authRoles: ['admin'],
+    authRoles: ['admin', 'edit', 'person.edit'],
   }),
   Route({
     name: 'edit',
     path: '/person/edit',
     topic:'people',
     component: EditPersonApp,
-    authRoles: ['admin'],
+    authRoles: ['admin', 'edit', 'person.edit'],
+    authMethod: function(user, getState, context){
+      if(!context){
+        const state = getState()
+        const personId = state.routing.location.state && state.routing.location.state.personId
+        if(!personId) return false
+        context = {person: state.persons.data.get(personId)}
+      }
+      if(!context.person) return false
+      return isAdmin(user) || !isWorker(context.person)
+    }
   }),
   Route({
     name: 'view',

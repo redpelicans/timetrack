@@ -110,6 +110,7 @@ export function init(app, resources, params){
         return res.status(500)
       }
 
+      //const authManager = registerAuthManager(store, routesManager);
       const authManager = registerAuthManager(store);
       const routes = configureRoutes(store, authManager);
       match({ routes, location: req.url }, (error, redirectLocation, renderProps) => {

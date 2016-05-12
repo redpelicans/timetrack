@@ -27,7 +27,7 @@ const routes = RouteManager([
     topic:'missions',
     component: EditMissionApp,
     authRoles: ['admin'],
-    authMethod: function(user, {mission}={}){
+    authMethod: function(user, getState, {mission}={}){
       if(!mission) return true;
       return mission.get('status') !== 'closed';
     }

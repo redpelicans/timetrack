@@ -145,14 +145,15 @@ const AppNav = ({user, onGoHome, onLogout, onViewPerson, currentTopic, gotoRoute
     return (
       <form className="form-inline navbar-form pull-right">
         <div>
-          <button className="tm avatar-button" type="button" id="avatarmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-            <AvatarView obj={user}/>
+          <button className="tm avatar-button Xdropdown-toggle" type="button" id="avatarmenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <AvatarView obj={user}/>
           </button>
-          <ul className="dropdown-menu dropdown-menu-right" aria-labelledby="avatarmenu">
+          <div className="dropdown-menu dropdown-menu-right" aria-labelledby="avatarmenu">
             <h6 className="dropdown-header">{user.get('email')}</h6>
+            <div className="dropdown-divider"></div>
             <a className="dropdown-item" href="#" onClick={handleViewPerson} >View Profile</a>
             <a className="dropdown-item" href="#" onClick={handleLogout} >Logout</a>
-          </ul>
+          </div>
         </div>
       </form>
     )

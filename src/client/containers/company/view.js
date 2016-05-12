@@ -247,11 +247,11 @@ export const LeaveCompany = authable(({company, person}, {authManager, dispatch}
     e.preventDefault();
     const answer = confirm(`Can you confirm you want to fire "${person.get('name')}"`);
     if(answer){
-      dispatch(companiesActions.leave(company, person));
+      dispatch(personsActions.leaveCompany(person.toJS(), company.toJS()));
     }
   }
 
-  if(authManager.company.isAuthorized('leave')){
+  if(authManager.company.isAuthorized('leave', {company, person})){
     return (
       <a href="#" onClick={handleChange}>
         <i className="iconButton fa fa-sign-out m-r-1"/>

@@ -9,7 +9,7 @@ import uppercamelcase  from 'uppercamelcase';
 
 export function init(app, resources){
 
-  app.get('/companies', function(req, res, next){
+  app.get('/companies', checkRights('company.view'), function(req, res, next){
     const ids = _.map(req.query.ids, id => ObjectId(id));
     async.waterfall([
       loadAll.bind(null, ids), 
@@ -21,7 +21,7 @@ export function init(app, resources){
     });
   });
 
-  app.post('/companies/preferred', checkRights('company.update'), function(req, res, next){
+  app.post('/companies/preferred', checkRights('company.preferred'), function(req, res, next){
     const id = ObjectId(req.body.id); 
     const isPreferred = Boolean(req.body.preferred);
     async.waterfall([

@@ -14,7 +14,7 @@ export const Edit = authable(({company}, {authManager, dispatch}) => {
     dispatch(pushRoute(routes.company.edit, {companyId: company.get('_id')}));
   }
 
-  if(authManager.company.isAuthorized('edit')){
+  if(authManager.company.isAuthorized('edit', {company})){
     return (
       <a href="#" onClick={handleChange}>
         <i className="iconButton fa fa-pencil m-r-1"/>

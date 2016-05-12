@@ -47,7 +47,7 @@ export const viewCompanySelector = createSelector(
       persons,
       workers: persons.filter(getFilterPersonsByCompanyId(companyId)),
       missions: missions.filter(mission => mission.get("clientId") === companyId),
-      companies
+      companies,
     }
   }
 )

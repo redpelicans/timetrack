@@ -2,13 +2,13 @@ import async from 'async';
 import moment from 'moment';
 import _ from 'lodash';
 import {Person, Preference, Note} from '../../models';
-import {ObjectId} from '../../helpers';
+import {ObjectId, Unauthorized} from '../../helpers';
 import checkUser  from '../../middleware/check_user';
 import checkRights  from '../../middleware/check_rights';
 import uppercamelcase  from 'uppercamelcase';
 
 export function init(app, resources){
-  app.get('/people', function(req, res, next){
+  app.get('/people', checkRights('person.view'), function(req, res, next){
     async.waterfall([
       loadAll, 
       Preference.spread.bind(Preference, 'person', req.user),
@@ -18,7 +18,7 @@ export function init(app, resources){
     });
   });
 
-  app.post('/people/preferred', checkRights('person.update'), function(req, res, next){
+  app.post('/people/preferred', checkRights('person.preferred'), function(req, res, next){
     let id = ObjectId(req.body.id); 
     const isPreferred = Boolean(req.body.preferred);
     async.waterfall([
@@ -35,17 +35,24 @@ export function init(app, resources){
   });
 
   app.delete('/person/:id', checkRights('person.delete'), function(req, res, next){
+    function emitBeforeDeleting(person, cb){
+      resources.reactor.emit('person.delete', Maker(person), {sessionId: req.sessionId});
+      setImmediate(cb, null, person)
+    }
+
     let id = ObjectId(req.params.id); 
     async.waterfall([
-      del.bind(null, id), 
+      loadOne.bind(null, id),
+      checkUserUpdateRights.bind(null, req.user),
+      emitBeforeDeleting,
+      del, 
       Preference.delete.bind(null, req.user), 
-      Note.deleteForOneEntity,  // TODO: should emit note.delete
+      Note.deleteForOneEntity,
       findOne
     ], (err, person) => {
       if(err)return next(err);
       res.json({_id: id, isDeleted: true});
-      resources.reactor.emit('person.delete', Maker(person), {sessionId: req.sessionId});
-      resources.reactor.emit('notes.entity.delete', Maker(person));
+      resources.reactor.emit('note.entity.delete', Maker(person));
     });
   })
 
@@ -54,7 +61,7 @@ export function init(app, resources){
     const isPreferred = Boolean(req.body.person.preferred);
     const noteContent = req.body.person.note;
     async.waterfall([
-      create.bind(null, person), 
+      create.bind(null, req.user, person), 
       loadOne,
       Preference.update.bind(Preference, 'person', req.user, isPreferred),
       Note.create.bind(Note, noteContent, req.user),
@@ -73,6 +80,7 @@ export function init(app, resources){
     const id = ObjectId(req.body._id);
     async.waterfall([
       loadOne.bind(null, id),
+      checkUserUpdateRights.bind(null, req.user),
       updateTags.bind(null, tags),
       (previous, cb) => loadOne(previous._id, (err, person) => cb(err, previous, person)),
     ], (err, previous, person) => {
@@ -89,6 +97,7 @@ export function init(app, resources){
     const isPreferred = Boolean(req.body.person.preferred);
     async.waterfall([
       loadOne.bind(null, id), 
+      checkUserUpdateRights.bind(null, req.user),
       update.bind(null, updates), 
       (previous, cb) => loadOne(previous._id, (err, person) => cb(err, previous, person)),
       (previous, person, cb) => {
@@ -103,7 +112,7 @@ export function init(app, resources){
     });
   });
 
-  app.post('/person/check_email_uniqueness', checkUser('admin'), function(req, res, next){
+  app.post('/person/check_email_uniqueness', function(req, res, next){
     let email = req.body.email && req.body.email.trim();
     Person.findAll({email: email, isDeleted: {$ne: true}}, {_id: 1}, (err, data) => {
       if(err)return next(err);
@@ -134,8 +143,14 @@ function loadOne(id, cb){
   });
 }
 
-function create(person, cb){
+function checkUserUpdateRights(user, person, cb){
+  if(!user.isAdmin() && person.isWorker()) return setImmediate(cb, new Unauthorized())
+  setImmediate(cb, null, person);
+}
+
+function create(user, person, cb){
   let newPerson = fromJson(person) ;
+  if(!user.isAdmin() && person.type === 'worker') return setImmediate(cb, new Unauthorized())
   newPerson.createdAt = new Date();
   Person.collection.insertOne(newPerson, (err, _) => {
     return cb(err, newPerson._id)
@@ -153,9 +168,9 @@ function updateTags(tags, person, cb){
   Person.collection.updateOne({_id: person._id}, {$set: {tags}}, (err) => cb(err, person) );
 }
 
-function del(id, cb){
-  Person.collection.updateOne({_id: id}, {$set: {updatedAt: new Date(), isDeleted: true}}, (err) => {
-    return cb(err, id)
+function del(person, cb){
+  Person.collection.updateOne({_id: person._id}, {$set: {updatedAt: new Date(), isDeleted: true}}, (err) => {
+    return cb(err, person._id)
   })
 }
 
