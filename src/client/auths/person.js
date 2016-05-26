@@ -18,8 +18,4 @@ export default AuthManager([
     name: 'togglePreferred',
     roles: [],
   }),
-  Auth({
-    name: 'add',
-    roles: ['admin', 'edit', 'person.edit'],
-  }),
 ], {name: 'person'});

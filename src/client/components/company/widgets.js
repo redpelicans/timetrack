@@ -105,7 +105,7 @@ export class AddButton extends Component {
 
     const {title} = this.props
 
-    if(!this.context.authManager.company.isAuthorized('add')){
+    if(!this.context.authManager.company.isAuthorized('new')){
       return <div/>
     } else {
       return (

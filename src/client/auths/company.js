@@ -28,8 +28,4 @@ export default AuthManager([
       return true
     }
   }),
-  Auth({
-    name: 'add',
-    roles: ['admin', 'edit', 'company.edit'],
-  }),
 ], {name: 'company'});
