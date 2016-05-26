@@ -63,8 +63,8 @@ class NewNote extends Component {
   }
 
   onSubmit = () => {
-    return this.noteForm.onSubmit( (state, document) => {
-      dispatch(notesActions.create(document.note, document.entity))
+    return this.noteForm.onSubmit( (state, note) => {
+      this.props.dispatch(notesActions.create(note))
       this.goBack(true)
     })
   }
@@ -111,7 +111,7 @@ class NewNote extends Component {
 
       entityIdField.disabled(!state.value)
 
-      if (this.state.type) {
+      if(this.state.type) {
         entityIdField.setValue(undefined)
       }
 

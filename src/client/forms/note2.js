@@ -10,9 +10,9 @@ export default function note(document){
     new Field('entityType', {
       label: "Entity Type",
       type: 'text',
-      defaultValue: 'person',
+      defaultValue: null,
       domainValue: [
-        {key: undefined, value: '<None>'},
+        {key: null, value: '<None>'},
         {key: 'company', value: 'Company'},
         {key: 'mission', value: 'Mission'},
         {key: 'person', value: 'Person'}

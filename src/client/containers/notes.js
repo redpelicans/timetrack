@@ -17,6 +17,7 @@ import {authable} from '../components/authmanager';
 import {pushRoute} from '../actions/routes';
 import Modal from 'react-modal';
 
+@authable
 class Notes extends Component{
   state = {
     showAddNotePanel: false,
@@ -45,6 +46,7 @@ class Notes extends Component{
       }
     }
 
+    if(!this.context.authManager.notes.isAuthorized('new') && !notes.size) return null;
     const sortedNotes = notes.sort( (a,b) => a.get('createdAt') < b.get('createdAt')).map(note => {
       return (
         <Note
@@ -56,6 +58,7 @@ class Notes extends Component{
     }).toSetSeq();
 
     const addNote = () => {
+      if(!this.context.authManager.notes.isAuthorized('new')) return;
       if(this.state.showAddNotePanel) return;
       return (
         <div>
@@ -403,6 +406,7 @@ export class ViewNote extends Component {
     }
 
     const del = () => {
+      if(!this.context.authManager.notes.isAuthorized('delete', {note})) return 
       const handleClick = (e) => {
         e.preventDefault();
         onDelele();
@@ -416,6 +420,7 @@ export class ViewNote extends Component {
     }
 
     const edit = () => {
+      if(!this.context.authManager.notes.isAuthorized('edit', {note})) return 
       const handleClick = (e) => {
         e.preventDefault();
         onEdit();
@@ -709,6 +714,7 @@ export class ItemNote extends Component {
     }
 
     const deletePanel = () => {
+      if(!this.context.authManager.notes.isAuthorized('delete', {note})) return;
       if (this.state.mode !== 'delete') return;
 
       const handleDelete = (e) => {
@@ -733,6 +739,7 @@ export class ItemNote extends Component {
 
     const editPanel = () => {
       if (this.state.mode !== 'edit') return;
+      if(!this.context.authManager.notes.isAuthorized('edit', {note})) return;
 
       const handleEdit = (e) => {
         e.preventDefault()

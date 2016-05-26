@@ -2,7 +2,7 @@ import ListCompanyApp from '../containers/company/list';
 import ViewCompanyApp from '../containers/company/view';
 import {NewCompanyApp, EditCompanyApp} from '../containers/company/edit';
 import {Route, RouteManager} from 'kontrolo';
-import {isAdmin} from '../lib/user'
+import {isAdmin} from '../lib/person'
 import {isTenant} from '../lib/company'
 
 const routes = RouteManager([

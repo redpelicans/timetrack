@@ -33,7 +33,7 @@ export function updateCompleted(mission){
   }
 }
 
-function missionsLoaded(missions){
+export function missionsLoaded(missions){
   return {
     type: MISSIONS_LOADED,
     missions: Immutable.fromJS(_.reduce(missions, (res, p) => { res[p._id] = Maker(p); return res}, {})),

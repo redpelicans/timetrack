@@ -13,6 +13,7 @@ import {FadeIn, Form, AddBtn, UpdateBtn, CancelBtn, ResetBtn} from '../../compon
 import {AvatarView, Header, HeaderLeft, HeaderRight, GoBack, Title } from '../../components/widgets'
 import {PeriodField, MultiSelectField2, MarkdownEditField, InputField, DropdownField} from '../../components/fields'
 import {newMissionSelector, editMissionSelector} from '../../selectors/missions'
+import {authable} from '../../components/authmanager';
 
 export class NewMission extends Component {
 
@@ -224,6 +225,7 @@ EditMission.propTypes = {
   dispatch:     PropTypes.func.isRequired,
 }
 
+@authable
 export default class EditContent extends Component {
 
   state = {};
@@ -264,7 +266,8 @@ export default class EditContent extends Component {
       },
     }
     const note = () => {
-      if(this.editMode)return
+      if(this.editMode)return <div/>
+      if(!this.context.authManager.notes.isAuthorized('new')) return <div/>
       return (
         <div className="row">
           <div className="col-md-12">

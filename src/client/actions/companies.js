@@ -93,13 +93,13 @@ export function loadCompanies({forceReload=false, ids=[]} = {}){
     let doRequest = forceReload || !_.every(objs) || !state.companies.data.size;
     if(!doRequest) return;
 
-    if(typeof timetrackInitCompanies != 'undefined' && timetrackInitCompanies){
-      console.log("Loading server side Companies")
-      dispatch(companiesLoaded(timetrackInitCompanies))
-      timetrackInitCompanies = undefined;
-      return
-    }
-
+    // if(typeof timetrackInitCompanies != 'undefined' && timetrackInitCompanies){
+    //   console.log("Loading server side Companies")
+    //   dispatch(companiesLoaded(timetrackInitCompanies))
+    //   timetrackInitCompanies = undefined;
+    //   return
+    // }
+    
     const url = '/api/companies';
     dispatch({type: LOAD_COMPANIES});
     requestJson(url, {dispatch, getState, message: 'Cannot load companies, check your backend server'})

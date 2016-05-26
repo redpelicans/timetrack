@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import moment from 'moment'
 import Immutable from 'immutable'
-import {isAdmin, managedMissions, workedMissions} from './user'
+import {isAdmin, managedMissions, workedMissions} from './person'
 
 export const eventPeriod = event => {
   let day = moment(event.startDate).clone()

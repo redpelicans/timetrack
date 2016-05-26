@@ -49,7 +49,7 @@ export const editNoteSelector = createSelector(
       persons,
       companies,
       missions,
-      note: notes.data.find(item => item.get('_id') === noteId)
+      note: notes.data.get(noteId)
     }
   }
 )

@@ -15,6 +15,7 @@ import {companiesActions} from '../../actions/companies';
 import {goBack, pushRoute, replaceRoute} from '../../actions/routes';
 import {newCompanySelector, editCompanySelector} from '../../selectors/companies';
 import {avatarUrlValueChecker} from '../../forms/helpers'
+import {authable} from '../../components/authmanager';
 
 class NewCompany extends Component {
 
@@ -189,6 +190,7 @@ EditCompany.propTypes = {
   company: PropTypes.object,
 }
 
+@authable
 class EditContent extends Component {
   render(){
     if(!this.props.companyForm) return false;
@@ -205,6 +207,7 @@ class EditContent extends Component {
 
     const note = () => {
       if(editMode)return <div/>;
+      if(!this.context.authManager.notes.isAuthorized('new')) return <div/>;
       return (
         <div className="col-md-12">
           <MarkdownEditField field={this.props.companyForm.field('note')}/>

@@ -201,7 +201,6 @@ function create(company, cb){
   })
 }
 
-
 function update(updates, previousCompany, cb){
   updates.updatedAt = new Date(); 
   Company.collection.updateOne({_id: previousCompany._id}, {$set: updates}, (err) => {

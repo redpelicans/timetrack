@@ -15,6 +15,7 @@ import {PhonesField} from '../../components/phone'
 import sitemap from '../../routes'
 import {newPersonSelector, editPersonSelector} from '../../selectors/persons'
 import {emailUniqueness, avatarUrlValueChecker} from '../../forms/helpers'
+import {authable} from '../../components/authmanager';
 
 class NewPerson extends Component {
 
@@ -225,6 +226,7 @@ EditPerson.propTypes = {
   dispatch:       PropTypes.func.isRequired
 }
 
+@authable
 class EditContent extends Component {
   state = {}
 
@@ -277,6 +279,7 @@ class EditContent extends Component {
 
     const note = () => {
       if(this.editMode)return <div/>
+      if(!this.context.authManager.notes.isAuthorized('new')) return <div/>;
       return (
         <div className="col-md-12">
           <MarkdownEditField field={person.field('note')}/>

@@ -4,6 +4,8 @@ import {Route, IndexRoute, browserHistory as history } from 'react-router'
 import Root from './containers/root'
 import App from './containers/app'
 import {logUser} from './actions/login'
+import {companiesLoaded} from './actions/companies'
+import {missionsLoaded} from './actions/missions'
 import {sitemapActions} from './actions/sitemap'
 import registerAuthManager from './auths'
 import routesManager from './routes'
@@ -15,6 +17,18 @@ import configureStore from './store/configureStore'
 
 const store = configureStore()
 const authManager = registerAuthManager(store, routesManager)
+
+if(typeof companiesStub != 'undefined' && companiesStub){
+  console.log("Loading server side Companies")
+  store.dispatch(companiesLoaded(companiesStub))
+  companiesStub = undefined;
+}
+
+if(typeof missionsStub != 'undefined' && missionsStub){
+  console.log("Loading server side Missions")
+  store.dispatch(missionsLoaded(missionsStub))
+  missionsStub = undefined;
+}
 
 import 'react-widgets/lib/less/react-widgets.less'
 import '../../public/styles/app.less'

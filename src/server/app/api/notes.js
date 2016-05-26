@@ -15,7 +15,6 @@ export function init(app, resources){
     })
   });
 
-  // TODO: should check right depending on entity
   app.post('/notes', function(req, res, next){
     const note = req.body.note;
     async.waterfall([
@@ -30,13 +29,13 @@ export function init(app, resources){
   });
 
 
-  // TODO: should check right depending on entity
   app.put('/note', function(req, res, next){
     const updates = fromJson(req.body.note);
     updates.authorId = req.user._id;
     const id = ObjectId(req.body.note._id);
     async.waterfall([
       loadOne.bind(null, id),
+      checkUserUpdateDeleteRights.bind(null, req.user),
       update.bind(null, updates),
       (previous, cb) => loadOne(previous._id, (err, person) => cb(err, previous, person)),
     ], (err, previous, note) => {
@@ -50,7 +49,9 @@ export function init(app, resources){
   app.delete('/note/:id', function(req, res, next){
     let id = ObjectId(req.params.id);
     async.waterfall([
-      del.bind(null, id),
+      loadOne.bind(null, id),
+      checkUserUpdateDeleteRights.bind(null, req.user),
+      del,
       findOne
     ], (err, note) => {
       if(err)return next(err);
@@ -83,7 +84,7 @@ function loadOne(id, cb){
 function create(note, user, cb){
   let newNote = fromJson(note) ;
   newNote.authorId   = user._id;
-  newNote.entityId   = newNote.entityId || user._id;
+  newNote.entityId   = newNote.entityId;
   newNote.entityType = newNote.entityType;
   newNote.createdAt  = new Date();
   Note.collection.insertOne(newNote, (err, _) => {
@@ -98,10 +99,15 @@ function update(updates, previousNote, cb){
   })
 }
 
-function del(id, cb){
-  Note.collection.updateOne({_id: id}, {$set: {updatedAt: new Date(), isDeleted: true}}, (err) => {
-    return cb(err, id)
+function del(note, cb){
+  Note.collection.updateOne({_id: note._id}, {$set: {updatedAt: new Date(), isDeleted: true}}, (err) => {
+    return cb(err, note._id)
   })
+}
+
+function checkUserUpdateDeleteRights(user, note, cb){
+  if(user.isAdmin() || user._id.equals(note.authorId)) return setImmediate(cb, null, note);
+  return setImmediate(cb, new Unauthorized())
 }
 
 function Maker(obj){
@@ -109,9 +115,14 @@ function Maker(obj){
 }
 
 function fromJson(json){
-  let attrs = ['content', 'entityType', 'dueDate', 'assigneesIds', 'notification', 'status']
+  let attrs = ['content', 'entityType', 'assigneesIds', 'notification', 'status']
   let res = _.pick(json, attrs)
   if (json.dueDate) res.dueDate = moment(json.dueDate).toDate()
-  if (json.entityId) res.entityId = ObjectId(json.entityId)
+  if (json.entityId){
+    res.entityId = ObjectId(json.entityId)
+  }else{
+    res.entityId = undefined
+    res.entityType = undefined
+  }
   return res
 }

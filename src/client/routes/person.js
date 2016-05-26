@@ -2,7 +2,7 @@ import ListPersonApp from '../containers/person/list';
 import ViewPersonApp from '../containers/person/view';
 import {NewPersonApp, EditPersonApp} from '../containers/person/edit';
 import {Route, RouteManager} from 'kontrolo';
-import {isAdmin, isWorker} from '../lib/user'
+import {isAdmin, isWorker} from '../lib/person'
 
 const routes = RouteManager([
   Route({

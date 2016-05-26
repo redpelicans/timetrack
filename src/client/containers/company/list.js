@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react';
 import { connect } from 'react-redux';
 import {visibleCompaniesSelector} from '../../selectors/companies';
 import {companiesActions} from '../../actions/companies';
+import {missionsActions} from '../../actions/missions';
 import {Content} from '../../components/layout';
 import {Sort, FilterPreferred, Filter, Refresh, NewLabel, UpdatedLabel} from '../../components/widgets';
 import {Header, HeaderLeft, HeaderRight, Title, TitleIcon} from '../../components/widgets';
@@ -21,6 +22,7 @@ class CompanyList extends Component{
 
   componentWillMount(){
     this.props.dispatch(companiesActions.load());
+    this.props.dispatch(missionsActions.load());
   }
 
   handleRefresh = () => {

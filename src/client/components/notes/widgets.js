@@ -27,7 +27,7 @@ export class AddButton extends Component {
 
     const {title} = this.props
 
-    if(!authManager.notes.isAuthorized('add')){
+    if(!authManager.notes.isAuthorized('new')){
       return <div/>
     } else {
       return (

@@ -31,17 +31,21 @@ function loadCompanies(token){
   return requestJson('/api/companies', {token, message: 'Cannot isoload companies, check your backend server'})
 }
 
+function loadMissions(token){
+  return requestJson('/api/missions', {token, message: 'Cannot isoload missions, check your backend server'})
+}
+
 function configureStore(user, token, cb){
   let initialState = {};
   if(!user) return setImmediate(cb, null, createStore(rootReducer, initialState, applyMiddleware(thunk)));
   user.name = user.fullName(); // TODO: move it server side
   initialState = rootReducer(initialState, loggedIn(JSON.parse(JSON.stringify(user)), token));
   const getState = () => initialState;
-  loadCompanies(token)
-    .then(companies => {
+  Promise.all([loadCompanies(token), loadMissions(token)])
+    .then(([companies, missions]) => {
       initialState = rootReducer(initialState, companiesLoaded(companies));
       const store = createStore(rootReducer, initialState, applyMiddleware(thunk));
-      cb(null, store, companies);
+      cb(null, store, companies, missions);
     })
     .catch(cb);
 }
@@ -104,7 +108,7 @@ export function init(app, resources, params){
   global.navigator = {userAgent: 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2454.85 Safari/537.36'};
   app.get('*', findUser(params.secretKey), function(req, res){
     loginfo(req.user ? `Isomorphic login of user '${req.user.fullName()}'` : 'Isomorphic login of an unknown user'); 
-    configureStore(req.user, req.token, (err, store, companies) => {
+    configureStore(req.user, req.token, (err, store, companies, missions) => {
       if (err){
         logerror(err.stack);
         return res.status(500)
@@ -122,8 +126,9 @@ export function init(app, resources, params){
           res.redirect(302, redirectLocation.pathname + redirectLocation.search);
         } else if (renderProps) {
           const reactOutput = renderToString(React.createFactory(Root)({store, authManager, renderProps}));
-          const reactInitData = companies ? `timetrackInitCompanies = ${JSON.stringify(companies)}` : "";
-          res.render('index.ejs', {reactOutput, reactInitData});
+          const companiesStub = companies ? `companiesStub = ${JSON.stringify(companies)}` : "";
+          const missionsStub = missions ? `missionsStub = ${JSON.stringify(missions)}` : "";
+          res.render('index.ejs', {reactOutput, companiesStub, missionsStub});
         } else {
           res.status(404).send('Not found')
         }

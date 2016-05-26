@@ -1,6 +1,6 @@
 import {Route, RouteManager} from 'kontrolo'
 import {NewEventApp, EditEventApp} from '../containers/event/edit.js'
-import {isAdmin, isManager} from '../lib/user'
+import {isAdmin, isManager} from '../lib/person'
 
 const routes = RouteManager([
   Route({
