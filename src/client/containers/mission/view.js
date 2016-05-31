@@ -2,9 +2,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux'
-import DateTimePicker from 'react-widgets/lib/DateTimePicker';
 import {Content} from '../../components/layout';
-import {FadeIn, Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
+import {FadeIn, Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, DateLabel, Labels, MarkdownText, IconButton} from '../../components/widgets';
 import {Edit as EditPerson, Preview as PersonPreview} from '../../components/person/widgets';
 import {Edit as EditCompany, Preview as CompanyPreview} from '../../components/company/widgets';
 import {Edit, Delete, OpenClose} from '../../components/mission/widgets';
@@ -94,11 +93,11 @@ const Card = ({mission, client, manager, workers}) =>  {
 
       <div className="col-md-2 "/>
       <div className="col-md-3 ">
-        <Date label="Start Date" date={mission.get('startDate')}/>
+        <DateLabel label="Start Date" date={mission.get('startDate')}/>
       </div>
       <div className="col-md-2 "/>
       <div className="col-md-3 ">
-        <Date label="End Date" date={mission.get('endDate')}/>
+        <DateLabel label="End Date" date={mission.get('endDate')}/>
       </div>
       <div className="col-md-2 "/>
       <div className="col-md-6 ">
@@ -125,24 +124,6 @@ Card.propTypes = {
   client:      PropTypes.object.isRequired,
   manager:     PropTypes.object.isRequired,
   workers:     PropTypes.object.isRequired,
-}
-
-const Date = ({label, date}) => {
-  return (
-    <fieldset className="form-group">
-      <label> {label} </label>
-      <DateTimePicker
-        defaultValue={date}
-        time={false}
-        readOnly={true}
-        />
-    </fieldset>
-  )
-}
-
-Date.propTypes = {
-  label:    PropTypes.string.isRequired,
-  date:     PropTypes.object
 }
 
 const Client = ({label, client, workers}) => {

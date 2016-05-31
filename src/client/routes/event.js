@@ -1,5 +1,6 @@
 import {Route, RouteManager} from 'kontrolo'
 import {NewEventApp, EditEventApp} from '../containers/event/edit.js'
+import {ViewEventApp} from '../containers/event/view.js'
 import {isAdmin, isManager} from '../lib/person'
 
 const routes = RouteManager([
@@ -28,7 +29,15 @@ const routes = RouteManager([
       if(!mission)return false
       return isManager(user, mission)
     }
+  }),
+  Route({
+    name: 'view',
+    path: '/event/view',
+    topic:'agenda',
+    component: ViewEventApp,
+    authRequired: true
   })
+
 ], {name: 'event'})
 
 export default routes;

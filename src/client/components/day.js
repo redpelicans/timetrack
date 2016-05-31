@@ -183,11 +183,15 @@ const Event = authable(Radium(({event, persons, missions}, {authManager, dispatc
   const label = () => {
     const onClick = (event, e) => {
       e.stopPropagation();
-      dispatch(pushRoute(routes.event.edit, {eventId: event._id}));
+      if(authManager.event.isAuthorized('edit', {event})){
+        dispatch(pushRoute(routes.event.edit, {eventId: event._id}));
+      }else{
+        dispatch(pushRoute(routes.event.view, {eventId: event._id}));
+      }
     }
 
     const name = event.type
-    if(authManager.event.isAuthorized('edit', {event, missions, persons})){
+    if(authManager.event.isAuthorized('view', {event})){
       return (
         <a href="#" onMouseDown={onClick.bind(null, event)}>
           {name}
@@ -200,10 +204,14 @@ const Event = authable(Radium(({event, persons, missions}, {authManager, dispatc
 
   const onClick = (e) => {
     e.stopPropagation();
-    dispatch(pushRoute(routes.event.edit, {eventId: event._id}));
+    if(authManager.event.isAuthorized('edit', {event})){
+      dispatch(pushRoute(routes.event.edit, {eventId: event._id}));
+    }else{
+      dispatch(pushRoute(routes.event.view, {eventId: event._id}));
+    }
   }
 
-  if(authManager.event.isAuthorized('edit', {event, missions, persons})){
+  if(authManager.event.isAuthorized('view', {event})){
     return (
       <div style={[styles.container, styles.pointer]} onMouseDown={onClick}>
         <div style={[styles.name, !event.firstOfWeek && styles.details]}>{personView()}</div>

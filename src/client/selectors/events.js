@@ -26,6 +26,21 @@ const calcValueWithoutDaysOff = (from, to, agenda)  => {
   return diff;
 }
 
+export const viewEventSelector = createSelector(
+  eventId,
+  events,
+  agenda,
+  missions,
+  workers,
+  (eventId, events, agenda, missions, workers, user) => {
+    return {
+      missions,
+      workers,
+      event: events.get(eventId),
+    }
+  }
+)
+
 
 export const editEventSelector = createSelector(
   eventId,

@@ -59,20 +59,21 @@ class EventBase extends Base{
     const typeField = this.eventForm.field('type')
     const workerIdField = this.eventForm.field('workerId')
     const missionIdField = this.eventForm.field('missionId')
-    let workerId
+    let workerId, missionId
 
     workerIdField.onValue( state => {
       workerId = state.value
     })
 
     missionIdField.onValue( state => {
+      missionId = state.value
       const mission = missions.get(state.value)
       if(mission){
-        const selectedWorkers = mission.get('workerIds').map(id => workers.get(id)).filter(x => x)
-        const selectedWorkerIds = selectedWorkers.map(x => x.get('_id'))
-        workerIdField.setSchemaValue('domainValue', entitiesDomain(selectedWorkers))
-        if(!selectedWorkerIds.includes(workerId)){
-          if(selectedWorkerIds.size === 1) workerIdField.setValue(selectedWorkerIds.first())
+        const selectableWorkers = mission.get('workerIds').map(id => workers.get(id)).filter(x => x)
+        const ids = selectableWorkers.map(x => x.get('_id'))
+        workerIdField.setSchemaValue('domainValue', entitiesDomain(selectableWorkers))
+        if(!ids.includes(workerId)){
+          if(ids.size === 1) workerIdField.setValue(ids.first())
           else workerIdField.setValue(undefined)
         }
       }
@@ -85,14 +86,14 @@ class EventBase extends Base{
           missionIdField.disabled(false)
           missionIdField.setSchemaValue('required', true)
           missionIdField.setSchemaValue('domainValue', missionValues)
-          if(missions.size === 1) missionIdField.setValue(missions.first().get('_id'))
+          if(!missionId && missions.size === 1) missionIdField.setValue(missions.first().get('_id'))
           return
         default:
           missionIdField.setValue(undefined)
           missionIdField.disabled(true)
           missionIdField.setSchemaValue('required', false)
-          const selectedWorkers = isAdmin(user) ? workers : Immutable.fromJS({[user.get('_id')]: user.toJS()})
-          workerIdField.setSchemaValue('domainValue', entitiesDomain(selectedWorkers))
+          const selectableWorkers = isAdmin(user) ? workers : Immutable.fromJS({[user.get('_id')]: user.toJS()})
+          workerIdField.setSchemaValue('domainValue', entitiesDomain(selectableWorkers))
           workerIdField.setValue(user.get('_id'))
       }
     })

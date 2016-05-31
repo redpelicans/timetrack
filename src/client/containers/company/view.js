@@ -7,7 +7,7 @@ import {authable} from '../../components/authmanager';
 import {companiesActions} from '../../actions/companies';
 import {personsActions} from '../../actions/persons';
 import {missionsActions} from '../../actions/missions';
-import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, MarkdownText, FadeIn} from '../../components/widgets';
+import {Header, HeaderLeft, HeaderRight, GoBack, Title, AvatarView, TextLabel, Labels, FadeIn} from '../../components/widgets';
 import {Edit as EditPerson, Delete as DeletePerson, Preview as PersonPreview} from '../../components/person/widgets';
 import TagsField from '../../containers/tags';
 import Notes from '../../containers/notes';

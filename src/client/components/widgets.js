@@ -1,12 +1,32 @@
 import _ from 'lodash';
 import React, {Component, PropTypes} from 'react';
-import classNames from 'classnames';
-import FileInput from 'react-file-input';
-import Remarkable from 'remarkable';
-import colors from '../utils/colors';
-import ReactTooltip from 'react-tooltip';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import classNames from 'classnames'
+import FileInput from 'react-file-input'
+import Remarkable from 'remarkable'
+import colors from '../utils/colors'
+import ReactTooltip from 'react-tooltip'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import {getInitials} from '../lib/person'
+import DateTimePicker from 'react-widgets/lib/DateTimePicker'
+
+export const DateLabel = ({label, date}) => {
+  return (
+    <fieldset className="form-group">
+      <label> {label} </label>
+      <DateTimePicker
+        defaultValue={date}
+        time={false}
+        readOnly={true}
+        />
+    </fieldset>
+  )
+}
+
+Date.propTypes = {
+  label:    PropTypes.string.isRequired,
+  date:     PropTypes.object
+}
+
 
 export class ToggleBox extends Component {
   state = { hidden: true }

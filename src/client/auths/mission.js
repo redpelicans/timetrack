@@ -1,4 +1,5 @@
 import {AuthManager, Auth} from 'kontrolo';
+import {hasEvents} from '../lib/mission'
 
 export default AuthManager([
   Auth({
@@ -6,7 +7,8 @@ export default AuthManager([
     roles: ['admin'],
     method: function(user, getState, {mission}){
       if(!mission) return false;
-      return mission.get('status') !== 'closed';
+      const state = getState()
+      return !hasEvents(mission, state.events.data);
     }
   }),
   Auth({
