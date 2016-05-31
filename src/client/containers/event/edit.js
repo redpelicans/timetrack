@@ -14,6 +14,7 @@ import {PeriodField, MultiSelectField2, MarkdownEditField, InputField, DropdownF
 import {missionsActions} from '../../actions/missions'
 import {personsActions} from '../../actions/persons'
 import {authable} from '../../components/authmanager'
+import {isAdmin} from '../../lib/person'
 
 class Base extends Component {
 
@@ -54,36 +55,45 @@ class Base extends Component {
 
 class EventBase extends Base{
   manageRules(){
-    const [workers, missions] = [this.props.authorizedWorkers, this.props.authorizedMissions] 
+    const [workers, missions, user] = [this.props.authorizedWorkers, this.props.authorizedMissions, this.props.user] 
     const typeField = this.eventForm.field('type')
     const workerIdField = this.eventForm.field('workerId')
     const missionIdField = this.eventForm.field('missionId')
+    let workerId
+
+    workerIdField.onValue( state => {
+      workerId = state.value
+    })
 
     missionIdField.onValue( state => {
       const mission = missions.get(state.value)
-      if(!mission) return
-      workerIdField.setSchemaValue('domainValue', entitiesDomain())
-      const workerIds = mission.get('workerIds')
-      workerIdField.setSchemaValue('domainValue', entitiesDomain(workerIds.map(id => workers.get(id))))
-      if(state.hasBeenModified) workerIdField.setValue(undefined)
-      else workerIdField.setValue(this.eventDocument.workerId)
+      if(mission){
+        const selectedWorkers = mission.get('workerIds').map(id => workers.get(id)).filter(x => x)
+        const selectedWorkerIds = selectedWorkers.map(x => x.get('_id'))
+        workerIdField.setSchemaValue('domainValue', entitiesDomain(selectedWorkers))
+        if(!selectedWorkerIds.includes(workerId)){
+          if(selectedWorkerIds.size === 1) workerIdField.setValue(selectedWorkerIds.first())
+          else workerIdField.setValue(undefined)
+        }
+      }
     })
 
     typeField.onValue( state => {
+      const missionValues = entitiesDomain(missions)
       switch(state.value){
         case 'work':
           missionIdField.disabled(false)
           missionIdField.setSchemaValue('required', true)
-          if(state.hasBeenModified){
-            workerIdField.setValue(undefined)
-            missionIdField.setValue(undefined)
-          }
+          missionIdField.setSchemaValue('domainValue', missionValues)
+          if(missions.size === 1) missionIdField.setValue(missions.first().get('_id'))
           return
         default:
           missionIdField.setValue(undefined)
-          missionIdField.setSchemaValue('required', false)
           missionIdField.disabled(true)
-          workerIdField.setSchemaValue('domainValue', entitiesDomain(workers))
+          missionIdField.setSchemaValue('required', false)
+          const selectedWorkers = isAdmin(user) ? workers : Immutable.fromJS({[user.get('_id')]: user.toJS()})
+          workerIdField.setSchemaValue('domainValue', entitiesDomain(selectedWorkers))
+          workerIdField.setValue(user.get('_id'))
       }
     })
   }
@@ -95,13 +105,12 @@ class EventBase extends Base{
     const missionIdField = this.eventForm.field('missionId')
     const statusField = this.eventForm.field('status')
 
-    workerIdField.setSchemaValue('domainValue', entitiesDomain(workers))
 
-    const missionValues = entitiesDomain(missions)
-    //missionValues.unshift({key: undefined, value: '<No Mission>'})
-    missionIdField.setSchemaValue('domainValue', missionValues)
+    // const missionValues = entitiesDomain(missions)
+    // missionIdField.setSchemaValue('domainValue', missionValues)
+    // if(missions.size === 1) missionIdField.setValue(missions.first().get('_id'))
 
-    if(this.context.authManager.event.isAuthorized('admin')) statusField.setSchemaValue('domainValue', statusDomainValue)
+    if(isAdmin(this.props.user)) statusField.setSchemaValue('domainValue', statusDomainValue)
     else statusField.setSchemaValue('domainValue', [{key: 'toBeValidated', value: 'ToBeValidated'}])
   }
 
@@ -213,7 +222,7 @@ class Edit extends EventBase {
     if(!this.eventForm) return false
     let submitBtn = <UpdateBtn onSubmit={this.handleSubmit} canSubmit={this.state.canSubmit && this.state.hasBeenModified}/>
     let cancelBtn = <CancelBtn onCancel={this.handleCancel}/>
-    let deleteBtn = <DeleteBtn onDelete={this.handleDelete}/>
+    let deleteBtn = this.context.authManager.event.isAuthorized('delete', {event: this.props.event}) ? <DeleteBtn onDelete={this.handleDelete}/> : <div/>
 
     return (
       <EditForm
@@ -330,6 +339,7 @@ EditForm.propTypes = {
 function  entitiesDomain(entities){
   if(!entities) return []
   const res = entities.toSetSeq().map(v => {
+    if(!v) return {key: null, value: 'Unknown Entity'}
     return {key: v.get('_id'), value: v.get('name')}
   });
   return res.toJS().sort( (a, b) => a.value > b.value );

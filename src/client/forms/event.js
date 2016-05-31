@@ -39,7 +39,6 @@ export default function event(document){
       label: "Type",
       defaultValue: 'work',
       domainValue: [
-        {key: 'absence', value: 'Absence'}, 
         {key: 'rtt', value: 'RTT'}, 
         {key: 'vacation', value: 'Vacation'}, 
         {key: 'work', value: 'Work'}, 

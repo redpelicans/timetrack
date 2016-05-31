@@ -8,7 +8,7 @@ const routes = RouteManager([
     path: '/event/new',
     topic:'agenda',
     component: NewEventApp,
-    //authRoles: ['admin'],
+    authRequired: true,
   }),
   Route({
     name: 'edit',
@@ -20,8 +20,9 @@ const routes = RouteManager([
       const eventId = routing.location.state && routing.location.state.eventId
       const targetEvent = event ? events.data.get(event._id) : eventId && events.data.get(eventId)
       if(!targetEvent) return false;
-      if(targetEvent.get('status') === 'locked') return false;
+      if(targetEvent.get('status') === 'locked') return false
       if(isAdmin(user)) return true;
+      if(targetEvent.get('status') !== 'toBeValidated') return false
       if(targetEvent.get('workerId') === user.get('_id')) return true
       const mission = missions.data.get(targetEvent.get('missionId'))
       if(!mission)return false

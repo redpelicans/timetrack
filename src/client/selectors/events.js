@@ -41,6 +41,7 @@ export const editEventSelector = createSelector(
       authorizedWorkers: authorizedWorkers(user, workers, missions),
       authorizedMissions: authorizedMissions(user, workers, missions),
       event: events.get(eventId),
+      user
     }
   }
 )
@@ -61,7 +62,8 @@ export const newEventSelector = createSelector(
       from,
       to,
       unit: agenda.defaultUnit,
-      value: calcValueWithoutDaysOff(from, to, agenda)
+      value: calcValueWithoutDaysOff(from, to, agenda),
+      user
     }
   }
 )
