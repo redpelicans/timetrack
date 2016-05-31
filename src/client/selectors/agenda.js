@@ -56,7 +56,6 @@ const filterEvents = (agenda, events) => {
 
 const organizeEvents = (events) => {
   const organizer = new MonthOrganizer(events.toJS())
-  console.log(organizer)
   return organizer.events()
 }
 

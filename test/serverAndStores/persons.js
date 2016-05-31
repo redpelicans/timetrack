@@ -26,7 +26,8 @@ const convertImmutablePerson = x => {
   }
 }
 
-describe('server and redux tests for persons', () => {
+describe('server and redux tests for persons', function(){
+  this.timeout(2000)
   let server, db
   // call once foreach  describe()
   before(cb => createServer( (err, data) => {
@@ -75,51 +76,60 @@ describe('server and redux tests for persons', () => {
   it('Check update person', (done) => {
     const newFirstName = 'hello'
     const newLastName = 'world'
-    let personId
+    let personToBeUpdated
     const initialState = {}
-    const store = configureStore( rootReducer, initialState, {PERSON_UPDATED: getState => {
-      try{
-       const state = getState()
-       const updatedPerson = state.persons.data.get(personId)
-       should.exist(updatedPerson)
-       should(updatedPerson.get('firstName')).be.eql(newFirstName)
-       should(updatedPerson.get('lastName')).be.eql(newLastName)
-       done()
-      }catch(e){ done(e) }
-    }})
+    const store = configureStore( rootReducer, initialState, { 
+      PERSONS_LOADED: () => {
+        store.dispatch(personsActions.update(personToBeUpdated, {firstName: newFirstName, lastName: newLastName}))
+      },
+      PERSON_UPDATED: getState => {
+        try{
+         const state = getState()
+         const updatedPerson = state.persons.data.get(personToBeUpdated._id.toString())
+         should.exist(updatedPerson)
+         should(updatedPerson.get('firstName')).be.eql(newFirstName)
+         should(updatedPerson.get('lastName')).be.eql(newLastName)
+         done()
+        }catch(e){ done(e) }
+      }
+    })
 
     db.load(data, () => {
       Person.findOne({isDeleted: {$ne: true}}, (err, person) => {
         if(err) return done(err)
-        personId = person._id.toString()
+        personToBeUpdated = person
         store.dispatch(personsActions.load())
-        store.dispatch(personsActions.update(person, {firstName: newFirstName, lastName: newLastName}))
       })
     })
   })
 
   it('Check delete person', (done) => {
-    let personId
+    let personToBeDeleted
     const initialState = {}
-    const store = configureStore( rootReducer, initialState, {PERSON_DELETED: getState => {
-      try{
-       const state = getState()
-       const deletedPerson = state.persons.data.get(personId.toString())
-       should.not.exist(deletedPerson)
-       Person.findOne({isDeleted: true, _id: personId}, (err, person) => {
+    const store = configureStore( rootReducer, initialState, {
+      PERSONS_LOADED: getState => {
+       try{
+         const state = getState()
+         const personId = personToBeDeleted._id.toString()
+         const deletedPerson = state.persons.data.get(personId)
+         should.not.exist(deletedPerson)
+         done()
+       }catch(e){ done(e) }
+      },
+      PERSON_DELETED: () => {
+       Person.findOne({isDeleted: true, _id: personToBeDeleted._id}, (err, person) => {
          if(err) return done(err)
          should.exist(person)
-         done()
+         store.dispatch(personsActions.load())
        })
-      }catch(e){ done(e) }
-    }})
+      }
+    })
 
     db.load(data, () => {
       Person.findOne({isDeleted: {$ne: true}}, (err, person) => {
         if(err) return done(err)
-        personId = person._id
-        store.dispatch(personsActions.load())
-        store.dispatch(personsActions.delete(person))
+        personToBeDeleted = person
+        store.dispatch(personsActions.delete(personToBeDeleted))
       })
     })
   })

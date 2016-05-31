@@ -59,7 +59,6 @@ export function updateNote(previous, updates){
   return (dispatch, getState) => {
     const next = {...previous, ...updates};
     next.entityId = next.entityId || null;
-    console.log(next)
     requestJson('/api/note', {dispatch, verb: 'put', body: {note: next}, message: 'Cannot update note, check your backend server'})
       .then( note => dispatch(updateCompleted(note)));
   }
