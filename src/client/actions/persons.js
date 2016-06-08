@@ -37,7 +37,7 @@ export function updateCompleted(person){
   }
 }
 
-function personsLoaded(persons){
+export function personsLoaded(persons){
   return {
     type: PERSONS_LOADED,
     persons: Immutable.fromJS(_.reduce(persons, (res, p) => { res[p._id] = Maker(p); return res}, {})),

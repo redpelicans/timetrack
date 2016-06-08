@@ -10,16 +10,19 @@ import {socketIOActions} from './socketIO';
 export const USER_LOGGED_IN = 'USER_LOGGED_IN';
 export const USER_LOGOUT = 'USER_LOGOUT';
 
-export function loggedIn(user, sessionId=uuid.v4()){
-  // TODO
-  //if(typeof document !== 'undefined') document.cookie = `timetrackToken=${appJwt}`;
-  return{
+export function loggedIn(user, sessionId=uuid.v4(), {appJwt, forceCookie} = {}){
+  const res = {
     type: USER_LOGGED_IN,
     user: Immutable.fromJS(Maker(user)),
     sessionId,
-    //appJwt,
   };
+  if(forceCookie){
+    res.appJwt = appJwt;
+    res.forceCookie = true;
+  }
+  return res;
 }
+
 export function logUser(user){
   return (dispatch, getState) => {
     const sessionId = uuid.v4();

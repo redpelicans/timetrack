@@ -32,7 +32,7 @@ export function requestJson(uri, {dispatch=new Function(), getState, token, verb
   // care with test context
    const {login: {appJwt, sessionId, forceCookie}} = getState ? getState() : {login: {}};
    if(forceCookie) token = appJwt; 
-  
+
   const options = {
     method: verb,
     credentials: 'same-origin',

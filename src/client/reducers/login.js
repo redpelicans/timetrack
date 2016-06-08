@@ -20,6 +20,7 @@ function loginReducer(state={}, action){
        user: action.user,
        appJwt: action.appJwt,
        sessionId: action.sessionId,
+       forceCookie: action.forceCookie
       }
     case USER_LOGOUT:
       return {}

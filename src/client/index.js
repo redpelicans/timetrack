@@ -5,6 +5,7 @@ import Root from './containers/root'
 import App from './containers/app'
 import {logUser} from './actions/login'
 import {companiesLoaded} from './actions/companies'
+import {personsLoaded} from './actions/persons'
 import {missionsLoaded} from './actions/missions'
 import {sitemapActions} from './actions/sitemap'
 import registerAuthManager from './auths'
@@ -18,6 +19,7 @@ import configureStore from './store/configureStore'
 const store = configureStore()
 const authManager = registerAuthManager(store, routesManager)
 
+// use server definition of initial loads
 if(typeof companiesStub != 'undefined' && companiesStub){
   console.log("Loading server side Companies")
   store.dispatch(companiesLoaded(companiesStub))
@@ -28,6 +30,12 @@ if(typeof missionsStub != 'undefined' && missionsStub){
   console.log("Loading server side Missions")
   store.dispatch(missionsLoaded(missionsStub))
   missionsStub = undefined;
+}
+
+if(typeof peopleStub != 'undefined' && peopleStub){
+  console.log("Loading server side People")
+  store.dispatch(personsLoaded(peopleStub))
+  peopleStub = undefined;
 }
 
 import 'react-widgets/lib/less/react-widgets.less'
@@ -64,8 +72,8 @@ const defaultRoute = routesManager.defaultRoute
 const routes = (
   <Route path="/" component={App}>
   <IndexRoute component={defaultRoute.component} onEnter={onEnter.bind(defaultRoute)}/>
-    {getRoutes(routesManager.routes)}
-    <Route path="*" component={routesManager.notfound.component} />
+  {getRoutes(routesManager.routes)}
+  <Route path="*" component={routesManager.notfound.component} />
   </Route>
 )
 
