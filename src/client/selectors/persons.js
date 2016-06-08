@@ -11,7 +11,10 @@ const filterSelector = state => state.persons.filter
 const sortCondSelector = state => state.persons.sortCond
 const preferredSelector = state => state.persons.filterPreferred
 const pendingRequests = state => state.pendingRequests
-const personId = state => state.routing.location.state && state.routing.location.state.personId
+//const personId = state => state.routing.location && state.routing.location.state && state.routing.location.state.personId
+const personId = state => {
+  return state.routing.location && state.routing.location.state && state.routing.location.state.personId
+}
 const companyId = state => state.routing.location.state && state.routing.location.state.companyId
 
 const getFilterMissionsById = id => mission =>  {

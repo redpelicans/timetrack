@@ -41,7 +41,8 @@ const routes = RouteManager([
   }),
   Route({
     name: 'view',
-    path: '/person/view',
+    //path: '/person/view',
+    path: '/person/:personId',
     topic:'people',
     component: ViewPersonApp,
   }),

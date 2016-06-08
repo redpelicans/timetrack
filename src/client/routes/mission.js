@@ -34,7 +34,8 @@ const routes = RouteManager([
   }),
   Route({
     name: 'view',
-    path: '/mission/view',
+    //path: '/mission/view',
+    path: '/mission/:missionId',
     topic:'missions',
     component: ViewMissionApp,
   }),

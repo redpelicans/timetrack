@@ -44,7 +44,8 @@ const routes = RouteManager([
   }),
   Route({
     name: 'view',
-    path: '/company/view',
+    //path: '/company/view',
+    path: '/company/:companyId',
     topic:'companies',
     component: ViewCompanyApp,
     authRequired: true

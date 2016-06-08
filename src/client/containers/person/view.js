@@ -21,7 +21,7 @@ class ViewPerson extends Component {
 
   componentWillMount() {
     const {person, dispatch} = this.props
-    if (!person) dispatch(routeActions.replace(sitemap.person.list))
+    if (!person) return dispatch(routeActions.replace(sitemap.person.list))
 
     this.tagsField = tagsForm({tags: person.get('tags')}).field('tags')
     this.unsubscribeTagsField = this.tagsField.onValue(state => {

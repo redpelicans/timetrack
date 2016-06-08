@@ -9,7 +9,7 @@ const filterSelector = state => state.companies.filter;
 const sortCondSelector = state => state.companies.sortCond;
 const preferredSelector = state => state.companies.filterPreferred;
 const pendingRequests = state => state.pendingRequests;
-const companyId = state => state.routing.location.state && state.routing.location.state.companyId;
+const companyId = state => state.routing.location && state.routing.location.state && state.routing.location.state.companyId;
 
 const getFilterPersonsByCompanyId = companyId => person => person.get('companyId') === companyId
 

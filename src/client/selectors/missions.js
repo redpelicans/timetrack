@@ -8,7 +8,7 @@ const sortCondSelector = state => state.missions.sortCond
 const persons = state => state.persons.data
 const companies = state => state.companies.data
 const pendingRequests = state => state.pendingRequests
-const missionId = state => state.routing.location.state && state.routing.location.state.missionId
+const missionId = state => state.routing.location && state.routing.location.state && state.routing.location.state.missionId
 const clientId = state => state.routing.location.state && state.routing.location.state.clientId
 
 const name = x => x.get('name')

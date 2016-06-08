@@ -153,6 +153,7 @@
     "regenerator-loader": "^2.0.0",
     "run-sequence": "^1.1.0",
     "should": "^8.2.0",
+    "source-map-support": "^0.4.0",
     "style-loader": "^0.12.3",
     "url-loader": "^0.5.7",
     "vinyl-paths": "^1.0.0",

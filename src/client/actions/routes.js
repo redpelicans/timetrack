@@ -1,5 +1,6 @@
 import routes from '../routes';
 import _ from 'lodash';
+import {alert} from './errors';
 import { routeActions as router} from 'react-router-redux'
 
 import {browserHistory} from 'react-router';
@@ -8,7 +9,7 @@ export function replaceRoute(nameOrRoute){
   return dispatch => {
     if(!nameOrRoute) return router.replace(routes.defaultRoute.path);
     const route = _.isString(nameOrRoute) ? routes.getRoute(nameOrRoute) : nameOrRoute;
-    if(!route) errors.alert({header: "Client error", message: `Unknown route name: ${nameOrRoute}`});
+    if(!route) return dispatch(alert({header: "Client error", message: `Unknown route name: ${nameOrRoute}`}));
     dispatch(router.replace(route.path));
   }
 }
@@ -17,9 +18,15 @@ export function pushRoute(nameOrRoute, context){
   return dispatch => {
     if(!nameOrRoute) return router.replace(routes.defaultRoute.path);
     const route = _.isString(nameOrRoute) ? routes.getRoute(nameOrRoute) : nameOrRoute;
-    if(!route) errors.alert({header: "Client error", message: `Unknown route name: ${nameOrRoute}`});
-    dispatch(router.push({pathname: route.path, state: context}));
-    //browserHistory.push({pathname: route.path, state: context});
+    if(!route) return dispatch(alert({header: "Client error", message: `Unknown route name: ${nameOrRoute}`}));
+    const path = context ? _.reduce(_.keys(context), (path, key) => {
+      const re = new RegExp(`:${key}`)
+      console.log(key)
+      console.log(path)
+      if(route.path.match(re)) return path.replace(re, context[key])
+      return path
+    }, route.path) : route.path
+    dispatch(router.push({pathname: path, state: context}));
   } 
 }
 

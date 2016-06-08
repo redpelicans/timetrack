@@ -1,7 +1,9 @@
 //require('node-jsx').install();
+import 'source-map-support/register';
 import params from '../../params';
 import * as server from './index';
 import debug from 'debug';
+
 
 require('better-log').install();
 

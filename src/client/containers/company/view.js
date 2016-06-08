@@ -22,7 +22,7 @@ class CompanyView extends Component {
 
   componentWillMount() {
     const {dispatch, company} = this.props;
-    if(!company) dispatch(routeActions.replace(sitemap.company.list));
+    if(!company) return dispatch(routeActions.replace(sitemap.company.list));
 
     this.tagsField = tagsForm({tags: company.get('tags')}).field('tags');
     this.unsubscribeTagsField = this.tagsField.onValue( state => {

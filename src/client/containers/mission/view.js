@@ -31,7 +31,7 @@ class ViewMission extends Component {
 
   componentWillMount() {
     const {dispatch, mission} = this.props
-    if(!mission) { dispatch(replaceRoute(sitemap.mission.list)) ; return }
+    if(!mission) return dispatch(replaceRoute(sitemap.mission.list))
 
     dispatch(missionsActions.load({ids: [mission.get('_id')]}))
     dispatch(companiesActions.load({ids: [mission.get('clientId')]}))
