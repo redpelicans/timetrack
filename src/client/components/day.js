@@ -8,8 +8,10 @@ import {dmy} from '../utils'
 import {pushRoute} from '../actions/routes'
 import routes from '../routes'
 import {getInitials} from '../lib/person'
+import {isCancelled} from '../lib/event'
 import ReactTooltip from 'react-tooltip';
 import Radium, {StyleRoot} from 'radium'
+import Color from 'color2'
 
 
 const organizeEvents = (date, events, persons, missions) => {
@@ -96,9 +98,9 @@ const Event = authable(Radium(({event, persons, missions}, {authManager, dispatc
 
   const styles = {
     container: {
+      background: getBackgroundColor(event, person),
       width: '100%',
       height: '20px',
-      backgroundColor: person.get('avatar').get('color'),
       display: 'flex',
       justifyContent: 'flex-start',
       flexWrap: 'nowrap',
@@ -127,6 +129,9 @@ const Event = authable(Radium(({event, persons, missions}, {authManager, dispatc
      '@media (min-width: 800px)': {
         display: "none",
      }
+    },
+    cancelled: {
+      textDecoration: 'line-through',
     },
   }
 
@@ -214,17 +219,17 @@ const Event = authable(Radium(({event, persons, missions}, {authManager, dispatc
   if(authManager.event.isAuthorized('view', {event})){
     return (
       <div style={[styles.container, styles.pointer]} onMouseDown={onClick}>
-        <div style={[styles.name, !event.firstOfWeek && styles.details]}>{personView()}</div>
-        <div style={[styles.type, !event.firstOfWeek && styles.details]}>{label()}</div>
-        <div style={[styles.type, !event.firstOfWeek && styles.details]}>{missionView()}</div>
+        <div style={[styles.name, isCancelled(event) && styles.cancelled, !event.firstOfWeek && styles.details]}>{personView()}</div>
+        <div style={[styles.type, isCancelled(event) && styles.cancelled, !event.firstOfWeek && styles.details]}>{label()}</div>
+        <div style={[styles.type, isCancelled(event) && styles.cancelled, !event.firstOfWeek && styles.details]}>{missionView()}</div>
       </div>
     )
   }else{
     return (
       <div style={styles.container}>
-        <div style={[styles.name, !event.firstOfWeek && styles.details]}>{personView()}</div>
-        <div style={[styles.type, !event.firstOfWeek && styles.details]}>{label()}</div>
-        <div style={[styles.type, !event.firstOfWeek && styles.details]}>{missionView()}</div>
+        <div style={[styles.name, isCancelled(event) && styles.cancelled, !event.firstOfWeek && styles.details]}>{personView()}</div>
+        <div style={[styles.type, isCancelled(event) && styles.cancelled, !event.firstOfWeek && styles.details]}>{label()}</div>
+        <div style={[styles.type, isCancelled(event) && styles.cancelled, !event.firstOfWeek && styles.details]}>{missionView()}</div>
       </div>
     )
   }
@@ -238,3 +243,13 @@ Event.propTypes = {
   missions: PropTypes.object,
 }
 
+const getBackgroundColor = (event, person) => {
+  const bgcolor1 = Color(person.get('avatar').get('color'))
+  switch(event.status){
+    case 'toBeValidated':
+      const bgcolor2 = bgcolor1.clone().darken(.1)
+      return `repeating-linear-gradient(45deg, ${bgcolor1.hexString()}, ${bgcolor1.hexString()} 5%, ${bgcolor2.hexString()} 5%, ${bgcolor2.hexString()} 10%)`
+    default:
+      return `repeating-linear-gradient(0deg, ${bgcolor1.hexString()}, ${bgcolor1.hexString()})`
+  }
+}

@@ -40,3 +40,5 @@ export const authorizedMissions = (user, workers, missions) => {
   if(isAdmin(user)) return missions
   return managedMissions(user, missions).merge(workedMissions(user, missions))
 }
+
+export const isCancelled = event => event && event.status === 'cancelled'
