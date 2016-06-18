@@ -50,7 +50,7 @@ const initialLoads = [
 
 function configureStore(user, token, cb){
   let initialState = {};
-  if(!user) return setImmediate(cb, null, createStore(rootReducer, initialState, applyMiddleware(thunk)));
+  if(!user) return setImmediate(cb, null, createStore(rootReducer, initialState, applyMiddleware(thunk)), initialLoads);
   user.name = user.fullName(); 
   initialState = rootReducer(initialState, loggedIn(JSON.parse(JSON.stringify(user)), undefined, {appJwt: token, forceCookie: true}));
   const getState = () => initialState;
