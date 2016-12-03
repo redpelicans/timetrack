@@ -50,9 +50,9 @@ Timetrack is in its early stage, it was a POC, now a CRM Lite and a training pla
 
 ## Setup
 
-    $ npm install -g babel gulp
-    $ npm install
-    $ npm test
+    $ npm install -g yarn feathers-cli
+    $ yarn install
+    $ yarn test
 
 ## Launch server
 

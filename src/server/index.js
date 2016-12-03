@@ -1,31 +1,9 @@
-import async from 'async'; 
-import debug from 'debug';
-import * as app  from './app';
-import initGithash from './init/githash';
-import initModels from './init/models';
+'use strict';
 
-let logerror = debug('timetrack:error')
-  , loginfo = debug('timetrack:info');
+const app = require('./app');
+const port = app.get('port');
+const server = app.listen(port);
 
-let resources = {};
-    
-const version = require('../../package.json').version;
-
-export function create(params){
-  let promise = new Promise( (resolve, reject) => {
-    async.parallel({
-      db: initModels(params.db),
-      githash: initGithash()
-    }, (err, init) => {
-      if(err) reject(err);
-      resources.db = init.db;
-      resources.version = version;
-      resources.githash = init.githash;
-      app.start(params, resources, (err, server) => {
-        if(err) reject(err);
-        resolve({server, resources});
-      });
-    });
-  });
-  return promise;
-}
+server.on('listening', () =>
+  console.log(`Feathers application started on ${app.get('host')}:${port}`)
+);
