@@ -12,10 +12,13 @@
   },
   "scripts": {
     "mongo": "docker exec -it mongo mongo",
-    "test": "npm run mocha",
-    "lint": "eslint src ",
-    "start": "node src/server",
-    "mocha": "mocha test/ --recursive"
+    "lint": "eslint src/client --color",
+    "watchserver": "babel-watch src/server -w ./src",
+    "test": "NODE_ENV=testing mocha --require babel-core/register --reporter spec \"src/**/__test__/*.js\"",
+    "testdist": "NODE_ENV=testing mocha \"dist/**/__test__/*.js\"",
+    "start": "NODE_ENV=production node dist/server",
+    "build": "NODE_ENV=production babel src --out-dir dist",
+    "coverage": "NODE_ENV=testing nyc yarn test"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
@@ -45,17 +48,24 @@
     "babel-preset-latest": "^6.16.0",
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-0": "^6.16.0",
-    "babel-watch": "^2.0.3",
-    "mocha": "^3.2.0",
+    "babel-watch": "^2.0.4",
     "eslint": "^3.11.1",
-    "eslint-config-airbnb": "^13.0.0",
+    "eslint-config-airbnb": "^12.0.0",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^3.0.1",
     "eslint-plugin-react": "^6.7.1",
+    "mocha": "^3.2.0",
+    "nyc": "^10.0.0",
     "request": "^2.79.0",
-    "tape": "^4.6.3",
     "webpack": "^1.13.3",
     "webpack-bundle-analyzer": "^2.1.1",
     "webpack-dev-server": "^1.16.2"
+  },
+  "babel": {
+    "presets": [
+      "stage-0",
+      "latest",
+      "react"
+    ]
   }
 }

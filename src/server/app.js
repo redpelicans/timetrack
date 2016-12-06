@@ -1,34 +1,34 @@
-'use strict';
+import path from 'path';
+import feathers from 'feathers';
+import favicon from 'serve-favicon';
+import compress from 'compression';
+import cors from 'cors';
+import hooks from 'feathers-hooks';
+import rest from 'feathers-rest';
+import bodyParser from 'body-parser';
+import socketio from 'feathers-socketio';
+import middleware from './middleware';
+import services from './services';
 
-const path = require('path');
-const serveStatic = require('feathers').static;
-const favicon = require('serve-favicon');
-const compress = require('compression');
-const cors = require('cors');
-const feathers = require('feathers');
-const configuration = require('feathers-configuration');
-const hooks = require('feathers-hooks');
-const rest = require('feathers-rest');
-const bodyParser = require('body-parser');
-const socketio = require('feathers-socketio');
-const middleware = require('./middleware');
-const services = require('./services');
+const init = (config) => {
+  const app = feathers();
+  app.set('config', config);
 
-const app = feathers();
+  app.use(compress())
+    .options('*', cors())
+    .use(cors())
+    .use(favicon( path.join(config.public, 'favicon.ico') ))
+    .use('/', feathers.static(config.public))
+    .use(bodyParser.json())
+    .use(bodyParser.urlencoded({ extended: true }))
+    .configure(hooks())
+    .configure(rest())
+    .configure(socketio())
+    .configure(services)
+    .configure(middleware);
 
-app.configure(configuration(path.join(__dirname, '../..')));
+  return app;
+};
 
-app.use(compress())
-  .options('*', cors())
-  .use(cors())
-  .use(favicon( path.join(app.get('public'), 'favicon.ico') ))
-  .use('/', serveStatic( app.get('public') ))
-  .use(bodyParser.json())
-  .use(bodyParser.urlencoded({ extended: true }))
-  .configure(hooks())
-  .configure(rest())
-  .configure(socketio())
-  .configure(services)
-  .configure(middleware);
+export default { init };
 
-module.exports = app;

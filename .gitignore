@@ -29,3 +29,5 @@ node_modules
 
 lib/
 data/
+dist/
+.nyc_output/

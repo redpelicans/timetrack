@@ -1,9 +1,7 @@
-'use strict';
+import app  from './app';
+import config from '../../config';
 
-const app = require('./app');
-const port = app.get('port');
-const server = app.listen(port);
+const { server: { host, port } } = config;
+const server = app.init(config).listen(port);
 
-server.on('listening', () =>
-  console.log(`Feathers application started on ${app.get('host')}:${port}`)
-);
+server.on('listening', () => console.log(`Feathers application started on ${host}:${port}`));
