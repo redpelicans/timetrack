@@ -57,9 +57,10 @@
     "mocha": "^3.2.0",
     "nyc": "^10.0.0",
     "request": "^2.79.0",
-    "webpack": "^1.13.3",
-    "webpack-bundle-analyzer": "^2.1.1",
-    "webpack-dev-server": "^1.16.2"
+    "webpack": "^2.1.0-beta.26",
+    "webpack-bundle-analyzer": "^1.5.0",
+    "webpack-dev-server": "^2.1.0-beta.10",
+    "webpack-merge": "^0.15.0"
   },
   "babel": {
     "presets": [
