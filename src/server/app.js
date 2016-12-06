@@ -10,10 +10,11 @@ import socketio from 'feathers-socketio';
 import middleware from './middleware';
 import services from './services';
 
-const init = (config) => {
-  const app = feathers();
-  app.set('config', config);
+const app = feathers();
+export default app;
 
+export const initApp = (config) => {
+  app.set('config', config);
   app.use(compress())
     .options('*', cors())
     .use(cors())
@@ -30,5 +31,4 @@ const init = (config) => {
   return app;
 };
 
-export default { init };
 

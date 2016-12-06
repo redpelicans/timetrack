@@ -1,10 +1,11 @@
 import assert from 'assert';
 import request from 'request';
-import app  from '../app';
+import { initApp}  from '../app';
+import config from '../../../config';
 
 describe('Feathers application tests', function() {
   before(function(done) {
-    this.server = app.listen(3030);
+    this.server = initApp(config).listen(3030);
     this.server.once('listening', () => done());
   });
 

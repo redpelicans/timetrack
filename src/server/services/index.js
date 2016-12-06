@@ -9,6 +9,6 @@ module.exports = function() {
   mongoose.connect(mongodb);
   mongoose.Promise = global.Promise;
   
-  app.configure(authentication);
+  // app.configure(authentication);
   app.configure(user);
 };
