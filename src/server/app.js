@@ -12,8 +12,6 @@ import services from './services';
 
 const app = feathers();
 export default app;
-1+1;
-
 
 export const initApp = (config) => {
   app.set('config', config);
